@@ -522,8 +522,9 @@
     </div>
   </footer>
 
-  <!-- HIDDEN IFRAME for form submission -->
-  <iframe name="form-sink" style="display:none" aria-hidden="true"></iframe>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
 
   <script>
   // Theme toggle
@@ -697,53 +698,84 @@
     updatePhotoPreviews();
   });
 
-  // ── FORM SUBMISSION ───────────────────────────────────
-  const FORM_ACTION='https://docs.google.com/forms/d/e/1FAIpQLSflRqncpu1U2GKag97hbgK8LqhxVImlQf87IRzjzTAX_blfhQ/formResponse';
+  // ── FORM SUBMISSION → SUPABASE ────────────────────────
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  function submitForm(e){
+  async function submitForm(e) {
     e.preventDefault();
-    var btn=document.getElementById('submit-btn');
-    btn.disabled=true;
-    btn.textContent='Submitting…';
+    var btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Uploading photos…';
 
-    var data=new FormData(e.target);
-    var email=data.get('email')||'';
-    var firstName=data.get('first_name')||'';
-    var lastName=data.get('last_name')||'';
-    var state=data.get('state')||'';
-    var acreage=data.get('acreage')||'';
-    var price=data.get('price')||'';
-    var cleaningFee=data.get('cleaning_fee')||'';
-    var minStay=data.get('min_stay')||'';
-    var activities=data.getAll('activities').join(', ');
-    var description=data.get('description')||'';
-    var phone=data.get('phone')||'';
-
-    // Build summary string for the "type" field
+    var data = new FormData(e.target);
+    var firstName   = data.get('first_name') || '';
+    var lastName    = data.get('last_name')  || '';
+    var email       = data.get('email')      || '';
+    var phone       = data.get('phone')      || '';
+    var state       = data.get('state')      || '';
+    var county      = data.get('county')     || '';
+    var acreage     = data.get('acreage')    || '';
+    var price       = data.get('price')      || '';
+    var cleaningFee = data.get('cleaning_fee') || '';
+    var minStay     = data.get('min_stay')   || '';
+    var activities  = data.getAll('activities');
     var customAnimalsList = customAnimalsHidden ? customAnimalsHidden.value : '';
-    var allAnimals = [activities, customAnimalsList].filter(Boolean).join(', ');
-    var photoNote = selectedFiles.length > 0 ? ' | Photos: ' + selectedFiles.length + ' uploaded' : '';
-    var feesNote = [cleaningFee ? 'Cleaning: '+cleaningFee : '', minStay ? 'Min stay: '+minStay : ''].filter(Boolean).join(', ');
-    var summary='Landowner Signup | '+firstName+' '+lastName+' | '+state+' | '+acreage+' | '+allAnimals+' | Rate: '+price+(feesNote?' | '+feesNote:'')+' | '+phone+' | '+description+photoNote;
+    var description = data.get('description') || '';
+    var hearAbout   = data.get('source')     || '';
 
-    var f=document.createElement('form');
-    f.method='POST';
-    f.action=FORM_ACTION;
-    f.target='form-sink';
-    f.style.display='none';
-    [['entry.248c66f4',email],['entry.7bcb4a58',summary]].forEach(function(p){
-      var i=document.createElement('input');
-      i.type='hidden';i.name=p[0];i.value=p[1];f.appendChild(i);
+    // merge custom animals into activities array
+    if (customAnimalsList) {
+      customAnimalsList.split(',').map(function(a){return a.trim();}).filter(Boolean).forEach(function(a){
+        if (!activities.includes(a)) activities.push(a);
+      });
+    }
+
+    // Upload photos to Supabase Storage
+    btn.textContent = 'Uploading photos…';
+    var photoUrls = [];
+    for (var i = 0; i < selectedFiles.length; i++) {
+      var file = selectedFiles[i];
+      var ext  = file.name.split('.').pop();
+      var path = Date.now() + '_' + i + '.' + ext;
+      var { data: uploadData, error: uploadErr } = await sb.storage
+        .from('listing-photos')
+        .upload(path, file, { cacheControl: '3600', upsert: false });
+      if (!uploadErr) {
+        var { data: urlData } = sb.storage.from('listing-photos').getPublicUrl(path);
+        photoUrls.push(urlData.publicUrl);
+      }
+    }
+
+    // Insert listing row
+    btn.textContent = 'Saving listing…';
+    var { error } = await sb.from('listings').insert({
+      first_name:    firstName,
+      last_name:     lastName,
+      email:         email,
+      phone:         phone,
+      state:         state,
+      county:        county,
+      acreage:       acreage,
+      price_per_day: price,
+      cleaning_fee:  cleaningFee,
+      min_stay:      minStay,
+      activities:    activities,
+      custom_animals: customAnimalsList,
+      description:   description,
+      hear_about:    hearAbout,
+      photo_urls:    photoUrls,
+      status:        'active'
     });
-    document.body.appendChild(f);
-    f.submit();
-    setTimeout(function(){document.body.removeChild(f);},2000);
+
+    if (error) {
+      btn.disabled = false;
+      btn.textContent = 'Submit My Property — It\'s Free';
+      alert('Something went wrong: ' + error.message + '. Please try again.');
+      return;
+    }
 
     // Show success
-    setTimeout(function(){
-      var overlay=document.getElementById('success-overlay');
-      overlay.style.display='flex';
-    },500);
+    document.getElementById('success-overlay').style.display = 'flex';
   }
   </script>
 </body>

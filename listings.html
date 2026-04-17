@@ -297,24 +297,12 @@
         </select>
       </div>
       <div class="listings-grid" id="listings-grid">
-        <div class="listing-card fade-up" data-type="hunting" data-acres="340" data-species="Deer,Hog,Turkey" onclick="openWaitlist('guest')">
-          <div class="card-media card-media-hunt-1"><div class="card-price">$180 / day</div><div class="card-type card-type-hunt">Hunting</div><button class="card-save">♡</button></div>
-          <div class="card-body"><h3>Palmetto Ridge Cabin</h3><div class="card-meta"><span>📍 New Smyrna Beach, FL</span><span>340 acres</span></div><div class="card-meta"><span>Deer · Hog · Turkey</span></div><div class="card-footer"><span class="card-rating">⭐ 4.9 <span style="color:var(--color-text-muted);font-weight:400">(12)</span></span><span class="verified-badge">✓ Verified</span></div></div>
-        </div>
-        <div class="listing-card fade-up" data-type="fishing" data-acres="12" data-species="Bass,Bream" onclick="openWaitlist('guest')">
-          <div class="card-media card-media-fish-1"><div class="card-price">$95 / day</div><div class="card-type card-type-fish">Fishing</div><button class="card-save">♡</button></div>
-          <div class="card-body"><h3>Lake Ashby Bass Pond</h3><div class="card-meta"><span>📍 Osteen, FL</span><span>12 acres</span></div><div class="card-meta"><span>Bass · Bream</span></div><div class="card-footer"><span class="card-rating">⭐ 4.8 <span style="color:var(--color-text-muted);font-weight:400">(8)</span></span><span class="verified-badge">✓ Verified</span></div></div>
-        </div>
-        <div class="listing-card fade-up" data-type="hunting" data-acres="620" data-species="Deer,Hog" onclick="openWaitlist('guest')">
-          <div class="card-media card-media-hunt-2"><div class="card-price">$220 / day</div><div class="card-type card-type-hunt">Hunting</div><button class="card-save">♡</button></div>
-          <div class="card-body"><h3>Ocala Flatwoods Ranch</h3><div class="card-meta"><span>📍 Ocala, FL</span><span>620 acres</span></div><div class="card-meta"><span>Deer · Hog</span></div><div class="card-footer"><span class="card-rating">⭐ 4.7 <span style="color:var(--color-text-muted);font-weight:400">(5)</span></span><span class="verified-badge">✓ Verified</span></div></div>
-        </div>
-        <div class="listing-card fade-up" data-type="fishing" data-acres="4" data-species="Bass,Trout" onclick="openWaitlist('guest')">
-          <div class="card-media card-media-fish-2"><div class="card-price">$120 / day</div><div class="card-type card-type-fish">Fishing</div><button class="card-save">♡</button></div>
-          <div class="card-body"><h3>Spring Creek Private Stretch</h3><div class="card-meta"><span>📍 Sanford, FL</span><span>4 acres</span></div><div class="card-meta"><span>Bass · Trout</span></div><div class="card-footer"><span class="card-rating">⭐ 5.0 <span style="color:var(--color-text-muted);font-weight:400">(3)</span></span><span class="verified-badge">✓ Verified</span></div></div>
+        <div id="listings-loading" style="grid-column:1/-1;text-align:center;padding:var(--space-16);color:var(--color-text-muted)">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin:0 auto var(--space-4);animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          <p>Loading listings…</p>
         </div>
       </div>
-      <p id="filter-empty" style="display:none;text-align:center;padding:var(--space-8);color:var(--color-text-muted)">No listings match those filters.</p>
+      <p id="filter-empty" style="display:none;text-align:center;padding:var(--space-8);color:var(--color-text-muted)">No listings match those filters yet — <a href="list-your-land.html" style="color:var(--color-accent);font-weight:700">be the first to list your land →</a></p>
     </div>
   </section>
 
@@ -356,12 +344,129 @@
     </div>
   </section>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
   <script>
-    let _ftype='all',_fsize='any',_fspecies='all';
-    function applyCardFilters(){const cards=document.querySelectorAll('#listings-grid .listing-card');let v=0;cards.forEach(c=>{const t=c.dataset.type,a=parseInt(c.dataset.acres),s=c.dataset.species||'';const ok=(_ftype==='all'||t===_ftype)&&(_fsize==='any'||(_fsize==='small'&&a<50)||(_fsize==='med'&&a>=50&&a<=300)||(_fsize==='large'&&a>300))&&(_fspecies==='all'||s.includes(_fspecies));c.style.display=ok?'':'none';if(ok)v++;});document.getElementById('filter-empty').style.display=v===0?'block':'none';}
-    function filterCards(b,v){_ftype=v;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter===v));applyCardFilters();}
-    function filterSize(b,v){_fsize=v;document.querySelectorAll('[data-size]').forEach(x=>x.classList.toggle('active',x.dataset.size===v));applyCardFilters();}
-    function filterSpecies(v){_fspecies=v;applyCardFilters();}
+  const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let allListings = [];
+  let _ftype='all', _fsize='any', _fspecies='all';
+
+  const FISH_KEYWORDS = ['bass','fish','trout','catfish','bream','crappie','walleye','carp','perch','bluegill','pond','creek','lake','water'];
+  function isHunting(l) {
+    var acts = (l.activities || []).join(' ').toLowerCase();
+    var hasFish = FISH_KEYWORDS.some(function(k){ return acts.includes(k); });
+    var hasHunt = !hasFish || (l.activities||[]).some(function(a){
+      return ['deer','hog','turkey','duck','dove','quail','elk','bear','pheasant'].some(function(k){ return a.toLowerCase().includes(k); });
+    });
+    return hasHunt && !hasFish;
+  }
+  function getType(l) {
+    var acts = (l.activities || []).join(' ').toLowerCase();
+    var fish = FISH_KEYWORDS.some(function(k){ return acts.includes(k); });
+    var hunt = ['deer','hog','turkey','duck','dove','quail','elk','bear'].some(function(k){ return acts.includes(k); });
+    if (fish && hunt) return 'hunting'; // mixed → show as hunting
+    if (fish) return 'fishing';
+    return 'hunting';
+  }
+  function parseAcres(s) {
+    if (!s) return 0;
+    var m = s.match(/\d+/);
+    return m ? parseInt(m[0]) : 0;
+  }
+
+  function buildCard(l) {
+    var type = getType(l);
+    var acres = parseAcres(l.acreage);
+    var species = (l.activities || []).join(',');
+    var price = l.price_per_day ? '$' + l.price_per_day + ' / day' : 'Contact for pricing';
+    var location = [l.county, l.state].filter(Boolean).join(', ');
+    var name = [l.first_name, l.last_name].filter(Boolean).join(' ') || 'Private Property';
+    var title = (l.county || l.state || 'Private Land') + ' — ' + (l.acreage || '') + (l.acreage ? ' ac' : '') ;
+
+    var mediaClass = type === 'fishing'
+      ? (Math.random()>.5 ? 'card-media-fish-1' : 'card-media-fish-2')
+      : (['card-media-hunt-1','card-media-hunt-2','card-media-hunt-3'][Math.floor(Math.random()*3)]);
+
+    var mediaContent = l.photo_urls && l.photo_urls.length > 0
+      ? '<img src="'+l.photo_urls[0]+'" alt="'+title+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" />'
+      : '';
+
+    var typeLabel = type === 'fishing' ? '<div class="card-type card-type-fish">Fishing</div>' : '<div class="card-type card-type-hunt">Hunting</div>';
+    var speciesTags = (l.activities||[]).slice(0,4).join(' &middot; ');
+    var cleanFee = l.cleaning_fee ? '<span>+ $'+l.cleaning_fee+' cleaning</span>' : '';
+    var minStay = l.min_stay && l.min_stay !== '' ? '<span>Min '+l.min_stay+'</span>' : '';
+
+    return '<div class="listing-card fade-up" data-type="'+type+'" data-acres="'+acres+'" data-species="'+species+'" onclick="openWaitlist(\'guest\')">' +
+      '<div class="card-media '+mediaClass+'">'+mediaContent+'<div class="card-price">'+price+'</div>'+typeLabel+'<button class="card-save">♡</button></div>' +
+      '<div class="card-body">'+
+        '<h3>'+escHtml(l.county ? l.county+' Private Land' : 'Private Land')+'</h3>'+
+        '<div class="card-meta"><span>📍 '+escHtml(location)+'</span>'+(l.acreage?'<span>'+escHtml(l.acreage)+'</span>':'')+'</div>'+
+        (speciesTags ? '<div class="card-meta"><span>'+speciesTags+'</span></div>' : '')+
+        '<div class="card-footer">'+
+          '<span class="verified-badge">✓ Verified</span>'+
+          (cleanFee||minStay ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">'+[cleanFee,minStay].filter(Boolean).join(' ')+'</span>' : '')+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }
+
+  function escHtml(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function renderListings(list) {
+    var grid = document.getElementById('listings-grid');
+    if (!list.length) {
+      grid.innerHTML = '';
+      document.getElementById('filter-empty').style.display = 'block';
+      return;
+    }
+    document.getElementById('filter-empty').style.display = 'none';
+    grid.innerHTML = list.map(buildCard).join('');
+    // re-run fade-up
+    grid.querySelectorAll('.fade-up').forEach(function(el){
+      setTimeout(function(){ el.classList.add('visible'); }, 100);
+    });
+  }
+
+  function applyCardFilters() {
+    var filtered = allListings.filter(function(l) {
+      var type  = getType(l);
+      var acres = parseAcres(l.acreage);
+      var spp   = (l.activities||[]).join(',');
+      var okType   = _ftype==='all' || type===_ftype;
+      var okSize   = _fsize==='any' ||
+        (_fsize==='small'&&acres<50) ||
+        (_fsize==='med'&&acres>=50&&acres<=300) ||
+        (_fsize==='large'&&acres>300);
+      var okSpp    = _fspecies==='all' || spp.toLowerCase().includes(_fspecies.toLowerCase());
+      return okType && okSize && okSpp;
+    });
+    renderListings(filtered);
+  }
+
+  function filterCards(b,v){_ftype=v;document.querySelectorAll('[data-filter]').forEach(function(x){x.classList.toggle('active',x.dataset.filter===v)});applyCardFilters();}
+  function filterSize(b,v){_fsize=v;document.querySelectorAll('[data-size]').forEach(function(x){x.classList.toggle('active',x.dataset.size===v)});applyCardFilters();}
+  function filterSpecies(v){_fspecies=v;applyCardFilters();}
+
+  // Load from Supabase on page load
+  (async function loadListings() {
+    var { data, error } = await sbClient
+      .from('listings')
+      .select('*')
+      .eq('status','active')
+      .order('created_at', { ascending: false });
+
+    document.getElementById('listings-loading') && (document.getElementById('listings-loading').remove());
+
+    if (error || !data || !data.length) {
+      document.getElementById('filter-empty').style.display = 'block';
+      return;
+    }
+    allListings = data;
+    renderListings(allListings);
+  })();
   </script>
     
   <!-- FOOTER -->
