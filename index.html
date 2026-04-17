@@ -10,6 +10,8 @@
   <meta property="og:type" content="website" />
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,400&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     /* ── TOKENS ─────────────────────────────────────────── */
     :root, [data-theme="light"] {
@@ -287,6 +289,7 @@
       </a>
       <div class="nav-links">
         <a href="#listings">Browse listings</a>
+        <a href="#map">Map view</a>
         <a href="#fishing">Fishing access</a>
         <a href="#how">How it works</a>
         <a href="#host">List your land</a>
@@ -446,6 +449,199 @@
       </div>
     </div>
   </section>
+
+  <!-- MAP VIEW -->
+  <section class="section" id="map" style="padding-top:clamp(var(--space-16),8vw,var(--space-24))">
+    <div style="max-width:1200px;margin:0 auto">
+      <div class="fade-up" style="text-align:center;margin-bottom:var(--space-8)">
+        <p class="section-label">Explore near you</p>
+        <h2 style="font-size:var(--text-2xl);font-weight:800;letter-spacing:-.04em;margin-bottom:var(--space-4)">Find private land on the map</h2>
+        <p style="font-size:var(--text-base);color:var(--color-text-muted);max-width:52ch;margin:0 auto">Enter your zip code or city to see available hunting land and fishing waters nearby.</p>
+      </div>
+
+      <!-- Search bar -->
+      <div class="fade-up" style="display:flex;gap:var(--space-3);flex-wrap:wrap;justify-content:center;margin-bottom:var(--space-6)">
+        <div style="position:relative;flex:1;min-width:240px;max-width:420px">
+          <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--color-text-muted)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="map-search" type="text" placeholder="Zip code or city (e.g. 32168 or Ocala, FL)"
+            style="width:100%;padding:.75rem 1rem .75rem 2.5rem;border:1px solid var(--color-border);border-radius:var(--radius-full);background:var(--color-surface);color:var(--color-text);font-size:var(--text-sm);box-sizing:border-box;outline:none;transition:border-color var(--transition)"
+            onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'" />
+        </div>
+        <div style="display:flex;gap:var(--space-2)">
+          <button id="map-filter-all" class="btn btn-primary" onclick="setMapFilter('all')" style="border-radius:var(--radius-full)">All</button>
+          <button id="map-filter-hunt" class="btn btn-ghost" onclick="setMapFilter('hunting')" style="border-radius:var(--radius-full)">Hunting</button>
+          <button id="map-filter-fish" class="btn btn-ghost" onclick="setMapFilter('fishing')" style="border-radius:var(--radius-full)">Fishing</button>
+        </div>
+        <button class="btn btn-primary" onclick="doMapSearch()" style="border-radius:var(--radius-full);padding:.75rem 1.5rem">Search</button>
+      </div>
+
+      <!-- Map container -->
+      <div class="fade-up" style="position:relative;border-radius:var(--radius-xl);overflow:hidden;border:1px solid var(--color-border);box-shadow:var(--shadow-lg)">
+        <div id="hunt-map" style="height:520px;width:100%;background:var(--color-surface-offset)"></div>
+        <!-- Legend -->
+        <div style="position:absolute;bottom:var(--space-4);left:var(--space-4);z-index:1000;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);display:flex;gap:var(--space-4);font-size:var(--text-xs);font-weight:600;box-shadow:var(--shadow-md)">
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:50%;background:#2a5c3c;display:inline-block"></span>Hunting</span>
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:50%;background:#1a5c7a;display:inline-block"></span>Fishing</span>
+        </div>
+        <!-- Loading overlay -->
+        <div id="map-loading" style="display:none;position:absolute;inset:0;z-index:2000;background:color-mix(in oklab,var(--color-surface) 85%,transparent);backdrop-filter:blur(2px);align-items:center;justify-content:center;flex-direction:column;gap:var(--space-3)">
+          <div style="width:36px;height:36px;border:3px solid var(--color-border);border-top-color:var(--color-primary);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+          <p style="font-size:var(--text-sm);font-weight:600;color:var(--color-text-muted)">Finding listings near you…</p>
+        </div>
+      </div>
+
+      <!-- Results count -->
+      <p id="map-results-label" style="text-align:center;margin-top:var(--space-4);font-size:var(--text-sm);color:var(--color-text-muted)"></p>
+    </div>
+  </section>
+
+  <style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Override Leaflet tile filter for dark mode */
+    [data-theme="dark"] #hunt-map .leaflet-tile { filter: brightness(0.75) saturate(0.8); }
+    /* Leaflet popup tweaks */
+    .leaflet-popup-content-wrapper { border-radius: 12px !important; border: 1px solid var(--color-border); box-shadow: var(--shadow-lg) !important; }
+    .leaflet-popup-content { margin: 0 !important; }
+    .map-popup { padding: 14px 16px; min-width: 200px; }
+    .map-popup .pop-badge { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+    .map-popup .pop-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #1a1a12; }
+    .map-popup .pop-meta { font-size: 12px; color: #6b6656; margin-bottom: 10px; }
+    .map-popup .pop-price { font-size: 18px; font-weight: 800; color: #2a5c3c; margin-bottom: 10px; }
+    .map-popup .pop-btn { display: block; width: 100%; text-align: center; padding: 8px; background: #2a5c3c; color: #fff; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+    .map-popup .pop-btn.water { background: #1a5c7a; }
+  </style>
+
+  <script>
+  // ── SAMPLE LISTINGS DATA ──
+  const LISTINGS = [
+    { id:1, type:'hunting', lat:29.027, lng:-81.002, title:'Palmetto Ridge Cabin', acres:340, price:180, unit:'day', species:['Deer','Hog','Turkey'], state:'FL', city:'New Smyrna Beach' },
+    { id:2, type:'fishing', lat:29.191, lng:-81.102, title:'Lake Ashby Bass Pond', acres:12, price:95, unit:'day', species:['Bass','Bream'], state:'FL', city:'Osteen' },
+    { id:3, type:'hunting', lat:29.411, lng:-81.306, title:'Ocala Flatwoods', acres:620, price:220, unit:'day', species:['Deer','Hog'], state:'FL', city:'Ocala' },
+    { id:4, type:'fishing', lat:28.812, lng:-81.355, title:'Spring Creek Private Stretch', acres:4, price:120, unit:'day', species:['Bass','Trout'], state:'FL', city:'Sanford' },
+    { id:5, type:'hunting', lat:29.652, lng:-82.325, title:'Gainesville Ranch', acres:890, price:250, unit:'day', species:['Deer','Turkey'], state:'FL', city:'Gainesville' },
+    { id:6, type:'fishing', lat:28.538, lng:-81.379, title:'Private Lake Frontage', acres:8, price:110, unit:'day', species:['Bass','Crappie'], state:'FL', city:'Orlando' },
+    { id:7, type:'hunting', lat:30.332, lng:-81.655, title:'North FL Timber Tract', acres:1200, price:195, unit:'day', species:['Deer','Hog','Turkey'], state:'FL', city:'Jacksonville' },
+    { id:8, type:'hunting', lat:29.886, lng:-81.317, title:'St. Johns River Bottom', acres:480, price:165, unit:'day', species:['Deer','Duck'], state:'FL', city:'Palatka' },
+    { id:9, type:'fishing', lat:30.189, lng:-85.668, title:'Panhandle Bass Pond', acres:6, price:85, unit:'day', species:['Bass','Bream'], state:'FL', city:'Panama City' },
+    { id:10, type:'hunting', lat:30.438, lng:-84.280, title:'Tallahassee Quail Farm', acres:700, price:300, unit:'day', species:['Quail','Turkey'], state:'FL', city:'Tallahassee' },
+  ];
+
+  let huntMap, markers = [], currentFilter = 'all', allMarkers = [];
+
+  function makeIcon(type) {
+    const color = type === 'hunting' ? '#2a5c3c' : '#1a5c7a';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42"><path d="M16 0C7.16 0 0 7.16 0 16c0 10.67 14.22 24.67 15.11 25.55a1.25 1.25 0 0 0 1.78 0C17.78 40.67 32 26.67 32 16 32 7.16 24.84 0 16 0z" fill="${color}"/><circle cx="16" cy="16" r="7" fill="white" fill-opacity="0.9"/></svg>`;
+    return L.divIcon({
+      html: svg,
+      className: '',
+      iconSize: [32, 42],
+      iconAnchor: [16, 42],
+      popupAnchor: [0, -44]
+    });
+  }
+
+  function makePopup(l) {
+    const isHunt = l.type === 'hunting';
+    const color = isHunt ? '#2a5c3c' : '#1a5c7a';
+    const badgeColor = isHunt ? '#d4e5da' : '#cde3ee';
+    return `<div class="map-popup">
+      <p class="pop-badge" style="color:${color};background:${badgeColor};display:inline-block;padding:2px 8px;border-radius:999px">${isHunt ? '🌲 Hunting' : '🎣 Fishing'}</p>
+      <p class="pop-title">${l.title}</p>
+      <p class="pop-meta">${l.city}, ${l.state} &middot; ${l.acres} acres &middot; ${l.species.join(', ')}</p>
+      <p class="pop-price">$${l.price}<span style="font-size:13px;font-weight:400;color:#6b6656"> / ${l.unit}</span></p>
+      <button class="pop-btn${isHunt ? '' : ' water'}" onclick="openWaitlist('guest')">Request access</button>
+    </div>`;
+  }
+
+  function initMap() {
+    if (huntMap) return;
+    huntMap = L.map('hunt-map', { zoomControl: true, scrollWheelZoom: false }).setView([29.02, -81.0], 8);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 18
+    }).addTo(huntMap);
+    plotListings(LISTINGS);
+  }
+
+  function plotListings(list) {
+    allMarkers.forEach(m => huntMap.removeLayer(m));
+    allMarkers = [];
+    const filtered = list.filter(l => currentFilter === 'all' || l.type === currentFilter);
+    filtered.forEach(l => {
+      const m = L.marker([l.lat, l.lng], { icon: makeIcon(l.type) })
+        .addTo(huntMap)
+        .bindPopup(makePopup(l), { maxWidth: 260 });
+      allMarkers.push(m);
+    });
+    const label = document.getElementById('map-results-label');
+    if (label) label.textContent = filtered.length > 0
+      ? `Showing ${filtered.length} listing${filtered.length !== 1 ? 's' : ''} in this area`
+      : 'No listings found in this area yet — check back soon.';
+    if (filtered.length > 0) {
+      const group = L.featureGroup(allMarkers);
+      huntMap.fitBounds(group.getBounds().pad(0.2));
+    }
+  }
+
+  function setMapFilter(f) {
+    currentFilter = f;
+    ['all','hunt','fish'].forEach(k => {
+      const btn = document.getElementById('map-filter-'+k);
+      if (!btn) return;
+      btn.className = 'btn ' + (k === f || (k==='all'&&f==='all') ? 'btn-primary' : 'btn-ghost');
+      btn.style.borderRadius = 'var(--radius-full)';
+    });
+    if (huntMap) plotListings(LISTINGS);
+  }
+
+  async function doMapSearch() {
+    const q = document.getElementById('map-search').value.trim();
+    if (!q) return;
+    if (!huntMap) initMap();
+    const loading = document.getElementById('map-loading');
+    loading.style.display = 'flex';
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+', USA')}&format=json&limit=1`, {
+        headers: { 'Accept-Language': 'en', 'User-Agent': 'HuntHaven/1.0' }
+      });
+      const data = await res.json();
+      if (data && data[0]) {
+        const { lat, lon } = data[0];
+        huntMap.setView([+lat, +lon], 9);
+        // Filter listings to those within ~150km of the searched location
+        const nearby = LISTINGS.filter(l => {
+          const dlat = l.lat - lat, dlng = l.lng - lon;
+          return Math.sqrt(dlat*dlat + dlng*dlng) < 2.5; // ~150 miles in degrees
+        });
+        plotListings(nearby.length ? nearby : LISTINGS);
+        if (!nearby.length) {
+          document.getElementById('map-results-label').textContent = 'No listings near that location yet. Showing all available listings.';
+        }
+      } else {
+        document.getElementById('map-results-label').textContent = 'Location not found. Try a zip code or "City, State".';
+      }
+    } catch { 
+      document.getElementById('map-results-label').textContent = 'Search failed. Please try again.';
+    } finally {
+      loading.style.display = 'none';
+    }
+  }
+
+  // Init map when section scrolls into view
+  const mapObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { initMap(); mapObserver.disconnect(); }
+  }, { threshold: 0.1 });
+  document.addEventListener('DOMContentLoaded', () => {
+    const sec = document.getElementById('map');
+    if (sec) mapObserver.observe(sec);
+  });
+
+  // Allow Enter key in search
+  document.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById('map-search');
+    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') doMapSearch(); });
+  });
+  </script>
 
   <!-- HOW IT WORKS -->
   <section class="section how-section" id="how">
