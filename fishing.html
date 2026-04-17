@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fishing — Wildbook</title>
+  <meta name="description" content="Book private fishing ponds, spring creeks, and lake frontage. No crowds, no public ramps. License requirements shown on every listing." />
+  <meta property="og:title" content="Wildbook — Book Private Hunting Land & Fishing Waters" />
+  <meta property="og:description" content="Discover and book private hunting land, stocked bass ponds, spring creeks, and guided experiences. State regulations shown on every listing." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,400&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    /* ── TOKENS ─────────────────────────────────────────── */
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --text-2xl: clamp(2rem, 1.2rem + 2.5vw, 3.5rem);
+      --text-3xl: clamp(2.5rem, 1rem + 4vw, 5rem);
+      --text-hero: clamp(3rem, 0.5rem + 7vw, 7rem);
+
+      --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+      --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;
+      --space-12:3rem;--space-16:4rem;--space-20:5rem;--space-24:6rem;--space-32:8rem;
+
+      --color-bg: #f5f1e8;
+      --color-surface: #faf6ed;
+      --color-surface-2: #fff;
+      --color-surface-offset: #ede8db;
+      --color-border: #d6cebd;
+      --color-divider: #ddd6c5;
+      --color-text: #1a1a12;
+      --color-text-muted: #6b6656;
+      --color-text-faint: #a09b8c;
+      --color-text-inverse: #f5f1e8;
+      --color-primary: #2a5c3c;
+      --color-primary-hover: #1e4229;
+      --color-primary-light: #d4e5da;
+      --color-accent: #b85c1a;
+      --color-accent-light: #f5e2d0;
+      --color-water: #1a5c7a;
+      --color-water-light: #cde3ee;
+      --radius-sm:.375rem;--radius-md:.625rem;--radius-lg:1rem;--radius-xl:1.5rem;--radius-full:9999px;
+      --shadow-sm:0 1px 3px rgba(26,26,18,.07);
+      --shadow-md:0 4px 16px rgba(26,26,18,.10);
+      --shadow-lg:0 16px 48px rgba(26,26,18,.14);
+      --transition:180ms cubic-bezier(.16,1,.3,1);
+      --font-display:'Cabinet Grotesk',system-ui,sans-serif;
+      --font-body:'Satoshi',system-ui,sans-serif;
+    }
+    [data-theme="dark"] {
+      --color-bg: #111410;
+      --color-surface: #171b14;
+      --color-surface-2: #1d221a;
+      --color-surface-offset: #222720;
+      --color-border: #2e342b;
+      --color-divider: #252b23;
+      --color-text: #e8e2d4;
+      --color-text-muted: #9a9485;
+      --color-text-faint: #605e52;
+      --color-text-inverse: #111410;
+      --color-primary: #5a9470;
+      --color-primary-hover: #6faa85;
+      --color-primary-light: #1e2f22;
+      --color-accent: #d4783a;
+      --color-accent-light: #2e1f10;
+      --color-water: #3d90b5;
+      --color-water-light: #102030;
+      --shadow-sm:0 1px 3px rgba(0,0,0,.25);
+      --shadow-md:0 4px 16px rgba(0,0,0,.35);
+      --shadow-lg:0 16px 48px rgba(0,0,0,.5);
+    }
+
+    /* ── BASE ───────────────────────────────────────────── */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;scroll-padding-top:5rem;-webkit-font-smoothing:antialiased}
+    body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);line-height:1.6}
+    img,svg{display:block;max-width:100%}
+    button,input,select,textarea{font:inherit;color:inherit}
+    button{cursor:pointer;background:none;border:none}
+    a{color:inherit;text-decoration:none}
+    h1,h2,h3,h4,h5{text-wrap:balance;line-height:1.1;font-family:var(--font-display)}
+    p,li{text-wrap:pretty;max-width:68ch}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+    /* ── NAV ────────────────────────────────────────────── */
+    .nav{position:sticky;top:0;z-index:100;padding:0 clamp(var(--space-4),4vw,var(--space-12));background:color-mix(in oklab,var(--color-bg) 88%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--color-border);transition:box-shadow var(--transition)}
+    .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:var(--space-8);height:120px}
+    .logo{display:flex;align-items:center;gap:var(--space-3);font-family:var(--font-display);font-weight:800;font-size:1.15rem;letter-spacing:-.02em}
+    .logo-mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(160deg,var(--color-primary),color-mix(in oklab,var(--color-primary) 70%,black));display:grid;place-items:center;color:var(--color-text-inverse);flex:none}
+    .nav-links{display:flex;align-items:center;gap:var(--space-6)}
+    .nav-links a{font-size:var(--text-sm);color:var(--color-text-muted);transition:color var(--transition)}
+    .nav-links a:hover,.nav-links a.active{color:var(--color-text)}
+    .nav-actions{display:flex;align-items:center;gap:var(--space-3)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);padding:.65rem 1.25rem;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:600;transition:all var(--transition);white-space:nowrap}
+    .btn-ghost{color:var(--color-text-muted);border:1px solid var(--color-border)}
+    .btn-ghost:hover{color:var(--color-text);background:var(--color-surface-offset)}
+    .btn-primary{background:var(--color-primary);color:#fff;border:1px solid transparent}
+    .btn-primary:hover{background:var(--color-primary-hover)}
+    .btn-water{background:var(--color-water);color:#fff;border:1px solid transparent}
+    .btn-large{padding:.9rem 2rem;font-size:var(--text-base);border-radius:var(--radius-full)}
+    .theme-btn{width:40px;height:40px;border-radius:var(--radius-full);display:grid;place-items:center;color:var(--color-text-muted);border:1px solid var(--color-border);transition:all var(--transition)}
+    .theme-btn:hover{color:var(--color-text);background:var(--color-surface-offset)}
+    .mobile-menu-btn{display:none;width:40px;height:40px;border-radius:var(--radius-md);border:1px solid var(--color-border);place-items:center;color:var(--color-text-muted)}
+
+    /* ── HERO ───────────────────────────────────────────── */
+    .hero{min-height:92dvh;display:grid;place-items:center;padding:clamp(var(--space-16),8vw,var(--space-32)) clamp(var(--space-4),4vw,var(--space-12));position:relative;overflow:hidden}
+    .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 60% 50%,color-mix(in oklab,var(--color-primary) 12%,transparent),transparent),radial-gradient(ellipse 50% 40% at 20% 80%,color-mix(in oklab,var(--color-accent) 8%,transparent),transparent);pointer-events:none}
+    .hero-bg-grid{position:absolute;inset:0;background-image:linear-gradient(var(--color-border) 1px,transparent 1px),linear-gradient(90deg,var(--color-border) 1px,transparent 1px);background-size:60px 60px;opacity:.25;pointer-events:none}
+    .hero-inner{max-width:960px;margin:0 auto;text-align:center;position:relative;z-index:1;display:grid;gap:var(--space-8)}
+    .eyebrow{display:inline-flex;align-items:center;gap:var(--space-2);padding:.45rem .9rem;border-radius:var(--radius-full);background:var(--color-primary-light);color:var(--color-primary);font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin:0 auto}
+    [data-theme="dark"] .eyebrow{color:color-mix(in oklab,var(--color-primary) 160%,white)}
+    .hero h1{font-size:var(--text-hero);font-weight:800;letter-spacing:-.04em;line-height:1;max-width:14ch;margin:0 auto}
+    .hero h1 em{font-style:normal;color:var(--color-primary)}
+    .hero-sub{font-size:var(--text-lg);color:var(--color-text-muted);max-width:52ch;margin:0 auto;line-height:1.5}
+    .hero-ctas{display:flex;flex-wrap:wrap;gap:var(--space-3);justify-content:center;align-items:center}
+    .hero-trust{display:flex;flex-wrap:wrap;gap:var(--space-4);justify-content:center;align-items:center}
+    .trust-pill{display:inline-flex;align-items:center;gap:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)}
+    .trust-dot{width:6px;height:6px;border-radius:99px;background:var(--color-primary);flex:none}
+
+    /* ── LISTING CARDS ──────────────────────────────────── */
+    .section{padding:clamp(var(--space-16),8vw,var(--space-24)) clamp(var(--space-4),4vw,var(--space-12))}
+    .section-inner{max-width:1200px;margin:0 auto}
+    .section-label{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.14em;color:var(--color-text-faint);font-weight:600;margin-bottom:var(--space-3)}
+    .section h2{font-size:var(--text-2xl);font-weight:800;letter-spacing:-.04em;margin-bottom:var(--space-4)}
+    .section-sub{font-size:var(--text-lg);color:var(--color-text-muted);max-width:52ch;margin-bottom:var(--space-10);line-height:1.5}
+    .listings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-5)}
+    .listing-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);overflow:hidden;transition:all var(--transition);cursor:pointer}
+    .listing-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:color-mix(in oklab,var(--color-primary) 30%,var(--color-border))}
+    .card-media{aspect-ratio:16/10;position:relative;overflow:hidden}
+    .card-media-hunt-1{background:linear-gradient(160deg,#2a4a30 0%,#4a7040 50%,#6b5a30 100%)}
+    .card-media-hunt-2{background:linear-gradient(160deg,#1e3528 0%,#3a5535 50%,#8a6840 100%)}
+    .card-media-hunt-3{background:linear-gradient(160deg,#2e4a20 0%,#4f7540 60%,#7a5c28 100%)}
+    .card-media-fish-1{background:linear-gradient(160deg,#0d2840 0%,#1a5878 50%,#2a90b0 100%)}
+    .card-media-fish-2{background:linear-gradient(160deg,#0a1e30 0%,#154060 50%,#2070a0 100%)}
+    .card-media::before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.45),transparent 60%)}
+    .card-media-fish-1::after,.card-media-fish-2::after{content:"";position:absolute;left:10%;right:10%;bottom:20%;height:18%;background:rgba(100,200,255,.15);border-radius:50%;filter:blur(8px)}
+    .card-media-hunt-1::after,.card-media-hunt-2::after,.card-media-hunt-3::after{content:"";position:absolute;left:15%;right:15%;bottom:10%;height:22%;background:rgba(255,255,255,.08);clip-path:polygon(0 100%,10% 60%,22% 80%,40% 30%,58% 55%,76% 20%,90% 40%,100% 100%)}
+    .card-price{position:absolute;top:.8rem;left:.8rem;padding:.35rem .7rem;border-radius:var(--radius-full);background:rgba(10,12,8,.75);color:#f0ece0;font-size:var(--text-xs);font-weight:700;backdrop-filter:blur(8px)}
+    .card-type{position:absolute;bottom:.8rem;left:.8rem;padding:.3rem .65rem;border-radius:var(--radius-full);font-size:var(--text-xs);font-weight:600;backdrop-filter:blur(8px)}
+    .card-type-hunt{background:rgba(42,92,60,.82);color:#c8e4d0}
+    .card-type-fish{background:rgba(26,92,122,.82);color:#bde3f5}
+    .card-save{position:absolute;top:.8rem;right:.8rem;width:34px;height:34px;border-radius:var(--radius-full);background:rgba(10,12,8,.5);color:#f0ece0;display:grid;place-items:center;font-size:1rem;transition:all var(--transition)}
+    .card-save:hover{background:var(--color-accent)}
+    .card-body{padding:var(--space-4)}
+    .card-body h3{font-size:1.05rem;font-weight:700;margin-bottom:var(--space-1)}
+    .card-meta{display:flex;flex-wrap:wrap;gap:.4rem;font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2)}
+    .card-meta span{display:flex;align-items:center;gap:.25rem}
+    .card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--color-divider)}
+    .card-rating{display:flex;align-items:center;gap:.3rem;font-size:var(--text-xs);font-weight:600}
+    .card-state{font-size:var(--text-xs);color:var(--color-text-faint);padding:.3rem .65rem;background:var(--color-surface-offset);border-radius:var(--radius-full)}
+    .verified-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:var(--text-xs);color:var(--color-primary);font-weight:600}
+
+    /* ── STATS BAR ──────────────────────────────────────── */
+    .stats-bar{background:var(--color-primary);color:#fff;padding:clamp(var(--space-8),4vw,var(--space-12)) clamp(var(--space-4),4vw,var(--space-12))}
+    .stats-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--space-8);text-align:center}
+    .stat-num{font-family:var(--font-display);font-size:var(--text-2xl);font-weight:800;letter-spacing:-.04em;display:block;margin-bottom:.2rem;color:#fff}
+    .stat-label{font-size:var(--text-sm);opacity:.8}
+
+    /* ── FINAL CTA ──────────────────────────────────────── */
+    .final-cta{padding:clamp(var(--space-20),10vw,var(--space-32)) clamp(var(--space-4),4vw,var(--space-12));text-align:center;background:radial-gradient(ellipse 70% 60% at 50% 50%,color-mix(in oklab,var(--color-primary) 12%,transparent),transparent)}
+    .final-cta h2{font-size:var(--text-3xl);font-weight:800;letter-spacing:-.05em;margin-bottom:var(--space-4)}
+    .final-cta p{font-size:var(--text-lg);color:var(--color-text-muted);max-width:48ch;margin:0 auto var(--space-8)}
+    .final-ctas{display:flex;flex-wrap:wrap;gap:var(--space-3);justify-content:center}
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+    footer{padding:clamp(var(--space-10),5vw,var(--space-16)) clamp(var(--space-4),4vw,var(--space-12));border-top:1px solid var(--color-divider)}
+    .footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:clamp(var(--space-8),4vw,var(--space-16))}
+    .footer-brand p{font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-3);max-width:28ch}
+    .footer-col h4{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.12em;color:var(--color-text-faint);margin-bottom:var(--space-4);font-weight:700}
+    .footer-col ul{display:grid;gap:var(--space-2);list-style:none}
+    .footer-col li a{font-size:var(--text-sm);color:var(--color-text-muted);transition:color var(--transition)}
+    .footer-col li a:hover{color:var(--color-text)}
+    .footer-bottom{max-width:1200px;margin:var(--space-8) auto 0;padding-top:var(--space-6);border-top:1px solid var(--color-divider);display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;font-size:var(--text-xs);color:var(--color-text-faint)}
+
+    /* ── RESPONSIVE ─────────────────────────────────────── */
+    @media(max-width:900px){
+      .nav-links{display:none}
+      .mobile-menu-btn{display:grid}
+      .footer-inner{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:540px){
+      .hero h1{font-size:clamp(2.5rem,10vw,4rem)}
+      .footer-inner{grid-template-columns:1fr}
+    }
+
+    /* ── SCROLL ANIMATIONS ──────────────────────────────── */
+    .fade-up{opacity:0;transform:translateY(24px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1)}
+    .fade-up.visible{opacity:1;transform:none}
+    .fade-up:nth-child(2){transition-delay:.1s}
+    .fade-up:nth-child(3){transition-delay:.2s}
+    .fade-up:nth-child(4){transition-delay:.3s}
+
+    /* ── FILTER BUTTONS ─────────────────────────────────── */
+    .card-filter-btn{padding:.4rem .9rem;border-radius:var(--radius-full);border:1px solid var(--color-border);background:transparent;color:var(--color-text-muted);font-size:var(--text-xs);font-weight:600;cursor:pointer;transition:all var(--transition)}
+    .card-filter-btn:hover{color:var(--color-text);background:var(--color-surface-offset)}
+    .card-filter-btn.active{background:var(--color-primary);color:#fff;border-color:var(--color-primary)}
+
+    /* ── MAP STYLES ─────────────────────────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    [data-theme="dark"] #hunt-map .leaflet-tile { filter: brightness(0.75) saturate(0.8); }
+    .leaflet-popup-content-wrapper { border-radius: 12px !important; border: 1px solid var(--color-border); box-shadow: var(--shadow-lg) !important; }
+    .leaflet-popup-content { margin: 0 !important; }
+    .map-popup { padding: 14px 16px; min-width: 200px; }
+    .map-popup .pop-badge { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+    .map-popup .pop-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #1a1a12; }
+    .map-popup .pop-meta { font-size: 12px; color: #6b6656; margin-bottom: 10px; }
+    .map-popup .pop-price { font-size: 18px; font-weight: 800; color: #2a5c3c; margin-bottom: 10px; }
+    .map-popup .pop-btn { display: block; width: 100%; text-align: center; padding: 8px; background: #2a5c3c; color: #fff; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+    .map-popup .pop-btn.water { background: #1a5c7a; }
+
+    /* ── WAITLIST MODAL ─────────────────────────────────── */
+    .wl-toggle{display:flex;gap:0;border:1px solid var(--color-border);border-radius:var(--radius-full);overflow:hidden;margin-bottom:var(--space-5)}
+    .wl-toggle label{flex:1;text-align:center;padding:.6rem 1rem;font-size:var(--text-sm);font-weight:600;cursor:pointer;transition:all var(--transition);color:var(--color-text-muted);user-select:none}
+    .wl-toggle input{display:none}
+    .wl-toggle input:checked + label{background:var(--color-primary);color:#fff}
+    .wl-toggle label:hover{color:var(--color-text)}
+    .wl-toggle input:checked + label:hover{color:#fff}
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+        <svg width="48" height="48" viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="5" width="80" height="100" rx="8" fill="none" stroke="#2a5c3c" stroke-width="7"/>
+          <polygon points="10,105 50,85 90,105 90,125 10,125" fill="#2a5c3c"/>
+          <polygon points="35,10 65,10 65,55 50,45 35,55" fill="#2a5c3c"/>
+          <polygon points="42,18 58,18 50,10" fill="white"/>
+          <line x1="50" y1="18" x2="50" y2="44" stroke="white" stroke-width="3"/>
+          <polygon points="38,28 46,22 54,28 50,36 42,36" fill="white" opacity="0.9"/>
+        </svg>
+        <span style="font-family:var(--font-display);font-weight:800;font-size:1.6rem;letter-spacing:-.03em;"><span style="color:#2a5c3c;">WILD</span><span style="color:#b85c1a;">BOOK</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="listings.html">Browse Land</a>
+        <a href="fishing.html">Fishing</a>
+        <a href="howitworks.html">How It Works</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="about.html">About</a>
+      </div>
+      <div class="nav-actions">
+        <button class="theme-btn" data-theme-toggle aria-label="Toggle theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="btn btn-ghost" onclick="openWaitlist('guest')">Sign In</button>
+        <button class="btn btn-primary" onclick="openWaitlist('guest')">Get early access</button>
+        <button class="mobile-menu-btn" aria-label="Open menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+
+
+  <section class="hero" style="min-height:45dvh;background:radial-gradient(ellipse 80% 70% at 60% 50%,color-mix(in oklab,var(--color-water) 14%,transparent),transparent)">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-inner">
+      <p class="section-label" style="margin:0 auto;color:var(--color-water)">Private water access</p>
+      <h1 style="font-size:var(--text-3xl)">Fish waters nobody else can access</h1>
+      <p class="hero-sub">Bass ponds, spring creeks, and exclusive lake frontage on private land where the water rights belong to the host. No crowds, no public ramps.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-water btn-large" onclick="openWaitlist('guest')">Browse fishing access</button>
+        <a href="listings.html" class="btn btn-ghost btn-large">See all listings</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-inner">
+      <p class="section-label">Three types of access</p>
+      <h2>Private water, your way</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-6);margin-top:var(--space-8)">
+        <div style="padding:var(--space-6);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl)">
+          <div style="font-size:2.5rem;margin-bottom:var(--space-4)">🎣</div>
+          <h3 style="font-size:var(--text-lg);font-weight:700;margin-bottom:var(--space-3)">Private ponds</h3>
+          <p style="color:var(--color-text-muted)">Fully enclosed on private land. No state fishing license required in most states — we verify and display the specific legal exemption on every listing.</p>
+        </div>
+        <div style="padding:var(--space-6);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl)">
+          <div style="font-size:2.5rem;margin-bottom:var(--space-4)">🏞️</div>
+          <h3 style="font-size:var(--text-lg);font-weight:700;margin-bottom:var(--space-3)">Creek & stream</h3>
+          <p style="color:var(--color-text-muted)">Exclusive riparian access on private banks. State license usually required — always shown on the listing before you book.</p>
+        </div>
+        <div style="padding:var(--space-6);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl)">
+          <div style="font-size:2.5rem;margin-bottom:var(--space-4)">⛵</div>
+          <h3 style="font-size:var(--text-lg);font-weight:700;margin-bottom:var(--space-3)">Lake frontage</h3>
+          <p style="color:var(--color-text-muted)">Private dock or bank access with exclusive rights. Bag limits and license requirements displayed inline — no surprises at the water.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:clamp(var(--space-12),6vw,var(--space-20)) clamp(var(--space-4),4vw,var(--space-12));background:var(--color-surface)">
+    <div style="max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-10);align-items:center">
+      <div>
+        <p class="section-label">License transparency</p>
+        <h2 style="font-size:var(--text-2xl);font-weight:800;letter-spacing:-.04em;margin-bottom:var(--space-4)">Know the rules before you cast</h2>
+        <p style="color:var(--color-text-muted);margin-bottom:var(--space-5)">Every fishing listing shows whether a state license is required, the specific legal basis for any exemption, and the host's own catch-and-keep limits — all before you book.</p>
+        <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:var(--space-3)">
+          <li style="display:flex;gap:var(--space-3);font-size:var(--text-sm)"><span style="color:var(--color-water);font-weight:700;flex-shrink:0">✓</span>FWC & state exemption cited per listing</li>
+          <li style="display:flex;gap:var(--space-3);font-size:var(--text-sm)"><span style="color:var(--color-water);font-weight:700;flex-shrink:0">✓</span>Host catch-and-keep limits shown upfront</li>
+          <li style="display:flex;gap:var(--space-3);font-size:var(--text-sm)"><span style="color:var(--color-water);font-weight:700;flex-shrink:0">✓</span>Water rights verified before listing goes live</li>
+          <li style="display:flex;gap:var(--space-3);font-size:var(--text-sm)"><span style="color:var(--color-water);font-weight:700;flex-shrink:0">✓</span>$1M liability coverage on every booking</li>
+        </ul>
+      </div>
+      <div style="background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);box-shadow:var(--shadow-md)">
+        <div style="font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-faint);margin-bottom:var(--space-4)">Lake Ashby Bass Pond — FL</div>
+        <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);padding-bottom:var(--space-3);border-bottom:1px solid var(--color-divider)"><span style="color:var(--color-text-muted)">Fishing license</span><span style="font-weight:700;color:var(--color-primary)">Not required</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);padding-bottom:var(--space-3);border-bottom:1px solid var(--color-divider)"><span style="color:var(--color-text-muted)">Legal basis</span><span style="font-weight:600">FWC §379.103</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);padding-bottom:var(--space-3);border-bottom:1px solid var(--color-divider)"><span style="color:var(--color-text-muted)">Keep limit</span><span style="font-weight:600">10 bass / day</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-sm)"><span style="color:var(--color-text-muted)">Water type</span><span style="font-weight:600">Enclosed private pond</span></div>
+        </div>
+        <button class="btn btn-water" style="width:100%;justify-content:center;margin-top:var(--space-5)" onclick="openWaitlist('guest')">Request access</button>
+      </div>
+    </div>
+    @media(max-width:700px){div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}}
+  </section>
+
+  <section class="fade-up" style="background:var(--color-water);padding:clamp(var(--space-10),6vw,var(--space-16)) clamp(var(--space-4),4vw,var(--space-12))">
+    <div style="max-width:700px;margin:0 auto;text-align:center">
+      <h2 style="font-size:var(--text-2xl);font-weight:800;letter-spacing:-.04em;color:#fff;margin-bottom:var(--space-3)">Get access to private water.</h2>
+      <p style="color:rgba(255,255,255,.8);margin-bottom:var(--space-6)">Join the waitlist and be first when fishing listings go live in your state.</p>
+      <button class="btn btn-large" onclick="openWaitlist('guest')" style="background:#fff;color:var(--color-water);font-weight:700">Join the waitlist — free</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="logo"><img src="wildbook-logo.png" alt="Wildbook" style="height:80px;width:auto;object-fit:contain;" /></a>
+        <p>Private hunting land and fishing water access — booking the land that was never available before.</p>
+        <div style="display:flex;gap:var(--space-4);margin-top:var(--space-4)">
+          <a href="#" aria-label="Instagram" style="color:var(--color-text-faint);transition:color var(--transition)" onmouseover="this.style.color='var(--color-text)'" onmouseout="this.style.color='var(--color-text-faint)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" aria-label="Facebook" style="color:var(--color-text-faint);transition:color var(--transition)" onmouseover="this.style.color='var(--color-text)'" onmouseout="this.style.color='var(--color-text-faint)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="#" aria-label="TikTok" style="color:var(--color-text-faint);transition:color var(--transition)" onmouseover="this.style.color='var(--color-text)'" onmouseout="this.style.color='var(--color-text-faint)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.28 6.28 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>
+          </a>
+          <a href="#" aria-label="YouTube" style="color:var(--color-text-faint);transition:color var(--transition)" onmouseover="this.style.color='var(--color-text)'" onmouseout="this.style.color='var(--color-text-faint)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Hunting</h4>
+        <ul>
+          <li><a href="listings.html">Browse hunting land</a></li>
+          <li><a href="listings.html">Guided stays</a></li>
+          <li><a href="listings.html">Cabin + land access</a></li>
+          <li><a href="listings.html">Night hog access</a></li>
+          <li><a href="listings.html">Turkey season</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Fishing</h4>
+        <ul>
+          <li><a href="fishing.html">Private ponds</a></li>
+          <li><a href="fishing.html">Spring creeks</a></li>
+          <li><a href="fishing.html">Lake frontage</a></li>
+          <li><a href="fishing.html">Guided fly fishing</a></li>
+          <li><a href="fishing.html">License guide</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About Wildbook</a></li>
+          <li><a href="about.html#mission">Mission &amp; vision</a></li>
+          <li><a href="about.html#team">Our team</a></li>
+          <li><a href="pricing.html">How pricing works</a></li>
+          <li><a href="howitworks.html#faq">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Wildbook. All rights reserved.</span>
+      <div style="display:flex;gap:var(--space-6)">
+        <a href="#" style="transition:color var(--transition)">Terms</a>
+        <a href="#" style="transition:color var(--transition)">Privacy</a>
+        <a href="#" style="transition:color var(--transition)">Landowner agreement</a>
+        <a href="#" style="transition:color var(--transition)">Support</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- WAITLIST MODAL -->
+  <div id="waitlist-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:var(--space-4)" onclick="if(event.target===this)closeWaitlist()">
+    <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:clamp(var(--space-8),5vw,var(--space-12));max-width:440px;width:100%;box-shadow:var(--shadow-lg);position:relative">
+      <button onclick="closeWaitlist()" style="position:absolute;top:var(--space-4);right:var(--space-4);background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:1.25rem;line-height:1;padding:4px" aria-label="Close">✕</button>
+      <div id="waitlist-form-view">
+        <p style="font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-primary);margin-bottom:var(--space-3)">Early Access</p>
+        <h2 style="font-size:var(--text-xl);font-weight:800;letter-spacing:-.04em;margin-bottom:var(--space-2)">Join the Wildbook waitlist</h2>
+        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5)">Be first when we launch in your state.</p>
+        <form id="waitlist-form" onsubmit="submitWaitlist(event)">
+          <p style="font-size:var(--text-xs);font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:var(--space-2)">I want to</p>
+          <div class="wl-toggle">
+            <input type="radio" name="wl-type" id="wl-find" value="Find a listing" checked />
+            <label for="wl-find">Find a listing</label>
+            <input type="radio" name="wl-type" id="wl-list" value="List my property" />
+            <label for="wl-list">List my property</label>
+          </div>
+          <input type="email" id="waitlist-email" required placeholder="your@email.com"
+            style="width:100%;padding:.75rem 1rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-size:var(--text-base);margin-bottom:var(--space-3);box-sizing:border-box;outline:none;transition:border-color var(--transition)"
+            onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'" />
+          <button type="submit" id="waitlist-submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem 1.5rem;font-size:var(--text-base)">
+            Join waitlist — it's free
+          </button>
+          <p id="waitlist-error" style="display:none;color:#c0392b;font-size:var(--text-xs);margin-top:var(--space-2);text-align:center"></p>
+        </form>
+        <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-4);text-align:center">No spam. We'll only reach out when listings go live in your state.</p>
+      </div>
+      <div id="waitlist-success-view" style="display:none;text-align:center;padding:var(--space-4) 0">
+        <div style="font-size:2.5rem;margin-bottom:var(--space-4)">🎯</div>
+        <h2 style="font-size:var(--text-xl);font-weight:800;letter-spacing:-.04em;margin-bottom:var(--space-3)">You're on the list.</h2>
+        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-6)">We'll email you when early access opens in your state. First come, first served.</p>
+        <button onclick="closeWaitlist()" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem 1.5rem">Done</button>
+      </div>
+    </div>
+  </div>
+  <iframe name="wl-sink" style="display:none" aria-hidden="true"></iframe>
+
+  <script>
+  // ── SAMPLE LISTINGS DATA ──
+  const LISTINGS = [
+    { id:1, type:'hunting', lat:29.027, lng:-81.002, title:'Palmetto Ridge Cabin', acres:340, price:180, unit:'day', species:['Deer','Hog','Turkey'], state:'FL', city:'New Smyrna Beach' },
+    { id:2, type:'fishing', lat:29.191, lng:-81.102, title:'Lake Ashby Bass Pond', acres:12, price:95, unit:'day', species:['Bass','Bream'], state:'FL', city:'Osteen' },
+    { id:3, type:'hunting', lat:29.411, lng:-81.306, title:'Ocala Flatwoods', acres:620, price:220, unit:'day', species:['Deer','Hog'], state:'FL', city:'Ocala' },
+    { id:4, type:'fishing', lat:28.812, lng:-81.355, title:'Spring Creek Private Stretch', acres:4, price:120, unit:'day', species:['Bass','Trout'], state:'FL', city:'Sanford' },
+    { id:5, type:'hunting', lat:29.652, lng:-82.325, title:'Gainesville Ranch', acres:890, price:250, unit:'day', species:['Deer','Turkey'], state:'FL', city:'Gainesville' },
+    { id:6, type:'fishing', lat:28.538, lng:-81.379, title:'Private Lake Frontage', acres:8, price:110, unit:'day', species:['Bass','Crappie'], state:'FL', city:'Orlando' },
+    { id:7, type:'hunting', lat:30.332, lng:-81.655, title:'North FL Timber Tract', acres:1200, price:195, unit:'day', species:['Deer','Hog','Turkey'], state:'FL', city:'Jacksonville' },
+    { id:8, type:'hunting', lat:29.886, lng:-81.317, title:'St. Johns River Bottom', acres:480, price:165, unit:'day', species:['Deer','Duck'], state:'FL', city:'Palatka' },
+    { id:9, type:'fishing', lat:30.189, lng:-85.668, title:'Panhandle Bass Pond', acres:6, price:85, unit:'day', species:['Bass','Bream'], state:'FL', city:'Panama City' },
+    { id:10, type:'hunting', lat:30.438, lng:-84.280, title:'Tallahassee Quail Farm', acres:700, price:300, unit:'day', species:['Quail','Turkey'], state:'FL', city:'Tallahassee' },
+  ];
+
+  let huntMap, markers = [], currentFilter = 'all', allMarkers = [];
+
+  function makeIcon(type) {
+    const color = type === 'hunting' ? '#2a5c3c' : '#1a5c7a';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42"><path d="M16 0C7.16 0 0 7.16 0 16c0 10.67 14.22 24.67 15.11 25.55a1.25 1.25 0 0 0 1.78 0C17.78 40.67 32 26.67 32 16 32 7.16 24.84 0 16 0z" fill="${color}"/><circle cx="16" cy="16" r="7" fill="white" fill-opacity="0.9"/></svg>`;
+    return L.divIcon({ html: svg, className: '', iconSize: [32, 42], iconAnchor: [16, 42], popupAnchor: [0, -44] });
+  }
+
+  function makePopup(l) {
+    const isHunt = l.type === 'hunting';
+    const color = isHunt ? '#2a5c3c' : '#1a5c7a';
+    const badgeColor = isHunt ? '#d4e5da' : '#cde3ee';
+    return `<div class="map-popup">
+      <p class="pop-badge" style="color:${color};background:${badgeColor};display:inline-block;padding:2px 8px;border-radius:999px">${isHunt ? '🌲 Hunting' : '🎣 Fishing'}</p>
+      <p class="pop-title">${l.title}</p>
+      <p class="pop-meta">${l.city}, ${l.state} &middot; ${l.acres} acres &middot; ${l.species.join(', ')}</p>
+      <p class="pop-price">$${l.price}<span style="font-size:13px;font-weight:400;color:#6b6656"> / ${l.unit}</span></p>
+      <button class="pop-btn${isHunt ? '' : ' water'}" onclick="openWaitlist('guest')">Request access</button>
+    </div>`;
+  }
+
+  function initMap() {
+    if (huntMap) return;
+    huntMap = L.map('hunt-map', { zoomControl: true, scrollWheelZoom: false }).setView([29.02, -81.0], 8);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 18
+    }).addTo(huntMap);
+    plotListings(LISTINGS);
+  }
+
+  function plotListings(list) {
+    allMarkers.forEach(m => huntMap.removeLayer(m));
+    allMarkers = [];
+    const filtered = list.filter(l => currentFilter === 'all' || l.type === currentFilter);
+    filtered.forEach(l => {
+      const m = L.marker([l.lat, l.lng], { icon: makeIcon(l.type) })
+        .addTo(huntMap).bindPopup(makePopup(l), { maxWidth: 260 });
+      allMarkers.push(m);
+    });
+    const label = document.getElementById('map-results-label');
+    if (label) label.textContent = filtered.length > 0
+      ? `Showing ${filtered.length} listing${filtered.length !== 1 ? 's' : ''} in this area`
+      : 'No listings found in this area yet — check back soon.';
+    if (filtered.length > 0) {
+      const group = L.featureGroup(allMarkers);
+      huntMap.fitBounds(group.getBounds().pad(0.2));
+    }
+  }
+
+  function setMapFilter(f) {
+    currentFilter = f;
+    ['all','hunt','fish'].forEach(k => {
+      const btn = document.getElementById('map-filter-'+k);
+      if (!btn) return;
+      btn.className = 'btn ' + (k === f || (k==='all'&&f==='all') ? 'btn-primary' : 'btn-ghost');
+      btn.style.borderRadius = 'var(--radius-full)';
+    });
+    if (huntMap) plotListings(LISTINGS);
+  }
+
+  async function doMapSearch() {
+    const q = document.getElementById('map-search').value.trim();
+    if (!q) return;
+    if (!huntMap) initMap();
+    const loading = document.getElementById('map-loading');
+    loading.style.display = 'flex';
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+', USA')}&format=json&limit=1`, {
+        headers: { 'Accept-Language': 'en', 'User-Agent': 'Wildbook/1.0' }
+      });
+      const data = await res.json();
+      if (data && data[0]) {
+        const { lat, lon } = data[0];
+        huntMap.setView([+lat, +lon], 9);
+        const nearby = LISTINGS.filter(l => {
+          const dlat = l.lat - lat, dlng = l.lng - lon;
+          return Math.sqrt(dlat*dlat + dlng*dlng) < 2.5;
+        });
+        plotListings(nearby.length ? nearby : LISTINGS);
+        if (!nearby.length) document.getElementById('map-results-label').textContent = 'No listings near that location yet. Showing all available listings.';
+      } else {
+        document.getElementById('map-results-label').textContent = 'Location not found. Try a zip code or "City, State".';
+      }
+    } catch {
+      document.getElementById('map-results-label').textContent = 'Search failed. Please try again.';
+    } finally {
+      loading.style.display = 'none';
+    }
+  }
+
+  const mapObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { initMap(); mapObserver.disconnect(); }
+  }, { threshold: 0.1 });
+  document.addEventListener('DOMContentLoaded', () => {
+    const sec = document.getElementById('map');
+    if (sec) mapObserver.observe(sec);
+    const inp = document.getElementById('map-search');
+    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') doMapSearch(); });
+  });
+
+  // ── LISTING FILTERS ──
+  let _ftype = 'all', _fsize = 'any', _fspecies = 'all';
+  function applyCardFilters() {
+    const cards = document.querySelectorAll('#listings-grid .listing-card');
+    let visible = 0;
+    cards.forEach(c => {
+      const type = c.dataset.type;
+      const acres = parseInt(c.dataset.acres);
+      const species = c.dataset.species || '';
+      const typeOk = _ftype === 'all' || type === _ftype;
+      const sizeOk = _fsize === 'any' ||
+        (_fsize === 'small' && acres < 50) ||
+        (_fsize === 'med' && acres >= 50 && acres <= 300) ||
+        (_fsize === 'large' && acres > 300);
+      const speciesOk = _fspecies === 'all' || species.includes(_fspecies);
+      const show = typeOk && sizeOk && speciesOk;
+      c.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    const empty = document.getElementById('filter-empty');
+    if (empty) empty.style.display = visible === 0 ? 'block' : 'none';
+  }
+  function filterCards(btn, val) {
+    _ftype = val;
+    document.querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('active', b.dataset.filter === val));
+    applyCardFilters();
+  }
+  function filterSize(btn, val) {
+    _fsize = val;
+    document.querySelectorAll('[data-size]').forEach(b => b.classList.toggle('active', b.dataset.size === val));
+    applyCardFilters();
+  }
+  function filterSpecies(val) { _fspecies = val; applyCardFilters(); }
+
+  // ── INLINE EMAIL ──
+  function inlineSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById('inline-email').value.trim();
+    if (!email) return;
+    const btn = document.getElementById('inline-submit');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    const f = document.createElement('form');
+    f.method = 'POST';
+    f.action = 'https://docs.google.com/forms/d/e/1FAIpQLSflRqncpu1U2GKag97hbgK8LqhxVImlQf87IRzjzTAX_blfhQ/formResponse';
+    f.target = 'wl-sink'; f.style.display = 'none';
+    [['entry.248c66f4', email],['entry.7bcb4a58','Find a listing']].forEach(([n,v]) => {
+      const i = document.createElement('input'); i.type='hidden'; i.name=n; i.value=v; f.appendChild(i);
+    });
+    document.body.appendChild(f); f.submit(); document.body.removeChild(f);
+    setTimeout(() => {
+      document.getElementById('inline-confirm').style.display = 'block';
+      document.querySelector('#inline-email').closest('form').style.display = 'none';
+    }, 400);
+  }
+
+  // ── WAITLIST MODAL ──
+  const FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSflRqncpu1U2GKag97hbgK8LqhxVImlQf87IRzjzTAX_blfhQ/formResponse';
+  const FIELD_EMAIL = 'entry.248c66f4';
+  const FIELD_TYPE  = 'entry.7bcb4a58';
+
+  function openWaitlist(type) {
+    if (type === 'host') { document.getElementById('wl-list').checked = true; }
+    else { document.getElementById('wl-find').checked = true; }
+    document.getElementById('waitlist-form-view').style.display = '';
+    document.getElementById('waitlist-success-view').style.display = 'none';
+    document.getElementById('waitlist-email').value = '';
+    document.getElementById('waitlist-error').style.display = 'none';
+    const btn = document.getElementById('waitlist-submit');
+    btn.disabled = false; btn.textContent = "Join waitlist — it's free";
+    document.getElementById('waitlist-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('waitlist-email').focus(), 50);
+  }
+  function closeWaitlist() {
+    document.getElementById('waitlist-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  function submitWaitlist(e) {
+    e.preventDefault();
+    const email = document.getElementById('waitlist-email').value.trim();
+    const type  = document.querySelector('input[name="wl-type"]:checked').value;
+    const btn   = document.getElementById('waitlist-submit');
+    const errEl = document.getElementById('waitlist-error');
+    if (!email) return;
+    btn.disabled = true; btn.textContent = 'Submitting…'; errEl.style.display = 'none';
+    const f = document.createElement('form');
+    f.method = 'POST'; f.action = FORM_ACTION; f.target = 'wl-sink'; f.style.display = 'none';
+    [[FIELD_EMAIL, email],[FIELD_TYPE, type]].forEach(([name, val]) => {
+      const i = document.createElement('input'); i.type = 'hidden'; i.name = name; i.value = val; f.appendChild(i);
+    });
+    document.body.appendChild(f); f.submit(); document.body.removeChild(f);
+    setTimeout(() => {
+      document.getElementById('waitlist-form-view').style.display = 'none';
+      document.getElementById('waitlist-success-view').style.display = '';
+    }, 400);
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeWaitlist(); });
+
+  // ── THEME TOGGLE ──
+  (function(){
+    const r = document.documentElement;
+    const btn = document.querySelector('[data-theme-toggle]');
+    let theme = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+    r.setAttribute('data-theme', theme);
+    function updateIcon(){
+      btn.innerHTML = theme === 'dark'
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    }
+    updateIcon();
+    btn.addEventListener('click', () => { theme = theme === 'dark' ? 'light' : 'dark'; r.setAttribute('data-theme', theme); updateIcon(); });
+    document.querySelectorAll('.card-save').forEach(b => {
+      b.addEventListener('click', e => {
+        e.stopPropagation();
+        const saved = b.textContent.trim() === '♥';
+        b.textContent = saved ? '♡' : '♥';
+        b.style.background = saved ? '' : 'var(--color-accent)';
+      });
+    });
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+    const nav = document.querySelector('.nav');
+    window.addEventListener('scroll', () => { nav.style.boxShadow = scrollY > 10 ? 'var(--shadow-md)' : 'none'; }, { passive: true });
+  })();
+  </script>
+
+</body>
+</html>
