@@ -496,10 +496,10 @@
         <div class="earnings-calc">
           <p class="calc-label">You take home per month</p>
           <p class="calc-big" id="calc-monthly">$680</p>
-          <div class="calc-row"><span style="color:var(--color-text-muted)">Daily rate subtotal</span><span id="calc-gross">$800</span></div>
-          <div class="calc-row"><span style="color:var(--color-text-muted)">Wildbook fee (15%)</span><span id="calc-fee" style="color:var(--color-text-muted)">−$120</span></div>
-          <div class="calc-row"><span style="color:var(--color-text-muted)">Cleaning fees (yours, 100%)</span><span id="calc-clean-total" style="color:var(--color-text-muted)">+$0</span></div>
-          <div class="calc-row"><span>Your payout (85% + cleaning)</span><span id="calc-payout" style="color:var(--color-primary)">$680</span></div>
+          <div class="calc-row"><span style="color:var(--color-text-muted)">Rate subtotal</span><span id="calc-gross">$800</span></div>
+          <div class="calc-row"><span style="color:var(--color-text-muted)">Wildbook fee (15% of rate + cleaning)</span><span id="calc-fee" style="color:var(--color-text-muted)">−$120</span></div>
+          <div class="calc-row"><span style="color:var(--color-text-muted)">Cleaning fee (100% yours)</span><span id="calc-clean-total" style="color:var(--color-text-muted)">+$0</span></div>
+          <div class="calc-row"><span>Your payout</span><span id="calc-payout" style="color:var(--color-primary)">$680</span></div>
           <div style="margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--color-border)">
             <div class="calc-row" style="border:none;padding:0;margin:0"><span style="color:var(--color-text-muted);font-weight:400">Annual (same pace)</span><span id="calc-annual" style="color:var(--color-primary);font-weight:800">$8,160</span></div>
           </div>
@@ -630,20 +630,23 @@
     var days=parseInt(bookingsSlider.value);
     var clean=parseInt(cleanSlider.value);
     var mode = (document.getElementById('rate-val') && document.getElementById('rate-val').dataset.mode) || 'flat';
-    // For per-person, assume avg group of 4; for group, rate is already total
+    // For per-person, assume avg group of 4
     var effectiveRate = mode === 'per_person' ? rate * 4 : rate;
-    var gross=effectiveRate*days;
-    var fee=Math.round(gross*.15);
-    var ratePayout=gross-fee;
-    var cleanTotal=clean*days;
-    var payout=ratePayout+cleanTotal;
-    var annual=payout*12;
-    var rateLabel = mode === 'per_person' ? '$'+rate+'/person/day' : mode === 'group' ? '$'+rate+'/group/day' : '$'+rate+'/day';
+    var cleanTotal = clean * days;
+    // Airbnb-style: 15% fee charged on (rate + cleaning fee) combined
+    var rateSubtotal = effectiveRate * days;
+    var combinedGross = rateSubtotal + cleanTotal;
+    var fee = Math.round(combinedGross * 0.15);
+    // Landowner gets: 85% of rate subtotal + 100% of cleaning fee
+    var ratePayout = Math.round(rateSubtotal * 0.85);
+    var payout = ratePayout + cleanTotal;
+    var annual = payout * 12;
+    var rateLabel = mode === 'per_person' ? '$'+rate+'/person/day' : '$'+rate+'/day';
     document.getElementById('rate-val').textContent=rateLabel;
     document.getElementById('bookings-val').textContent=days+(days===1?' day':' days');
     document.getElementById('clean-val').textContent=clean===0?'None':'$'+clean+'/booking';
-    document.getElementById('calc-gross').textContent='$'+gross.toLocaleString()+(mode==='per_person'?' (avg 4 guests)':'');
-    document.getElementById('calc-fee').textContent='−$'+fee.toLocaleString();
+    document.getElementById('calc-gross').textContent='$'+rateSubtotal.toLocaleString()+(mode==='per_person'?' (avg 4 guests)':'');
+    document.getElementById('calc-fee').textContent='−$'+fee.toLocaleString()+' (on rate + cleaning)';
     document.getElementById('calc-clean-total').textContent=cleanTotal===0?'$0':'+$'+cleanTotal.toLocaleString();
     document.getElementById('calc-payout').textContent='$'+payout.toLocaleString();
     document.getElementById('calc-monthly').textContent='$'+payout.toLocaleString();
