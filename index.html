@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HuntHaven — Book Private Hunting Land & Fishing Waters</title>
-  <meta name="description" content="HuntHaven is the marketplace for booking private hunting land, fishing water rights, cabins, and guided experiences across the US. Access private land never available before." />
-  <meta property="og:title" content="HuntHaven — Book Private Hunting Land & Fishing Waters" />
+  <title>Landpass — Book Private Hunting Land & Fishing Waters</title>
+  <meta name="description" content="Landpass is the marketplace for booking private hunting land, fishing water rights, cabins, and guided experiences across the US. Access private land never available before." />
+  <meta property="og:title" content="Landpass — Book Private Hunting Land & Fishing Waters" />
   <meta property="og:description" content="Discover and book private hunting land, stocked bass ponds, spring creeks, and guided experiences. State regulations shown on every listing." />
   <meta property="og:type" content="website" />
   <link rel="preconnect" href="https://api.fontshare.com" />
@@ -277,16 +277,7 @@
   <!-- NAV -->
   <nav class="nav">
     <div class="nav-inner">
-      <a href="#" class="logo">
-        <div class="logo-mark">
-          <svg width="22" height="22" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-label="HuntHaven logo mark">
-            <path d="M14 44 32 20l18 24"/><path d="M22 44V32h20v12"/>
-            <path d="M22 17c1 4 2 7 6 9M42 17c-1 4-2 7-6 9"/>
-            <path d="M21 14c-1 4-4 8-8 10M43 14c1 4 4 8 8 10"/>
-          </svg>
-        </div>
-        HuntHaven
-      </a>
+      <a href="#" class="logo"><img src="landpass-logo.png" alt="Landpass" style="height:48px;width:auto;object-fit:contain;" /></a>
       <div class="nav-links">
         <a href="#listings">Browse listings</a>
         <a href="#map">Map view</a>
@@ -618,7 +609,7 @@
     loading.style.display = 'flex';
     try {
       const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+', USA')}&format=json&limit=1`, {
-        headers: { 'Accept-Language': 'en', 'User-Agent': 'HuntHaven/1.0' }
+        headers: { 'Accept-Language': 'en', 'User-Agent': 'Landpass/1.0' }
       });
       const data = await res.json();
       if (data && data[0]) {
@@ -805,7 +796,7 @@
     <div class="section-inner">
       <p class="section-label">Built for safety</p>
       <h2>Trust built into every booking</h2>
-      <p class="section-sub">Hunting on private land carries real risks — legal, physical, and financial. HuntHaven handles all of it so landowners and guests can focus on the experience.</p>
+      <p class="section-sub">Hunting on private land carries real risks — legal, physical, and financial. Landpass handles all of it so landowners and guests can focus on the experience.</p>
       <div class="trust-grid">
         <div class="trust-card fade-up">
           <div class="trust-icon">🛡️</div>
@@ -837,7 +828,7 @@
       <div class="host-text">
         <p class="section-label" style="margin-bottom:var(--space-3)">For landowners</p>
         <h2>Your land is worth more than you think</h2>
-        <p>Landowners on HuntHaven earn $10,000–$60,000+ per year from day-access bookings — with no upfront cost to list, free liability coverage on every booking, and full control over your calendar and rules.</p>
+        <p>Landowners on Landpass earn $10,000–$60,000+ per year from day-access bookings — with no upfront cost to list, free liability coverage on every booking, and full control over your calendar and rules.</p>
         <div style="display:flex;gap:var(--space-3);flex-wrap:wrap">
           <button class="btn btn-primary btn-large" onclick="openWaitlist('host')">List your land — it's free</button>
           <button class="btn btn-ghost btn-large" onclick="openWaitlist('host')">Learn more</button>
@@ -930,13 +921,13 @@
             <span>Guest total</span><span>$363.00</span>
           </div>
           <div style="margin-top:var(--space-4);padding:var(--space-3);background:var(--color-primary-light);border-radius:var(--radius-md);font-size:var(--text-xs);color:var(--color-primary);font-weight:600">
-            Landowner receives $255 &middot; HuntHaven earns $51 &middot; Insurer receives $18 (passed through)
+            Landowner receives $255 &middot; Landpass earns $51 &middot; Insurer receives $18 (passed through)
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:var(--space-4)">
           <div style="padding:var(--space-5);background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg)">
             <p style="font-weight:700;font-size:var(--text-sm);margin-bottom:var(--space-2)">Trip protection fee</p>
-            <p style="font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.6">A flat fee paid by the guest at checkout. Goes directly to our licensed insurance partner — not to HuntHaven. Issues a real $1M liability policy per trip, naming both the guest and landowner. Required on every booking.</p>
+            <p style="font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.6">A flat fee paid by the guest at checkout. Goes directly to our licensed insurance partner — not to Landpass. Issues a real $1M liability policy per trip, naming both the guest and landowner. Required on every booking.</p>
           </div>
           <div style="padding:var(--space-5);background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg)">
             <p style="font-weight:700;font-size:var(--text-sm);margin-bottom:var(--space-2)">Service fee</p>
@@ -984,7 +975,7 @@
     <div style="max-width:700px;margin:0 auto;text-align:center">
       <p style="font-size:var(--text-xs);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:var(--space-3)">Now accepting waitlist</p>
       <h2 style="font-size:var(--text-2xl);font-weight:800;letter-spacing:-.04em;color:#fff;margin-bottom:var(--space-3)">Be first in your state.</h2>
-      <p style="font-size:var(--text-base);color:rgba(255,255,255,.75);margin-bottom:var(--space-6)">Enter your email and we'll notify you the day HuntHaven goes live near you. No spam, ever.</p>
+      <p style="font-size:var(--text-base);color:rgba(255,255,255,.75);margin-bottom:var(--space-6)">Enter your email and we'll notify you the day Landpass goes live near you. No spam, ever.</p>
       <form onsubmit="inlineSubmit(event)" style="display:flex;gap:var(--space-3);flex-wrap:wrap;justify-content:center;max-width:480px;margin:0 auto">
         <input id="inline-email" type="email" required placeholder="your@email.com"
           style="flex:1;min-width:200px;padding:.8rem 1.1rem;border:none;border-radius:var(--radius-full);background:rgba(255,255,255,.15);color:#fff;font-size:var(--text-sm);outline:none;backdrop-filter:blur(4px);" />
@@ -1004,7 +995,7 @@
       <div class="fade-up" id="faq-list">
         <div class="faq-item">
           <button class="faq-q" onclick="toggleFaq(this)">Do I need a fishing license on private land? <span class="faq-icon">+</span></button>
-          <div class="faq-a"><p>It depends on the state and the water. In most states, if a pond is fully enclosed on private land and has no connection to navigable public waterways, a fishing license is not required. HuntHaven verifies this for every fishing listing and shows the specific exemption — or confirms that a license is required — right on the listing page. No guessing.</p></div>
+          <div class="faq-a"><p>It depends on the state and the water. In most states, if a pond is fully enclosed on private land and has no connection to navigable public waterways, a fishing license is not required. Landpass verifies this for every fishing listing and shows the specific exemption — or confirms that a license is required — right on the listing page. No guessing.</p></div>
         </div>
         <div class="faq-item">
           <button class="faq-q" onclick="toggleFaq(this)">What if something goes wrong on the property? <span class="faq-icon">+</span></button>
@@ -1019,12 +1010,12 @@
           <div class="faq-a"><p>We&rsquo;re launching first in Florida, Texas, and Georgia. We&rsquo;re onboarding landowners in all 50 states now so you&rsquo;ll be first when your state goes live. Some states — like Texas and Louisiana — require landowners to hold a commercial hunting lease license. We flag these requirements during the listing flow.</p></div>
         </div>
         <div class="faq-item">
-          <button class="faq-q" onclick="toggleFaq(this)">Is HuntHaven an app or a website? <span class="faq-icon">+</span></button>
+          <button class="faq-q" onclick="toggleFaq(this)">Is Landpass an app or a website? <span class="faq-icon">+</span></button>
           <div class="faq-a"><p>Both. The web app is launching first, followed by iOS and Android apps later in 2026. Waitlist members get early access to the app before the public launch and are first to get booking access in their state.</p></div>
         </div>
         <div class="faq-item">
           <button class="faq-q" onclick="toggleFaq(this)">How is this different from a hunting lease? <span class="faq-icon">+</span></button>
-          <div class="faq-a"><p>Traditional hunting leases are annual contracts — you pay $1,500–$5,000 upfront and hope the land delivers. HuntHaven is day-access and weekend bookings. You book what you need, when you need it, with no long-term commitment. Landowners can also offer seasonal leases on HuntHaven if they prefer that model.</p></div>
+          <div class="faq-a"><p>Traditional hunting leases are annual contracts — you pay $1,500–$5,000 upfront and hope the land delivers. Landpass is day-access and weekend bookings. You book what you need, when you need it, with no long-term commitment. Landowners can also offer seasonal leases on Landpass if they prefer that model.</p></div>
         </div>
       </div>
     </div>
@@ -1117,10 +1108,10 @@
   <section class="final-cta">
     <div style="max-width:800px;margin:0 auto">
       <h2>Private land nobody else has access to.</h2>
-      <p>HuntHaven is opening early access in Florida, Texas, and Georgia. Join the waitlist to be first when listings go live in your state.</p>
+      <p>Landpass is opening early access in Florida, Texas, and Georgia. Join the waitlist to be first when listings go live in your state.</p>
       <div class="final-ctas" style="margin-bottom:var(--space-8)">
         <button class="btn btn-primary btn-large" onclick="openWaitlist('guest')">Get early access — free</button>
-        <a href="https://www.perplexity.ai/computer/a/hunthaven-prototype-OeWd8WSuTK.rY7gap3Bzeg" target="_blank" class="btn btn-ghost btn-large">Preview the app →</a>
+        <a href="https://www.perplexity.ai/computer/a/landpass-prototype-OeWd8WSuTK.rY7gap3Bzeg" target="_blank" class="btn btn-ghost btn-large">Preview the app →</a>
       </div>
       <!-- App store badges -->
       <div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap">
@@ -1140,14 +1131,7 @@
   <footer>
     <div class="footer-inner">
       <div class="footer-brand">
-        <a href="#" class="logo" style="gap:var(--space-2)">
-          <div class="logo-mark" style="width:30px;height:30px;border-radius:8px">
-            <svg width="16" height="16" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 44 32 20l18 24"/><path d="M22 44V32h20v12"/>
-            </svg>
-          </div>
-          HuntHaven
-        </a>
+        <a href="#" class="logo"><img src="landpass-logo.png" alt="Landpass" style="height:40px;width:auto;object-fit:contain;" /></a>
         <p>Private hunting land and fishing water access — booking the land that was never available before.</p>
         <!-- Social links -->
         <div style="display:flex;gap:var(--space-4);margin-top:var(--space-4)">
@@ -1198,7 +1182,7 @@
       <div class="footer-col">
         <h4>Company</h4>
         <ul>
-          <li><a href="about.html">About HuntHaven</a></li>
+          <li><a href="about.html">About Landpass</a></li>
           <li><a href="about.html#mission">Mission &amp; vision</a></li>
           <li><a href="about.html#team">Our team</a></li>
           <li><a href="#pricing">How pricing works</a></li>
@@ -1207,7 +1191,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 HuntHaven. All rights reserved.</span>
+      <span>© 2026 Landpass. All rights reserved.</span>
       <div style="display:flex;gap:var(--space-6)">
         <a href="#" style="transition:color var(--transition)">Terms</a>
         <a href="#" style="transition:color var(--transition)">Privacy</a>
@@ -1273,7 +1257,7 @@
       <button onclick="closeWaitlist()" style="position:absolute;top:var(--space-4);right:var(--space-4);background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:1.25rem;line-height:1;padding:4px" aria-label="Close">✕</button>
       <div id="waitlist-form-view">
         <p style="font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-primary);margin-bottom:var(--space-3)">Early Access</p>
-        <h2 style="font-size:var(--text-xl);font-weight:800;letter-spacing:-.04em;margin-bottom:var(--space-2)">Join the HuntHaven waitlist</h2>
+        <h2 style="font-size:var(--text-xl);font-weight:800;letter-spacing:-.04em;margin-bottom:var(--space-2)">Join the Landpass waitlist</h2>
         <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5)">Be first when we launch in your state.</p>
         <form id="waitlist-form" onsubmit="submitWaitlist(event)">
           <p style="font-size:var(--text-xs);font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:var(--space-2)">I want to</p>
