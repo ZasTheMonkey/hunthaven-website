@@ -91,6 +91,8 @@
     .footer-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:var(--space-6);flex-wrap:wrap}
 
     @media(max-width:768px){
+      .logo-full{display:none!important}
+      .logo-icon{display:block!important}
       .nav-links{display:none}
       .two-col{grid-template-columns:1fr!important}
       .timeline::before{left:16px}
@@ -102,7 +104,10 @@
   <!-- NAV -->
   <nav class="nav">
     <div class="nav-inner">
-      <a href="index.html" class="logo"><img src="wildbook-logo.png" alt="Wildbook" style="height:120px;width:auto;object-fit:contain;" /></a>
+      <a href="index.html" class="logo">
+          <img src="wildbook-logo.png" alt="Wildbook" class="logo-full" style="height:90px;width:auto;object-fit:contain;display:block;" />
+          <img src="wildbook-icon.png" alt="Wildbook" class="logo-icon" style="height:70px;width:auto;object-fit:contain;display:none;" />
+        </a>
       <div class="nav-links">
         <a href="index.html#listings">Browse listings</a>
         <a href="index.html#map">Map view</a>
