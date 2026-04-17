@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>List Your Land — Wildbook</title>
+  <meta name="description" content="List your hunting land or fishing water on Wildbook. Free to list, you keep 85% of every booking. Early landowners get featured placement at launch." />
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,400&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <style>
+    :root,[data-theme="light"]{
+      --text-xs:clamp(0.75rem,0.7rem + 0.25vw,0.875rem);
+      --text-sm:clamp(0.875rem,0.8rem + 0.35vw,1rem);
+      --text-base:clamp(1rem,0.95rem + 0.25vw,1.125rem);
+      --text-lg:clamp(1.125rem,1rem + 0.75vw,1.5rem);
+      --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+      --text-2xl:clamp(2rem,1.2rem + 2.5vw,3.5rem);
+      --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+      --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;
+      --space-12:3rem;--space-16:4rem;--space-20:5rem;--space-24:6rem;
+      --color-bg:#f5f1e8;--color-surface:#faf6ed;--color-surface-2:#fff;
+      --color-surface-offset:#ede8db;--color-border:#d6cebd;--color-divider:#ddd6c5;
+      --color-text:#1a1a12;--color-text-muted:#6b6656;--color-text-faint:#a09b8c;
+      --color-text-inverse:#f5f1e8;
+      --color-primary:#2a5c3c;--color-primary-hover:#1e4229;--color-primary-light:#d4e5da;
+      --color-accent:#b85c1a;--color-accent-hover:#8f4412;--color-accent-light:#f5e2d0;
+      --color-water:#1a5c7a;--color-water-light:#cde3ee;
+      --radius-sm:.375rem;--radius-md:.625rem;--radius-lg:1rem;--radius-xl:1.5rem;--radius-full:9999px;
+      --shadow-sm:0 1px 3px rgba(26,26,18,.07);--shadow-md:0 4px 16px rgba(26,26,18,.10);--shadow-lg:0 16px 48px rgba(26,26,18,.14);
+      --transition:180ms cubic-bezier(.16,1,.3,1);
+      --font-display:'Cabinet Grotesk',system-ui,sans-serif;
+      --font-body:'Satoshi',system-ui,sans-serif;
+    }
+    [data-theme="dark"]{
+      --color-bg:#111410;--color-surface:#171b14;--color-surface-2:#1d221a;
+      --color-surface-offset:#222720;--color-border:#2e342b;--color-divider:#252b23;
+      --color-text:#e8e2d4;--color-text-muted:#9a9485;--color-text-faint:#605e52;
+      --color-text-inverse:#111410;
+      --color-primary:#5a9470;--color-primary-hover:#6faa85;--color-primary-light:#1e2f22;
+      --color-accent:#d4783a;--color-accent-hover:#e8924f;--color-accent-light:#2e1f10;
+      --color-water:#3d90b5;--color-water-light:#102030;
+      --shadow-sm:0 1px 3px rgba(0,0,0,.25);--shadow-md:0 4px 16px rgba(0,0,0,.35);--shadow-lg:0 16px 48px rgba(0,0,0,.5);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+    body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);line-height:1.6}
+    img,svg{display:block;max-width:100%}
+    button,input,select,textarea{font:inherit;color:inherit}
+    button{cursor:pointer;background:none;border:none}
+    a{color:inherit;text-decoration:none}
+    h1,h2,h3,h4,h5{text-wrap:balance;line-height:1.1;font-family:var(--font-display)}
+    p,li{text-wrap:pretty;max-width:68ch}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+    /* NAV */
+    .nav{position:sticky;top:0;z-index:100;padding:0 clamp(var(--space-4),4vw,var(--space-12));background:color-mix(in oklab,var(--color-bg) 88%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--color-border);transition:box-shadow var(--transition)}
+    .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:var(--space-8);height:80px}
+    .nav-links{display:flex;align-items:center;gap:var(--space-6)}
+    .nav-links a{font-size:var(--text-sm);color:var(--color-text-muted);transition:color var(--transition)}
+    .nav-links a:hover,.nav-links a.active{color:var(--color-text)}
+    .nav-actions{display:flex;align-items:center;gap:var(--space-3)}
+    .btn{display:inline-flex;align-items:center;gap:var(--space-2);padding:.6rem 1.25rem;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:700;transition:all var(--transition);white-space:nowrap;text-decoration:none}
+    .btn-ghost{color:var(--color-text-muted);border:1px solid var(--color-border)}
+    .btn-ghost:hover{color:var(--color-text);background:var(--color-surface-offset)}
+    .btn-primary{background:var(--color-primary);color:#fff;border:1px solid transparent}
+    .btn-primary:hover{background:var(--color-primary-hover)}
+    .btn-accent{background:var(--color-accent);color:#fff;border:1px solid transparent}
+    .btn-accent:hover{background:var(--color-accent-hover)}
+    .theme-btn{width:38px;height:38px;border-radius:var(--radius-full);border:1px solid var(--color-border);display:grid;place-items:center;color:var(--color-text-muted);transition:all var(--transition)}
+    .theme-btn:hover{color:var(--color-text);border-color:var(--color-text-muted)}
+    .mobile-menu-btn{display:none;width:40px;height:40px;border-radius:var(--radius-md);border:1px solid var(--color-border);place-items:center;color:var(--color-text-muted)}
+
+    /* HERO BAND */
+    .hero-band{background:linear-gradient(135deg,var(--color-accent-light) 0%,var(--color-surface) 100%);border-bottom:1px solid var(--color-border);padding:clamp(var(--space-12),6vw,var(--space-20)) clamp(var(--space-4),4vw,var(--space-12))}
+    .hero-band-inner{max-width:760px;margin:0 auto;text-align:center}
+    .founding-badge{display:inline-flex;align-items:center;gap:var(--space-2);background:var(--color-accent-light);color:var(--color-accent);border:1px solid color-mix(in oklab,var(--color-accent) 30%,transparent);border-radius:var(--radius-full);padding:.35rem 1rem;font-size:var(--text-xs);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:var(--space-5)}
+    .hero-band h1{font-size:var(--text-2xl);font-weight:800;letter-spacing:-.04em;margin-bottom:var(--space-4)}
+    .hero-band p{font-size:var(--text-base);color:var(--color-text-muted);max-width:52ch;margin:0 auto}
+
+    /* PERKS STRIP */
+    .perks{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--space-4) var(--space-8);padding:var(--space-8) clamp(var(--space-4),4vw,var(--space-12));border-bottom:1px solid var(--color-border);background:var(--color-surface)}
+    .perk{display:flex;align-items:center;gap:var(--space-3);font-size:var(--text-sm)}
+    .perk-icon{width:36px;height:36px;border-radius:var(--radius-md);background:var(--color-primary-light);display:grid;place-items:center;color:var(--color-primary);flex:none}
+
+    /* MAIN LAYOUT */
+    .page-body{max-width:1100px;margin:0 auto;padding:clamp(var(--space-10),5vw,var(--space-20)) clamp(var(--space-4),4vw,var(--space-12));display:grid;grid-template-columns:1fr 380px;gap:var(--space-12);align-items:start}
+
+    /* FORM */
+    .form-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:clamp(var(--space-8),4vw,var(--space-12));box-shadow:var(--shadow-md)}
+    .form-section{margin-bottom:var(--space-8);padding-bottom:var(--space-8);border-bottom:1px solid var(--color-divider)}
+    .form-section:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0}
+    .form-section-label{font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);margin-bottom:var(--space-5)}
+    .form-section h3{font-size:var(--text-lg);font-weight:800;margin-bottom:var(--space-1)}
+    .form-section p{font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5)}
+    .field-group{display:grid;gap:var(--space-4)}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+    .field label{display:block;font-size:var(--text-xs);font-weight:700;color:var(--color-text-muted);margin-bottom:var(--space-2);letter-spacing:.04em;text-transform:uppercase}
+    .field input,.field select,.field textarea{width:100%;padding:.75rem 1rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-size:var(--text-sm);transition:border-color var(--transition);outline:none;-webkit-appearance:none}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--color-accent)}
+    .field textarea{resize:vertical;min-height:100px;line-height:1.5}
+    .field select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9485' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem}
+    .checkbox-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:var(--space-3)}
+    .checkbox-item{display:flex;align-items:center;gap:var(--space-2);padding:.6rem .9rem;border:1px solid var(--color-border);border-radius:var(--radius-md);cursor:pointer;transition:all var(--transition);font-size:var(--text-sm)}
+    .checkbox-item:hover{border-color:var(--color-accent);background:var(--color-accent-light)}
+    .checkbox-item input{width:16px;height:16px;accent-color:var(--color-accent);cursor:pointer}
+    .checkbox-item.checked{border-color:var(--color-accent);background:var(--color-accent-light)}
+    .submit-btn{width:100%;padding:1rem 1.5rem;background:var(--color-accent);color:#fff;border:none;border-radius:var(--radius-full);font-size:var(--text-base);font-weight:800;cursor:pointer;transition:all var(--transition);margin-top:var(--space-6);letter-spacing:-.01em}
+    .submit-btn:hover{background:var(--color-accent-hover);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+    .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .form-note{font-size:var(--text-xs);color:var(--color-text-faint);text-align:center;margin-top:var(--space-3)}
+
+    /* SIDEBAR */
+    .sidebar{position:sticky;top:calc(80px + var(--space-8))}
+    .sidebar-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-8);margin-bottom:var(--space-6);box-shadow:var(--shadow-sm)}
+    .sidebar-card h3{font-size:var(--text-base);font-weight:800;margin-bottom:var(--space-4)}
+    .earnings-calc{background:var(--color-primary-light);border-radius:var(--radius-lg);padding:var(--space-5)}
+    .calc-row{display:flex;justify-content:space-between;font-size:var(--text-sm);margin-bottom:var(--space-2)}
+    .calc-row:last-child{margin-bottom:0;font-weight:800;padding-top:var(--space-2);border-top:1px solid var(--color-border)}
+    .calc-big{font-size:var(--text-xl);font-weight:800;color:var(--color-primary);margin:var(--space-3) 0 var(--space-1)}
+    .calc-label{font-size:var(--text-xs);color:var(--color-text-muted)}
+    .perks-list{list-style:none;display:grid;gap:var(--space-3)}
+    .perks-list li{display:flex;align-items:flex-start;gap:var(--space-3);font-size:var(--text-sm)}
+    .perks-list li::before{content:'✓';color:var(--color-primary);font-weight:800;flex:none;margin-top:2px}
+    .testimonial-card{background:var(--color-accent-light);border:1px solid color-mix(in oklab,var(--color-accent) 20%,transparent);border-radius:var(--radius-xl);padding:var(--space-6)}
+    .testimonial-card blockquote{font-size:var(--text-sm);font-style:italic;color:var(--color-text-muted);margin-bottom:var(--space-4);line-height:1.6}
+    .testimonial-card cite{font-size:var(--text-xs);font-weight:700;color:var(--color-text);font-style:normal}
+
+    /* SUCCESS */
+    .success-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:var(--space-4)}
+    .success-box{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:clamp(var(--space-10),5vw,var(--space-16));max-width:480px;width:100%;text-align:center;box-shadow:var(--shadow-lg)}
+    .success-icon{width:64px;height:64px;background:var(--color-primary-light);border-radius:50%;display:grid;place-items:center;color:var(--color-primary);margin:0 auto var(--space-6)}
+
+    /* FOOTER */
+    footer{background:var(--color-surface);border-top:1px solid var(--color-border);padding:var(--space-10) clamp(var(--space-4),4vw,var(--space-12))}
+    .footer-bottom{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-4);font-size:var(--text-xs);color:var(--color-text-faint)}
+    .footer-bottom a{transition:color var(--transition)}
+    .footer-bottom a:hover{color:var(--color-text)}
+
+    @media(max-width:900px){
+      .page-body{grid-template-columns:1fr}
+      .sidebar{position:static}
+      .nav-links{display:none}
+      .mobile-menu-btn{display:grid}
+      .field-row{grid-template-columns:1fr}
+    }
+    .nav-links.nav-open{display:flex!important;flex-direction:column;align-items:flex-start;position:absolute;top:100%;left:0;right:0;background:var(--color-bg);border-bottom:1px solid var(--color-border);padding:var(--space-4) clamp(var(--space-4),4vw,var(--space-12));gap:var(--space-4);z-index:99}
+    .nav-links.nav-open a{font-size:var(--text-base);padding:var(--space-2) 0}
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" style="position:sticky;top:0;">
+    <div class="nav-inner">
+      <a href="index.html" class="logo" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+        <svg width="40" height="40" viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="5" width="80" height="100" rx="8" fill="none" stroke="#2a5c3c" stroke-width="7"/>
+          <polygon points="10,105 50,85 90,105 90,125 10,125" fill="#2a5c3c"/>
+          <polygon points="35,10 65,10 65,55 50,45 35,55" fill="#2a5c3c"/>
+          <polygon points="42,18 58,18 50,10" fill="white"/>
+          <line x1="50" y1="18" x2="50" y2="44" stroke="white" stroke-width="3"/>
+          <polygon points="38,28 46,22 54,28 50,36 42,36" fill="white" opacity="0.9"/>
+        </svg>
+        <span style="font-family:var(--font-display);font-weight:800;font-size:1.4rem;letter-spacing:-.03em;"><span style="color:#2a5c3c;">WILD</span><span style="color:#b85c1a;">BOOK</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="listings.html">Browse Land</a>
+        <a href="fishing.html">Fishing</a>
+        <a href="howitworks.html">How It Works</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="about.html">About</a>
+      </div>
+      <div class="nav-actions">
+        <button class="theme-btn" data-theme-toggle aria-label="Toggle theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a href="list-your-land.html" class="btn btn-accent active" style="font-size:var(--text-xs)">List Your Land</a>
+        <button class="mobile-menu-btn" aria-label="Open menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO BAND -->
+  <div class="hero-band">
+    <div class="hero-band-inner">
+      <div class="founding-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Founding Landowner Program — Free to Join
+      </div>
+      <h1>Turn your land into<br>steady income</h1>
+      <p>List your hunting ranch, deer lease, fishing pond, or creek access on Wildbook. You control the calendar, set your price, and keep 85% of every booking. No long-term leases required.</p>
+    </div>
+  </div>
+
+  <!-- PERKS STRIP -->
+  <div class="perks">
+    <div class="perk">
+      <div class="perk-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div>
+        <p style="font-weight:700;font-size:var(--text-sm)">$1M liability coverage</p>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted)">Every booking, zero cost to you</p>
+      </div>
+    </div>
+    <div class="perk">
+      <div class="perk-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      </div>
+      <div>
+        <p style="font-weight:700;font-size:var(--text-sm)">You keep 85%</p>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted)">Direct deposit after each booking</p>
+      </div>
+    </div>
+    <div class="perk">
+      <div class="perk-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </div>
+      <div>
+        <p style="font-weight:700;font-size:var(--text-sm)">You control the calendar</p>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted)">Block dates, set minimums, approve guests</p>
+      </div>
+    </div>
+    <div class="perk">
+      <div class="perk-icon" style="background:var(--color-accent-light);color:var(--color-accent)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div>
+        <p style="font-weight:700;font-size:var(--text-sm)">Founding landowner perks</p>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted)">Free featured placement at launch</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN BODY -->
+  <div class="page-body">
+
+    <!-- FORM -->
+    <div>
+      <div style="margin-bottom:var(--space-8)">
+        <p style="font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);margin-bottom:var(--space-2)">Step 1 of 1</p>
+        <h2 style="font-size:var(--text-xl);font-weight:800;letter-spacing:-.04em;margin-bottom:var(--space-2)">Tell us about your land</h2>
+        <p style="font-size:var(--text-sm);color:var(--color-text-muted)">Takes about 5 minutes. We'll follow up to help you finish your listing before launch.</p>
+      </div>
+
+      <div class="form-card">
+        <form id="landowner-form" onsubmit="submitForm(event)">
+
+          <!-- CONTACT -->
+          <div class="form-section">
+            <p class="form-section-label">Your Info</p>
+            <div class="field-group">
+              <div class="field-row">
+                <div class="field">
+                  <label>First name *</label>
+                  <input type="text" name="first_name" required placeholder="John" />
+                </div>
+                <div class="field">
+                  <label>Last name *</label>
+                  <input type="text" name="last_name" required placeholder="Smith" />
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label>Email address *</label>
+                  <input type="email" name="email" required placeholder="john@email.com" />
+                </div>
+                <div class="field">
+                  <label>Phone number</label>
+                  <input type="tel" name="phone" placeholder="(555) 000-0000" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROPERTY -->
+          <div class="form-section">
+            <p class="form-section-label">Your Property</p>
+            <div class="field-group">
+              <div class="field-row">
+                <div class="field">
+                  <label>State *</label>
+                  <select name="state" required>
+                    <option value="">Select state…</option>
+                    <option>Florida</option>
+                    <option>Texas</option>
+                    <option>Montana</option>
+                    <option>Georgia</option>
+                    <option>Alabama</option>
+                    <option>Tennessee</option>
+                    <option>Other (join future waitlist)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>County / Region *</label>
+                  <input type="text" name="county" required placeholder="e.g. Marion County" />
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label>Approximate acreage *</label>
+                  <select name="acreage" required>
+                    <option value="">Select…</option>
+                    <option>Under 50 acres</option>
+                    <option>50 – 200 acres</option>
+                    <option>200 – 500 acres</option>
+                    <option>500 – 1,000 acres</option>
+                    <option>1,000+ acres</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Your price idea (per day)</label>
+                  <input type="text" name="price" placeholder="e.g. $150 – $300" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- WHAT'S AVAILABLE -->
+          <div class="form-section">
+            <p class="form-section-label">What's Available</p>
+            <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-4)">Select everything that applies to your property.</p>
+            <div class="checkbox-grid" id="activity-grid">
+              <label class="checkbox-item"><input type="checkbox" name="activities" value="Whitetail deer" /> Whitetail deer</label>
+              <label class="checkbox-item"><input type="checkbox" name="activities" value="Wild hog" /> Wild hog</label>
+              <label class="checkbox-item"><input type="checkbox" name="activities" value="Wild turkey" /> Wild turkey</label>
+              <label class="checkbox-item"><input type="checkbox" name="activities" value="Duck / waterfowl" /> Duck / waterfowl</label>
+              <label class="checkbox-item"><input type="checkbox" name="activities" value="Dove" /> Dove</label>
+              <label class="checkbox-item"><input type="checkbox" name="activities" value="Quail" /> Quail</label>
+              <label class="checkbox-item"><input type="checkbox" name="activities" value="Bass fishing" /> Bass fishing</label>
+              <label class="checkbox-item"><input type="checkbox" name="activities" value="Trout / fly fishing" /> Trout / fly fishing</label>
+              <label class="checkbox-item"><input type="checkbox" name="activities" value="Catfish pond" /> Catfish pond</label>
+              <label class="checkbox-item"><input type="checkbox" name="activities" value="Crappie / bream" /> Crappie / bream</label>
+              <label class="checkbox-item"><input type="checkbox" name="activities" value="Guided experience" /> Guided experience</label>
+              <label class="checkbox-item"><input type="checkbox" name="activities" value="Overnight / cabin" /> Overnight / cabin</label>
+            </div>
+          </div>
+
+          <!-- EXTRAS -->
+          <div class="form-section">
+            <p class="form-section-label">Additional Details</p>
+            <div class="field-group">
+              <div class="field">
+                <label>What makes your property special? (optional)</label>
+                <textarea name="description" placeholder="Food plots, blinds, water features, trophy potential, cabin, ATV access, etc."></textarea>
+              </div>
+              <div class="field">
+                <label>How did you hear about Wildbook?</label>
+                <select name="source">
+                  <option value="">Select…</option>
+                  <option>Social media</option>
+                  <option>Friend / word of mouth</option>
+                  <option>Facebook group</option>
+                  <option>Google search</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submit-btn">
+            Submit My Property — It's Free
+          </button>
+          <p class="form-note">No contracts, no commitment. We'll reach out before your listing goes live to confirm details and help you set the best price.</p>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <!-- EARNINGS CALC -->
+      <div class="sidebar-card">
+        <h3>Estimate your earnings</h3>
+        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5)">Adjust the sliders to see what your land could make.</p>
+        <div style="margin-bottom:var(--space-4)">
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);font-weight:700;color:var(--color-text-muted);margin-bottom:var(--space-2);text-transform:uppercase;letter-spacing:.05em">
+            <span>Daily rate</span><span id="rate-val" style="color:var(--color-text)">$200/day</span>
+          </div>
+          <input type="range" id="rate-slider" min="50" max="800" value="200" step="25" style="width:100%;accent-color:var(--color-accent);cursor:pointer" />
+        </div>
+        <div style="margin-bottom:var(--space-5)">
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);font-weight:700;color:var(--color-text-muted);margin-bottom:var(--space-2);text-transform:uppercase;letter-spacing:.05em">
+            <span>Bookings per month</span><span id="bookings-val" style="color:var(--color-text)">4 days</span>
+          </div>
+          <input type="range" id="bookings-slider" min="1" max="20" value="4" step="1" style="width:100%;accent-color:var(--color-accent);cursor:pointer" />
+        </div>
+        <div class="earnings-calc">
+          <p class="calc-label">You take home per month</p>
+          <p class="calc-big" id="calc-monthly">$680</p>
+          <div class="calc-row"><span style="color:var(--color-text-muted)">Gross bookings</span><span id="calc-gross">$800</span></div>
+          <div class="calc-row"><span style="color:var(--color-text-muted)">Wildbook fee (15%)</span><span id="calc-fee" style="color:var(--color-text-muted)">−$120</span></div>
+          <div class="calc-row"><span>Your payout (85%)</span><span id="calc-payout" style="color:var(--color-primary)">$680</span></div>
+          <div style="margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--color-border)">
+            <div class="calc-row" style="border:none;padding:0;margin:0"><span style="color:var(--color-text-muted);font-weight:400">Annual (same pace)</span><span id="calc-annual" style="color:var(--color-primary);font-weight:800">$8,160</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERKS LIST -->
+      <div class="sidebar-card">
+        <h3>Founding Landowner perks</h3>
+        <ul class="perks-list">
+          <li>Free featured placement when we launch — your listing shows up first</li>
+          <li>No commission taken for your first 6 months</li>
+          <li>"Founding Landowner" badge on your profile forever</li>
+          <li>Direct line to our team — we help you set the right price</li>
+          <li>First access to new features and payout tools</li>
+          <li>We handle the waivers, insurance, and payment processing</li>
+        </ul>
+      </div>
+
+      <!-- TESTIMONIAL PLACEHOLDER -->
+      <div class="testimonial-card">
+        <blockquote>"I've had this 400-acre deer lease sitting half-empty for two years. The idea of booking it out for weekends instead of one long lease — that's exactly what I was looking for."</blockquote>
+        <cite>— Early landowner, Ocala FL</cite>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- SUCCESS OVERLAY -->
+  <div class="success-overlay" id="success-overlay">
+    <div class="success-box">
+      <div class="success-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <p style="font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);margin-bottom:var(--space-3)">You're In</p>
+      <h2 style="font-size:var(--text-xl);font-weight:800;letter-spacing:-.04em;margin-bottom:var(--space-3)">Property submitted.</h2>
+      <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-8)">We'll reach out personally within 48 hours to help you finalize your listing and get you set up as a Founding Landowner before we launch.</p>
+      <a href="index.html" class="btn btn-accent" style="width:100%;justify-content:center;padding:.85rem 1.5rem;font-size:var(--text-base)">Back to Wildbook</a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-bottom">
+      <span>© 2026 Wildbook. All rights reserved.</span>
+      <div style="display:flex;gap:1.5rem;flex-wrap:wrap">
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="howitworks.html#faq">FAQ</a>
+        <a href="about.html">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- HIDDEN IFRAME for form submission -->
+  <iframe name="form-sink" style="display:none" aria-hidden="true"></iframe>
+
+  <script>
+  // Theme toggle
+  (function(){
+    var t=document.querySelector('[data-theme-toggle]'),r=document.documentElement;
+    var d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+    r.setAttribute('data-theme',d);
+    t&&t.addEventListener('click',function(){
+      d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);
+      t.innerHTML=d==='dark'
+        ?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+        :'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    });
+  })();
+
+  // Mobile menu
+  (function(){
+    var btn=document.querySelector('.mobile-menu-btn');
+    var links=document.querySelector('.nav-links');
+    if(!btn||!links)return;
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      var open=links.classList.toggle('nav-open');
+      btn.setAttribute('aria-label',open?'Close menu':'Open menu');
+      btn.innerHTML=open
+        ?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>'
+        :'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>';
+    });
+    document.addEventListener('click',function(e){
+      if(!btn.contains(e.target)&&!links.contains(e.target)){
+        links.classList.remove('nav-open');
+        btn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>';
+      }
+    });
+  })();
+
+  // Checkbox styling
+  document.querySelectorAll('.checkbox-item input').forEach(function(cb){
+    cb.addEventListener('change',function(){
+      cb.closest('.checkbox-item').classList.toggle('checked',cb.checked);
+    });
+  });
+
+  // Earnings calculator
+  var rateSlider=document.getElementById('rate-slider');
+  var bookingsSlider=document.getElementById('bookings-slider');
+  function updateCalc(){
+    var rate=parseInt(rateSlider.value);
+    var days=parseInt(bookingsSlider.value);
+    var gross=rate*days;
+    var fee=Math.round(gross*.15);
+    var payout=gross-fee;
+    var annual=payout*12;
+    document.getElementById('rate-val').textContent='$'+rate+'/day';
+    document.getElementById('bookings-val').textContent=days+(days===1?' day':' days');
+    document.getElementById('calc-gross').textContent='$'+gross.toLocaleString();
+    document.getElementById('calc-fee').textContent='−$'+fee.toLocaleString();
+    document.getElementById('calc-payout').textContent='$'+payout.toLocaleString();
+    document.getElementById('calc-monthly').textContent='$'+payout.toLocaleString();
+    document.getElementById('calc-annual').textContent='$'+annual.toLocaleString();
+  }
+  rateSlider.addEventListener('input',updateCalc);
+  bookingsSlider.addEventListener('input',updateCalc);
+  updateCalc();
+
+  // Form submission
+  const FORM_ACTION='https://docs.google.com/forms/d/e/1FAIpQLSflRqncpu1U2GKag97hbgK8LqhxVImlQf87IRzjzTAX_blfhQ/formResponse';
+
+  function submitForm(e){
+    e.preventDefault();
+    var btn=document.getElementById('submit-btn');
+    btn.disabled=true;
+    btn.textContent='Submitting…';
+
+    var data=new FormData(e.target);
+    var email=data.get('email')||'';
+    var firstName=data.get('first_name')||'';
+    var lastName=data.get('last_name')||'';
+    var state=data.get('state')||'';
+    var acreage=data.get('acreage')||'';
+    var price=data.get('price')||'';
+    var activities=data.getAll('activities').join(', ');
+    var description=data.get('description')||'';
+    var phone=data.get('phone')||'';
+
+    // Build summary string for the "type" field
+    var summary='Landowner Signup | '+firstName+' '+lastName+' | '+state+' | '+acreage+' | '+activities+' | '+price+' | '+phone+' | '+description;
+
+    var f=document.createElement('form');
+    f.method='POST';
+    f.action=FORM_ACTION;
+    f.target='form-sink';
+    f.style.display='none';
+    [['entry.248c66f4',email],['entry.7bcb4a58',summary]].forEach(function(p){
+      var i=document.createElement('input');
+      i.type='hidden';i.name=p[0];i.value=p[1];f.appendChild(i);
+    });
+    document.body.appendChild(f);
+    f.submit();
+    setTimeout(function(){document.body.removeChild(f);},2000);
+
+    // Show success
+    setTimeout(function(){
+      var overlay=document.getElementById('success-overlay');
+      overlay.style.display='flex';
+    },500);
+  }
+  </script>
+</body>
+</html>
