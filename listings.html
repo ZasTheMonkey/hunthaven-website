@@ -386,6 +386,9 @@
       else priceLabel = '$' + l.price_per_day + ' / day';
     }
     var price = priceLabel;
+    var guestInfo = [];
+    if (l.max_guests) guestInfo.push('Up to ' + l.max_guests + ' guests');
+    if (l.num_beds)   guestInfo.push(l.num_beds + ' bed' + (l.num_beds > 1 ? 's' : ''));
     var location = [l.county, l.state].filter(Boolean).join(', ');
     var name = [l.first_name, l.last_name].filter(Boolean).join(' ') || 'Private Property';
     var title = (l.county || l.state || 'Private Land') + ' — ' + (l.acreage || '') + (l.acreage ? ' ac' : '') ;
@@ -407,7 +410,8 @@
       '<div class="card-media '+mediaClass+'">'+mediaContent+'<div class="card-price">'+price+'</div>'+typeLabel+'<button class="card-save">♡</button></div>' +
       '<div class="card-body">'+
         '<h3>'+escHtml(l.county ? l.county+' Private Land' : 'Private Land')+'</h3>'+
-        '<div class="card-meta"><span>📍 '+escHtml(location)+'</span>'+(l.acreage?'<span>'+escHtml(l.acreage)+'</span>':'')+'</div>'+
+        '<div class="card-meta"><span>📍 '+escHtml(location)+'</span>'+(l.acreage?'<span>'+escHtml(l.acreage)+' ac</span>':'')+'</div>'+
+        (guestInfo.length ? '<div class="card-meta"><span>👥 '+guestInfo.join(' &middot; ')+'</span></div>' : '')+
         (speciesTags ? '<div class="card-meta"><span>'+speciesTags+'</span></div>' : '')+
         '<div class="card-footer">'+
           '<span class="verified-badge">🌱 Early Listing</span>'+

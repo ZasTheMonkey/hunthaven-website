@@ -337,7 +337,6 @@
                     <option value="">Select…</option>
                     <option value="flat">Flat rate per day (whole property)</option>
                     <option value="per_person">Per person, per day</option>
-                    <option value="group">Group rate (up to X people)</option>
                   </select>
                 </div>
               </div>
@@ -355,20 +354,18 @@
                   <input type="text" name="price_per_person" id="price-pp-input" placeholder="e.g. $75" />
                   <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-1)">Each guest pays this rate per day.</p>
                 </div>
+              </div>
+              <!-- Max guests + beds — always visible once pricing type chosen -->
+              <div id="guests-beds-row" class="field-row" style="display:none">
                 <div class="field">
                   <label>Max guests allowed</label>
-                  <input type="number" name="max_guests" min="1" max="50" placeholder="e.g. 6" />
-                </div>
-              </div>
-              <div id="price-group" class="field-row" style="display:none">
-                <div class="field">
-                  <label>Group rate per day *</label>
-                  <input type="text" name="price_group" id="price-group-input" placeholder="e.g. $400" />
-                  <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-1)">One flat price for the whole group per day.</p>
-                </div>
-                <div class="field">
-                  <label>Max group size</label>
                   <input type="number" name="max_guests" min="1" max="50" placeholder="e.g. 8" />
+                  <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-1)">Maximum number of guests permitted on the property at one time.</p>
+                </div>
+                <div class="field">
+                  <label>Number of beds (optional)</label>
+                  <input type="number" name="num_beds" min="0" max="50" placeholder="e.g. 4" />
+                  <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-1)">Leave blank if there’s no lodging on the property.</p>
                 </div>
               </div>
               <div class="field-row">
@@ -602,20 +599,17 @@
   // ── PRICING TYPE TOGGLE ────────────────────────────
   function togglePricingFields() {
     var type = document.getElementById('pricing-type').value;
-    document.getElementById('price-flat').style.display       = type === 'flat'       ? '' : 'none';
-    document.getElementById('price-per-person').style.display = type === 'per_person'  ? '' : 'none';
-    document.getElementById('price-group').style.display      = type === 'group'       ? '' : 'none';
-    // Update calculator label
-    var rateLabel = document.querySelector('#rate-slider').previousElementSibling;
+    document.getElementById('price-flat').style.display       = type === 'flat'      ? '' : 'none';
+    document.getElementById('price-per-person').style.display = type === 'per_person' ? '' : 'none';
+    // Show guests + beds row whenever a pricing type is selected
+    document.getElementById('guests-beds-row').style.display  = type ? '' : 'none';
+    // Update calculator mode
+    var rateValEl = document.getElementById('rate-val');
+    var rateLabel = rateValEl && rateValEl.closest('div') && rateValEl.closest('div').previousElementSibling;
     if (type === 'per_person') {
-      document.getElementById('rate-val').dataset.mode = 'pp';
-      rateLabel && (rateLabel.querySelector('span:first-child').textContent = 'Rate per person / day');
-    } else if (type === 'group') {
-      document.getElementById('rate-val').dataset.mode = 'group';
-      rateLabel && (rateLabel.querySelector('span:first-child').textContent = 'Group rate / day');
+      rateValEl && (rateValEl.dataset.mode = 'pp');
     } else {
-      document.getElementById('rate-val').dataset.mode = 'flat';
-      rateLabel && (rateLabel.querySelector('span:first-child').textContent = 'Daily rate');
+      rateValEl && (rateValEl.dataset.mode = 'flat');
     }
     updateCalc();
   }
@@ -778,13 +772,13 @@
     var state       = data.get('state')      || '';
     var county      = data.get('county')     || '';
     var acreage      = data.get('acreage')       || '';
-    var pricingType  = data.get('pricing_type')  || 'flat';
-    var priceFlat    = data.get('price_flat')     || '';
+    var pricingType  = data.get('pricing_type')    || 'flat';
+    var priceFlat    = data.get('price_flat')       || '';
     var pricePP      = data.get('price_per_person') || '';
-    var priceGroup   = data.get('price_group')   || '';
-    var maxGuests    = data.get('max_guests')     || '';
+    var maxGuests    = data.get('max_guests')       || '';
+    var numBeds      = data.get('num_beds')         || '';
     // Resolve the primary price field based on type
-    var price = pricingType === 'per_person' ? pricePP : pricingType === 'group' ? priceGroup : priceFlat;
+    var price = pricingType === 'per_person' ? pricePP : priceFlat;
     var cleaningFee = data.get('cleaning_fee') || '';
     var minStay     = data.get('min_stay')   || '';
     var activities  = data.getAll('activities');
@@ -827,7 +821,8 @@
       acreage:       acreage,
       pricing_type:  pricingType,
       price_per_day: price,
-      max_guests:    maxGuests || null,
+      max_guests:    maxGuests ? parseInt(maxGuests) : null,
+      num_beds:      numBeds   ? parseInt(numBeds)   : null,
       cleaning_fee:  cleaningFee,
       min_stay:      minStay,
       activities:    activities,
