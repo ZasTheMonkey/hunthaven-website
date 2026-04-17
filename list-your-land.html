@@ -100,6 +100,27 @@
     .field textarea{resize:vertical;min-height:100px;line-height:1.5}
     .field select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9485' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem}
     .checkbox-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:var(--space-3)}
+
+    /* CUSTOM ANIMALS */
+    .tag-input-wrap{display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center;padding:.6rem .75rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);min-height:48px;cursor:text;transition:border-color var(--transition)}
+    .tag-input-wrap:focus-within{border-color:var(--color-accent)}
+    .animal-tag{display:inline-flex;align-items:center;gap:var(--space-1);background:var(--color-accent-light);color:var(--color-accent);border:1px solid color-mix(in oklab,var(--color-accent) 30%,transparent);border-radius:var(--radius-full);padding:.25rem .75rem;font-size:var(--text-xs);font-weight:700;white-space:nowrap}
+    .animal-tag button{background:none;border:none;cursor:pointer;color:var(--color-accent);padding:0;line-height:1;font-size:.9rem;margin-left:2px;transition:opacity var(--transition)}
+    .animal-tag button:hover{opacity:.6}
+    .tag-real-input{border:none;outline:none;background:transparent;font-size:var(--text-sm);color:var(--color-text);min-width:140px;flex:1;padding:.1rem 0}
+    .tag-hint{font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-2)}
+
+    /* PHOTO UPLOAD */
+    .upload-zone{border:2px dashed var(--color-border);border-radius:var(--radius-lg);padding:var(--space-10) var(--space-6);text-align:center;cursor:pointer;transition:all var(--transition);position:relative;background:var(--color-bg)}
+    .upload-zone:hover,.upload-zone.drag-over{border-color:var(--color-accent);background:var(--color-accent-light)}
+    .upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%)}
+    .upload-icon{width:48px;height:48px;background:var(--color-surface-offset,var(--color-surface));border-radius:var(--radius-md);display:grid;place-items:center;color:var(--color-text-muted);margin:0 auto var(--space-4)}
+    .photo-previews{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:var(--space-3);margin-top:var(--space-4)}
+    .photo-thumb{position:relative;aspect-ratio:1;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--color-border)}
+    .photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .photo-thumb .remove-photo{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:.75rem;display:grid;place-items:center;cursor:pointer;border:none;line-height:1;transition:background var(--transition)}
+    .photo-thumb .remove-photo:hover{background:rgba(180,30,30,.85)}
+    .photo-count{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)}
     .checkbox-item{display:flex;align-items:center;gap:var(--space-2);padding:.6rem .9rem;border:1px solid var(--color-border);border-radius:var(--radius-md);cursor:pointer;transition:all var(--transition);font-size:var(--text-sm)}
     .checkbox-item:hover{border-color:var(--color-accent);background:var(--color-accent-light)}
     .checkbox-item input{width:16px;height:16px;accent-color:var(--color-accent);cursor:pointer}
@@ -336,6 +357,33 @@
               <label class="checkbox-item"><input type="checkbox" name="activities" value="Guided experience" /> Guided experience</label>
               <label class="checkbox-item"><input type="checkbox" name="activities" value="Overnight / cabin" /> Overnight / cabin</label>
             </div>
+
+            <!-- CUSTOM ANIMALS -->
+            <div style="margin-top:var(--space-6)">
+              <label style="display:block;font-size:var(--text-xs);font-weight:700;color:var(--color-text-muted);margin-bottom:var(--space-2);letter-spacing:.04em;text-transform:uppercase">Don't see your animal? Add it below</label>
+              <div class="tag-input-wrap" id="tag-wrap" onclick="document.getElementById('animal-input').focus()">
+                <span id="animal-tags-container"></span>
+                <input id="animal-input" class="tag-real-input" type="text" placeholder="e.g. Elk, Axis Deer, Alligator… press Enter or comma to add" autocomplete="off" />
+              </div>
+              <p class="tag-hint">Type an animal name and press <strong>Enter</strong> or <strong>,</strong> to add it. Add as many as you like.</p>
+              <input type="hidden" id="custom-animals-hidden" name="custom_animals" value="" />
+            </div>
+          </div>
+
+          <!-- PHOTO UPLOAD -->
+          <div class="form-section">
+            <p class="form-section-label">Property Photos</p>
+            <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-4)">Upload photos of your land, blinds, water, cabin, or game. Great photos get more bookings. Up to 10 photos.</p>
+            <div class="upload-zone" id="upload-zone">
+              <input type="file" id="photo-input" accept="image/*" multiple />
+              <div class="upload-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <p style="font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-1)">Drag &amp; drop photos here</p>
+              <p style="font-size:var(--text-xs);color:var(--color-text-muted)">or click to browse — JPG, PNG, HEIC up to 20MB each</p>
+            </div>
+            <div class="photo-previews" id="photo-previews"></div>
+            <p class="photo-count" id="photo-count"></p>
           </div>
 
           <!-- EXTRAS -->
@@ -515,7 +563,108 @@
   bookingsSlider.addEventListener('input',updateCalc);
   updateCalc();
 
-  // Form submission
+  // ── CUSTOM ANIMAL TAGS ──────────────────────────────
+  var customAnimals = [];
+  var animalInput = document.getElementById('animal-input');
+  var animalTagsContainer = document.getElementById('animal-tags-container');
+  var customAnimalsHidden = document.getElementById('custom-animals-hidden');
+
+  function renderTags() {
+    animalTagsContainer.innerHTML = '';
+    customAnimals.forEach(function(animal, i) {
+      var tag = document.createElement('span');
+      tag.className = 'animal-tag';
+      tag.innerHTML = animal + '<button type="button" aria-label="Remove ' + animal + '" onclick="removeAnimal(' + i + ')">×</button>';
+      animalTagsContainer.appendChild(tag);
+    });
+    customAnimalsHidden.value = customAnimals.join(', ');
+  }
+
+  function addAnimal(val) {
+    var trimmed = val.trim().replace(/,+$/, '').trim();
+    if (trimmed && !customAnimals.map(function(a){return a.toLowerCase();}).includes(trimmed.toLowerCase())) {
+      customAnimals.push(trimmed.charAt(0).toUpperCase() + trimmed.slice(1));
+      renderTags();
+    }
+    animalInput.value = '';
+  }
+
+  window.removeAnimal = function(i) {
+    customAnimals.splice(i, 1);
+    renderTags();
+  };
+
+  animalInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); addAnimal(animalInput.value); }
+    if (e.key === 'Backspace' && animalInput.value === '' && customAnimals.length > 0) {
+      customAnimals.pop(); renderTags();
+    }
+  });
+  animalInput.addEventListener('input', function() {
+    if (animalInput.value.includes(',')) {
+      var parts = animalInput.value.split(',');
+      parts.slice(0, -1).forEach(function(p) { addAnimal(p); });
+      animalInput.value = parts[parts.length - 1];
+    }
+  });
+  animalInput.addEventListener('blur', function() {
+    if (animalInput.value.trim()) addAnimal(animalInput.value);
+  });
+
+  // ── PHOTO UPLOAD ─────────────────────────────────────
+  var selectedFiles = [];
+  var uploadZone = document.getElementById('upload-zone');
+  var photoInput = document.getElementById('photo-input');
+  var photoPreviews = document.getElementById('photo-previews');
+  var photoCount = document.getElementById('photo-count');
+
+  function updatePhotoPreviews() {
+    photoPreviews.innerHTML = '';
+    selectedFiles.forEach(function(file, i) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var thumb = document.createElement('div');
+        thumb.className = 'photo-thumb';
+        thumb.innerHTML = '<img src="' + e.target.result + '" alt="Photo ' + (i+1) + '" /><button type="button" class="remove-photo" aria-label="Remove photo" onclick="removePhoto(' + i + ')">×</button>';
+        photoPreviews.appendChild(thumb);
+      };
+      reader.readAsDataURL(file);
+    });
+    var n = selectedFiles.length;
+    photoCount.textContent = n > 0 ? n + ' photo' + (n !== 1 ? 's' : '') + ' selected' + (n >= 10 ? ' (maximum reached)' : '') : '';
+  }
+
+  window.removePhoto = function(i) {
+    selectedFiles.splice(i, 1);
+    updatePhotoPreviews();
+  };
+
+  photoInput.addEventListener('change', function() {
+    var newFiles = Array.from(photoInput.files);
+    newFiles.forEach(function(f) {
+      if (selectedFiles.length < 10 && !selectedFiles.find(function(x){return x.name===f.name&&x.size===f.size;})) {
+        selectedFiles.push(f);
+      }
+    });
+    photoInput.value = '';
+    updatePhotoPreviews();
+  });
+
+  uploadZone.addEventListener('dragover', function(e) { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', function() { uploadZone.classList.remove('drag-over'); });
+  uploadZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    var dropped = Array.from(e.dataTransfer.files).filter(function(f){return f.type.startsWith('image/');});
+    dropped.forEach(function(f) {
+      if (selectedFiles.length < 10 && !selectedFiles.find(function(x){return x.name===f.name&&x.size===f.size;})) {
+        selectedFiles.push(f);
+      }
+    });
+    updatePhotoPreviews();
+  });
+
+  // ── FORM SUBMISSION ───────────────────────────────────
   const FORM_ACTION='https://docs.google.com/forms/d/e/1FAIpQLSflRqncpu1U2GKag97hbgK8LqhxVImlQf87IRzjzTAX_blfhQ/formResponse';
 
   function submitForm(e){
@@ -536,7 +685,10 @@
     var phone=data.get('phone')||'';
 
     // Build summary string for the "type" field
-    var summary='Landowner Signup | '+firstName+' '+lastName+' | '+state+' | '+acreage+' | '+activities+' | '+price+' | '+phone+' | '+description;
+    var customAnimalsList = customAnimalsHidden ? customAnimalsHidden.value : '';
+    var allAnimals = [activities, customAnimalsList].filter(Boolean).join(', ');
+    var photoNote = selectedFiles.length > 0 ? ' | Photos: ' + selectedFiles.length + ' uploaded' : '';
+    var summary='Landowner Signup | '+firstName+' '+lastName+' | '+state+' | '+acreage+' | '+allAnimals+' | '+price+' | '+phone+' | '+description+photoNote;
 
     var f=document.createElement('form');
     f.method='POST';
