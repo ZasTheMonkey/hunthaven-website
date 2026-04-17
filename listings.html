@@ -404,7 +404,7 @@
         '<div class="card-meta"><span>📍 '+escHtml(location)+'</span>'+(l.acreage?'<span>'+escHtml(l.acreage)+'</span>':'')+'</div>'+
         (speciesTags ? '<div class="card-meta"><span>'+speciesTags+'</span></div>' : '')+
         '<div class="card-footer">'+
-          '<span class="verified-badge">✓ Verified</span>'+
+          '<span class="verified-badge">🌱 Early Listing</span>'+
           (cleanFee||minStay ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">'+[cleanFee,minStay].filter(Boolean).join(' ')+'</span>' : '')+
         '</div>'+
       '</div>'+
@@ -458,14 +458,22 @@
       .eq('status','active')
       .order('created_at', { ascending: false });
 
-    document.getElementById('listings-loading') && (document.getElementById('listings-loading').remove());
+    var loadingEl = document.getElementById('listings-loading');
+    if (loadingEl) loadingEl.remove();
 
-    if (error || !data || !data.length) {
+    if (error) {
+      document.getElementById('filter-empty').style.display = 'block';
+      document.getElementById('filter-empty').innerHTML = 'Unable to load listings — please refresh the page. <a href="list-your-land.html" style="color:var(--color-accent);font-weight:700">Or list your land →</a>';
+      return;
+    }
+    if (!data || !data.length) {
       document.getElementById('filter-empty').style.display = 'block';
       return;
     }
     allListings = data;
     renderListings(allListings);
+    // Wire real listings into the map after load
+    if (typeof updateMapWithRealListings === 'function') updateMapWithRealListings(allListings);
   })();
   </script>
     
@@ -564,18 +572,44 @@
 
   <script>
   // ── SAMPLE LISTINGS DATA ──
-  const LISTINGS = [
-    { id:1, type:'hunting', lat:29.027, lng:-81.002, title:'Palmetto Ridge Cabin', acres:340, price:180, unit:'day', species:['Deer','Hog','Turkey'], state:'FL', city:'New Smyrna Beach' },
-    { id:2, type:'fishing', lat:29.191, lng:-81.102, title:'Lake Ashby Bass Pond', acres:12, price:95, unit:'day', species:['Bass','Bream'], state:'FL', city:'Osteen' },
-    { id:3, type:'hunting', lat:29.411, lng:-81.306, title:'Ocala Flatwoods', acres:620, price:220, unit:'day', species:['Deer','Hog'], state:'FL', city:'Ocala' },
-    { id:4, type:'fishing', lat:28.812, lng:-81.355, title:'Spring Creek Private Stretch', acres:4, price:120, unit:'day', species:['Bass','Trout'], state:'FL', city:'Sanford' },
-    { id:5, type:'hunting', lat:29.652, lng:-82.325, title:'Gainesville Ranch', acres:890, price:250, unit:'day', species:['Deer','Turkey'], state:'FL', city:'Gainesville' },
-    { id:6, type:'fishing', lat:28.538, lng:-81.379, title:'Private Lake Frontage', acres:8, price:110, unit:'day', species:['Bass','Crappie'], state:'FL', city:'Orlando' },
-    { id:7, type:'hunting', lat:30.332, lng:-81.655, title:'North FL Timber Tract', acres:1200, price:195, unit:'day', species:['Deer','Hog','Turkey'], state:'FL', city:'Jacksonville' },
-    { id:8, type:'hunting', lat:29.886, lng:-81.317, title:'St. Johns River Bottom', acres:480, price:165, unit:'day', species:['Deer','Duck'], state:'FL', city:'Palatka' },
-    { id:9, type:'fishing', lat:30.189, lng:-85.668, title:'Panhandle Bass Pond', acres:6, price:85, unit:'day', species:['Bass','Bream'], state:'FL', city:'Panama City' },
-    { id:10, type:'hunting', lat:30.438, lng:-84.280, title:'Tallahassee Quail Farm', acres:700, price:300, unit:'day', species:['Quail','Turkey'], state:'FL', city:'Tallahassee' },
-  ];
+  // Real listings from Supabase will be loaded here after page load
+  // State center coordinates for mapping listings by state
+  const STATE_CENTERS = {
+    FL:{lat:27.994,lng:-81.760},TX:{lat:31.000,lng:-100.000},
+    MT:{lat:46.879,lng:-110.362},GA:{lat:32.157,lng:-82.907},
+    AL:{lat:32.318,lng:-86.902},TN:{lat:35.517,lng:-86.580}
+  };
+  const LISTINGS = []; // populated from Supabase
+
+  function sbListingToMapItem(l, idx) {
+    var type = (typeof getType === 'function') ? getType(l) : 'hunting';
+    var center = STATE_CENTERS[l.state] || {lat:32,lng:-90};
+    // Scatter pins slightly so they don't stack
+    var scatter = 0.4;
+    var lat = center.lat + (Math.random()-0.5)*scatter;
+    var lng = center.lng + (Math.random()-0.5)*scatter*2;
+    return {
+      id: idx,
+      type: type,
+      lat: lat,
+      lng: lng,
+      title: (l.county ? l.county + ' Private Land' : 'Private Land'),
+      acres: parseInt(l.acreage) || 0,
+      price: parseInt(l.price_per_day) || 0,
+      unit: 'day',
+      species: l.activities || [],
+      state: l.state || '',
+      city: l.county || ''
+    };
+  }
+
+  function updateMapWithRealListings(listings) {
+    if (!listings || !listings.length) return;
+    var mapped = listings.map(sbListingToMapItem);
+    LISTINGS.length = 0;
+    mapped.forEach(function(m){ LISTINGS.push(m); });
+    if (huntMap) plotListings(LISTINGS);
+  }
 
   let huntMap, markers = [], currentFilter = 'all', allMarkers = [];
 
@@ -592,8 +626,8 @@
     return `<div class="map-popup">
       <p class="pop-badge" style="color:${color};background:${badgeColor};display:inline-block;padding:2px 8px;border-radius:999px">${isHunt ? '🌲 Hunting' : '🎣 Fishing'}</p>
       <p class="pop-title">${l.title}</p>
-      <p class="pop-meta">${l.city}, ${l.state} &middot; ${l.acres} acres &middot; ${l.species.join(', ')}</p>
-      <p class="pop-price">$${l.price}<span style="font-size:13px;font-weight:400;color:#6b6656"> / ${l.unit}</span></p>
+      <p class="pop-meta">${l.city}${l.city && l.state ? ', ' : ''}${l.state}${l.acres ? ' &middot; '+l.acres+' acres' : ''} &middot; ${Array.isArray(l.species) ? l.species.slice(0,3).join(', ') : l.species}</p>
+      <p class="pop-price">${l.price ? '$'+l.price+'<span style="font-size:13px;font-weight:400;color:#6b6656"> / '+l.unit+'</span>' : '<span style="font-size:13px;color:#6b6656">Contact for pricing</span>'}</p>
       <button class="pop-btn${isHunt ? '' : ' water'}" onclick="openWaitlist('guest')">Request access</button>
     </div>`;
   }

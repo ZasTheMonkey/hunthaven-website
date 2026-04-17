@@ -113,7 +113,7 @@
     /* PHOTO UPLOAD */
     .upload-zone{border:2px dashed var(--color-border);border-radius:var(--radius-lg);padding:var(--space-10) var(--space-6);text-align:center;cursor:pointer;transition:all var(--transition);position:relative;background:var(--color-bg)}
     .upload-zone:hover,.upload-zone.drag-over{border-color:var(--color-accent);background:var(--color-accent-light)}
-    .upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%)}
+    .upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
     .upload-icon{width:48px;height:48px;background:var(--color-surface-offset,var(--color-surface));border-radius:var(--radius-md);display:grid;place-items:center;color:var(--color-text-muted);margin:0 auto var(--space-4)}
     .photo-previews{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:var(--space-3);margin-top:var(--space-4)}
     .photo-thumb{position:relative;aspect-ratio:1;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--color-border)}
@@ -504,8 +504,11 @@
       </div>
       <p style="font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);margin-bottom:var(--space-3)">You're In</p>
       <h2 style="font-size:var(--text-xl);font-weight:800;letter-spacing:-.04em;margin-bottom:var(--space-3)">Property submitted.</h2>
-      <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-8)">We'll reach out personally within 48 hours to help you finalize your listing and get you set up as a Founding Landowner before we launch.</p>
-      <a href="index.html" class="btn btn-accent" style="width:100%;justify-content:center;padding:.85rem 1.5rem;font-size:var(--text-base)">Back to Wildbook</a>
+      <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-6)">Your listing is <strong>live right now</strong> on Browse Land. Guests can see it and request access. You'll hear from us when a guest wants to book your property.</p>
+      <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+        <a href="listings.html" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem 1.5rem;font-size:var(--text-base)">View Your Listing Live →</a>
+        <a href="list-your-land.html" class="btn btn-ghost" style="width:100%;justify-content:center;padding:.85rem 1.5rem;font-size:var(--text-base)">Add Another Property</a>
+      </div>
     </div>
   </div>
 
