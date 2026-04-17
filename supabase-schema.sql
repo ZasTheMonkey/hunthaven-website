@@ -20,7 +20,9 @@ CREATE TABLE IF NOT EXISTS public.listings (
   state            text,
   county           text,
   acreage          numeric,
-  price_per_day    numeric,
+  pricing_type     text    DEFAULT 'flat', -- 'flat' | 'per_person' | 'group'
+  price_per_day    numeric,               -- stores flat rate, per-person rate, or group rate
+  max_guests       integer,               -- used for per_person and group pricing types
   cleaning_fee     numeric,
   min_stay         integer,
 

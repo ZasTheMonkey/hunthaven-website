@@ -332,8 +332,43 @@
                   </select>
                 </div>
                 <div class="field">
-                  <label>Your price idea (per day)</label>
-                  <input type="text" name="price" placeholder="e.g. $150 – $300" />
+                  <label>Pricing type *</label>
+                  <select name="pricing_type" id="pricing-type" onchange="togglePricingFields()" required>
+                    <option value="">Select…</option>
+                    <option value="flat">Flat rate per day (whole property)</option>
+                    <option value="per_person">Per person, per day</option>
+                    <option value="group">Group rate (up to X people)</option>
+                  </select>
+                </div>
+              </div>
+              <!-- Pricing fields — shown based on type -->
+              <div id="price-flat" class="field-row" style="display:none">
+                <div class="field">
+                  <label>Flat daily rate *</label>
+                  <input type="text" name="price_flat" id="price-flat-input" placeholder="e.g. $250" />
+                  <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-1)">Covers the entire property per day regardless of group size.</p>
+                </div>
+              </div>
+              <div id="price-per-person" class="field-row" style="display:none">
+                <div class="field">
+                  <label>Price per person, per day *</label>
+                  <input type="text" name="price_per_person" id="price-pp-input" placeholder="e.g. $75" />
+                  <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-1)">Each guest pays this rate per day.</p>
+                </div>
+                <div class="field">
+                  <label>Max guests allowed</label>
+                  <input type="number" name="max_guests" min="1" max="50" placeholder="e.g. 6" />
+                </div>
+              </div>
+              <div id="price-group" class="field-row" style="display:none">
+                <div class="field">
+                  <label>Group rate per day *</label>
+                  <input type="text" name="price_group" id="price-group-input" placeholder="e.g. $400" />
+                  <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-1)">One flat price for the whole group per day.</p>
+                </div>
+                <div class="field">
+                  <label>Max group size</label>
+                  <input type="number" name="max_guests" min="1" max="50" placeholder="e.g. 8" />
                 </div>
               </div>
               <div class="field-row">
@@ -564,6 +599,27 @@
     });
   })();
 
+  // ── PRICING TYPE TOGGLE ────────────────────────────
+  function togglePricingFields() {
+    var type = document.getElementById('pricing-type').value;
+    document.getElementById('price-flat').style.display       = type === 'flat'       ? '' : 'none';
+    document.getElementById('price-per-person').style.display = type === 'per_person'  ? '' : 'none';
+    document.getElementById('price-group').style.display      = type === 'group'       ? '' : 'none';
+    // Update calculator label
+    var rateLabel = document.querySelector('#rate-slider').previousElementSibling;
+    if (type === 'per_person') {
+      document.getElementById('rate-val').dataset.mode = 'pp';
+      rateLabel && (rateLabel.querySelector('span:first-child').textContent = 'Rate per person / day');
+    } else if (type === 'group') {
+      document.getElementById('rate-val').dataset.mode = 'group';
+      rateLabel && (rateLabel.querySelector('span:first-child').textContent = 'Group rate / day');
+    } else {
+      document.getElementById('rate-val').dataset.mode = 'flat';
+      rateLabel && (rateLabel.querySelector('span:first-child').textContent = 'Daily rate');
+    }
+    updateCalc();
+  }
+
   // Checkbox styling
   document.querySelectorAll('.checkbox-item input').forEach(function(cb){
     cb.addEventListener('change',function(){
@@ -579,16 +635,20 @@
     var rate=parseInt(rateSlider.value);
     var days=parseInt(bookingsSlider.value);
     var clean=parseInt(cleanSlider.value);
-    var gross=rate*days;
+    var mode = (document.getElementById('rate-val') && document.getElementById('rate-val').dataset.mode) || 'flat';
+    // For per-person, assume avg group of 4; for group, rate is already total
+    var effectiveRate = mode === 'per_person' ? rate * 4 : rate;
+    var gross=effectiveRate*days;
     var fee=Math.round(gross*.15);
     var ratePayout=gross-fee;
-    var cleanTotal=clean*days; // cleaning fee passed through 100% to landowner
+    var cleanTotal=clean*days;
     var payout=ratePayout+cleanTotal;
     var annual=payout*12;
-    document.getElementById('rate-val').textContent='$'+rate+'/day';
+    var rateLabel = mode === 'per_person' ? '$'+rate+'/person/day' : mode === 'group' ? '$'+rate+'/group/day' : '$'+rate+'/day';
+    document.getElementById('rate-val').textContent=rateLabel;
     document.getElementById('bookings-val').textContent=days+(days===1?' day':' days');
     document.getElementById('clean-val').textContent=clean===0?'None':'$'+clean+'/booking';
-    document.getElementById('calc-gross').textContent='$'+gross.toLocaleString();
+    document.getElementById('calc-gross').textContent='$'+gross.toLocaleString()+(mode==='per_person'?' (avg 4 guests)':'');
     document.getElementById('calc-fee').textContent='−$'+fee.toLocaleString();
     document.getElementById('calc-clean-total').textContent=cleanTotal===0?'$0':'+$'+cleanTotal.toLocaleString();
     document.getElementById('calc-payout').textContent='$'+payout.toLocaleString();
@@ -717,8 +777,14 @@
     var phone       = data.get('phone')      || '';
     var state       = data.get('state')      || '';
     var county      = data.get('county')     || '';
-    var acreage     = data.get('acreage')    || '';
-    var price       = data.get('price')      || '';
+    var acreage      = data.get('acreage')       || '';
+    var pricingType  = data.get('pricing_type')  || 'flat';
+    var priceFlat    = data.get('price_flat')     || '';
+    var pricePP      = data.get('price_per_person') || '';
+    var priceGroup   = data.get('price_group')   || '';
+    var maxGuests    = data.get('max_guests')     || '';
+    // Resolve the primary price field based on type
+    var price = pricingType === 'per_person' ? pricePP : pricingType === 'group' ? priceGroup : priceFlat;
     var cleaningFee = data.get('cleaning_fee') || '';
     var minStay     = data.get('min_stay')   || '';
     var activities  = data.getAll('activities');
@@ -759,7 +825,9 @@
       state:         state,
       county:        county,
       acreage:       acreage,
+      pricing_type:  pricingType,
       price_per_day: price,
+      max_guests:    maxGuests || null,
       cleaning_fee:  cleaningFee,
       min_stay:      minStay,
       activities:    activities,

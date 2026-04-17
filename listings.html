@@ -379,7 +379,13 @@
     var type = getType(l);
     var acres = parseAcres(l.acreage);
     var species = (l.activities || []).join(',');
-    var price = l.price_per_day ? '$' + l.price_per_day + ' / day' : 'Contact for pricing';
+    var priceLabel = 'Contact for pricing';
+    if (l.price_per_day) {
+      if (l.pricing_type === 'per_person') priceLabel = '$' + l.price_per_day + ' / person';
+      else if (l.pricing_type === 'group') priceLabel = '$' + l.price_per_day + ' / group' + (l.max_guests ? ' (up to ' + l.max_guests + ')' : '');
+      else priceLabel = '$' + l.price_per_day + ' / day';
+    }
+    var price = priceLabel;
     var location = [l.county, l.state].filter(Boolean).join(', ');
     var name = [l.first_name, l.last_name].filter(Boolean).join(' ') || 'Private Property';
     var title = (l.county || l.state || 'Private Land') + ' — ' + (l.acreage || '') + (l.acreage ? ' ac' : '') ;
