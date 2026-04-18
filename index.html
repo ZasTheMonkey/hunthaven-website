@@ -110,7 +110,7 @@
     .mobile-menu-btn{display:none;width:40px;height:40px;border-radius:var(--radius-md);border:1px solid var(--color-border);place-items:center;color:var(--color-text-muted)}
 
     /* ── HERO ───────────────────────────────────────────── */
-    .hero{min-height:92dvh;display:grid;place-items:center;padding:clamp(var(--space-16),8vw,var(--space-32)) clamp(var(--space-4),4vw,var(--space-12));position:relative;overflow:hidden}
+    .hero{min-height:70dvh;display:grid;place-items:center;padding:clamp(var(--space-10),6vw,var(--space-24)) clamp(var(--space-4),4vw,var(--space-12));position:relative;overflow:hidden}
     .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 60% 50%,color-mix(in oklab,var(--color-primary) 12%,transparent),transparent),radial-gradient(ellipse 50% 40% at 20% 80%,color-mix(in oklab,var(--color-accent) 8%,transparent),transparent);pointer-events:none}
     .hero-bg-grid{position:absolute;inset:0;background-image:linear-gradient(var(--color-border) 1px,transparent 1px),linear-gradient(90deg,var(--color-border) 1px,transparent 1px);background-size:60px 60px;opacity:.25;pointer-events:none}
     .hero-inner{max-width:960px;margin:0 auto;text-align:center;position:relative;z-index:1;display:grid;gap:var(--space-8)}
@@ -188,6 +188,7 @@
       .footer-inner{grid-template-columns:1fr 1fr}
     }
     @media(max-width:540px){
+      .hero{min-height:auto;padding:var(--space-12) var(--space-4)}
       .hero h1{font-size:clamp(2.5rem,10vw,4rem)}
       .footer-inner{grid-template-columns:1fr}
     }
