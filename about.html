@@ -100,6 +100,9 @@
       .nav-links{display:none}
       .mobile-menu-btn{display:grid}
       .nav-actions .btn-ghost,.nav-actions .btn-primary,.nav-actions .btn-accent{display:none!important}
+      .nav-mob-cta{display:none!important}
+      .nav-links.nav-open .nav-mob-cta{display:block!important}
+      .nav-links.nav-open .nav-divider{display:block;width:100%;height:1px;background:var(--color-border);margin:4px 0}
       .two-col{grid-template-columns:1fr!important}
       .timeline::before{left:16px}
     }
@@ -125,11 +128,14 @@
           <span style="font-family:var(--font-display);font-weight:800;font-size:1.6rem;letter-spacing:-.03em;"><span style="color:#2a5c3c;">WILD</span><span style="color:#b85c1a;">BOOK</span></span>
         </a>
       <div class="nav-links">
-        <a href="index.html#listings">Browse listings</a>
-        <a href="index.html#map">Map view</a>
-        <a href="index.html#fishing">Fishing access</a>
-        <a href="index.html#host">List your land</a>
+        <a href="listings.html">Browse Land</a>
+        <a href="fishing.html">Fishing</a>
+        <a href="howitworks.html">How It Works</a>
+        <a href="pricing.html">Pricing</a>
         <a href="about.html" class="active">About</a>
+        <span class="nav-divider"></span>
+        <a href="list-your-land.html" class="nav-mob-cta" style="color:var(--color-accent);font-weight:700">List Your Land</a>
+        <a href="javascript:void(0)" class="nav-mob-cta" onclick="openWaitlist && openWaitlist('guest')" style="color:var(--color-primary);font-weight:700">Get early access</a>
       </div>
       <div class="nav-actions">
         <button class="theme-btn" data-theme-toggle aria-label="Toggle theme">
