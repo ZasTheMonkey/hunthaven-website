@@ -310,7 +310,7 @@
               <div class="field" style="position:relative;overflow:visible;z-index:100">
                 <label>Property Street Address *</label>
                 <input type="text" name="street_address" id="street_address" required placeholder="e.g. 1234 Ranch Road, Lake Placid, FL 33852" style="width:100%" autocomplete="off" />
-                <ul id="addr-suggestions" style="display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;z-index:99999;background:var(--color-card);border:1px solid var(--color-border);border-radius:10px;margin:0;padding:0;list-style:none;box-shadow:0 12px 32px rgba(0,0,0,.35);max-height:240px;overflow-y:auto"></ul>
+                <ul id="addr-suggestions" style="display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;z-index:99999;background:#1e2620;border:1px solid rgba(255,255,255,.15);border-radius:10px;margin:0;padding:0;list-style:none;box-shadow:0 16px 40px rgba(0,0,0,.7);max-height:260px;overflow-y:auto"></ul>
                 <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:6px">Start typing and select your address from the list.</p>
               </div>
               <div class="field-row">
@@ -905,13 +905,16 @@
     }
   }
 
+  // US state name → abbreviation map
+  const STATE_ABBR = {'Alabama':'AL','Alaska':'AK','Arizona':'AZ','Arkansas':'AR','California':'CA','Colorado':'CO','Connecticut':'CT','Delaware':'DE','Florida':'FL','Georgia':'GA','Hawaii':'HI','Idaho':'ID','Illinois':'IL','Indiana':'IN','Iowa':'IA','Kansas':'KS','Kentucky':'KY','Louisiana':'LA','Maine':'ME','Maryland':'MD','Massachusetts':'MA','Michigan':'MI','Minnesota':'MN','Mississippi':'MS','Missouri':'MO','Montana':'MT','Nebraska':'NE','Nevada':'NV','New Hampshire':'NH','New Jersey':'NJ','New Mexico':'NM','New York':'NY','North Carolina':'NC','North Dakota':'ND','Ohio':'OH','Oklahoma':'OK','Oregon':'OR','Pennsylvania':'PA','Rhode Island':'RI','South Carolina':'SC','South Dakota':'SD','Tennessee':'TN','Texas':'TX','Utah':'UT','Vermont':'VT','Virginia':'VA','Washington':'WA','West Virginia':'WV','Wisconsin':'WI','Wyoming':'WY'};
+
   function formatAddress(r) {
     const a = r.address || {};
-    const num   = a.house_number || '';
-    const road  = a.road || a.pedestrian || a.footway || '';
-    const city  = a.city || a.town || a.village || a.hamlet || a.county || '';
-    const state = a.state || '';
-    const zip   = a.postcode || '';
+    const num    = a.house_number || '';
+    const road   = a.road || a.pedestrian || a.footway || '';
+    const city   = a.city || a.town || a.village || a.hamlet || '';
+    const state  = STATE_ABBR[a.state] || a.state || '';
+    const zip    = a.postcode || '';
     const street = [num, road].filter(Boolean).join(' ');
     const parts  = [street, city, state, zip].filter(Boolean);
     return parts.length >= 2 ? parts.join(', ') : r.display_name;
@@ -924,7 +927,7 @@
       const li = document.createElement('li');
       const shortAddr = formatAddress(r);
       li.textContent = shortAddr;
-      li.style.cssText = 'padding:11px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--color-border);line-height:1.4;color:var(--color-text)';
+      li.style.cssText = 'padding:11px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid rgba(255,255,255,.1);line-height:1.4;color:#f0f0f0;background:transparent';
       const select = (e) => {
         if (e.cancelable) e.preventDefault();
         addrInput.value = shortAddr;
@@ -932,7 +935,7 @@
       };
       li.addEventListener('mousedown', select);
       li.addEventListener('touchend', select, { passive: false });
-      li.addEventListener('mouseenter', () => li.style.background = 'var(--color-border)');
+      li.addEventListener('mouseenter', () => li.style.background = 'rgba(255,255,255,.08)');
       li.addEventListener('mouseleave', () => li.style.background = '');
       suggList.appendChild(li);
     });
