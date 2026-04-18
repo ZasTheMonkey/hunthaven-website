@@ -96,6 +96,7 @@
     .nav-links a{font-size:var(--text-sm);color:var(--color-text-muted);transition:color var(--transition)}
     .nav-links a:hover,.nav-links a.active{color:var(--color-text)}
     .nav-actions{display:flex;align-items:center;gap:var(--space-3)}
+    .nav-mobile-cta{display:none}
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);padding:.65rem 1.25rem;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:600;transition:all var(--transition);white-space:nowrap}
     .btn-ghost{color:var(--color-text-muted);border:1px solid var(--color-border)}
     .btn-ghost:hover{color:var(--color-text);background:var(--color-surface-offset)}
@@ -184,8 +185,8 @@
       .nav-links{display:none}
       .mobile-menu-btn{display:grid}
       .nav-actions .btn-ghost,.nav-actions .btn-primary,.nav-actions .btn-accent{display:none}
-      .nav-mobile-only{display:none!important}
-      .nav-links.nav-open .nav-mobile-only{display:flex!important}
+      .nav-mobile-cta{display:none}
+      .nav-links.nav-open .nav-mobile-cta{display:flex}
     .nav-links.nav-open{display:flex!important;flex-direction:column;align-items:flex-start;position:absolute;top:100%;left:0;right:0;background:var(--color-bg);border-bottom:1px solid var(--color-border);padding:var(--space-4) clamp(var(--space-4),4vw,var(--space-12));gap:var(--space-4);z-index:99;}
     .nav-links.nav-open a{font-size:var(--text-base);padding:var(--space-2) 0;}
       .footer-inner{grid-template-columns:1fr 1fr}
@@ -254,8 +255,8 @@
         <a href="howitworks.html">How It Works</a>
         <a href="pricing.html">Pricing</a>
         <a href="about.html">About</a>
-        <a href="list-your-land.html" class="nav-mobile-only" style="color:var(--color-accent);font-weight:700">List Your Land</a>
-        <button class="nav-mobile-only btn btn-primary" onclick="openWaitlist('guest')" style="width:100%;justify-content:center">Get early access</button>
+        <a href="list-your-land.html" class="nav-mobile-cta" style="color:var(--color-accent);font-weight:700">List Your Land</a>
+        <button class="nav-mobile-cta btn btn-primary" onclick="openWaitlist('guest')" style="width:100%;justify-content:center;margin-top:4px">Get early access</button>
       </div>
       <div class="nav-actions">
         <button class="theme-btn" data-theme-toggle aria-label="Toggle theme">
