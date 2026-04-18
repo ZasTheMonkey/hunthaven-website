@@ -315,7 +315,7 @@
               </div>
               <div id="parcel-map-section" style="margin-top:var(--space-4)">
                 <label style="display:block;margin-bottom:8px;font-weight:600">Your Property Boundary &amp; Allowed Zone</label>
-                <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:10px">Your parcel is shown in green. Use the draw tool to outline the area guests are allowed to access. <strong>This is optional but recommended.</strong></p>
+                <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:10px">Your property is shown on satellite view. Use the draw tool to outline the area guests are allowed to access. <strong>This is optional but recommended.</strong></p>
                 <div id="parcel-map" style="width:100%;height:380px;border-radius:12px;overflow:hidden;border:1px solid var(--color-border);background:#1a1a1a;display:flex;align-items:center;justify-content:center">
                   <span id="map-placeholder" style="color:rgba(255,255,255,.35);font-size:14px;text-align:center;padding:20px">Enter your address above to see your property boundary</span>
                 </div>
@@ -899,8 +899,6 @@
 
   <script>
   // ── PARCEL MAP ─────────────────────────────────────────────
-  const REGRID_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJyZWdyaWQuY29tIiwiaWF0IjoxNzc2NTE5ODQxLCJleHAiOjE3NzkxMTE4NDEsInUiOjc2MDQxMSwiZyI6MjMxNTMsImNhcCI6InBhOnRzOnBzOmJmOm1hOnR5OmVvOnpvOnNiIn0.WlLuUjL_VE0gNnY61JJVKtTbeOYKO2J0ORN60W1b9mU';
-
   let leafMap = null, parcelLayer = null, drawnItems = null, drawControl = null;
   let mapInitialized = false;
 
@@ -973,30 +971,71 @@
 
   async function lookupParcel(address) {
     const status = document.getElementById('parcel-map-status');
-    status.innerHTML = '<span style="color:var(--color-text-muted)">Loading your property boundary…</span>';
+    status.innerHTML = '<span style="color:var(--color-text-muted)">Loading your property on the map…</span>';
     try {
-      const url = `https://app.regrid.com/api/v2/parcels/address?query=${encodeURIComponent(address)}&token=${REGRID_TOKEN}&limit=1&return_geometry=true`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('API error ' + res.status);
-      const json = await res.json();
-      const features = json?.parcels?.features || json?.features || [];
-      if (!features.length) {
-        status.innerHTML = '<span style="color:#b85c1a">Parcel not found. Try including city and state, or continue without the map.</span>';
+      // Step 1: Geocode with Nominatim to get lat/lng
+      const geoUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&addressdetails=1&limit=1&countrycodes=us`;
+      const geoRes = await fetch(geoUrl, { headers: { 'Accept-Language': 'en' } });
+      const geoData = await geoRes.json();
+      if (!geoData.length) {
+        status.innerHTML = '<span style="color:#b85c1a">Address not found. Try adding city and state (e.g. "123 Main St, Austin, TX").</span>';
         return;
       }
-      const feature = features[0];
-      const geom = feature.geometry;
-      if (!geom || !geom.coordinates) {
-        status.innerHTML = '<span style="color:#b85c1a">Parcel found but boundary data unavailable. You can still submit your listing.</span>';
-        return;
-      }
-      const ring = geom.type === 'MultiPolygon' ? geom.coordinates[0][0] : geom.coordinates[0];
-      const lat = ring.reduce((s, c) => s + c[1], 0) / ring.length;
-      const lng = ring.reduce((s, c) => s + c[0], 0) / ring.length;
+      const lat = parseFloat(geoData[0].lat);
+      const lng = parseFloat(geoData[0].lon);
+
+      // Step 2: Init/fly to the map
       ensureMapInit(lat, lng);
-      setTimeout(() => { leafMap.invalidateSize(); addParcelToMap(feature); }, 350);
+      setTimeout(async () => {
+        leafMap.invalidateSize();
+        leafMap.setView([lat, lng], 18);
+
+        // Step 3: Try Overpass to get building footprint as property boundary
+        const overpassQuery = `[out:json][timeout:8];(way["building"](around:80,${lat},${lng}););out geom;`;
+        try {
+          const ovRes = await fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            body: new URLSearchParams({ data: overpassQuery })
+          });
+          const ovData = await ovRes.json();
+          const ways = (ovData.elements || []).filter(e => e.type === 'way' && e.geometry && e.geometry.length > 2);
+
+          if (ways.length > 0) {
+            // Find the closest building to our lat/lng
+            const closest = ways.reduce((best, way) => {
+              const centerLat = way.geometry.reduce((s,p) => s+p.lat,0)/way.geometry.length;
+              const centerLng = way.geometry.reduce((s,p) => s+p.lon,0)/way.geometry.length;
+              const dist = Math.hypot(centerLat-lat, centerLng-lng);
+              return (!best || dist < best.dist) ? { way, dist } : best;
+            }, null);
+
+            if (closest) {
+              const coords = closest.way.geometry.map(p => [p.lat, p.lng || p.lon]);
+              if (parcelLayer) leafMap.removeLayer(parcelLayer);
+              parcelLayer = L.polygon(coords, {
+                color: '#2a5c3c', weight: 3, fillColor: '#2a5c3c', fillOpacity: 0.25
+              }).addTo(leafMap);
+              // Save as GeoJSON
+              const geoJsonCoords = closest.way.geometry.map(p => [p.lng || p.lon, p.lat]);
+              const featureJson = { type:'Feature', geometry:{ type:'Polygon', coordinates:[geoJsonCoords] }, properties:{} };
+              document.getElementById('parcel_boundary').value = JSON.stringify(featureJson);
+              leafMap.fitBounds(parcelLayer.getBounds(), { padding:[30,30] });
+              status.innerHTML = '<span style="color:#2a5c3c;font-weight:600">✓ Property outline loaded in green. Now tap "Draw allowed zone" to mark the hunting/fishing area.</span>';
+              return;
+            }
+          }
+        } catch(ovErr) { /* Overpass failed — fall through to pin */ }
+
+        // Step 4: No building footprint — drop a pin and let them draw
+        if (parcelLayer) leafMap.removeLayer(parcelLayer);
+        parcelLayer = L.circleMarker([lat, lng], {
+          radius: 10, color: '#2a5c3c', fillColor: '#2a5c3c', fillOpacity: 0.7, weight: 2
+        }).addTo(leafMap);
+        status.innerHTML = '<span style="color:#b85c1a;font-weight:600">📍 Property located. No boundary data available — tap "Draw allowed zone" to outline your land manually.</span>';
+      }, 350);
+
     } catch(e) {
-      status.innerHTML = '<span style="color:#b85c1a">Could not load parcel. You can still submit without a map.</span>';
+      document.getElementById('parcel-map-status').innerHTML = '<span style="color:#b85c1a">Could not load map. You can still submit without it.</span>';
       console.error(e);
     }
   }
