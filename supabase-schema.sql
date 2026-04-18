@@ -83,3 +83,8 @@ CREATE POLICY "Public can view listing photos"
   FOR SELECT
   TO public
   USING (bucket_id = 'listing-photos');
+
+-- Parcel map columns (run these in Supabase SQL editor)
+ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS street_address text;
+ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS parcel_boundary jsonb;
+ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS allowed_zone jsonb;
