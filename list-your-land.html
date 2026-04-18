@@ -311,21 +311,7 @@
                 <label>Property Street Address *</label>
                 <input type="text" name="street_address" id="street_address" required placeholder="e.g. 1234 Ranch Road, Lake Placid, FL 33852" style="width:100%" autocomplete="off" />
                 <ul id="addr-suggestions" style="display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;z-index:99999;background:var(--color-card);border:1px solid var(--color-border);border-radius:10px;margin:0;padding:0;list-style:none;box-shadow:0 12px 32px rgba(0,0,0,.35);max-height:240px;overflow-y:auto"></ul>
-                <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:6px">Start typing — select your address from the list, then we'll load your property boundary on the map below.</p>
-              </div>
-              <div id="parcel-map-section" style="margin-top:var(--space-4)">
-                <label style="display:block;margin-bottom:8px;font-weight:600">Your Property Boundary &amp; Allowed Zone</label>
-                <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:10px">Your property is shown on satellite view. Use the draw tool to outline the area guests are allowed to access. <strong>This is optional but recommended.</strong></p>
-                <div id="parcel-map" style="width:100%;height:380px;border-radius:12px;overflow:hidden;border:1px solid var(--color-border);background:#1a1a1a;display:flex;align-items:center;justify-content:center">
-                  <span id="map-placeholder" style="color:rgba(255,255,255,.35);font-size:14px;text-align:center;padding:20px">Enter your address above to see your property boundary</span>
-                </div>
-                <div id="parcel-map-status" style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:8px"></div>
-                <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
-                  <button type="button" id="draw-zone-btn" class="btn btn-ghost" style="font-size:var(--text-sm)">✏️ Draw allowed zone</button>
-                  <button type="button" id="clear-zone-btn" class="btn btn-ghost" style="font-size:var(--text-sm);display:none">🗑️ Clear zone</button>
-                </div>
-                <input type="hidden" name="parcel_boundary" id="parcel_boundary" />
-                <input type="hidden" name="allowed_zone" id="allowed_zone" />
+                <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:6px">Start typing and select your address from the list.</p>
               </div>
               <div class="field-row">
                 <div class="field">
@@ -891,156 +877,10 @@
   </script>
 
   <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Leaflet Draw -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
-  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
 
   <script>
-  // ── PARCEL MAP ─────────────────────────────────────────────
-  let leafMap = null, parcelLayer = null, drawnItems = null, drawControl = null;
-  let mapInitialized = false;
-
-  function ensureMapInit(lat, lng) {
-    if (mapInitialized) { leafMap.setView([lat, lng], 15); return; }
-    mapInitialized = true;
-    const ph = document.getElementById('map-placeholder');
-    if (ph) ph.remove();
-    const mapEl = document.getElementById('parcel-map');
-    mapEl.style.cssText = 'width:100%;height:380px;border-radius:12px;overflow:hidden;border:1px solid var(--color-border)';
-
-    leafMap = L.map('parcel-map').setView([lat, lng], 15);
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles &copy; Esri', maxZoom: 19
-    }).addTo(leafMap);
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-      attribution: '', maxZoom: 19, opacity: 0.7
-    }).addTo(leafMap);
-
-    drawnItems = new L.FeatureGroup().addTo(leafMap);
-    drawControl = new L.Control.Draw({
-      edit: { featureGroup: drawnItems },
-      draw: {
-        polygon: { shapeOptions: { color: '#b85c1a', weight: 2, fillOpacity: 0.25 } },
-        polyline: false, rectangle: false, circle: false, marker: false, circlemarker: false
-      }
-    }).addTo(leafMap);
-
-    leafMap.on(L.Draw.Event.CREATED, function(e) {
-      drawnItems.clearLayers();
-      drawnItems.addLayer(e.layer);
-      saveLeafZone();
-    });
-    leafMap.on(L.Draw.Event.EDITED, saveLeafZone);
-    leafMap.on(L.Draw.Event.DELETED, () => {
-      document.getElementById('allowed_zone').value = '';
-      document.getElementById('clear-zone-btn').style.display = 'none';
-      document.getElementById('draw-zone-btn').textContent = '✏️ Draw allowed zone';
-    });
-
-    document.getElementById('draw-zone-btn').addEventListener('click', () => {
-      new L.Draw.Polygon(leafMap, drawControl.options.draw.polygon).enable();
-      document.getElementById('draw-zone-btn').textContent = '✏️ Tap map to place points — double-tap to finish';
-    });
-    document.getElementById('clear-zone-btn').addEventListener('click', () => {
-      drawnItems.clearLayers();
-      document.getElementById('allowed_zone').value = '';
-      document.getElementById('clear-zone-btn').style.display = 'none';
-      document.getElementById('draw-zone-btn').textContent = '✏️ Draw allowed zone';
-    });
-  }
-
-  function saveLeafZone() {
-    const geojson = drawnItems.toGeoJSON();
-    document.getElementById('allowed_zone').value = JSON.stringify(geojson);
-    document.getElementById('clear-zone-btn').style.display = 'inline-flex';
-    document.getElementById('draw-zone-btn').textContent = '✏️ Redraw zone';
-  }
-
-  function addParcelToMap(feature) {
-    if (parcelLayer) { leafMap.removeLayer(parcelLayer); }
-    parcelLayer = L.geoJSON(feature, {
-      style: { color: '#2a5c3c', weight: 3, fillColor: '#2a5c3c', fillOpacity: 0.2 }
-    }).addTo(leafMap);
-    leafMap.fitBounds(parcelLayer.getBounds(), { padding: [40, 40] });
-    document.getElementById('parcel_boundary').value = JSON.stringify(feature);
-    document.getElementById('parcel-map-status').innerHTML =
-      '<span style="color:#2a5c3c;font-weight:600">✓ Property boundary loaded. Tap "Draw allowed zone" to mark where guests can hunt/fish.</span>';
-  }
-
-  async function lookupParcel(address) {
-    const status = document.getElementById('parcel-map-status');
-    status.innerHTML = '<span style="color:var(--color-text-muted)">Loading your property on the map…</span>';
-    try {
-      // Step 1: Geocode with Nominatim to get lat/lng
-      const geoUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&addressdetails=1&limit=1&countrycodes=us`;
-      const geoRes = await fetch(geoUrl, { headers: { 'Accept-Language': 'en' } });
-      const geoData = await geoRes.json();
-      if (!geoData.length) {
-        status.innerHTML = '<span style="color:#b85c1a">Address not found. Try adding city and state (e.g. "123 Main St, Austin, TX").</span>';
-        return;
-      }
-      const lat = parseFloat(geoData[0].lat);
-      const lng = parseFloat(geoData[0].lon);
-
-      // Step 2: Init/fly to the map
-      ensureMapInit(lat, lng);
-      setTimeout(async () => {
-        leafMap.invalidateSize();
-        leafMap.setView([lat, lng], 18);
-
-        // Step 3: Try Overpass to get building footprint as property boundary
-        const overpassQuery = `[out:json][timeout:8];(way["building"](around:80,${lat},${lng}););out geom;`;
-        try {
-          const ovRes = await fetch('https://overpass-api.de/api/interpreter', {
-            method: 'POST',
-            body: new URLSearchParams({ data: overpassQuery })
-          });
-          const ovData = await ovRes.json();
-          const ways = (ovData.elements || []).filter(e => e.type === 'way' && e.geometry && e.geometry.length > 2);
-
-          if (ways.length > 0) {
-            // Find the closest building to our lat/lng
-            const closest = ways.reduce((best, way) => {
-              const centerLat = way.geometry.reduce((s,p) => s+p.lat,0)/way.geometry.length;
-              const centerLng = way.geometry.reduce((s,p) => s+p.lon,0)/way.geometry.length;
-              const dist = Math.hypot(centerLat-lat, centerLng-lng);
-              return (!best || dist < best.dist) ? { way, dist } : best;
-            }, null);
-
-            if (closest) {
-              const coords = closest.way.geometry.map(p => [p.lat, p.lng || p.lon]);
-              if (parcelLayer) leafMap.removeLayer(parcelLayer);
-              parcelLayer = L.polygon(coords, {
-                color: '#2a5c3c', weight: 3, fillColor: '#2a5c3c', fillOpacity: 0.25
-              }).addTo(leafMap);
-              // Save as GeoJSON
-              const geoJsonCoords = closest.way.geometry.map(p => [p.lng || p.lon, p.lat]);
-              const featureJson = { type:'Feature', geometry:{ type:'Polygon', coordinates:[geoJsonCoords] }, properties:{} };
-              document.getElementById('parcel_boundary').value = JSON.stringify(featureJson);
-              leafMap.fitBounds(parcelLayer.getBounds(), { padding:[30,30] });
-              status.innerHTML = '<span style="color:#2a5c3c;font-weight:600">✓ Property outline loaded in green. Now tap "Draw allowed zone" to mark the hunting/fishing area.</span>';
-              return;
-            }
-          }
-        } catch(ovErr) { /* Overpass failed — fall through to pin */ }
-
-        // Step 4: No building footprint — drop a pin and let them draw
-        if (parcelLayer) leafMap.removeLayer(parcelLayer);
-        parcelLayer = L.circleMarker([lat, lng], {
-          radius: 10, color: '#2a5c3c', fillColor: '#2a5c3c', fillOpacity: 0.7, weight: 2
-        }).addTo(leafMap);
-        status.innerHTML = '<span style="color:#b85c1a;font-weight:600">📍 Property located. No boundary data available — tap "Draw allowed zone" to outline your land manually.</span>';
-      }, 350);
-
-    } catch(e) {
-      document.getElementById('parcel-map-status').innerHTML = '<span style="color:#b85c1a">Could not load map. You can still submit without it.</span>';
-      console.error(e);
-    }
-  }
-
-  // ── ADDRESS AUTOCOMPLETE (Nominatim / OpenStreetMap — free, no key) ────────
+  // ── ADDRESS AUTOCOMPLETE ───────────────────────────────────
   const addrInput = document.getElementById('street_address');
   const suggList  = document.getElementById('addr-suggestions');
   let acTimeout, acController;
@@ -1048,7 +888,7 @@
   addrInput.addEventListener('input', function() {
     const val = this.value.trim();
     clearTimeout(acTimeout);
-    if (val.length < 5) { suggList.style.display = 'none'; return; }
+    if (val.length < 4) { suggList.style.display = 'none'; return; }
     acTimeout = setTimeout(() => fetchSuggestions(val), 350);
   });
 
@@ -1066,16 +906,14 @@
   }
 
   function formatAddress(r) {
-    // Build a clean "123 Main St, City, ST 12345" from Nominatim addressdetails
     const a = r.address || {};
-    const num  = a.house_number || '';
-    const road = a.road || a.pedestrian || a.footway || '';
-    const city = a.city || a.town || a.village || a.hamlet || a.county || '';
+    const num   = a.house_number || '';
+    const road  = a.road || a.pedestrian || a.footway || '';
+    const city  = a.city || a.town || a.village || a.hamlet || a.county || '';
     const state = a.state || '';
     const zip   = a.postcode || '';
-    // Build parts
     const street = [num, road].filter(Boolean).join(' ');
-    const parts = [street, city, state, zip].filter(Boolean);
+    const parts  = [street, city, state, zip].filter(Boolean);
     return parts.length >= 2 ? parts.join(', ') : r.display_name;
   }
 
@@ -1086,12 +924,11 @@
       const li = document.createElement('li');
       const shortAddr = formatAddress(r);
       li.textContent = shortAddr;
-      li.style.cssText = 'padding:10px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--color-border);line-height:1.4;color:var(--color-text)';
+      li.style.cssText = 'padding:11px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--color-border);line-height:1.4;color:var(--color-text)';
       const select = (e) => {
         if (e.cancelable) e.preventDefault();
         addrInput.value = shortAddr;
         suggList.style.display = 'none';
-        lookupParcel(shortAddr);
       };
       li.addEventListener('mousedown', select);
       li.addEventListener('touchend', select, { passive: false });
@@ -1118,11 +955,10 @@
       items[(idx - 1 + items.length) % items.length]?.classList.add('ac-active');
     } else if (e.key === 'Enter') {
       const active = suggList.querySelector('li.ac-active');
-      if (active) { e.preventDefault(); addrInput.value = active.textContent; suggList.style.display = 'none'; lookupParcel(active.textContent); }
+      if (active) { e.preventDefault(); addrInput.value = active.textContent; suggList.style.display = 'none'; }
     } else if (e.key === 'Escape') {
       suggList.style.display = 'none';
     }
   });
   </script>
 </body>
-</html>
