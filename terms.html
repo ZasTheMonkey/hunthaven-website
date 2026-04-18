@@ -58,6 +58,7 @@
     .nav-links a{font-size:var(--text-sm);color:var(--color-text-muted);transition:color var(--transition)}
     .nav-links a:hover{color:var(--color-text)}
     .nav-actions{display:flex;align-items:center;gap:var(--space-3)}
+    .nav-mob-cta,.nav-divider{display:none}
     .btn{display:inline-flex;align-items:center;gap:var(--space-2);padding:.65rem 1.25rem;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:600;transition:all var(--transition);white-space:nowrap}
     .btn-ghost{color:var(--color-text-muted);border:1px solid var(--color-border)}
     .btn-ghost:hover{color:var(--color-text);background:var(--color-surface-offset)}
@@ -155,6 +156,9 @@
       <a href="howitworks.html">How It Works</a>
       <a href="pricing.html">Pricing</a>
       <a href="about.html">About</a>
+        <span class="nav-divider"></span>
+        <a href="list-your-land.html" class="nav-mob-cta" style="color:var(--color-accent);font-weight:700">List Your Land</a>
+        <a href="javascript:void(0)" class="nav-mob-cta" onclick="openWaitlist && openWaitlist('guest')" style="color:var(--color-primary);font-weight:700">Get early access</a>
     </div>
     <div class="nav-actions">
       <button class="theme-btn" data-theme-toggle aria-label="Toggle theme">
