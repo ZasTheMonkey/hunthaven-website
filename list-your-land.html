@@ -459,10 +459,22 @@
             </div>
           </div>
 
+          <!-- TERMS CHECKBOX -->
+          <div style="display:flex;align-items:flex-start;gap:var(--space-3);margin-top:var(--space-6);padding:var(--space-4);background:var(--color-surface-offset);border-radius:var(--radius-md);border:1px solid var(--color-border)">
+            <input type="checkbox" id="terms-agree" name="terms_agree" required
+              style="width:18px;height:18px;min-width:18px;margin-top:2px;accent-color:var(--color-accent);cursor:pointer" />
+            <label for="terms-agree" style="font-size:var(--text-sm);color:var(--color-text-muted);cursor:pointer;line-height:1.5">
+              I have read and agree to the <a href="terms.html#landowner" target="_blank" style="color:var(--color-accent);font-weight:700;text-decoration:underline">Landowner Agreement</a>,
+              <a href="terms.html#terms" target="_blank" style="color:var(--color-accent);font-weight:700;text-decoration:underline">Terms of Service</a>, and
+              <a href="terms.html#privacy" target="_blank" style="color:var(--color-accent);font-weight:700;text-decoration:underline">Privacy Policy</a>.
+              I confirm I have legal authority to list this property and agree to comply with all applicable hunting and fishing regulations.
+            </label>
+          </div>
+
           <button type="submit" class="submit-btn" id="submit-btn">
             Submit My Property — It's Free
           </button>
-          <p class="form-note">No contracts, no commitment. We'll reach out before your listing goes live to confirm details and help you set the best price.</p>
+          <p class="form-note">No contracts, no commitment. Your listing goes live immediately after submission.</p>
 
         </form>
       </div>
