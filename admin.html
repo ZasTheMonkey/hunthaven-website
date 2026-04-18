@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin — Wildbook</title>
+  <title>Admin — LeaseWild</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,400&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
@@ -236,16 +236,9 @@
   <nav class="nav" id="main-nav">
     <div class="nav-inner">
       <a href="index.html" class="logo">
-        <svg width="38" height="48" viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="10" y="5" width="80" height="100" rx="8" fill="none" stroke="#2a5c3c" stroke-width="7"/>
-          <polygon points="10,105 50,85 90,105 90,125 10,125" fill="#2a5c3c"/>
-          <polygon points="35,10 65,10 65,55 50,45 35,55" fill="#2a5c3c"/>
-          <polygon points="42,18 58,18 50,10" fill="white"/>
-          <line x1="50" y1="18" x2="50" y2="44" stroke="white" stroke-width="3"/>
-          <polygon points="38,28 46,22 54,28 50,36 42,36" fill="white" opacity="0.9"/>
-        </svg>
+        <svg width="34" height="34" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
         <span style="font-family:var(--font-display);font-weight:800;font-size:1.4rem;letter-spacing:-.03em;">
-          <span style="color:#2a5c3c;">WILD</span><span style="color:#b85c1a;">BOOK</span>
+          <span style="color:var(--color-text)">Lease</span><span style="color:#c17f3a;">Wild</span>
         </span>
       </a>
 
@@ -279,17 +272,10 @@
   <div id="login-screen">
     <div class="login-card">
       <div class="login-logo">
-        <svg width="52" height="64" viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="10" y="5" width="80" height="100" rx="8" fill="none" stroke="#2a5c3c" stroke-width="7"/>
-          <polygon points="10,105 50,85 90,105 90,125 10,125" fill="#2a5c3c"/>
-          <polygon points="35,10 65,10 65,55 50,45 35,55" fill="#2a5c3c"/>
-          <polygon points="42,18 58,18 50,10" fill="white"/>
-          <line x1="50" y1="18" x2="50" y2="44" stroke="white" stroke-width="3"/>
-          <polygon points="38,28 46,22 54,28 50,36 42,36" fill="white" opacity="0.9"/>
-        </svg>
+        <svg width="34" height="34" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
       </div>
       <h1>Admin Access</h1>
-      <p class="subtitle">Wildbook listing management dashboard</p>
+      <p class="subtitle">LeaseWild listing management dashboard</p>
       <form id="login-form" onsubmit="handleLogin(event)">
         <div class="form-group">
           <label for="password-input">Password</label>
@@ -418,7 +404,7 @@
     let pendingAction = null; // { id, newStatus, name }
 
     // ── Auth ─────────────────────────────────────────────────
-    const ADMIN_PASSWORD = 'Wildbook2026!';
+    const ADMIN_PASSWORD = 'LeaseWild2026!';
     let isAuthed = false;
 
     function handleLogin(e) {
