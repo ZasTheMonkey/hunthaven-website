@@ -307,15 +307,18 @@
           <div class="form-section">
             <p class="form-section-label">Your Property</p>
             <div class="field-group">
-              <div class="field">
+              <div class="field" style="position:relative">
                 <label>Property Street Address *</label>
-                <input type="text" name="street_address" id="street_address" required placeholder="e.g. 1234 Ranch Road, Lake Placid, FL 33852" style="width:100%" />
-                <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:6px">Enter your address and we'll load your parcel boundary automatically.</p>
+                <input type="text" name="street_address" id="street_address" required placeholder="e.g. 1234 Ranch Road, Lake Placid, FL 33852" style="width:100%" autocomplete="off" />
+                <ul id="addr-suggestions" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9999;background:var(--color-card);border:1px solid var(--color-border);border-radius:10px;margin:4px 0 0;padding:0;list-style:none;box-shadow:0 8px 24px rgba(0,0,0,.18);max-height:220px;overflow-y:auto"></ul>
+                <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:6px">Start typing — select your address from the list, then we'll load your property boundary on the map below.</p>
               </div>
-              <div id="parcel-map-section" style="display:none;margin-top:var(--space-4)">
+              <div id="parcel-map-section" style="margin-top:var(--space-4)">
                 <label style="display:block;margin-bottom:8px;font-weight:600">Your Property Boundary &amp; Allowed Zone</label>
                 <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:10px">Your parcel is shown in green. Use the draw tool to outline the area guests are allowed to access. <strong>This is optional but recommended.</strong></p>
-                <div id="parcel-map" style="width:100%;height:380px;border-radius:12px;overflow:hidden;border:1px solid var(--color-border)"></div>
+                <div id="parcel-map" style="width:100%;height:380px;border-radius:12px;overflow:hidden;border:1px solid var(--color-border);background:#1a1a1a;display:flex;align-items:center;justify-content:center">
+                  <span id="map-placeholder" style="color:rgba(255,255,255,.35);font-size:14px;text-align:center;padding:20px">Enter your address above to see your property boundary</span>
+                </div>
                 <div id="parcel-map-status" style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:8px"></div>
                 <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
                   <button type="button" id="draw-zone-btn" class="btn btn-ghost" style="font-size:var(--text-sm)">✏️ Draw allowed zone</button>
@@ -899,25 +902,29 @@
   const REGRID_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJyZWdyaWQuY29tIiwiaWF0IjoxNzc2NTE5ODQxLCJleHAiOjE3NzkxMTE4NDEsInUiOjc2MDQxMSwiZyI6MjMxNTMsImNhcCI6InBhOnRzOnBzOmJmOm1hOnR5OmVvOnpvOnNiIn0.WlLuUjL_VE0gNnY61JJVKtTbeOYKO2J0ORN60W1b9mU';
 
   let leafMap = null, parcelLayer = null, drawnItems = null, drawControl = null;
+  let mapInitialized = false;
 
-  function initLeafMap(lat, lng) {
-    if (leafMap) { leafMap.setView([lat, lng], 15); return; }
+  function ensureMapInit(lat, lng) {
+    if (mapInitialized) { leafMap.setView([lat, lng], 15); return; }
+    mapInitialized = true;
+    const ph = document.getElementById('map-placeholder');
+    if (ph) ph.remove();
+    const mapEl = document.getElementById('parcel-map');
+    mapEl.style.cssText = 'width:100%;height:380px;border-radius:12px;overflow:hidden;border:1px solid var(--color-border)';
+
     leafMap = L.map('parcel-map').setView([lat, lng], 15);
-    // Satellite tiles from Esri (free, no token needed)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri', maxZoom: 19
     }).addTo(leafMap);
-    // Labels overlay
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
       attribution: '', maxZoom: 19, opacity: 0.7
     }).addTo(leafMap);
 
-    // Draw tool
     drawnItems = new L.FeatureGroup().addTo(leafMap);
     drawControl = new L.Control.Draw({
       edit: { featureGroup: drawnItems },
       draw: {
-        polygon: { shapeOptions: { color: '#b85c1a', fillOpacity: 0.25 } },
+        polygon: { shapeOptions: { color: '#b85c1a', weight: 2, fillOpacity: 0.25 } },
         polyline: false, rectangle: false, circle: false, marker: false, circlemarker: false
       }
     }).addTo(leafMap);
@@ -936,7 +943,7 @@
 
     document.getElementById('draw-zone-btn').addEventListener('click', () => {
       new L.Draw.Polygon(leafMap, drawControl.options.draw.polygon).enable();
-      document.getElementById('draw-zone-btn').textContent = '✏️ Click map to draw… double-click to finish';
+      document.getElementById('draw-zone-btn').textContent = '✏️ Tap map to place points — double-tap to finish';
     });
     document.getElementById('clear-zone-btn').addEventListener('click', () => {
       drawnItems.clearLayers();
@@ -961,12 +968,12 @@
     leafMap.fitBounds(parcelLayer.getBounds(), { padding: [40, 40] });
     document.getElementById('parcel_boundary').value = JSON.stringify(feature);
     document.getElementById('parcel-map-status').innerHTML =
-      '<span style="color:#2a5c3c;font-weight:600">✓ Your parcel boundary is outlined in green. Now tap “Draw allowed zone” to mark where guests can hunt/fish.</span>';
+      '<span style="color:#2a5c3c;font-weight:600">✓ Property boundary loaded. Tap "Draw allowed zone" to mark where guests can hunt/fish.</span>';
   }
 
   async function lookupParcel(address) {
     const status = document.getElementById('parcel-map-status');
-    status.innerHTML = '<span style="color:var(--color-text-muted)">Looking up parcel boundary…</span>';
+    status.innerHTML = '<span style="color:var(--color-text-muted)">Loading your property boundary…</span>';
     try {
       const url = `https://app.regrid.com/api/v2/parcels/address?query=${encodeURIComponent(address)}&token=${REGRID_TOKEN}&limit=1&return_geometry=true`;
       const res = await fetch(url);
@@ -974,39 +981,92 @@
       const json = await res.json();
       const features = json?.parcels?.features || json?.features || [];
       if (!features.length) {
-        status.innerHTML = '<span style="color:#b85c1a">Parcel not found for that address. Double-check the address or continue without the map — you can skip this step.</span>';
+        status.innerHTML = '<span style="color:#b85c1a">Parcel not found. Try including city and state, or continue without the map.</span>';
         return;
       }
       const feature = features[0];
       const geom = feature.geometry;
       if (!geom || !geom.coordinates) {
-        status.innerHTML = '<span style="color:#b85c1a">Parcel found but boundary data unavailable for this address.</span>';
+        status.innerHTML = '<span style="color:#b85c1a">Parcel found but boundary data unavailable. You can still submit your listing.</span>';
         return;
       }
-      // Get center
       const ring = geom.type === 'MultiPolygon' ? geom.coordinates[0][0] : geom.coordinates[0];
       const lat = ring.reduce((s, c) => s + c[1], 0) / ring.length;
       const lng = ring.reduce((s, c) => s + c[0], 0) / ring.length;
-      const section = document.getElementById('parcel-map-section');
-      section.style.display = 'block';
-      initLeafMap(lat, lng);
-      setTimeout(() => {
-        leafMap.invalidateSize();
-        addParcelToMap(feature);
-      }, 300);
+      ensureMapInit(lat, lng);
+      setTimeout(() => { leafMap.invalidateSize(); addParcelToMap(feature); }, 350);
     } catch(e) {
       status.innerHTML = '<span style="color:#b85c1a">Could not load parcel. You can still submit without a map.</span>';
       console.error(e);
     }
   }
 
-  // Trigger lookup when user leaves the address field
-  let lookupTimeout;
-  document.getElementById('street_address').addEventListener('blur', function() {
+  // ── ADDRESS AUTOCOMPLETE (Nominatim / OpenStreetMap — free, no key) ────────
+  const addrInput = document.getElementById('street_address');
+  const suggList  = document.getElementById('addr-suggestions');
+  let acTimeout, acController;
+
+  addrInput.addEventListener('input', function() {
     const val = this.value.trim();
-    if (val.length > 8) {
-      clearTimeout(lookupTimeout);
-      lookupTimeout = setTimeout(() => lookupParcel(val), 500);
+    clearTimeout(acTimeout);
+    if (val.length < 5) { suggList.style.display = 'none'; return; }
+    acTimeout = setTimeout(() => fetchSuggestions(val), 350);
+  });
+
+  async function fetchSuggestions(query) {
+    if (acController) acController.abort();
+    acController = new AbortController();
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=6&countrycodes=us`;
+      const res = await fetch(url, { signal: acController.signal, headers: { 'Accept-Language': 'en' } });
+      const data = await res.json();
+      renderSuggestions(data);
+    } catch(e) {
+      if (e.name !== 'AbortError') console.warn('Autocomplete error', e);
+    }
+  }
+
+  function renderSuggestions(results) {
+    suggList.innerHTML = '';
+    if (!results.length) { suggList.style.display = 'none'; return; }
+    results.forEach(r => {
+      const li = document.createElement('li');
+      li.textContent = r.display_name;
+      li.style.cssText = 'padding:10px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--color-border);line-height:1.4;color:var(--color-text)';
+      const select = (e) => {
+        if (e.cancelable) e.preventDefault();
+        addrInput.value = r.display_name;
+        suggList.style.display = 'none';
+        lookupParcel(r.display_name);
+      };
+      li.addEventListener('mousedown', select);
+      li.addEventListener('touchend', select, { passive: false });
+      li.addEventListener('mouseenter', () => li.style.background = 'var(--color-border)');
+      li.addEventListener('mouseleave', () => li.style.background = '');
+      suggList.appendChild(li);
+    });
+    suggList.style.display = 'block';
+  }
+
+  addrInput.addEventListener('blur', () => setTimeout(() => { suggList.style.display = 'none'; }, 250));
+  addrInput.addEventListener('focus', () => { if (suggList.children.length) suggList.style.display = 'block'; });
+
+  addrInput.addEventListener('keydown', (e) => {
+    const items = Array.from(suggList.querySelectorAll('li'));
+    const idx = items.findIndex(li => li.classList.contains('ac-active'));
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (idx >= 0) items[idx].classList.remove('ac-active');
+      items[(idx + 1) % items.length]?.classList.add('ac-active');
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (idx >= 0) items[idx].classList.remove('ac-active');
+      items[(idx - 1 + items.length) % items.length]?.classList.add('ac-active');
+    } else if (e.key === 'Enter') {
+      const active = suggList.querySelector('li.ac-active');
+      if (active) { e.preventDefault(); addrInput.value = active.textContent; suggList.style.display = 'none'; lookupParcel(active.textContent); }
+    } else if (e.key === 'Escape') {
+      suggList.style.display = 'none';
     }
   });
   </script>
