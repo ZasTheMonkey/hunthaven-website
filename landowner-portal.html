@@ -303,6 +303,13 @@
   }
 
   function showDashboard(user) {
+    // If redirected here from list-your-land, send them straight there
+    var params = new URLSearchParams(window.location.search);
+    var next = params.get('next');
+    if (next === 'list-your-land.html') {
+      window.location.href = 'list-your-land.html';
+      return;
+    }
     document.getElementById('auth-card').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     var name = user.user_metadata?.full_name || user.email;

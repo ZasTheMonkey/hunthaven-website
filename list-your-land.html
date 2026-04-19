@@ -171,6 +171,22 @@
   </style>
 </head>
 <body>
+  <!-- Auth gate: redirect to portal if not logged in -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    (async function() {
+      try {
+        var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        var { data } = await _sb.auth.getSession();
+        if (!data?.session?.user) {
+          window.location.href = 'landowner-portal.html?next=list-your-land.html';
+        }
+      } catch(e) {
+        window.location.href = 'landowner-portal.html?next=list-your-land.html';
+      }
+    })();
+  </script>
 
   <!-- NAV -->
   <nav class="nav" style="position:sticky;top:0;">
