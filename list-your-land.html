@@ -897,9 +897,9 @@
       hear_about:    hearAbout,
       photo_urls:    photoUrls,
       allow_out_of_state: document.getElementById('allow_out_of_state')?.checked ?? true,
-      street_address: (document.getElementById('street_address').value || null),
-      parcel_boundary: (document.getElementById('parcel_boundary').value ? JSON.parse(document.getElementById('parcel_boundary').value) : null),
-      allowed_zone:   (document.getElementById('allowed_zone').value ? JSON.parse(document.getElementById('allowed_zone').value) : null),
+      street_address: (document.getElementById('street_address') ? document.getElementById('street_address').value || null : null),
+      parcel_boundary: null,
+      allowed_zone:   null,
       video_url:     videoUrl,
       status:        'active'
     });
