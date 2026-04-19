@@ -310,22 +310,49 @@
     loadListings(user.email);
   }
 
+  var currentUserEmail = '';
+
   async function loadListings(email) {
+    currentUserEmail = email;
     var container = document.getElementById('listings-container');
-    var { data, error } = await sb.from('listings').select('id,created_at,state,county,status,activities').eq('email', email).order('created_at', { ascending: false });
+    var { data, error } = await sb.from('listings').select('id,created_at,state,county,status,activities,street_address').eq('email', email).order('created_at', { ascending: false });
     if (error || !data?.length) {
       container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">No listings yet. Tap "Add New Listing" to get started.</p>';
       return;
     }
-    container.innerHTML = data.map(l => `
-      <div class="listing-card">
+    container.innerHTML = data.map(l => {
+      var isActive = l.status === 'active';
+      var label = l.street_address || (l.county ? l.county + ', ' + (l.state||'FL') : (l.state || 'FL'));
+      return `
+      <div class="listing-card" id="lcard-${l.id}">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
-          <h3>${l.county || l.state || 'Listing'}, ${l.state || 'FL'}</h3>
-          <span class="badge badge-${l.status === 'active' ? 'live' : l.status === 'pending' ? 'pending' : 'review'}">${l.status || 'pending'}</span>
+          <h3 style="font-size:var(--text-base)">${label}</h3>
+          <span class="badge badge-${isActive ? 'live' : l.status === 'pending' ? 'pending' : 'review'}">${isActive ? 'Live' : l.status || 'pending'}</span>
         </div>
         <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.3rem">Submitted ${new Date(l.created_at).toLocaleDateString()}</p>
         ${l.activities?.length ? '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.3rem">' + l.activities.slice(0,3).join(' · ') + '</p>' : ''}
-      </div>`).join('');
+        <div style="display:flex;gap:.6rem;margin-top:.85rem;flex-wrap:wrap">
+          ${isActive
+            ? `<button onclick="toggleListing('${l.id}','inactive')" style="padding:.45rem .9rem;border:1.5px solid var(--color-danger);color:var(--color-danger);background:none;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:inherit">Take Down</button>`
+            : `<button onclick="toggleListing('${l.id}','active')" style="padding:.45rem .9rem;border:1.5px solid var(--color-primary);color:var(--color-primary);background:none;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:inherit">Re-list</button>`
+          }
+          <button onclick="deleteListing('${l.id}','${label.replace(/'/g,"&#39;")}')" style="padding:.45rem .9rem;border:1.5px solid var(--color-border);color:var(--color-text-muted);background:none;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:600;cursor:pointer;font-family:inherit">Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function toggleListing(id, newStatus) {
+    var { error } = await sb.from('listings').update({ status: newStatus }).eq('id', id);
+    if (error) { alert('Error: ' + error.message); return; }
+    loadListings(currentUserEmail);
+  }
+
+  async function deleteListing(id, label) {
+    if (!confirm('Permanently delete "' + label + '"? This cannot be undone.')) return;
+    var { error } = await sb.from('listings').delete().eq('id', id);
+    if (error) { alert('Error: ' + error.message); return; }
+    loadListings(currentUserEmail);
   }
 
   // Auto-login if session exists
