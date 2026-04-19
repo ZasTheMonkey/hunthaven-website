@@ -225,20 +225,47 @@
     var btn = document.getElementById('signup-btn');
     btn.disabled = true; btn.textContent = 'Creating account…';
 
-    // Sign up
-    var { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name, phone } } });
-    if (error) { btn.disabled=false; btn.textContent='Create Account'; showMsg(error.message,'error'); return; }
+    try {
+      // Sign up with 15s timeout
+      var signupPromise = sb.auth.signUp({ email, password: pass, options: { data: { full_name: name, phone } } });
+      var timeoutPromise = new Promise((_,rej) => setTimeout(() => rej(new Error('Request timed out. Check your connection and try again.')), 15000));
+      var { data, error } = await Promise.race([signupPromise, timeoutPromise]);
 
-    // Upload license securely (private bucket)
-    btn.textContent = 'Uploading license…';
-    var uid = data.user?.id || Date.now();
-    var ext = licFile.name.split('.').pop();
-    var licensePath = 'licenses/' + uid + '/license.' + ext;
-    await sb.storage.from('listing-photos').upload(licensePath, licFile, { cacheControl:'3600', upsert:true });
+      if (error) {
+        btn.disabled=false; btn.textContent='Create Account';
+        // Handle "already registered" gracefully
+        if (error.message.includes('already registered') || error.message.includes('already exists')) {
+          showMsg('This email is already registered. Please sign in instead.','error');
+        } else {
+          showMsg(error.message,'error');
+        }
+        return;
+      }
 
-    btn.disabled=false; btn.textContent='Create Account';
-    showMsg('Account created! Check your email to confirm, then sign in.','success');
-    setTimeout(() => switchTab('signin'), 2500);
+      // Upload license in background (non-blocking)
+      btn.textContent = 'Uploading license…';
+      try {
+        var uid = data.user?.id || Date.now();
+        var ext = licFile.name.split('.').pop().toLowerCase();
+        var licensePath = 'licenses/' + uid + '/license.' + ext;
+        await Promise.race([
+          sb.storage.from('listing-photos').upload(licensePath, licFile, { cacheControl:'3600', upsert:true }),
+          new Promise(r => setTimeout(r, 10000)) // 10s max for upload
+        ]);
+      } catch(uploadErr) {
+        console.warn('License upload failed silently:', uploadErr);
+        // Don't block the user — account was created, license can be uploaded later
+      }
+
+      btn.disabled=false; btn.textContent='Create Account';
+      showMsg('Account created! Check your email to confirm, then sign in below.','success');
+      document.getElementById('si-email').value = email;
+      setTimeout(() => switchTab('signin'), 3000);
+
+    } catch(e) {
+      btn.disabled=false; btn.textContent='Create Account';
+      showMsg(e.message || 'Something went wrong. Please try again.','error');
+    }
   }
 
   async function handleForgot() {
