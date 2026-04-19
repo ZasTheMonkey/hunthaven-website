@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,10 +10,10 @@
   <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,400&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
   <style>
     :root,[data-theme="light"]{
-      --text-xs:clamp(0.75rem,0.7rem + 0.25vw,0.875rem);
-      --text-sm:clamp(0.875rem,0.8rem + 0.35vw,1rem);
-      --text-base:clamp(1rem,0.95rem + 0.25vw,1.125rem);
-      --text-lg:clamp(1.125rem,1rem + 0.75vw,1.5rem);
+      --text-xs:clamp(0.85rem,0.8rem + 0.25vw,1rem);
+      --text-sm:clamp(1rem,0.9rem + 0.35vw,1.125rem);
+      --text-base:clamp(1.125rem,1.05rem + 0.3vw,1.3rem);
+      --text-lg:clamp(1.3rem,1.1rem + 0.75vw,1.65rem);
       --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
       --text-2xl:clamp(2rem,1.2rem + 2.5vw,3.5rem);
       --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
@@ -32,7 +32,7 @@
       --font-display:'Cabinet Grotesk',system-ui,sans-serif;
       --font-body:'Satoshi',system-ui,sans-serif;
     }
-    [data-theme="dark"]{
+    [data-theme="light"]{
       --color-bg:#111410;--color-surface:#171b14;--color-surface-2:#1d221a;
       --color-surface-offset:#222720;--color-border:#2e342b;--color-divider:#252b23;
       --color-text:#e8e2d4;--color-text-muted:#9a9485;--color-text-faint:#605e52;
@@ -102,7 +102,7 @@
     .badge-landowner{background:var(--color-accent-light);color:var(--color-accent)}
     .badge-guest{background:var(--color-primary-light);color:var(--color-primary)}
     .badge-waiver{background:#fdecea;color:#c0392b}
-    [data-theme="dark"] .badge-waiver{background:#2a1010;color:#e07070}
+    [data-theme="light"] .badge-waiver{background:#2a1010;color:#e07070}
     .badge-privacy{background:var(--color-surface-offset);color:var(--color-text-muted)}
     .legal-section h2{font-size:var(--text-xl);font-weight:800;letter-spacing:-.03em;margin-bottom:var(--space-6)}
     .legal-section h3{font-size:var(--text-lg);font-weight:700;letter-spacing:-.02em;margin:var(--space-8) 0 var(--space-3)}
@@ -117,9 +117,9 @@
     .highlight-box{background:var(--color-surface-offset);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-5) var(--space-6);margin:var(--space-6) 0}
     .highlight-box p{color:var(--color-text);margin:0;font-weight:600}
     .highlight-box.warning{background:#fdecea;border-color:#f0b0aa}
-    [data-theme="dark"] .highlight-box.warning{background:#2a1010;border-color:#5a2020}
+    [data-theme="light"] .highlight-box.warning{background:#2a1010;border-color:#5a2020}
     .highlight-box.warning p{color:#c0392b}
-    [data-theme="dark"] .highlight-box.warning p{color:#e07070}
+    [data-theme="light"] .highlight-box.warning p{color:#e07070}
 
     /* FOOTER */
     footer{background:var(--color-surface);border-top:1px solid var(--color-border);padding:clamp(var(--space-10),5vw,var(--space-16)) clamp(var(--space-4),4vw,var(--space-12))}
@@ -150,6 +150,7 @@
       <a href="pricing.html">Pricing</a>
       <a href="about.html">About</a>
         <span class="nav-divider"></span>
+        <a href="landowner-portal.html" class="nav-mob-cta" style="color:var(--color-text-muted);font-weight:600">Landowner Login</a>
         <a href="list-your-land.html" class="nav-mob-cta" style="color:var(--color-accent);font-weight:700">List Your Land</a>
         <a href="javascript:void(0)" class="nav-mob-cta" onclick="openWaitlist && openWaitlist('guest')" style="color:var(--color-primary);font-weight:700">Get early access</a>
     </div>

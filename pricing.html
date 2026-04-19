@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -53,7 +53,7 @@
       --font-display:'Cabinet Grotesk',system-ui,sans-serif;
       --font-body:'Satoshi',system-ui,sans-serif;
     }
-    [data-theme="dark"] {
+    [data-theme="light"] {
       --color-bg: #111410;
       --color-surface: #171b14;
       --color-surface-2: #1d221a;
@@ -116,7 +116,7 @@
     .hero-bg-grid{position:absolute;inset:0;background-image:linear-gradient(var(--color-border) 1px,transparent 1px),linear-gradient(90deg,var(--color-border) 1px,transparent 1px);background-size:60px 60px;opacity:.25;pointer-events:none}
     .hero-inner{max-width:960px;margin:0 auto;text-align:center;position:relative;z-index:1;display:grid;gap:var(--space-8)}
     .eyebrow{display:inline-flex;align-items:center;gap:var(--space-2);padding:.45rem .9rem;border-radius:var(--radius-full);background:var(--color-primary-light);color:var(--color-primary);font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin:0 auto}
-    [data-theme="dark"] .eyebrow{color:color-mix(in oklab,var(--color-primary) 160%,white)}
+    [data-theme="light"] .eyebrow{color:color-mix(in oklab,var(--color-primary) 160%,white)}
     .hero h1{font-size:var(--text-hero);font-weight:800;letter-spacing:-.04em;line-height:1;max-width:14ch;margin:0 auto}
     .hero h1 em{font-style:normal;color:var(--color-primary)}
     .hero-sub{font-size:var(--text-lg);color:var(--color-text-muted);max-width:52ch;margin:0 auto;line-height:1.5}
@@ -210,7 +210,7 @@
 
     /* ── MAP STYLES ─────────────────────────────────────── */
     @keyframes spin { to { transform: rotate(360deg); } }
-    [data-theme="dark"] #hunt-map .leaflet-tile { filter: brightness(0.75) saturate(0.8); }
+    [data-theme="light"] #hunt-map .leaflet-tile { filter: brightness(0.75) saturate(0.8); }
     .leaflet-popup-content-wrapper { border-radius: 12px !important; border: 1px solid var(--color-border); box-shadow: var(--shadow-lg) !important; }
     .leaflet-popup-content { margin: 0 !important; }
     .map-popup { padding: 14px 16px; min-width: 200px; }
@@ -249,6 +249,7 @@
         <a href="pricing.html">Pricing</a>
         <a href="about.html">About</a>
         <span class="nav-divider"></span>
+        <a href="landowner-portal.html" class="nav-mob-cta" style="color:var(--color-text-muted);font-weight:600">Landowner Login</a>
         <a href="list-your-land.html" class="nav-mob-cta" style="color:var(--color-accent);font-weight:700">List Your Land</a>
         <a href="javascript:void(0)" class="nav-mob-cta" onclick="openWaitlist && openWaitlist('guest')" style="color:var(--color-primary);font-weight:700">Get early access</a>
       </div>

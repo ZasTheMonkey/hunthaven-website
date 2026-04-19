@@ -88,3 +88,7 @@ CREATE POLICY "Public can view listing photos"
 ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS street_address text;
 ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS parcel_boundary jsonb;
 ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS allowed_zone jsonb;
+
+-- LeaseWild additional columns
+ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS allow_out_of_state boolean DEFAULT true;
+ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS video_url text;
