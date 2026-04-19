@@ -138,10 +138,12 @@
         <label>Driver's License <span style="color:var(--color-text-muted);font-weight:400">(required)</span></label>
         <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:.5rem">Upload a photo or scan of your driver's license for identity verification.</p>
         <div class="file-upload" id="license-zone">
-          <input type="file" id="license-input" accept="image/*,.pdf" />
-          <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin:0 auto .4rem;color:var(--color-text-muted)"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          <p style="font-size:var(--text-sm);font-weight:600;margin-bottom:.2rem">Tap to upload driver's license</p>
-          <p style="font-size:var(--text-xs);color:var(--color-text-muted)">JPG, PNG, or PDF</p>
+          <input type="file" id="license-input" accept="image/*,.pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2" />
+          <div id="license-zone-inner">
+            <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin:0 auto .4rem;color:var(--color-text-muted)"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <p style="font-size:var(--text-sm);font-weight:600;margin-bottom:.2rem">Tap to upload driver's license</p>
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted)">JPG, PNG, or PDF</p>
+          </div>
         </div>
         <p class="file-upload-name" id="license-name"></p>
       </div>
@@ -197,22 +199,22 @@
   // License file display
   document.getElementById('license-input').addEventListener('change', function() {
     var f = this.files[0];
+    var inner = document.getElementById('license-zone-inner');
+    var zone  = document.getElementById('license-zone');
     var nameEl = document.getElementById('license-name');
-    var zone = document.getElementById('license-zone');
-    if (!f) { nameEl.innerHTML = ''; zone.style.borderColor = 'var(--color-border)'; return; }
+    if (!f) { return; }
     zone.style.borderColor = 'var(--color-primary)';
+    zone.style.borderStyle = 'solid';
     zone.style.background = 'var(--color-surface)';
-    // Show filename with checkmark
-    nameEl.innerHTML = '<span style="color:var(--color-primary);font-weight:700;font-size:var(--text-sm)">✓ ' + f.name + '</span>';
-    // If image, show thumbnail
+    nameEl.innerHTML = '';
     if (f.type.startsWith('image/')) {
       var reader = new FileReader();
       reader.onload = function(e) {
-        zone.innerHTML = '<img src="' + e.target.result + '" style="width:100%;max-height:160px;object-fit:contain;border-radius:var(--radius-md)" /><p style="font-size:var(--text-xs);color:var(--color-primary);font-weight:700;margin-top:.5rem">✓ License uploaded</p>';
+        inner.innerHTML = '<img src="' + e.target.result + '" style="width:100%;max-height:150px;object-fit:contain;border-radius:8px;pointer-events:none" /><p style="font-size:13px;color:var(--color-primary);font-weight:700;margin-top:6px;pointer-events:none">✓ ' + f.name + '</p>';
       };
       reader.readAsDataURL(f);
     } else {
-      zone.innerHTML = '<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="var(--color-primary)" stroke-width="1.5" style="margin:0 auto .4rem"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><p style="font-size:var(--text-sm);font-weight:700;color:var(--color-primary)">✓ ' + f.name + '</p>';
+      inner.innerHTML = '<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 6px;color:var(--color-primary);pointer-events:none"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><p style="font-size:13px;font-weight:700;color:var(--color-primary);pointer-events:none">✓ ' + f.name + '</p><p style="font-size:11px;color:var(--color-text-muted);pointer-events:none">Tap to change</p>';
     }
   });
 
