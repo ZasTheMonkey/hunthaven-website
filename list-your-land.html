@@ -804,6 +804,12 @@
     var btn = document.getElementById('submit-btn');
     btn.disabled = true;
     btn.textContent = 'Uploading photos…';
+    // Overall 30s timeout guard
+    var submitTimeout = setTimeout(function() {
+      btn.disabled = false;
+      btn.textContent = 'Submit My Property — It\'s Free';
+      alert('This is taking longer than expected. Please check your connection and try again.');
+    }, 30000);
 
     var data = new FormData(e.target);
     var firstName   = data.get('first_name') || '';
@@ -850,9 +856,28 @@
       }
     }
 
+    // Upload video if selected
+    var videoUrl = null;
+    var videoFile = document.getElementById('video-input') && document.getElementById('video-input').files[0];
+    if (videoFile) {
+      btn.textContent = 'Uploading video…';
+      try {
+        var vPath = 'videos/' + Date.now() + '-' + videoFile.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+        var vResult = await Promise.race([
+          sb.storage.from('listing-photos').upload(vPath, videoFile, { cacheControl: '3600', upsert: false }),
+          new Promise((_,rej) => setTimeout(() => rej(new Error('Video upload timed out')), 20000))
+        ]);
+        if (!vResult.error) {
+          var { data: vUrlData } = sb.storage.from('listing-photos').getPublicUrl(vPath);
+          videoUrl = vUrlData.publicUrl;
+        }
+      } catch(vErr) { console.warn('Video upload skipped:', vErr); }
+    }
+
     // Insert listing row
     btn.textContent = 'Saving listing…';
-    var { error } = await sb.from('listings').insert({
+    try {
+    var insertPromise = sb.from('listings').insert({
       first_name:    firstName,
       last_name:     lastName,
       email:         email,
@@ -875,8 +900,14 @@
       street_address: (document.getElementById('street_address').value || null),
       parcel_boundary: (document.getElementById('parcel_boundary').value ? JSON.parse(document.getElementById('parcel_boundary').value) : null),
       allowed_zone:   (document.getElementById('allowed_zone').value ? JSON.parse(document.getElementById('allowed_zone').value) : null),
+      video_url:     videoUrl,
       status:        'active'
     });
+    var { error } = await Promise.race([
+      insertPromise,
+      new Promise((_,rej) => setTimeout(() => rej(new Error('Save timed out. Please try again.')), 15000))
+    ]);
+    clearTimeout(submitTimeout);
 
     if (error) {
       btn.disabled = false;
@@ -887,6 +918,12 @@
 
     // Show success
     document.getElementById('success-overlay').style.display = 'flex';
+    } catch(submitErr) {
+      clearTimeout(submitTimeout);
+      btn.disabled = false;
+      btn.textContent = 'Submit My Property — It\'s Free';
+      alert(submitErr.message || 'Something went wrong. Please try again.');
+    }
   }
   </script>
 
