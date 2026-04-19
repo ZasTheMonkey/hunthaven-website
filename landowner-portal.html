@@ -8,7 +8,6 @@
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://api.fontshare.com" />
   <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,400&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     :root,[data-theme="light"]{
       --text-xs:clamp(0.85rem,0.8rem + 0.25vw,1rem);
@@ -178,10 +177,12 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
   const SB_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
   const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
-  const sb = supabase.createClient(SB_URL, SB_KEY);
+  let sb;
+  try { sb = supabase.createClient(SB_URL, SB_KEY); } catch(e) { console.error('Supabase init failed:', e); }
 
   function switchTab(tab) {
     document.querySelectorAll('.tab,.tab-panel').forEach(el => el.classList.remove('active'));
@@ -224,6 +225,7 @@
     if (!email || !pass) { showMsg('Please fill in all fields.','error'); return; }
     var btn = document.getElementById('signin-btn');
     btn.disabled = true; btn.textContent = 'Signing in…';
+    if (!sb) { showMsg('Connection error. Please refresh the page.','error'); btn.disabled=false; btn.textContent='Sign In'; return; }
     var { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
     btn.disabled = false; btn.textContent = 'Sign In';
     if (error) { showMsg(error.message, 'error'); return; }
@@ -245,6 +247,7 @@
 
     try {
       // Sign up with 15s timeout
+      if (!sb) throw new Error('Connection error. Please refresh the page.');
       var signupPromise = sb.auth.signUp({ email, password: pass, options: { data: { full_name: name, phone } } });
       var timeoutPromise = new Promise((_,rej) => setTimeout(() => rej(new Error('Request timed out. Check your connection and try again.')), 15000));
       var { data, error } = await Promise.race([signupPromise, timeoutPromise]);
@@ -327,8 +330,11 @@
 
   // Auto-login if session exists
   (async function() {
-    var { data } = await sb.auth.getSession();
-    if (data?.session?.user) showDashboard(data.session.user);
+    try {
+      if (!sb) return;
+      var { data } = await sb.auth.getSession();
+      if (data?.session?.user) showDashboard(data.session.user);
+    } catch(e) { console.warn('Session check failed:', e); }
   })();
   </script>
 </body>
