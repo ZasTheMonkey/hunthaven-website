@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>See How It Works — LeaseWild</title>
+  <meta name="description" content="Watch a quick walkthrough of how LeaseWild works for landowners and hunters." />
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,400&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <style>
+    :root,[data-theme="light"]{
+      --text-xs:clamp(0.85rem,0.8rem + 0.25vw,1rem);
+      --text-sm:clamp(1rem,0.9rem + 0.35vw,1.125rem);
+      --text-base:clamp(1.125rem,1.05rem + 0.3vw,1.3rem);
+      --text-lg:clamp(1.3rem,1.1rem + 0.75vw,1.65rem);
+      --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+      --text-2xl:clamp(2rem,1.2rem + 2.5vw,3.5rem);
+      --color-bg:#f5f1e8;--color-surface:#faf6ed;--color-surface-2:#fff;
+      --color-border:#d6cebd;--color-text:#1a1a12;--color-text-muted:#6b6656;
+      --color-primary:#2d5a27;--color-primary-hover:#1e3d1a;
+      --color-accent:#c17f3a;--color-accent-hover:#a06828;
+      --radius-md:.625rem;--radius-lg:1rem;--radius-xl:1.5rem;--radius-full:9999px;
+      --shadow-md:0 4px 16px rgba(26,26,18,.10);--shadow-lg:0 16px 48px rgba(26,26,18,.14);
+      --font-display:'Cabinet Grotesk',system-ui,sans-serif;
+      --font-body:'Satoshi',system-ui,sans-serif;
+      --transition:.18s ease;
+    }
+    [data-theme="dark"]{
+      --color-bg:#111410;--color-surface:#171b14;--color-surface-2:#1d221a;
+      --color-border:#2e342b;--color-text:#e8e2d4;--color-text-muted:#9a9485;
+      --color-primary:#5a9470;--color-accent:#d4922a;
+      --shadow-md:0 4px 16px rgba(0,0,0,.35);--shadow-lg:0 16px 48px rgba(0,0,0,.5);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+    body{font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);min-height:100dvh}
+
+    /* NAV */
+    .nav{position:sticky;top:0;z-index:100;padding:0 clamp(1rem,4vw,3rem);background:color-mix(in oklab,var(--color-bg) 88%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--color-border)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px;gap:1rem}
+    .nav-links{display:flex;align-items:center;gap:1.5rem;font-size:var(--text-sm);font-weight:500}
+    .nav-links a{color:var(--color-text-muted);text-decoration:none;transition:color var(--transition)}
+    .nav-links a:hover,.nav-links a.active{color:var(--color-text)}
+    .nav-divider{width:1px;height:1.25rem;background:var(--color-border)}
+    .nav-actions{display:flex;align-items:center;gap:.75rem}
+    .btn{padding:.55rem 1.1rem;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:700;font-family:inherit;cursor:pointer;border:none;text-decoration:none;display:inline-flex;align-items:center;transition:all var(--transition)}
+    .btn-ghost{background:none;border:1.5px solid var(--color-border);color:var(--color-text)}
+    .btn-accent{background:var(--color-accent);color:#fff}
+    .btn-accent:hover{background:var(--color-accent-hover)}
+    .theme-btn{background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:.4rem;display:flex;align-items:center;border-radius:var(--radius-md)}
+    .mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--color-text);padding:.4rem}
+    .nav-mob-cta{display:none}
+    .nav-divider-mob{display:none}
+    @media(max-width:768px){
+      .nav-links a:not(.nav-mob-cta){display:none}
+      .nav-divider{display:none}
+      .mobile-menu-btn{display:flex}
+      .btn-ghost,.btn-accent{display:none!important}
+      .nav-links.nav-open{display:flex;flex-direction:column;align-items:flex-start;position:absolute;top:72px;left:0;right:0;background:var(--color-surface);border-bottom:1px solid var(--color-border);padding:1rem 1.5rem;gap:.75rem;z-index:200}
+      .nav-links.nav-open a{display:block;font-size:var(--text-base);padding:.25rem 0;color:var(--color-text-muted)}
+      .nav-links.nav-open .nav-mob-cta{display:block}
+      .nav-links.nav-open .nav-divider-mob{display:block;width:100%;height:1px;background:var(--color-border);margin:.25rem 0}
+    }
+
+    /* HERO */
+    .hero{padding:clamp(3rem,8vw,6rem) clamp(1rem,4vw,3rem) clamp(2rem,5vw,4rem);text-align:center;max-width:760px;margin:0 auto}
+    .hero-label{display:inline-block;padding:.35rem .9rem;border-radius:var(--radius-full);background:color-mix(in oklab,var(--color-accent) 15%,transparent);color:var(--color-accent);font-size:var(--text-xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.25rem}
+    .hero h1{font-family:var(--font-display);font-weight:800;font-size:var(--text-2xl);letter-spacing:-.04em;line-height:1.1;margin-bottom:1rem}
+    .hero p{font-size:var(--text-lg);color:var(--color-text-muted);line-height:1.55;margin-bottom:2rem}
+
+    /* STEPS */
+    .steps-section{padding:clamp(2rem,5vw,4rem) clamp(1rem,4vw,3rem);max-width:900px;margin:0 auto}
+    .steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;margin-bottom:3rem}
+    .step-card{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:1.75rem 1.5rem;position:relative}
+    .step-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:1rem;margin-bottom:1rem}
+    .step-num.green{background:color-mix(in oklab,var(--color-primary) 15%,transparent);color:var(--color-primary)}
+    .step-num.amber{background:color-mix(in oklab,var(--color-accent) 15%,transparent);color:var(--color-accent)}
+    .step-card h3{font-family:var(--font-display);font-weight:800;font-size:var(--text-base);margin-bottom:.5rem}
+    .step-card p{font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.55}
+
+    /* TABS */
+    .tabs-row{display:flex;gap:.75rem;margin-bottom:2rem;flex-wrap:wrap}
+    .tab-pill{padding:.5rem 1.25rem;border-radius:var(--radius-full);border:1.5px solid var(--color-border);background:none;font-size:var(--text-sm);font-weight:700;font-family:inherit;cursor:pointer;color:var(--color-text-muted);transition:all var(--transition)}
+    .tab-pill.active{background:var(--color-primary);color:#fff;border-color:var(--color-primary)}
+
+    /* VIDEO / MOCKUP placeholder */
+    .demo-frame{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow-lg);margin-bottom:3rem}
+    .demo-bar{background:var(--color-surface);padding:.75rem 1rem;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--color-border)}
+    .demo-dot{width:10px;height:10px;border-radius:50%}
+    .demo-url{flex:1;background:var(--color-bg);border-radius:var(--radius-md);padding:.3rem .75rem;font-size:var(--text-xs);color:var(--color-text-muted);font-family:monospace}
+    .demo-body{padding:2rem;min-height:320px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;text-align:center}
+    .demo-icon{width:64px;height:64px;border-radius:var(--radius-xl);display:flex;align-items:center;justify-content:center;margin-bottom:.5rem}
+
+    /* CTA */
+    .cta-section{background:var(--color-primary);padding:clamp(3rem,6vw,5rem) clamp(1rem,4vw,3rem);text-align:center}
+    .cta-section h2{font-family:var(--font-display);font-weight:800;font-size:var(--text-xl);color:#fff;margin-bottom:.75rem;letter-spacing:-.03em}
+    .cta-section p{color:rgba(255,255,255,.75);font-size:var(--text-base);margin-bottom:2rem}
+    .cta-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+    .btn-white{padding:.75rem 1.75rem;border-radius:var(--radius-full);background:#fff;color:var(--color-primary);font-weight:800;font-family:inherit;font-size:var(--text-base);border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:opacity var(--transition)}
+    .btn-white:hover{opacity:.9}
+    .btn-outline-white{padding:.75rem 1.75rem;border-radius:var(--radius-full);background:none;color:#fff;font-weight:700;font-family:inherit;font-size:var(--text-base);border:2px solid rgba(255,255,255,.5);cursor:pointer;text-decoration:none;display:inline-block;transition:border-color var(--transition)}
+    .btn-outline-white:hover{border-color:#fff}
+
+    /* SECTION LABEL */
+    .section-label{font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);margin-bottom:.75rem}
+    .section-title{font-family:var(--font-display);font-weight:800;font-size:var(--text-xl);letter-spacing:-.03em;margin-bottom:.5rem}
+    .section-sub{color:var(--color-text-muted);font-size:var(--text-base);margin-bottom:2rem}
+  </style>
+</head>
+<body>
+  <script>
+    try { var t = localStorage.getItem('lw-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){}
+  </script>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+        <svg width="34" height="34" viewBox="0 0 38 38" fill="none"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
+        <span style="font-family:var(--font-display);font-weight:800;font-size:1.45rem;letter-spacing:-.03em"><span style="color:var(--color-text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
+      </a>
+      <div class="nav-links" id="nav-links">
+        <a href="listings.html">Browse Land</a>
+        <a href="fishing.html">Fishing</a>
+        <a href="howitworks.html">How It Works</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="about.html">About</a>
+        <span class="nav-divider"></span>
+        <a href="landowner-portal.html" class="nav-mob-cta" style="color:var(--color-text-muted);font-weight:600">Landowner Login</a>
+        <a href="demo.html" class="nav-mob-cta active" style="color:var(--color-accent);font-weight:700">Demo</a>
+        <a href="javascript:void(0)" class="nav-mob-cta" onclick="openWaitlist('guest')" style="color:var(--color-primary);font-weight:700">Get early access</a>
+      </div>
+      <div class="nav-actions">
+        <button class="theme-btn" aria-label="Toggle theme" onclick="toggleTheme()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a href="landowner-portal.html" class="btn btn-ghost">Landowner Login</a>
+        <a href="landowner-portal.html" class="btn btn-accent">List Your Land</a>
+        <button class="mobile-menu-btn" aria-label="Open menu" onclick="toggleMenu()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">Live Demo</div>
+    <h1>See LeaseWild in action</h1>
+    <p>Watch how landowners list their property and how hunters find and book private land in Florida — all in a few simple steps.</p>
+  </div>
+
+  <!-- TABS + STEPS -->
+  <div class="steps-section">
+    <div class="tabs-row">
+      <button class="tab-pill active" onclick="showTab('landowner', this)">For Landowners</button>
+      <button class="tab-pill" onclick="showTab('hunter', this)">For Hunters</button>
+    </div>
+
+    <!-- LANDOWNER STEPS -->
+    <div id="tab-landowner">
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num green">1</div>
+          <h3>Create your account</h3>
+          <p>Sign up with your email and upload your driver's license for identity verification. Takes under 2 minutes.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num green">2</div>
+          <h3>List your land</h3>
+          <p>Add your property details — acreage, activities, pricing, photos, and video. Your listing goes live instantly.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num green">3</div>
+          <h3>Hunters find you</h3>
+          <p>Guests browse and book your land. You keep 85% of every booking. LeaseWild handles the rest.</p>
+        </div>
+      </div>
+
+      <!-- Mockup: Listing form preview -->
+      <div class="demo-frame">
+        <div class="demo-bar">
+          <div class="demo-dot" style="background:#ff5f57"></div>
+          <div class="demo-dot" style="background:#febc2e"></div>
+          <div class="demo-dot" style="background:#28c840"></div>
+          <div class="demo-url">leasewild.com/list-your-land</div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-icon" style="background:color-mix(in oklab,var(--color-primary) 12%,transparent)">
+            <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="#2d5a27" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+          </div>
+          <p style="font-family:var(--font-display);font-weight:800;font-size:var(--text-lg)">List Your Land</p>
+          <p style="color:var(--color-text-muted);font-size:var(--text-sm);max-width:340px">Fill out your property details, set your price, upload photos — and your listing goes live on LeaseWild immediately.</p>
+          <a href="landowner-portal.html" class="btn btn-accent" style="margin-top:.5rem;padding:.75rem 1.75rem;font-size:var(--text-sm)">Create Account to List</a>
+        </div>
+      </div>
+
+      <!-- Earnings callout -->
+      <div style="background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:1.75rem 1.5rem;display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap">
+        <div style="flex:1;min-width:180px">
+          <div class="section-label">Landowner Earnings</div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:var(--text-xl);letter-spacing:-.03em">You keep 85%</div>
+          <p style="color:var(--color-text-muted);font-size:var(--text-sm);margin-top:.4rem">LeaseWild takes a 15% service fee — only when you earn. No monthly fees, no contracts.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.6rem;min-width:200px">
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);padding:.5rem .75rem;background:var(--color-bg);border-radius:var(--radius-md)"><span>$200/night booking</span><span style="font-weight:700;color:var(--color-primary)">You get $170</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);padding:.5rem .75rem;background:var(--color-bg);border-radius:var(--radius-md)"><span>$500/night booking</span><span style="font-weight:700;color:var(--color-primary)">You get $425</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);padding:.5rem .75rem;background:var(--color-bg);border-radius:var(--radius-md)"><span>Cleaning fee</span><span style="font-weight:700;color:var(--color-primary)">You keep 100%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUNTER STEPS -->
+    <div id="tab-hunter" style="display:none">
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num amber">1</div>
+          <h3>Browse listings</h3>
+          <p>Search private hunting and fishing land across Florida. Filter by acreage, activities, price, and more.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num amber">2</div>
+          <h3>Join the waitlist</h3>
+          <p>LeaseWild is in pre-launch. Join the guest waitlist now and be first to book when we go live.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num amber">3</div>
+          <h3>Book &amp; go hunt</h3>
+          <p>Pay securely through the platform. Trip protection included. Show up and enjoy exclusive private access.</p>
+        </div>
+      </div>
+
+      <!-- Mockup: Browse page preview -->
+      <div class="demo-frame">
+        <div class="demo-bar">
+          <div class="demo-dot" style="background:#ff5f57"></div>
+          <div class="demo-dot" style="background:#febc2e"></div>
+          <div class="demo-dot" style="background:#28c840"></div>
+          <div class="demo-url">leasewild.com/listings</div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-icon" style="background:color-mix(in oklab,var(--color-accent) 12%,transparent)">
+            <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="#c17f3a" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+          <p style="font-family:var(--font-display);font-weight:800;font-size:var(--text-lg)">Browse Private Land</p>
+          <p style="color:var(--color-text-muted);font-size:var(--text-sm);max-width:340px">Explore available hunting and fishing properties across Florida. Filter by what matters to you.</p>
+          <a href="listings.html" class="btn btn-accent" style="margin-top:.5rem;padding:.75rem 1.75rem;font-size:var(--text-sm)">Browse Listings</a>
+        </div>
+      </div>
+
+      <!-- Pricing callout -->
+      <div style="background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:1.75rem 1.5rem">
+        <div class="section-label">What Guests Pay</div>
+        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:1.25rem">Transparent pricing — no surprise fees at checkout.</p>
+        <div style="display:flex;flex-direction:column;gap:.6rem">
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);padding:.6rem .75rem;background:var(--color-bg);border-radius:var(--radius-md)"><span>Listing rate</span><span style="color:var(--color-text-muted)">Set by landowner</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);padding:.6rem .75rem;background:var(--color-bg);border-radius:var(--radius-md)"><span>Service fee</span><span style="color:var(--color-text-muted)">15%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);padding:.6rem .75rem;background:var(--color-bg);border-radius:var(--radius-md)"><span>Trip protection</span><span style="color:var(--color-text-muted)">~$18</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:var(--text-sm);padding:.6rem .75rem;background:var(--color-bg);border-radius:var(--radius-md);font-weight:700"><span>Cleaning fee (if any)</span><span>100% to landowner</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <h2>Ready to list your land?</h2>
+    <p>Create your free account and have your listing live in minutes.</p>
+    <div class="cta-btns">
+      <a href="landowner-portal.html" class="btn-white">Create Landowner Account</a>
+      <a href="listings.html" class="btn-outline-white">Browse Listings</a>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      var html = document.documentElement;
+      var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      try { localStorage.setItem('lw-theme', next); } catch(e) {}
+    }
+    function toggleMenu() {
+      document.getElementById('nav-links').classList.toggle('nav-open');
+    }
+    function showTab(tab, btn) {
+      document.getElementById('tab-landowner').style.display = tab === 'landowner' ? '' : 'none';
+      document.getElementById('tab-hunter').style.display = tab === 'hunter' ? '' : 'none';
+      document.querySelectorAll('.tab-pill').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+    }
+    function openWaitlist() {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
