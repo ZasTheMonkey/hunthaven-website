@@ -780,39 +780,7 @@
     if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') doMapSearch(); });
   });
 
-  // ── LISTING FILTERS ──
-  let _ftype = 'all', _fsize = 'any', _fspecies = 'all';
-  function applyCardFilters() {
-    const cards = document.querySelectorAll('#listings-grid .listing-card');
-    let visible = 0;
-    cards.forEach(c => {
-      const type = c.dataset.type;
-      const acres = parseInt(c.dataset.acres);
-      const species = c.dataset.species || '';
-      const typeOk = _ftype === 'all' || type === _ftype;
-      const sizeOk = _fsize === 'any' ||
-        (_fsize === 'small' && acres < 50) ||
-        (_fsize === 'med' && acres >= 50 && acres <= 300) ||
-        (_fsize === 'large' && acres > 300);
-      const speciesOk = _fspecies === 'all' || species.includes(_fspecies);
-      const show = typeOk && sizeOk && speciesOk;
-      c.style.display = show ? '' : 'none';
-      if (show) visible++;
-    });
-    const empty = document.getElementById('filter-empty');
-    if (empty) empty.style.display = visible === 0 ? 'block' : 'none';
-  }
-  function filterCards(btn, val) {
-    _ftype = val;
-    document.querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('active', b.dataset.filter === val));
-    applyCardFilters();
-  }
-  function filterSize(btn, val) {
-    _fsize = val;
-    document.querySelectorAll('[data-size]').forEach(b => b.classList.toggle('active', b.dataset.size === val));
-    applyCardFilters();
-  }
-  function filterSpecies(val) { _fspecies = val; applyCardFilters(); }
+  // ── LISTING FILTERS (defined above) ──
 
   // ── INLINE EMAIL ──
   function inlineSubmit(e) {

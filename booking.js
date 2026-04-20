@@ -271,7 +271,7 @@ async function submitPreReservation() {
       trip_protection: 18,
       total: total,
       status: 'pre_reserved'
-    }}).select();
+    }).select();
     if (result.error) throw result.error;
     btn.style.display = 'none';
     msg.style.display = 'block';
