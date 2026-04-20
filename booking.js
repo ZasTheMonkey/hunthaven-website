@@ -78,8 +78,8 @@ function openListingDetail(l) {
         '<div style="padding:1.25rem">' +
           noteHtml +
           '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.75rem">' +
-            '<div><label style="'+labelStyle+'">Check-in</label><input type="text" id="bk-checkin" placeholder="Select date" readonly style="'+inputStyle+';cursor:pointer" /></div>' +
-            '<div><label style="'+labelStyle+'">Check-out</label><input type="text" id="bk-checkout" placeholder="Select date" readonly style="'+inputStyle+';cursor:pointer" /></div>' +
+            '<div><label style="'+labelStyle+'">Check-in</label><input type="text" id="bk-checkin" placeholder="Select date" style="'+inputStyle+';cursor:pointer" /></div>' +
+            '<div><label style="'+labelStyle+'">Check-out</label><input type="text" id="bk-checkout" placeholder="Select date" style="'+inputStyle+';cursor:pointer" /></div>' +
           '</div>' +
           '<div id="bk-calendar-legend" style="display:flex;gap:1rem;font-size:.75rem;color:var(--color-text-muted);margin-bottom:.75rem;align-items:center">' +
             '<span style="display:flex;align-items:center;gap:.3rem"><span style="width:14px;height:14px;border-radius:3px;background:#22c55e;display:inline-block"></span>Available</span>' +
@@ -121,7 +121,8 @@ function openListingDetail(l) {
 
     var fpConfig = {
       minDate: '2026-07-01',
-      disableMobile: false,
+      disableMobile: true,
+      allowInput: false,
       dateFormat: 'Y-m-d',
       disable: bookedDates,
       onDayCreate: function(dObj, dStr, fp, dayElem) {
@@ -147,11 +148,15 @@ function openListingDetail(l) {
       onChange: function() { updateBookingPrice(); }
     };
 
-    // Wait a tick for DOM
-    await new Promise(r => setTimeout(r, 50));
-    var cinEl = document.getElementById('bk-checkin');
-    var coutEl = document.getElementById('bk-checkout');
-    if (!cinEl || !coutEl) return;
+    // Wait for DOM elements to be available (poll up to 1s)
+    var cinEl, coutEl;
+    for (var i = 0; i < 20; i++) {
+      await new Promise(r => setTimeout(r, 60));
+      cinEl = document.getElementById('bk-checkin');
+      coutEl = document.getElementById('bk-checkout');
+      if (cinEl && coutEl) break;
+    }
+    if (!cinEl || !coutEl) { console.warn('bk-checkin/bk-checkout not found'); return; }
 
     var fpIn = flatpickr(cinEl, Object.assign({}, fpConfig, {
       onChange: function(dates, str) {
@@ -187,7 +192,19 @@ function openListingDetail(l) {
   document.body.style.overflow = 'hidden';
 
   // Init Flatpickr after DOM is ready
-  if (priceNum) initDatePickers();
+  if (priceNum) {
+    if (typeof flatpickr !== 'undefined') {
+      initDatePickers();
+    } else {
+      // Flatpickr not yet loaded — wait for it
+      var fpWait = setInterval(function() {
+        if (typeof flatpickr !== 'undefined') {
+          clearInterval(fpWait);
+          initDatePickers();
+        }
+      }, 100);
+    }
+  }
 }
 
 function updateBookingPrice() {
