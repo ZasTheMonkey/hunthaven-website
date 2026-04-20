@@ -602,23 +602,42 @@
     .mob-bar{
       display:none;
       position:fixed;bottom:0;left:0;right:0;z-index:300;
-      height:var(--mob-bar);
-      background:var(--surface);
-      border-top:1px solid var(--border);
-      box-shadow:0 -4px 20px rgba(0,0,0,.08);
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-top:1px solid rgba(0,0,0,.07);
+      box-shadow:0 -1px 0 rgba(0,0,0,.06),0 -8px 32px rgba(0,0,0,.07);
+      padding-bottom:env(safe-area-inset-bottom,0px);
     }
     .mob-bar-inner{
-      display:flex;align-items:stretch;height:100%;
+      display:flex;align-items:center;height:60px;
+      padding:0 4px;
     }
     .mob-tab{
       flex:1;display:flex;flex-direction:column;align-items:center;
-      justify-content:center;gap:4px;
-      font-size:.62rem;font-weight:600;color:var(--muted);
-      cursor:pointer;transition:color .15s;
-      border:none;background:none;
-      padding:8px 4px 10px;
+      justify-content:center;gap:3px;
+      font-size:.6rem;font-weight:700;letter-spacing:.02em;
+      color:var(--faint);
+      cursor:pointer;border:none;background:none;
+      padding:6px 4px 6px;
+      border-radius:12px;
+      transition:color .15s,background .15s;
+      position:relative;
     }
-    .mob-tab.active{color:var(--green)}
+    .mob-tab:active{background:rgba(0,0,0,.04)}
+    .mob-tab .mob-icon-wrap{
+      width:28px;height:28px;
+      display:grid;place-items:center;
+      border-radius:8px;
+      transition:background .15s,transform .15s;
+    }
+    .mob-tab.active .mob-icon-wrap{
+      background:var(--green-lt);
+      transform:translateY(-1px);
+    }
+    .mob-tab.active{
+      color:var(--green);
+    }
     .mob-tab svg{flex-shrink:0}
 
     /* ─────────────────────────────────────────────
@@ -1428,26 +1447,44 @@
   ══════════════════════════════════════════ -->
   <nav class="mob-bar" aria-label="Mobile navigation">
     <div class="mob-bar-inner">
-      <button class="mob-tab active" onclick="mobTab(this,'explore')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+
+      <button class="mob-tab active" onclick="mobTab(this,'explore');window.scrollTo({top:0,behavior:'smooth'})">
+        <div class="mob-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
         Explore
       </button>
+
       <button class="mob-tab" onclick="mobTab(this,'hunting');filterCards('hunt');document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <div class="mob-icon-wrap">
+          <!-- target crosshair — hunting -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="21"/><line x1="3" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="21" y2="12"/></svg>
+        </div>
         Hunting
       </button>
+
       <button class="mob-tab" onclick="mobTab(this,'fishing');filterCards('fish');document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 12C6 8 9 4 12 2c3 2 6 6 6 10s-3 8-6 10c-3-2-6-6-6-10z"/></svg>
+        <div class="mob-icon-wrap">
+          <!-- fishing rod / wave -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M4 4l16 7"/><circle cx="4" cy="4" r="1.5" fill="currentColor" stroke="none"/></svg>
+        </div>
         Fishing
       </button>
-      <button class="mob-tab" onclick="openWaitlist()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        Saved
+
+      <button class="mob-tab" onclick="mobTab(this,'wishlist');openWaitlist()">
+        <div class="mob-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        Wishlist
       </button>
-      <button class="mob-tab" onclick="window.location='guest-portal.html'">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+
+      <button class="mob-tab" onclick="mobTab(this,'account');window.location='guest-portal.html'">
+        <div class="mob-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
         Account
       </button>
+
     </div>
   </nav>
 
