@@ -329,6 +329,7 @@
         <button class="admin-tab" id="tab-bookings" onclick="switchAdminTab('bookings')">Bookings</button>
         <button class="admin-tab" id="tab-promo" onclick="switchAdminTab('promo')">Promo Codes</button>
         <button class="admin-tab" id="tab-affiliate" onclick="switchAdminTab('affiliate')">Affiliates</button>
+        <button class="admin-tab" id="tab-settings" onclick="switchAdminTab('settings')">⚙ Settings</button>
       </div>
 
       <!-- LISTINGS PANEL -->
@@ -431,6 +432,39 @@
 
         <h3 style="font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-4)">Active Codes</h3>
         <div id="promo-list"><p style="color:var(--color-text-muted);font-size:var(--text-sm)">Loading…</p></div>
+      </div>
+
+      <!-- SETTINGS PANEL -->
+      <div class="admin-panel" id="panel-settings">
+        <div style="max-width:640px">
+          <h2 style="font-size:var(--text-xl);font-weight:800;letter-spacing:.01em;margin-bottom:var(--space-2)">Site Settings</h2>
+          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-8)">Control live site behavior. Changes take effect immediately for all visitors.</p>
+
+          <!-- STRIPE CHECKOUT TOGGLE -->
+          <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);margin-bottom:var(--space-5)">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-6)">
+              <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.4rem">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  <h3 style="font-size:var(--text-base);font-weight:800;margin:0">Stripe Checkout</h3>
+                  <span id="checkout-status-badge" style="padding:.2rem .6rem;border-radius:var(--radius-full);font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:#fce8e8;color:#c0392b">OFF</span>
+                </div>
+                <p style="font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.6;margin-bottom:0">When <strong>OFF</strong>, guests see the pre-reservation form only — no payment collected. When <strong>ON</strong>, guests are sent to Stripe to pay in full at booking. Flip this on July 1, 2026 when bookings open.</p>
+              </div>
+              <div style="flex-shrink:0;padding-top:.2rem">
+                <button id="checkout-toggle-btn" onclick="toggleCheckout()" style="position:relative;width:60px;height:32px;border-radius:999px;border:none;cursor:pointer;transition:background .25s;background:#d1d5db;padding:0" aria-label="Toggle Stripe checkout">
+                  <span id="checkout-toggle-knob" style="position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:left .25s"></span>
+                </button>
+              </div>
+            </div>
+            <div id="checkout-toggle-msg" style="margin-top:var(--space-4);padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-size:var(--text-sm);display:none"></div>
+          </div>
+
+          <!-- INFO BOX -->
+          <div style="background:var(--color-surface-offset);border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.65">
+            <strong style="color:var(--color-text)">How it works:</strong> When Stripe Checkout is OFF, guests fill out a free pre-reservation form and get confirmed by email on July 1. When you flip it ON, the booking button sends guests to a secure Stripe-hosted checkout page for full payment. You can turn it back OFF at any time — in-progress payments will complete normally.
+          </div>
+        </div>
       </div>
 
       <!-- AFFILIATE CODES PANEL -->
@@ -574,6 +608,7 @@
       if (tab === 'promo') loadPromoCodes();
       if (tab === 'affiliate') loadAffiliateCodes();
       if (tab === 'bookings') loadAdminBookings();
+      if (tab === 'settings') loadSettingsPanel();
     }
 
     // ── Code generators ──────────────────────────────────────
@@ -1062,6 +1097,84 @@
         body: JSON.stringify({ status: 'cancelled', cancelled_at: new Date().toISOString(), cancelled_by: 'admin' })
       });
       loadAdminBookings();
+    }
+
+    // ── Settings: Stripe Checkout Toggle ────────────────────
+    var _checkoutEnabled = false;
+
+    async function loadSettingsPanel() {
+      var SB_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
+      var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjQ2NTc1NCwiZXhwIjoyMDkyMDQxNzU0fQ.jupSYN3UBOLRHPXehUxeP8rWGG5o7MFYFLvP7E8QDnQ';
+      try {
+        var res = await fetch(SB_URL + "/rest/v1/site_settings?key=eq.checkout_enabled&select=value", {
+          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+        });
+        var rows = await res.json();
+        _checkoutEnabled = rows.length && rows[0].value === 'true';
+      } catch(e) { _checkoutEnabled = false; }
+      updateToggleUI(_checkoutEnabled);
+    }
+
+    function updateToggleUI(enabled) {
+      var btn = document.getElementById('checkout-toggle-btn');
+      var knob = document.getElementById('checkout-toggle-knob');
+      var badge = document.getElementById('checkout-status-badge');
+      if (!btn) return;
+      if (enabled) {
+        btn.style.background = 'var(--color-primary)';
+        knob.style.left = '32px';
+        badge.textContent = 'ON';
+        badge.style.background = '#d6ead4';
+        badge.style.color = 'var(--color-primary)';
+      } else {
+        btn.style.background = '#d1d5db';
+        knob.style.left = '4px';
+        badge.textContent = 'OFF';
+        badge.style.background = '#fce8e8';
+        badge.style.color = '#c0392b';
+      }
+    }
+
+    async function toggleCheckout() {
+      var newVal = !_checkoutEnabled;
+      var btn = document.getElementById('checkout-toggle-btn');
+      var msgEl = document.getElementById('checkout-toggle-msg');
+      btn.disabled = true;
+      msgEl.style.display = 'none';
+
+      var SB_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
+      var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjQ2NTc1NCwiZXhwIjoyMDkyMDQxNzU0fQ.jupSYN3UBOLRHPXehUxeP8rWGG5o7MFYFLvP7E8QDnQ';
+
+      try {
+        // Upsert the setting
+        var res = await fetch(SB_URL + '/rest/v1/site_settings?key=eq.checkout_enabled', {
+          method: 'PATCH',
+          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ value: String(newVal), updated_at: new Date().toISOString() })
+        });
+        // If no row existed yet (204 but rows=0), insert it
+        if (res.status === 404 || res.status === 200) {
+          await fetch(SB_URL + '/rest/v1/site_settings', {
+            method: 'POST',
+            headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ key: 'checkout_enabled', value: String(newVal) })
+          });
+        }
+        _checkoutEnabled = newVal;
+        updateToggleUI(newVal);
+        msgEl.style.display = 'block';
+        msgEl.style.background = newVal ? '#d6ead4' : '#fce8e8';
+        msgEl.style.color = newVal ? 'var(--color-primary)' : '#c0392b';
+        msgEl.innerHTML = newVal
+          ? '<strong>Stripe Checkout is now ON.</strong> Guests will be taken to Stripe to pay when they book. Flip it back OFF at any time.'
+          : '<strong>Stripe Checkout is now OFF.</strong> Guests see a free pre-reservation form. No payment collected until you turn this back ON.';
+      } catch(e) {
+        msgEl.style.display = 'block';
+        msgEl.style.background = '#fce8e8';
+        msgEl.style.color = '#c0392b';
+        msgEl.textContent = 'Error saving setting: ' + (e.message || 'try again.');
+      }
+      btn.disabled = false;
     }
   </script>
 

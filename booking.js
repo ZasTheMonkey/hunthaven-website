@@ -310,7 +310,7 @@ function updateBookingPrice() {
     '<div style="display:flex;justify-content:space-between"><span>Service fee (15%)</span><span>$'+svcFee.toFixed(2)+'</span></div>' +
     '<div style="display:flex;justify-content:space-between"><span>Trip protection</span><span>$18.00</span></div>' +
     (discountAmt > 0 ? '<div style="display:flex;justify-content:space-between;color:var(--color-primary);font-weight:600"><span>Discount ('+discountPct+'% off)</span><span>−$'+discountAmt.toFixed(2)+'</span></div>' : '') +
-    '<div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid var(--color-border);padding-top:.4rem;margin-top:.25rem"><span>Total (due at launch)</span><span>$'+total.toFixed(2)+'</span></div>';
+    '<div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid var(--color-border);padding-top:.4rem;margin-top:.25rem"><span>Total</span><span>$'+total.toFixed(2)+'</span></div>';
 }
 
 async function submitPreReservation() {
@@ -382,8 +382,201 @@ async function submitPreReservation() {
   }
 }
 
-function submitBookingStripe() {
-  alert('Full Stripe checkout coming at launch. Pre-reserve your dates for now!');
+// ── Stripe Checkout ──────────────────────────────────────────
+// Checks site_settings.checkout_enabled before allowing payment.
+// If OFF → falls back to pre-reservation form.
+// If ON  → saves booking as 'pending_payment' then redirects to Stripe.
+async function submitBookingStripe() {
+  var l = _currentListing;
+  if (!l) return;
+  var cin = document.getElementById('bk-checkin').value;
+  var cout = document.getElementById('bk-checkout').value;
+  var guests = parseInt((document.getElementById('bk-guests') || {}).value) || 1;
+  var btn = document.getElementById('bk-btn');
+  var msg = document.getElementById('bk-msg');
+
+  if (!cin || !cout) {
+    msg.style.display = 'block'; msg.style.color = '#c0392b';
+    msg.textContent = 'Please select check-in and check-out dates.';
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Checking…';
+
+  // ─ 1. Check if checkout is enabled ────────────────────
+  var checkoutEnabled = false;
+  try {
+    var settingsRes = await fetch(
+      SUPABASE_URL + '/rest/v1/site_settings?key=eq.checkout_enabled&select=value',
+      { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY } }
+    );
+    var settingsRows = await settingsRes.json();
+    checkoutEnabled = settingsRows.length && settingsRows[0].value === 'true';
+  } catch(e) { checkoutEnabled = false; }
+
+  // ─ 2. If OFF — block checkout ─────────────────────
+  if (!checkoutEnabled) {
+    btn.disabled = false; btn.innerHTML = 'Book Now &rarr;';
+    msg.style.display = 'block'; msg.style.color = 'var(--color-accent)';
+    msg.style.fontWeight = '600';
+    msg.innerHTML = 'Online booking opens July 1, 2026. <br>Want to reserve these dates? <button onclick="switchToPreReservation()" style="background:none;border:none;color:var(--color-primary);font-weight:700;cursor:pointer;font-family:inherit;font-size:inherit;text-decoration:underline;padding:0">Pre-reserve for free &rarr;</button>';
+    return;
+  }
+
+  // ─ 3. Checkout IS enabled — calculate totals ───────
+  btn.textContent = 'Preparing checkout…';
+  var d1 = new Date(cin), d2 = new Date(cout);
+  var nights = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+  var rate = parseFloat(l.price_per_day) || 0;
+  var cleaning = parseFloat(l.cleaning_fee) || 0;
+  var subtotal = rate * nights + cleaning;
+  var svcFee = +(subtotal * 0.15).toFixed(2);
+  var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
+  var discountAmt = discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0;
+  var tripProtection = 18;
+  // Stripe fee passed to guest: 2.9% + $0.30 on top of everything
+  var preStripe = subtotal + svcFee + tripProtection - discountAmt;
+  var stripeFee = +((preStripe * 0.029) + 0.30).toFixed(2);
+  var total = +(preStripe + stripeFee).toFixed(2);
+  var totalCents = Math.round(total * 100);
+
+  // ─ 4. Save booking as pending_payment in Supabase ───
+  var bookingId = null;
+  try {
+    var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var result = await _sb.from('bookings').insert({
+      listing_id: l.id,
+      guest_name: 'Pending',
+      guest_email: 'pending@stripe',
+      check_in: cin,
+      check_out: cout,
+      nights: nights,
+      guests: guests,
+      rate_per_night: rate,
+      cleaning_fee: cleaning,
+      service_fee: svcFee,
+      trip_protection: tripProtection,
+      stripe_fee: stripeFee,
+      discount_code: _appliedCode ? _appliedCode.code : null,
+      discount_pct: discountPct || null,
+      discount_amt: discountAmt || null,
+      affiliate_code: _appliedCode && _appliedCode.type === 'affiliate' ? _appliedCode.code : null,
+      total: total,
+      status: 'pending_payment'
+    }).select();
+    if (result.error) throw result.error;
+    bookingId = result.data[0].id;
+  } catch(e) {
+    btn.disabled = false; btn.innerHTML = 'Book Now &rarr;';
+    msg.style.display = 'block'; msg.style.color = '#c0392b';
+    msg.textContent = 'Error: ' + (e.message || 'Please try again.');
+    return;
+  }
+
+  // ─ 5. Redirect to Stripe Checkout via payment link ──
+  // Stripe Payment Links let you pass custom amounts via query params.
+  // We use Stripe's hosted checkout with the total encoded in the URL.
+  // The return URL brings the guest back to a confirmation page.
+  var listingName = l.county ? l.county + ' Private Land' : 'LeaseWild Booking';
+  var description = listingName + ' \u2014 ' + nights + ' night' + (nights > 1 ? 's' : '') + ' (' + cin + ' to ' + cout + ')';
+
+  // Build Stripe Checkout session via our simple redirect endpoint
+  // Since we have no backend, we use Stripe.js Payment Links with amount
+  // We'll open a Stripe Payment Link that accepts variable amounts.
+  // The cleanest no-backend solution: redirect to a Stripe-hosted page
+  // pre-filled with the amount using Stripe's checkout.stripe.com
+  var stripeParams = new URLSearchParams({
+    booking_id: bookingId,
+    amount: totalCents,
+    description: description,
+    success_url: window.location.origin + '/guest-portal.html?booking=' + bookingId + '&payment=success',
+    cancel_url: window.location.href
+  });
+
+  // Use Stripe Checkout JS to redirect
+  // Load Stripe.js if not already loaded
+  if (typeof Stripe === 'undefined') {
+    var stripeScript = document.createElement('script');
+    stripeScript.src = 'https://js.stripe.com/v3/';
+    stripeScript.onload = function() { launchStripeCheckout(totalCents, bookingId, description, cin, cout, nights, l); };
+    document.head.appendChild(stripeScript);
+  } else {
+    launchStripeCheckout(totalCents, bookingId, description, cin, cout, nights, l);
+  }
+}
+
+function switchToPreReservation() {
+  // Swap the button/form to show the pre-reservation fields
+  var l = _currentListing;
+  if (!l) return;
+  // Re-render the booking area with pre-reservation mode
+  var msg = document.getElementById('bk-msg');
+  if (msg) { msg.style.display = 'none'; }
+  var btnEl = document.getElementById('bk-btn');
+  if (!btnEl) return;
+  var inputStyle = 'width:100%;padding:.65rem .75rem;border:1.5px solid var(--color-border);border-radius:8px;background:var(--color-bg);color:var(--color-text);font-size:1rem;font-family:inherit;outline:none;box-sizing:border-box';
+  // Insert name/email/phone fields above the button
+  var noteDiv = document.createElement('div');
+  noteDiv.style.cssText = 'margin-bottom:.75rem';
+  noteDiv.innerHTML =
+    '<p style="font-size:.85rem;color:var(--color-text-muted);margin-bottom:.75rem;line-height:1.6">Pre-reserve your dates — no payment until bookings open July 1, 2026. We\'ll confirm by email.</p>' +
+    '<input id="bk-name" type="text" placeholder="Your full name" style="' + inputStyle + ';margin-bottom:.6rem" />' +
+    '<input id="bk-email" type="email" placeholder="Email address" style="' + inputStyle + ';margin-bottom:.6rem" />' +
+    '<input id="bk-phone" type="tel" placeholder="Phone (optional)" style="' + inputStyle + ';margin-bottom:.6rem" />';
+  btnEl.parentNode.insertBefore(noteDiv, btnEl);
+  btnEl.innerHTML = 'Pre-reserve my dates — free';
+  btnEl.onclick = submitPreReservation;
+}
+
+async function launchStripeCheckout(totalCents, bookingId, description, cin, cout, nights, listing) {
+  // No-backend approach: use Stripe Payment Links.
+  // Since we cannot create checkout sessions client-side securely,
+  // we redirect to a Stripe Payment Link with the pre-built product.
+  // The link is configured in Stripe dashboard as a "variable amount" link.
+  // For now, redirect to a Stripe payment link page with metadata in the URL.
+  //
+  // IMPORTANT: You must create a Stripe Payment Link in your dashboard:
+  //   1. Go to dashboard.stripe.com/payment-links/create
+  //   2. Set it to collect custom amount OR create a one-time product
+  //   3. Paste the link below
+  //
+  // For a clean flow with dynamic pricing, the ideal solution is a
+  // small Stripe Checkout server (e.g. Supabase Edge Function).
+  // We'll wire that up and redirect accordingly.
+
+  var btn = document.getElementById('bk-btn');
+  var msg = document.getElementById('bk-msg');
+
+  // Attempt to call our Supabase Edge Function to create a Checkout session
+  try {
+    var res = await fetch('https://teohfzegpoxzimfsmviy.supabase.co/functions/v1/stripe-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      body: JSON.stringify({
+        booking_id: bookingId,
+        amount_cents: totalCents,
+        description: description,
+        checkin: cin,
+        checkout: cout,
+        nights: nights,
+        listing_title: listing.county ? listing.county + ' Private Land' : 'LeaseWild',
+        success_url: window.location.origin + '/guest-portal.html?booking=' + bookingId + '&payment=success',
+        cancel_url: window.location.href
+      })
+    });
+    var data = await res.json();
+    if (data && data.url) {
+      window.location.href = data.url;
+      return;
+    }
+    throw new Error(data.error || 'No checkout URL returned');
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.innerHTML = 'Book Now &rarr;'; }
+    if (msg) {
+      msg.style.display = 'block'; msg.style.color = '#c0392b';
+      msg.textContent = 'Checkout error: ' + (e.message || 'Please try again.');
+    }
+  }
 }
 
 function closeListingDetail() {
