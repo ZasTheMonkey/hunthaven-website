@@ -13,6 +13,7 @@ function openListingById(id) {
 function openListingDetail(l) {
   if (!l) return;
   _currentListing = l;
+  _appliedCode = null; // reset code when opening a new listing
   var type = getType(l);
   var isHunt = type === 'hunting';
   var color = isHunt ? 'var(--color-primary)' : 'var(--color-water)';
@@ -87,7 +88,15 @@ function openListingDetail(l) {
           '</div>' +
           '<div style="margin-bottom:.75rem"><label style="'+labelStyle+'">Guests</label>' +
           '<select id="bk-guests" style="'+inputStyle+'">'+guestOpts+'</select></div>' +
-          '<div id="bk-price-breakdown" style="display:none;background:var(--color-surface-offset);border-radius:8px;padding:.85rem;margin-bottom:.85rem;font-size:.85rem;flex-direction:column;gap:.4rem"></div>' +
+          '<div id="bk-price-breakdown" style="display:none;background:var(--color-surface-offset);border-radius:8px;padding:.85rem;margin-bottom:.75rem;font-size:.85rem;flex-direction:column;gap:.4rem"></div>' +
+          '<div style="margin-bottom:.75rem">' +
+            '<label style="'+labelStyle+'">Promo / Affiliate Code</label>' +
+            '<div style="display:flex;gap:.5rem">' +
+              '<input type="text" id="bk-code" placeholder="Enter code" style="'+inputStyle+';flex:1;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()" />' +
+              '<button type="button" onclick="applyCode()" id="bk-apply-btn" style="padding:.55rem .9rem;background:var(--color-accent);color:#fff;border:none;border-radius:var(--radius-md);font-weight:700;font-family:inherit;font-size:.85rem;cursor:pointer;white-space:nowrap">Apply</button>' +
+            '</div>' +
+            '<p id="bk-code-msg" style="font-size:.78rem;margin-top:.3rem;display:none"></p>' +
+          '</div>' +
           nameEmailHtml +
           '<button onclick="'+btnAction+'" id="bk-btn" style="width:100%;padding:.9rem;background:var(--color-primary);color:#fff;border:none;border-radius:999px;font-family:var(--font-display);font-weight:800;font-size:1.1rem;cursor:pointer">'+btnLabel+'</button>' +
           '<p id="bk-msg" style="font-size:.85rem;text-align:center;margin-top:.5rem;display:none"></p>' +
@@ -207,6 +216,72 @@ function openListingDetail(l) {
   }
 }
 
+// ── Active code state ────────────────────────────────────────
+var _appliedCode = null; // { type:'promo'|'affiliate', code, discount_pct, commission_pct, id }
+
+async function applyCode() {
+  var input = document.getElementById('bk-code');
+  var msgEl = document.getElementById('bk-code-msg');
+  var btn   = document.getElementById('bk-apply-btn');
+  var code  = (input.value || '').trim().toUpperCase();
+  if (!code) return;
+
+  // Clear previous
+  _appliedCode = null;
+  msgEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Checking…';
+
+  var SB = SUPABASE_URL, KEY = SUPABASE_ANON_KEY;
+
+  // Check promo codes first
+  var res = await fetch(SB + '/rest/v1/promo_codes?code=eq.' + encodeURIComponent(code) + '&active=eq.true&select=*', {
+    headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY }
+  });
+  var promos = await res.json();
+  if (promos.length) {
+    var p = promos[0];
+    if (p.max_uses && p.uses >= p.max_uses) {
+      showCodeMsg('This code has reached its usage limit.', false);
+    } else {
+      _appliedCode = { type: 'promo', code: p.code, discount_pct: p.discount_pct, id: p.id };
+      showCodeMsg('✓ ' + p.discount_pct + '% discount applied!', true);
+      updateBookingPrice();
+    }
+    btn.disabled = false; btn.textContent = 'Apply';
+    return;
+  }
+
+  // Check affiliate codes
+  var res2 = await fetch(SB + '/rest/v1/affiliate_codes?code=eq.' + encodeURIComponent(code) + '&active=eq.true&select=*', {
+    headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY }
+  });
+  var affiliates = await res2.json();
+  if (affiliates.length) {
+    var a = affiliates[0];
+    _appliedCode = { type: 'affiliate', code: a.code, discount_pct: a.guest_discount_pct || 0, commission_pct: a.commission_pct, id: a.id };
+    var msg = a.guest_discount_pct > 0
+      ? '✓ Affiliate code applied — ' + a.guest_discount_pct + '% off!'
+      : '✓ Affiliate code applied!';
+    showCodeMsg(msg, true);
+    updateBookingPrice();
+    btn.disabled = false; btn.textContent = 'Apply';
+    return;
+  }
+
+  // Not found
+  showCodeMsg('Code not found or inactive.', false);
+  btn.disabled = false; btn.textContent = 'Apply';
+}
+
+function showCodeMsg(text, success) {
+  var el = document.getElementById('bk-code-msg');
+  if (!el) return;
+  el.style.display = 'block';
+  el.style.color = success ? 'var(--color-primary)' : '#c0392b';
+  el.style.fontWeight = success ? '700' : '400';
+  el.textContent = text;
+}
+
 function updateBookingPrice() {
   var l = _currentListing;
   if (!l || !l.price_per_day) return;
@@ -220,7 +295,12 @@ function updateBookingPrice() {
   var cleaning = parseFloat(l.cleaning_fee) || 0;
   var subtotal = rate * nights + cleaning;
   var svcFee = +(subtotal * 0.15).toFixed(2);
-  var total = +(subtotal + svcFee + 18).toFixed(2);
+  var discountAmt = 0;
+  var discountPct = _appliedCode ? _appliedCode.discount_pct : 0;
+  if (discountPct > 0) {
+    discountAmt = +((subtotal + svcFee) * (discountPct / 100)).toFixed(2);
+  }
+  var total = +(subtotal + svcFee + 18 - discountAmt).toFixed(2);
   var bd = document.getElementById('bk-price-breakdown');
   if (!bd) return;
   bd.style.display = 'flex';
@@ -229,6 +309,7 @@ function updateBookingPrice() {
     (cleaning ? '<div style="display:flex;justify-content:space-between"><span>Cleaning fee</span><span>$'+cleaning.toFixed(2)+'</span></div>' : '') +
     '<div style="display:flex;justify-content:space-between"><span>Service fee (15%)</span><span>$'+svcFee.toFixed(2)+'</span></div>' +
     '<div style="display:flex;justify-content:space-between"><span>Trip protection</span><span>$18.00</span></div>' +
+    (discountAmt > 0 ? '<div style="display:flex;justify-content:space-between;color:var(--color-primary);font-weight:600"><span>Discount ('+discountPct+'% off)</span><span>−$'+discountAmt.toFixed(2)+'</span></div>' : '') +
     '<div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid var(--color-border);padding-top:.4rem;margin-top:.25rem"><span>Total (due at launch)</span><span>$'+total.toFixed(2)+'</span></div>';
 }
 
@@ -252,7 +333,9 @@ async function submitPreReservation() {
   var cleaning = parseFloat(l.cleaning_fee) || 0;
   var subtotal = rate * nights + cleaning;
   var svcFee = +(subtotal * 0.15).toFixed(2);
-  var total = +(subtotal + svcFee + 18).toFixed(2);
+  var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
+  var discountAmt = discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0;
+  var total = +(subtotal + svcFee + 18 - discountAmt).toFixed(2);
   btn.disabled = true; btn.textContent = 'Saving...';
   try {
     var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -269,9 +352,22 @@ async function submitPreReservation() {
       cleaning_fee: cleaning,
       service_fee: svcFee,
       trip_protection: 18,
+      discount_code: _appliedCode ? _appliedCode.code : null,
+      discount_pct: discountPct || null,
+      discount_amt: discountAmt || null,
+      affiliate_code: _appliedCode && _appliedCode.type === 'affiliate' ? _appliedCode.code : null,
       total: total,
       status: 'pre_reserved'
     }).select();
+    // Increment code use count
+    if (_appliedCode && result.data) {
+      var tbl = _appliedCode.type === 'promo' ? 'promo_codes' : 'affiliate_codes';
+      await fetch(SUPABASE_URL + '/rest/v1/' + tbl + '?id=eq.' + _appliedCode.id, {
+        method: 'PATCH',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ uses: (_appliedCode.uses || 0) + 1 })
+      });
+    }
     if (result.error) throw result.error;
     btn.style.display = 'none';
     msg.style.display = 'block';
