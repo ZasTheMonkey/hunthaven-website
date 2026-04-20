@@ -855,6 +855,11 @@
     document.getElementById('waitlist-modal').style.display = 'none';
     document.body.style.overflow = '';
   }
+  // Google Sheets spreadsheet ID for guest waitlist
+  const WAITLIST_SHEET_ID = '1AWPPKO8AYJ2lWufeulHav9KUJ-EVRzBobYObd_rpW30';
+  // Apps Script Web App URL — set after deploying Apps Script
+  const WAITLIST_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwlkS6gU-IG5QSA-IbStFGhO2kWFpAtMw76CfiPAA8yaXhryE4sJKUE7mEiH2Y8BGdb/exec';
+
   async function submitWaitlist(e) {
     e.preventDefault();
     const firstName = document.getElementById('wl-first').value.trim();
@@ -867,24 +872,13 @@
     if (!firstName || !email || !phone) return;
     btn.disabled = true; btn.textContent = 'Submitting…'; errEl.style.display = 'none';
     try {
-      const SB_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
-      const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
-      const res = await fetch(SB_URL + '/rest/v1/guest_waitlist', {
-        method: 'POST',
-        headers: {
-          'apikey': SB_KEY,
-          'Authorization': 'Bearer ' + SB_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ first_name: firstName, last_name: lastName, email, phone, location, signed_up_at: new Date().toISOString() })
+      const params = new URLSearchParams({
+        firstName, lastName, email, phone, location,
+        timestamp: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })
       });
-      if (!res.ok && res.status !== 201) {
-        const err = await res.json().catch(() => ({}));
-        // If table doesn't exist yet, still show success
-        if (res.status !== 409) console.warn('Waitlist save:', err.message);
-      }
-    } catch(err) { console.warn('Waitlist network error:', err); }
+      // Use no-cors mode — response will be opaque but data will save
+      await fetch(WAITLIST_SCRIPT_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
+    } catch(err) { console.warn('Waitlist submit error:', err); }
     document.getElementById('waitlist-form-view').style.display = 'none';
     document.getElementById('waitlist-success-view').style.display = '';
     btn.disabled = false;
