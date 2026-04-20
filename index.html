@@ -827,6 +827,85 @@
     }
     .ldm-close button:hover { background: var(--surface2); }
 
+    /* ── Full-screen map modal (mobile + desktop fallback) ── */
+    #map-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      flex-direction: column;
+      background: #111;
+    }
+    #map-modal.open { display: flex; }
+    #map-modal-header {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #map-modal-back {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-full);
+      font-family: var(--font-body);
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--text);
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    #map-modal-search {
+      flex: 1;
+      position: relative;
+    }
+    #map-modal-search svg {
+      position: absolute; left: 10px; top: 50%;
+      transform: translateY(-50%); pointer-events: none;
+    }
+    #map-modal-input {
+      width: 100%;
+      padding: 9px 12px 9px 32px;
+      border-radius: var(--r-full);
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: var(--text);
+      box-shadow: var(--shadow-md);
+      outline: none;
+    }
+    #map-modal-input:focus { border-color: var(--green); }
+    #modal-map { flex: 1; width: 100%; }
+
+    /* Floating "Map" button on mobile above cards */
+    #mob-map-btn {
+      display: none;
+    }
+    @media(max-width:900px) {
+      #mob-map-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0 0 14px;
+        padding: 9px 18px;
+        background: var(--text);
+        color: #fff;
+        border-radius: var(--r-full);
+        font-family: var(--font-body);
+        font-size: .85rem;
+        font-weight: 700;
+        box-shadow: var(--shadow-md);
+        cursor: pointer;
+        border: none;
+      }
+    }
+
     /* ── Leaflet popup custom skin ── */
     .lw-popup .leaflet-popup-content-wrapper {
       border-radius: 14px;
@@ -1026,6 +1105,12 @@
     <!-- LEFT: cards -->
     <div class="listings-col">
       <p class="listings-count"><strong id="listings-count-num">8 properties</strong> in Florida</p>
+
+      <!-- Mobile map button — always visible on mobile -->
+      <button id="mob-map-btn" onclick="openMapModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z"/><path d="M9 3v15M15 6v15"/></svg>
+        Map
+      </button>
 
       <div class="cards-grid" id="cards-grid">
 
@@ -1719,6 +1804,25 @@
   ══════════════════════════════════════════ -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <!-- ══════════════════════════════════════════
+       FULL-SCREEN MAP MODAL
+  ══════════════════════════════════════════ -->
+  <div id="map-modal">
+    <div id="map-modal-header">
+      <button id="map-modal-back" onclick="closeMapModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+        Back
+      </button>
+      <div id="map-modal-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b6656" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="map-modal-input" type="text" placeholder="Search city, county, or ZIP…"
+          onkeydown="if(event.key==='Enter')geocodeFromModal()" />
+      </div>
+      <button onclick="geocodeFromModal()" style="flex-shrink:0;padding:9px 14px;background:var(--green);color:#fff;border-radius:var(--r-full);font-family:var(--font-body);font-weight:700;font-size:.82rem;border:none;box-shadow:var(--shadow-md);cursor:pointer">Go</button>
+    </div>
+    <div id="modal-map"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
        LISTING DETAIL MODAL
   ══════════════════════════════════════════ -->
   <div id="listing-detail-modal" role="dialog" aria-modal="true" aria-label="Listing detail" onclick="if(event.target===this)closeListingDetail()">
@@ -2136,9 +2240,10 @@
     });
     _currentMapData = mapListings;
     if (huntMap) plotMap(mapListings);
+    if (modalMap) plotModalMap(mapListings);
   }
 
-  // lazy-init map when column scrolls into view
+  // lazy-init desktop sticky map when column scrolls into view
   var mapObs = new IntersectionObserver(function(entries){
     if (entries[0].isIntersecting) { initMap(); mapObs.disconnect(); }
   }, {threshold:.05});
@@ -2146,6 +2251,138 @@
     var mc = document.querySelector('.map-col');
     if (mc) mapObs.observe(mc);
   });
+
+  /* ───────────────────────────────────────────
+     FULL-SCREEN MAP MODAL (mobile + desktop)
+  ─────────────────────────────────────────── */
+  var modalMap = null;
+  var modalMarkers = [];
+
+  function openMapModal(presetQuery) {
+    var modal = document.getElementById('map-modal');
+    if (!modal) return;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    // Pre-fill search if query provided (e.g. from search sheet)
+    if (presetQuery) {
+      var inp = document.getElementById('map-modal-input');
+      if (inp) inp.value = presetQuery;
+    }
+
+    // Init modal map on first open
+    if (!modalMap) {
+      setTimeout(function() {
+        var el = document.getElementById('modal-map');
+        if (!el || modalMap) return;
+        modalMap = L.map('modal-map', {
+          zoomControl: true,
+          scrollWheelZoom: true,
+          attributionControl: true
+        }).setView([29.0, -81.5], 7);
+
+        // Esri satellite tiles
+        L.tileLayer(
+          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+          { attribution: 'Tiles © Esri', maxZoom: 19 }
+        ).addTo(modalMap);
+        // Labels overlay
+        L.tileLayer(
+          'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+          { attribution: '', maxZoom: 19, opacity: 0.85 }
+        ).addTo(modalMap);
+
+        // Plot same data as main map
+        plotModalMap(_currentMapData);
+
+        // If there was a preset query, geocode it
+        if (presetQuery) {
+          geocodeForMap(presetQuery, function(result) {
+            if (result) flyModalTo(result);
+          });
+        }
+      }, 80); // small delay so CSS display:flex applies and Leaflet can measure size
+    } else {
+      // Map already exists — invalidate size (was hidden)
+      setTimeout(function() {
+        modalMap.invalidateSize();
+        if (presetQuery) {
+          geocodeForMap(presetQuery, function(result) {
+            if (result) flyModalTo(result);
+          });
+        }
+      }, 80);
+    }
+  }
+
+  function closeMapModal() {
+    var modal = document.getElementById('map-modal');
+    if (modal) modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function plotModalMap(list) {
+    if (!modalMap) return;
+    modalMarkers.forEach(function(m) { modalMap.removeLayer(m); });
+    modalMarkers = [];
+    var data = list || _currentMapData;
+    data.forEach(function(l) {
+      var lat = l.lat || l.latitude;
+      var lng = l.lng || l.longitude;
+      if (!lat || !lng) return;
+      var m = L.marker([lat, lng], { icon: makeIcon(l) })
+        .addTo(modalMap)
+        .bindPopup(makePopup(l), { maxWidth: 280, className: 'lw-popup' });
+      modalMarkers.push(m);
+    });
+    if (modalMarkers.length > 0) {
+      var g = L.featureGroup(modalMarkers);
+      modalMap.fitBounds(g.getBounds().pad(0.25));
+    }
+  }
+
+  function geocodeFromModal() {
+    var inp = document.getElementById('map-modal-input');
+    var q = (inp ? inp.value : '').trim();
+    if (!q) return;
+    geocodeForMap(q, function(result) {
+      if (result && modalMap) flyModalTo(result);
+    });
+  }
+
+  function flyModalTo(result) {
+    if (!modalMap || !result) return;
+    var lat = parseFloat(result.lat);
+    var lng = parseFloat(result.lon);
+    var zoomMap = { country:6, state:7, county:10, city:11, town:11, village:12, postcode:12, suburb:13, neighbourhood:14 };
+    var zoom = zoomMap[result.type] || zoomMap[result.addresstype] || 11;
+    modalMap.flyTo([lat, lng], zoom, { animate: true, duration: 1.0 });
+    // Amber search radius ring
+    var circle = L.circle([lat, lng], {
+      radius: 6000, color: '#c17f3a', weight: 2,
+      fillColor: '#c17f3a', fillOpacity: 0.12, dashArray: '6 4'
+    }).addTo(modalMap);
+    setTimeout(function() { if (modalMap) modalMap.removeLayer(circle); }, 5000);
+  }
+
+  function geocodeForMap(q, cb) {
+    var isZip = /^\d{5}$/.test(q.trim());
+    var geocodeQ = isZip ? q + ' Florida' : q + (q.toLowerCase().includes('florida') ? '' : ' Florida');
+    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(geocodeQ), {
+      headers: { 'User-Agent': 'LeaseWild/1.0' }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(results) {
+      if (results && results.length) { cb(results[0]); }
+      else {
+        // Retry without Florida
+        fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(q), {
+          headers: { 'User-Agent': 'LeaseWild/1.0' }
+        }).then(function(r2) { return r2.json(); }).then(function(r2d) { cb(r2d && r2d[0]); });
+      }
+    })
+    .catch(function() { cb(null); });
+  }
 
   /* ── CARD FILTER ── */
   var _activeFilter = 'all';
@@ -2198,13 +2435,21 @@
     var qLow = q.toLowerCase();
     closeSearchSheet();
 
-    /* Fly map to searched location (and init map if not yet started) */
+    /* On mobile: open full-screen map modal with the query pre-filled.
+       On desktop: fly the sticky map to the location. */
     if (q) {
-      if (!huntMap) initMap();
-      if (document.getElementById('map-loc-input')) {
-        document.getElementById('map-loc-input').value = q;
+      var isMobile = window.innerWidth < 900;
+      if (isMobile) {
+        // Open full-screen map modal, pre-populated with the search query
+        openMapModal(q);
+      } else {
+        // Desktop: update sticky map
+        if (!huntMap) initMap();
+        if (document.getElementById('map-loc-input')) {
+          document.getElementById('map-loc-input').value = q;
+        }
+        if (typeof geocodeSearch === 'function') geocodeSearch();
       }
-      if (typeof geocodeSearch === 'function') geocodeSearch();
     }
 
     if (qLow) {
@@ -2265,6 +2510,7 @@
       closeWaitlist();
       closeSearchSheet();
       closeListingDetail();
+      closeMapModal();
     }
   });
 
