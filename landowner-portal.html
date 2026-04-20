@@ -444,6 +444,170 @@
       ' × $' + weekend + ' = $' + Math.round(gross).toLocaleString() + ' gross';
   }
 
+
+  // ── EDIT LISTING ─────────────────────────────────────────
+  var editListingData = null;
+  var editNewPhotoFiles = [];
+  var editRemovedPhotos = [];
+  var editNewVideoFile = null;
+
+  async function openEditModal(id) {
+    var { data, error } = await sb.from('listings').select('*').eq('id', id).single();
+    if (error || !data) { alert('Could not load listing.'); return; }
+    editListingData = data;
+    editNewPhotoFiles = [];
+    editRemovedPhotos = [];
+    editNewVideoFile = null;
+
+    document.getElementById('edit-listing-id').value = id;
+    document.getElementById('edit-description').value = data.description || '';
+    document.getElementById('edit-price').value = data.price_per_day || '';
+    document.getElementById('edit-cleaning-fee').value = data.cleaning_fee || '';
+    document.getElementById('edit-min-stay').value = data.min_stay || '';
+    document.getElementById('edit-max-guests').value = data.max_guests || '';
+    document.getElementById('edit-deer-activity').value = data.deer_activity || '';
+    document.getElementById('edit-harvest-history').value = data.harvest_history || '';
+    document.getElementById('edit-hogs-active').checked = !!data.hogs_active;
+    document.getElementById('edit-video-url').value = data.video_url || '';
+    document.getElementById('edit-msg').textContent = '';
+
+    // Render existing photos
+    renderEditPhotos(data.photo_urls || []);
+
+    // Show/hide video
+    var vp = document.getElementById('edit-video-preview');
+    var vplayer = document.getElementById('edit-video-player');
+    if (data.video_url) {
+      vplayer.src = data.video_url;
+      vp.style.display = 'block';
+    } else {
+      vp.style.display = 'none';
+      vplayer.src = '';
+    }
+
+    document.getElementById('edit-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEditModal() {
+    document.getElementById('edit-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function renderEditPhotos(urls) {
+    var container = document.getElementById('edit-photo-thumbs');
+    var current = (urls || []).filter(u => !editRemovedPhotos.includes(u));
+    container.innerHTML = current.map(u =>
+      `<div style="position:relative;width:72px;height:54px">
+        <img src="${u}" style="width:72px;height:54px;object-fit:cover;border-radius:6px;border:1.5px solid var(--color-border)" />
+        <button type="button" onclick="removeEditPhoto('${u}')" style="position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:#dc2626;color:#fff;border:none;cursor:pointer;font-size:10px;line-height:18px;text-align:center;padding:0">✕</button>
+      </div>`
+    ).join('') +
+    editNewPhotoFiles.map((f,i) =>
+      `<div style="position:relative;width:72px;height:54px">
+        <img src="${URL.createObjectURL(f)}" style="width:72px;height:54px;object-fit:cover;border-radius:6px;border:1.5px solid var(--color-accent)" />
+        <button type="button" onclick="removeNewPhoto(${i})" style="position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:#dc2626;color:#fff;border:none;cursor:pointer;font-size:10px;line-height:18px;text-align:center;padding:0">✕</button>
+      </div>`
+    ).join('');
+  }
+
+  function removeEditPhoto(url) {
+    editRemovedPhotos.push(url);
+    renderEditPhotos(editListingData.photo_urls || []);
+  }
+
+  function removeNewPhoto(idx) {
+    editNewPhotoFiles.splice(idx, 1);
+    renderEditPhotos(editListingData.photo_urls || []);
+  }
+
+  function handleEditPhotos(input) {
+    var files = Array.from(input.files);
+    editNewPhotoFiles = editNewPhotoFiles.concat(files);
+    renderEditPhotos(editListingData.photo_urls || []);
+    input.value = '';
+  }
+
+  function handleEditVideo(input) {
+    var f = input.files[0];
+    if (!f) return;
+    editNewVideoFile = f;
+    var vp = document.getElementById('edit-video-preview');
+    document.getElementById('edit-video-player').src = URL.createObjectURL(f);
+    vp.style.display = 'block';
+  }
+
+  function removeEditVideo() {
+    editNewVideoFile = null;
+    document.getElementById('edit-video-url').value = '';
+    document.getElementById('edit-video-player').src = '';
+    document.getElementById('edit-video-preview').style.display = 'none';
+  }
+
+  async function saveEditListing() {
+    var id = document.getElementById('edit-listing-id').value;
+    var btn = document.getElementById('edit-save-btn');
+    var msg = document.getElementById('edit-msg');
+    btn.disabled = true; btn.textContent = 'Saving…'; msg.textContent = '';
+
+    try {
+      // Upload new photos
+      var existingPhotos = (editListingData.photo_urls || []).filter(u => !editRemovedPhotos.includes(u));
+      var newPhotoUrls = [];
+      for (var f of editNewPhotoFiles) {
+        btn.textContent = 'Uploading photos…';
+        var path = 'listing-photos/' + id + '/' + Date.now() + '-' + f.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+        var { data: upData, error: upErr } = await sb.storage.from('listing-photos').upload(path, f, { upsert: true });
+        if (!upErr) {
+          var { data: urlData } = sb.storage.from('listing-photos').getPublicUrl(path);
+          newPhotoUrls.push(urlData.publicUrl);
+        }
+      }
+      var finalPhotos = existingPhotos.concat(newPhotoUrls);
+
+      // Upload new video
+      var videoUrl = document.getElementById('edit-video-url').value;
+      if (editNewVideoFile) {
+        btn.textContent = 'Uploading video…';
+        var vPath = 'videos/' + Date.now() + '-' + editNewVideoFile.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+        var { error: vErr } = await sb.storage.from('listing-photos').upload(vPath, editNewVideoFile, { upsert: false });
+        if (!vErr) {
+          var { data: vUrl } = sb.storage.from('listing-photos').getPublicUrl(vPath);
+          videoUrl = vUrl.publicUrl;
+        }
+      }
+
+      btn.textContent = 'Saving changes…';
+      var updates = {
+        description:     document.getElementById('edit-description').value.trim(),
+        price_per_day:   parseFloat(document.getElementById('edit-price').value) || null,
+        cleaning_fee:    parseFloat(document.getElementById('edit-cleaning-fee').value) || null,
+        min_stay:        document.getElementById('edit-min-stay').value || null,
+        max_guests:      parseInt(document.getElementById('edit-max-guests').value) || null,
+        deer_activity:   document.getElementById('edit-deer-activity').value || null,
+        harvest_history: document.getElementById('edit-harvest-history').value.trim() || null,
+        hogs_active:     document.getElementById('edit-hogs-active').checked,
+        photo_urls:      finalPhotos,
+        video_url:       videoUrl || null,
+      };
+
+      var { error } = await sb.from('listings').update(updates).eq('id', id);
+      if (error) throw error;
+
+      msg.textContent = '✓ Changes saved!';
+      msg.style.color = 'var(--color-primary)';
+      btn.textContent = 'Save Changes';
+      btn.disabled = false;
+      loadListings(currentUserEmail);
+      setTimeout(closeEditModal, 1200);
+    } catch(e) {
+      msg.textContent = 'Error: ' + e.message;
+      msg.style.color = '#dc2626';
+      btn.textContent = 'Save Changes';
+      btn.disabled = false;
+    }
+  }
+
   async function connectStripe() {
     var btn = document.getElementById('stripe-connect-btn');
     btn.disabled = true; btn.textContent = 'Redirecting...';
@@ -472,7 +636,7 @@
   async function loadListings(email) {
     currentUserEmail = email;
     var container = document.getElementById('listings-container');
-    var { data, error } = await sb.from('listings').select('id,created_at,state,county,status,activities,street_address').eq('email', email).order('created_at', { ascending: false });
+    var { data, error } = await sb.from('listings').select('id,created_at,state,county,status,activities,street_address,description,price_per_day,cleaning_fee,acreage,min_stay,max_guests,num_beds,allow_out_of_state,photo_urls,video_url,deer_activity,hogs_active,trail_cam_date,harvest_history').eq('email', email).order('created_at', { ascending: false });
     if (error || !data?.length) {
       container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">No listings yet. Tap "Add New Listing" to get started.</p>';
       return;
@@ -489,6 +653,7 @@
         <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.3rem">Submitted ${new Date(l.created_at).toLocaleDateString()}</p>
         ${l.activities?.length ? '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.3rem">' + l.activities.slice(0,3).join(' · ') + '</p>' : ''}
         <div style="display:flex;gap:.6rem;margin-top:.85rem;flex-wrap:wrap">
+          <button onclick="openEditModal('${l.id}')" style="padding:.45rem .9rem;background:var(--color-accent);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:inherit">Edit</button>
           ${isActive
             ? `<button onclick="toggleListing('${l.id}','inactive')" style="padding:.45rem .9rem;border:1.5px solid var(--color-danger);color:var(--color-danger);background:none;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:inherit">Take Down</button>`
             : `<button onclick="toggleListing('${l.id}','active')" style="padding:.45rem .9rem;border:1.5px solid var(--color-primary);color:var(--color-primary);background:none;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:inherit">Re-list</button>`
@@ -521,5 +686,107 @@
     } catch(e) { console.warn('Session check failed:', e); }
   })();
   </script>
+
+  <!-- ── EDIT LISTING MODAL ──────────────────────────────────── -->
+  <div id="edit-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center;padding:0" onclick="if(event.target===this)closeEditModal()">
+    <div style="background:var(--color-surface);border-radius:var(--radius-xl) var(--radius-xl) 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;padding:var(--space-6) var(--space-5) var(--space-8);box-shadow:0 -8px 40px rgba(0,0,0,.18)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+        <h2 style="font-size:var(--text-lg);font-weight:800;letter-spacing:-.03em">Edit Listing</h2>
+        <button onclick="closeEditModal()" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:1.3rem;line-height:1;padding:4px">✕</button>
+      </div>
+
+      <input type="hidden" id="edit-listing-id" />
+
+      <!-- Description -->
+      <div style="margin-bottom:var(--space-4)">
+        <label style="font-size:var(--text-xs);font-weight:700;display:block;margin-bottom:.4rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">Description</label>
+        <textarea id="edit-description" rows="4" placeholder="What makes your property special? Food plots, blinds, water features, trophy potential…"
+          style="width:100%;padding:.75rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-family:inherit;font-size:var(--text-sm);background:var(--color-surface);color:var(--color-text);resize:vertical;box-sizing:border-box;outline:none"
+          onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'"></textarea>
+      </div>
+
+      <!-- Pricing -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div>
+          <label style="font-size:var(--text-xs);font-weight:700;display:block;margin-bottom:.4rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">Price per night ($)</label>
+          <input type="number" id="edit-price" min="1" placeholder="e.g. 120"
+            style="width:100%;padding:.65rem .85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-family:inherit;font-size:var(--text-sm);background:var(--color-surface);color:var(--color-text);box-sizing:border-box;outline:none"
+            onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'" />
+        </div>
+        <div>
+          <label style="font-size:var(--text-xs);font-weight:700;display:block;margin-bottom:.4rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">Cleaning Fee ($)</label>
+          <input type="number" id="edit-cleaning-fee" min="0" placeholder="e.g. 75"
+            style="width:100%;padding:.65rem .85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-family:inherit;font-size:var(--text-sm);background:var(--color-surface);color:var(--color-text);box-sizing:border-box;outline:none"
+            onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'" />
+        </div>
+        <div>
+          <label style="font-size:var(--text-xs);font-weight:700;display:block;margin-bottom:.4rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">Min Stay</label>
+          <select id="edit-min-stay" style="width:100%;padding:.65rem .85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-family:inherit;font-size:var(--text-sm);background:var(--color-surface);color:var(--color-text);outline:none">
+            <option value="">No minimum</option>
+            <option value="1 night">1 night</option>
+            <option value="2 nights">2 nights</option>
+            <option value="3 nights">3 nights</option>
+            <option value="Weekend only">Weekend only</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:var(--text-xs);font-weight:700;display:block;margin-bottom:.4rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">Max Guests</label>
+          <input type="number" id="edit-max-guests" min="1" max="30" placeholder="e.g. 4"
+            style="width:100%;padding:.65rem .85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-family:inherit;font-size:var(--text-sm);background:var(--color-surface);color:var(--color-text);box-sizing:border-box;outline:none"
+            onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'" />
+        </div>
+      </div>
+
+      <!-- Wildlife Activity -->
+      <div style="margin-bottom:var(--space-4)">
+        <label style="font-size:var(--text-xs);font-weight:700;display:block;margin-bottom:.4rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">Deer Activity Level</label>
+        <select id="edit-deer-activity" style="width:100%;padding:.65rem .85rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-family:inherit;font-size:var(--text-sm);background:var(--color-surface);color:var(--color-text);outline:none;margin-bottom:var(--space-3)">
+          <option value="">Not specified</option>
+          <option value="low">Low</option>
+          <option value="moderate">Moderate</option>
+          <option value="high">High — actively moving</option>
+          <option value="very_high">Very High — peak season</option>
+        </select>
+        <label style="font-size:var(--text-xs);font-weight:700;display:block;margin-bottom:.4rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">Harvest History</label>
+        <textarea id="edit-harvest-history" rows="2" placeholder="e.g. 3 mature bucks taken last season…"
+          style="width:100%;padding:.75rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-family:inherit;font-size:var(--text-sm);background:var(--color-surface);color:var(--color-text);resize:vertical;box-sizing:border-box;outline:none"
+          onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'"></textarea>
+        <label style="display:flex;align-items:center;gap:.75rem;margin-top:var(--space-3);cursor:pointer">
+          <input type="checkbox" id="edit-hogs-active" style="width:18px;height:18px;accent-color:var(--color-accent)" />
+          <span style="font-size:var(--text-sm);font-weight:600">🐗 Hogs spotted in last 48 hours</span>
+        </label>
+      </div>
+
+      <!-- Photos -->
+      <div style="margin-bottom:var(--space-4)">
+        <label style="font-size:var(--text-xs);font-weight:700;display:block;margin-bottom:.4rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">Photos</label>
+        <div id="edit-photo-thumbs" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem"></div>
+        <label style="display:inline-block;padding:.55rem 1rem;background:var(--color-surface-offset);border:1.5px dashed var(--color-border);border-radius:var(--radius-md);cursor:pointer;font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted)">
+          + Add Photos
+          <input type="file" id="edit-photo-input" accept="image/*" multiple style="display:none" onchange="handleEditPhotos(this)" />
+        </label>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.4rem">Tap an existing photo to remove it. New photos will be added.</p>
+      </div>
+
+      <!-- Video URL -->
+      <div style="margin-bottom:var(--space-5)">
+        <label style="font-size:var(--text-xs);font-weight:700;display:block;margin-bottom:.4rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">Video</label>
+        <div id="edit-video-preview" style="display:none;margin-bottom:.5rem">
+          <video id="edit-video-player" controls style="width:100%;border-radius:var(--radius-md);max-height:180px;background:#000"></video>
+          <button type="button" onclick="removeEditVideo()" style="margin-top:.3rem;font-size:var(--text-xs);color:var(--color-danger);background:none;border:none;cursor:pointer;padding:0">✕ Remove video</button>
+        </div>
+        <label style="display:inline-block;padding:.55rem 1rem;background:var(--color-surface-offset);border:1.5px dashed var(--color-border);border-radius:var(--radius-md);cursor:pointer;font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted)">
+          + Upload new video
+          <input type="file" id="edit-video-input" accept="video/*" style="display:none" onchange="handleEditVideo(this)" />
+        </label>
+        <input type="hidden" id="edit-video-url" />
+      </div>
+
+      <!-- Save button -->
+      <button onclick="saveEditListing()" id="edit-save-btn" style="width:100%;padding:.9rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--text-base);font-weight:700;font-family:inherit;cursor:pointer">Save Changes</button>
+      <p id="edit-msg" style="font-size:var(--text-sm);text-align:center;margin-top:.75rem;min-height:1.2em"></p>
+    </div>
+  </div>
+
 </body>
 </html>
