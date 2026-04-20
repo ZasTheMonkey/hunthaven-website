@@ -394,6 +394,7 @@
       top:calc(var(--nav-h) + 49px); /* below categories bar */
       height:calc(100vh - var(--nav-h) - 49px);
       overflow:hidden;
+      /* sticky creates a stacking context in Chrome; also set explicitly */
     }
     #hunt-map{width:100%;height:100%}
     .map-filter-bar{
@@ -825,6 +826,27 @@
       transition: background .15s;
     }
     .ldm-close button:hover { background: var(--surface2); }
+
+    /* ── Leaflet popup custom skin ── */
+    .lw-popup .leaflet-popup-content-wrapper {
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.18);
+      padding: 0;
+      overflow: hidden;
+      border: none;
+    }
+    .lw-popup .leaflet-popup-content { margin: 0; width: auto !important; }
+    .lw-popup .leaflet-popup-tip-container { margin-top: -1px; }
+    .lw-popup .leaflet-popup-tip { background: #fff; }
+    .lw-popup .leaflet-popup-close-button {
+      top: 8px; right: 10px;
+      color: #6b6656; font-size: 18px; font-weight: 400;
+    }
+    /* Map search input focus ring */
+    #map-loc-input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(45,90,39,.12), var(--shadow-md);
+    }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 </head>
@@ -1266,7 +1288,20 @@
 
     <!-- RIGHT: sticky map -->
     <div class="map-col">
-      <div class="map-filter-bar">
+      <!-- Map location search -->
+      <div id="map-search-bar" style="position:absolute;top:12px;left:12px;right:12px;z-index:600;display:flex;gap:8px;align-items:center">
+        <div style="flex:1;position:relative">
+          <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6656" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="map-loc-input" type="text" placeholder="Search city, county, or ZIP…"
+            style="width:100%;padding:10px 12px 10px 34px;border-radius:var(--r-full);border:1.5px solid var(--border);background:var(--surface);font-family:var(--font-body);font-size:.88rem;color:var(--text);box-shadow:var(--shadow-md);outline:none"
+            onkeydown="if(event.key==='Enter')geocodeSearch()"
+          />
+          <div id="map-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);box-shadow:var(--shadow-md);z-index:700;overflow:hidden"></div>
+        </div>
+        <button onclick="geocodeSearch()" style="flex-shrink:0;padding:10px 16px;background:var(--green);color:#fff;border-radius:var(--r-full);font-family:var(--font-body);font-weight:700;font-size:.85rem;box-shadow:var(--shadow-md);white-space:nowrap">Go</button>
+      </div>
+      <!-- Map type filter -->
+      <div class="map-filter-bar" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);top:auto">
         <button class="mf-btn active" id="mf-all" onclick="setMapFilter('all')">All</button>
         <button class="mf-btn" id="mf-hunt" onclick="setMapFilter('hunting')">Hunting</button>
         <button class="mf-btn" id="mf-fish" onclick="setMapFilter('fishing')">Fishing</button>
@@ -1793,6 +1828,7 @@
       if (Array.isArray(data) && data.length > 0) {
         allListings = data;
         renderLiveCards(data);
+        updateMapWithLiveListings(data); // swap map pins to live listings
       } else {
         // No live listings yet — wire placeholder cards to open waitlist (existing behavior)
         // but make them open a generic "coming soon" detail instead
@@ -1815,69 +1851,279 @@
     { id:8, type:'hunting', lat:30.44, lng:-84.28, title:'Tallahassee Quail Farm', acres:700, price:300, species:'Quail · Turkey', city:'Tallahassee' },
   ];
 
-  /* ── MAP ── */
+  /* ─────────────────────────────────────────────
+     MAP — Satellite imagery + location search
+  ───────────────────────────────────────────── */
   var huntMap, allMarkers = [], currentMapFilter = 'all';
+  var _currentMapData = LISTINGS_DATA; // updated when live listings load
+  var _geocodeTimer = null;
 
-  function makeIcon(type){
-    var color = type==='hunting'?'#2d5a27':'#1a6b7a';
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 30 40"><path d="M15 0C6.72 0 0 6.72 0 15c0 10 13.33 23.11 14.16 23.94a1.17 1.17 0 0 0 1.68 0C16.67 38.11 30 25 30 15 30 6.72 23.28 0 15 0z" fill="'+color+'"/><circle cx="15" cy="15" r="6" fill="rgba(255,255,255,.85)"/></svg>';
-    return L.divIcon({html:svg,className:'',iconSize:[30,40],iconAnchor:[15,40],popupAnchor:[0,-42]});
+  /* ─ Price-badge marker icon ─ */
+  function makeIcon(l){
+    var isHunt = (l.type === 'hunting') || (l.activities && l.activities.join(' ').toLowerCase().indexOf('fish') === -1);
+    // Support both LISTINGS_DATA shape (l.type) and Supabase shape (l.activities)
+    if (l.activities) isHunt = getType(l) === 'hunting';
+    var col  = isHunt ? '#2d5a27' : '#1a6b7a';
+    var price = l.price || l.price_per_day;
+    var label = price ? '$' + parseInt(price) : (l.county || 'Land');
+    // Pill-shaped price badge with a small drop-triangle pointer
+    var w = Math.max(52, label.length * 9 + 20);
+    var svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="38" viewBox="0 0 '+w+' 38">'
+      +'<rect x="0" y="0" width="'+w+'" height="28" rx="14" fill="'+col+'"/>'
+      +'<polygon points="'+Math.round(w/2-7)+',27 '+Math.round(w/2+7)+',27 '+Math.round(w/2)+',38" fill="'+col+'"/>'
+      +'<text x="'+Math.round(w/2)+'" y="19" text-anchor="middle" dominant-baseline="middle" font-family="Oswald,sans-serif" font-weight="700" font-size="13" fill="#fff">'+label+'</text>'
+      +'</svg>';
+    return L.divIcon({html:svg, className:'', iconSize:[w,38], iconAnchor:[Math.round(w/2),38], popupAnchor:[0,-40]});
   }
 
+  /* ─ Rich popup with "View listing" CTA ─ */
   function makePopup(l){
-    var isHunt = l.type==='hunting';
-    var col = isHunt?'#2d5a27':'#1a6b7a';
-    var bg  = isHunt?'#d6e8d3':'#cde9ee';
-    return '<div style="padding:14px 16px;min-width:200px;font-family:Barlow,sans-serif">'
-      +'<span style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+col+';background:'+bg+';padding:2px 8px;border-radius:999px;display:inline-block;margin-bottom:8px">'+(isHunt?'Hunting':'Fishing')+'</span>'
-      +'<p style="font-size:14px;font-weight:700;margin-bottom:3px;color:#222">'+l.title+'</p>'
-      +'<p style="font-size:12px;color:#6b6656;margin-bottom:8px">'+l.city+', FL &middot; '+l.acres+' acres &middot; '+l.species+'</p>'
-      +'<p style="font-size:17px;font-weight:800;color:'+col+';margin-bottom:10px">$'+l.price+'<span style="font-size:12px;font-weight:400;color:#6b6656"> / day</span></p>'
-      +'<button onclick="openWaitlist()" style="width:100%;padding:8px;background:'+col+';color:#fff;border:none;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Request access</button>'
+    var isHunt = l.type === 'hunting';
+    if (l.activities) isHunt = getType(l) === 'hunting';
+    var col = isHunt ? '#2d5a27' : '#1a6b7a';
+    var bg  = isHunt ? '#d6e8d3' : '#cde9ee';
+    var title = l.title || (l.county ? l.county + ' Private Land' : 'Private Land');
+    var location = l.city ? l.city + ', FL' : (l.county ? l.county + ', FL' : 'Florida');
+    var acres = l.acres || l.acreage || '';
+    var species = l.species || (l.activities ? l.activities.join(' · ') : '');
+    var price = l.price || l.price_per_day;
+    var priceStr = price ? '$' + parseInt(price) : 'Contact';
+    var actLabel = isHunt ? 'Hunting' : 'Fishing';
+    // Click action: open listing detail if real listing, else open waitlist
+    var onclickAttr = l.id && allListings.length > 0 && allListings.find(function(x){return x.id==l.id;})
+      ? 'openListingById('+l.id+')'
+      : 'openWaitlist()';
+    return '<div style="padding:14px 16px;min-width:210px;font-family:Barlow,sans-serif">'
+      +'<span style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+col+';background:'+bg+';padding:2px 8px;border-radius:999px;display:inline-block;margin-bottom:8px">'+actLabel+'</span>'
+      +'<p style="font-size:14px;font-weight:700;margin-bottom:3px;color:#222">'+title+'</p>'
+      +'<p style="font-size:12px;color:#6b6656;margin-bottom:6px">'
+        +location+(acres?' &middot; '+acres+' acres':'')+(species?' &middot; '+species:'')+'</p>'
+      +'<p style="font-size:18px;font-weight:800;color:'+col+';margin-bottom:10px">'
+        +priceStr+'<span style="font-size:12px;font-weight:400;color:#6b6656"> / day</span></p>'
+      +'<button onclick="'+onclickAttr+'" style="width:100%;padding:9px;background:'+col+';color:#fff;border:none;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">View listing →</button>'
       +'</div>';
   }
 
+  /* ─ Init map with satellite tiles ─ */
   function initMap(){
     if(huntMap) return;
-    huntMap = L.map('hunt-map',{zoomControl:true,scrollWheelZoom:false}).setView([29.0,-81.5],7);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18
-    }).addTo(huntMap);
-    plotMap(LISTINGS_DATA);
+    huntMap = L.map('hunt-map',{
+      zoomControl: true,
+      scrollWheelZoom: false,
+      attributionControl: true
+    }).setView([29.0, -81.5], 7);
+
+    // ━━ Esri World Imagery — free high-res satellite tiles ━━
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      {
+        attribution: 'Tiles © Esri &mdash; Source: Esri, Maxar, Earthstar Geographics',
+        maxZoom: 19,
+        maxNativeZoom: 19
+      }
+    ).addTo(huntMap);
+
+    // Overlay: Esri World Boundaries & Places labels on top of satellite
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+      { attribution: '', maxZoom: 19, opacity: 0.85 }
+    ).addTo(huntMap);
+
+    // Wire up live autocomplete on map search
+    var inp = document.getElementById('map-loc-input');
+    if (inp) {
+      inp.addEventListener('input', function(){
+        clearTimeout(_geocodeTimer);
+        var q = (inp.value || '').trim();
+        if (q.length < 3) { hideSuggestions(); return; }
+        _geocodeTimer = setTimeout(function(){ fetchSuggestions(q); }, 320);
+      });
+      inp.addEventListener('blur', function(){ setTimeout(hideSuggestions, 200); });
+    }
+
+    plotMap(_currentMapData);
   }
 
+  /* ─ Plot markers ─ */
   function plotMap(list){
-    allMarkers.forEach(m=>huntMap.removeLayer(m));
-    allMarkers=[];
-    var filtered = list.filter(l=>currentMapFilter==='all'||l.type===currentMapFilter);
-    filtered.forEach(l=>{
-      var m = L.marker([l.lat,l.lng],{icon:makeIcon(l.type)})
-        .addTo(huntMap).bindPopup(makePopup(l),{maxWidth:260});
+    allMarkers.forEach(function(m){ huntMap.removeLayer(m); });
+    allMarkers = [];
+    _currentMapData = list;
+    var filtered = list.filter(function(l){
+      if (currentMapFilter === 'all') return true;
+      var t = l.type || (l.activities ? getType(l) : 'hunting');
+      return t === currentMapFilter;
+    });
+    filtered.forEach(function(l){
+      var m = L.marker([l.lat || l.latitude, l.lng || l.longitude], {icon: makeIcon(l)})
+        .addTo(huntMap).bindPopup(makePopup(l), {maxWidth: 280, className: 'lw-popup'});
       allMarkers.push(m);
     });
-    if(filtered.length>0){
+    if (filtered.length > 0) {
       var g = L.featureGroup(allMarkers);
-      huntMap.fitBounds(g.getBounds().pad(.25));
+      huntMap.fitBounds(g.getBounds().pad(0.25));
     }
   }
 
+  /* ─ Filter toggle ─ */
   function setMapFilter(f){
-    currentMapFilter=f;
-    ['all','hunt','fish'].forEach(k=>{
-      var btn=document.getElementById('mf-'+k);
-      if(!btn)return;
+    currentMapFilter = f;
+    ['all','hunt','fish'].forEach(function(k){
+      var btn = document.getElementById('mf-' + k);
+      if (!btn) return;
       btn.classList.toggle('active', (k==='all'&&f==='all')||(k==='hunt'&&f==='hunting')||(k==='fish'&&f==='fishing'));
     });
-    if(huntMap) plotMap(LISTINGS_DATA);
+    if (huntMap) plotMap(_currentMapData);
+  }
+
+  /* ─── GEOCODING ───
+     Uses Nominatim (OpenStreetMap) — free, no key needed.
+     Biased to Florida. On result: fly map to location, highlight nearby pins.
+  */
+  function geocodeSearch(){
+    var q = ((document.getElementById('map-loc-input') || {}).value || '').trim();
+    if (!q) return;
+    hideSuggestions();
+    if (!huntMap) { initMap(); }
+    // Show loading state
+    var goBtn = document.querySelector('#map-search-bar button');
+    if (goBtn) { goBtn.textContent = '…'; goBtn.disabled = true; }
+
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us'
+      + '&q=' + encodeURIComponent(q + ' Florida')
+      + '&bounded=1&viewbox=-87.6,24.4,-79.9,31.0';
+
+    fetch(url, { headers: { 'Accept-Language': 'en-US', 'User-Agent': 'LeaseWild/1.0 contact@leasewild.com' } })
+    .then(function(r){ return r.json(); })
+    .then(function(results){
+      if (goBtn) { goBtn.textContent = 'Go'; goBtn.disabled = false; }
+      if (!results || !results.length) {
+        // Try without Florida bias
+        return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(q), { headers: {'User-Agent':'LeaseWild/1.0'} })
+          .then(function(r){ return r.json(); })
+          .then(function(r2){
+            if (r2 && r2.length) flyToResult(r2[0]);
+          });
+      }
+      flyToResult(results[0]);
+    })
+    .catch(function(){
+      if (goBtn) { goBtn.textContent = 'Go'; goBtn.disabled = false; }
+    });
+  }
+
+  function flyToResult(result){
+    if (!result) return;
+    var lat = parseFloat(result.lat);
+    var lng = parseFloat(result.lon);
+    // Zoom level based on result type
+    var zoomMap = { country:6, state:7, county:10, city:11, town:11, village:12, postcode:12, suburb:13, neighbourhood:14 };
+    var zoom = zoomMap[result.type] || zoomMap[result.addresstype] || 10;
+    huntMap.flyTo([lat, lng], zoom, { animate: true, duration: 1.2 });
+    // Flash a temporary crosshair circle
+    var circle = L.circle([lat, lng], {
+      radius: 8000, color: '#c17f3a', weight: 2,
+      fillColor: '#c17f3a', fillOpacity: 0.12, dashArray: '6 4'
+    }).addTo(huntMap);
+    setTimeout(function(){ if (huntMap) huntMap.removeLayer(circle); }, 4000);
+  }
+
+  /* ─ Autocomplete suggestions from Nominatim ─ */
+  function fetchSuggestions(q){
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=us'
+      + '&q=' + encodeURIComponent(q + ' Florida')
+      + '&bounded=1&viewbox=-87.6,24.4,-79.9,31.0';
+    fetch(url, { headers: { 'User-Agent': 'LeaseWild/1.0' } })
+    .then(function(r){ return r.json(); })
+    .then(function(results){
+      showSuggestions(results);
+    })
+    .catch(function(){ hideSuggestions(); });
+  }
+
+  function showSuggestions(results){
+    var box = document.getElementById('map-suggestions');
+    if (!box || !results || !results.length) { hideSuggestions(); return; }
+    box.innerHTML = '';
+    results.slice(0, 5).forEach(function(r){
+      var name = r.display_name.replace(/, United States$/, '');
+      var btn = document.createElement('button');
+      btn.style.cssText = 'width:100%;text-align:left;padding:9px 14px;background:none;border:none;border-bottom:1px solid var(--divider);font-family:var(--font-body);font-size:.85rem;color:var(--text);cursor:pointer;display:block';
+      btn.textContent = name;
+      btn.onmouseenter = function(){ btn.style.background = 'var(--surface2)'; };
+      btn.onmouseleave = function(){ btn.style.background = 'none'; };
+      btn.onclick = function(){
+        document.getElementById('map-loc-input').value = name;
+        hideSuggestions();
+        flyToResult(r);
+      };
+      box.appendChild(btn);
+    });
+    box.style.display = 'block';
+  }
+
+  function hideSuggestions(){
+    var box = document.getElementById('map-suggestions');
+    if (box) box.style.display = 'none';
+  }
+
+  /* ─ Update map when live Supabase listings are loaded ─ */
+  function updateMapWithLiveListings(listings){
+    if (!listings || !listings.length) return;
+    // Convert Supabase listing shape to map-compatible shape
+    var mapListings = listings.filter(function(l){
+      // Need coordinates — geocode from address or use county centroid
+      return l.id; // include all; we'll compute coords below
+    }).map(function(l){
+      // Florida county centroids fallback lookup
+      var countyCoords = {
+        'Alachua':[29.67,-82.35],'Baker':[30.33,-82.27],'Bay':[30.19,-85.62],
+        'Bradford':[29.95,-82.17],'Brevard':[28.25,-80.73],'Broward':[26.12,-80.37],
+        'Calhoun':[30.41,-85.17],'Charlotte':[26.98,-81.98],'Citrus':[28.84,-82.47],
+        'Clay':[30.00,-81.88],'Collier':[26.11,-81.42],'Columbia':[30.22,-82.62],
+        'DeSoto':[27.19,-81.82],'Dixie':[29.58,-83.18],'Duval':[30.34,-81.66],
+        'Escambia':[30.68,-87.34],'Flagler':[29.47,-81.26],'Franklin':[29.82,-84.77],
+        'Gadsden':[30.57,-84.62],'Gilchrist':[29.72,-82.78],'Glades':[26.94,-81.19],
+        'Gulf':[29.92,-85.24],'Hamilton':[30.49,-82.94],'Hardee':[27.49,-81.82],
+        'Hendry':[26.60,-81.28],'Hernando':[28.55,-82.47],'Highlands':[27.34,-81.34],
+        'Hillsborough':[27.90,-82.35],'Holmes':[30.87,-85.82],'Indian River':[27.69,-80.57],
+        'Jackson':[30.78,-85.21],'Jefferson':[30.42,-83.89],'Lafayette':[29.99,-83.19],
+        'Lake':[28.75,-81.72],'Lee':[26.54,-81.76],'Leon':[30.44,-84.28],
+        'Levy':[29.32,-82.77],'Liberty':[30.24,-84.88],'Madison':[30.47,-83.47],
+        'Manatee':[27.48,-82.37],'Marion':[29.21,-82.12],'Martin':[27.08,-80.38],
+        'Miami-Dade':[25.55,-80.63],'Monroe':[24.55,-81.39],'Nassau':[30.62,-81.77],
+        'Okaloosa':[30.70,-86.55],'Okeechobee':[27.36,-80.86],'Orange':[28.54,-81.38],
+        'Osceola':[28.06,-81.14],'Palm Beach':[26.65,-80.45],'Pasco':[28.31,-82.43],
+        'Pinellas':[27.90,-82.75],'Polk':[27.93,-81.70],'Putnam':[29.62,-81.74],
+        'Santa Rosa':[30.69,-87.01],'Sarasota':[27.18,-82.35],'Seminole':[28.72,-81.21],
+        'St. Johns':[29.92,-81.41],'St. Lucie':[27.38,-80.43],'Sumter':[28.70,-82.07],
+        'Suwannee':[30.19,-83.01],'Taylor':[30.05,-83.64],'Union':[30.06,-82.46],
+        'Volusia':[29.05,-81.08],'Wakulla':[30.15,-84.36],'Walton':[30.62,-86.18],
+        'Washington':[30.61,-85.66]
+      };
+      var coords = l.county ? countyCoords[l.county] : null;
+      if (!coords) coords = [29.0, -81.5]; // FL center fallback
+      // Add slight jitter so overlapping pins don't stack exactly
+      var jitterLat = (Math.random() - 0.5) * 0.08;
+      var jitterLng = (Math.random() - 0.5) * 0.08;
+      return Object.assign({}, l, {
+        lat: coords[0] + jitterLat,
+        lng: coords[1] + jitterLng,
+        type: getType(l)
+      });
+    });
+    _currentMapData = mapListings;
+    if (huntMap) plotMap(mapListings);
   }
 
   // lazy-init map when column scrolls into view
-  var mapObs = new IntersectionObserver(entries=>{
-    if(entries[0].isIntersecting){initMap();mapObs.disconnect();}
-  },{threshold:.05});
-  document.addEventListener('DOMContentLoaded',()=>{
-    var mc=document.querySelector('.map-col');
-    if(mc) mapObs.observe(mc);
+  var mapObs = new IntersectionObserver(function(entries){
+    if (entries[0].isIntersecting) { initMap(); mapObs.disconnect(); }
+  }, {threshold:.05});
+  document.addEventListener('DOMContentLoaded', function(){
+    var mc = document.querySelector('.map-col');
+    if (mc) mapObs.observe(mc);
   });
 
   /* ── CARD FILTER ── */
@@ -1930,6 +2176,11 @@
     /* Use text input to loosely filter cards by title/location, else show all */
     var q = (document.getElementById('ss-input').value||'').trim().toLowerCase();
     closeSearchSheet();
+    /* Also trigger map geocode so map flies to the searched location */
+    if (q && document.getElementById('map-loc-input')) {
+      document.getElementById('map-loc-input').value = q;
+      if (typeof geocodeSearch === 'function') geocodeSearch();
+    }
     if(q){
       var cards = document.querySelectorAll('#cards-grid .card');
       var visible = 0;
