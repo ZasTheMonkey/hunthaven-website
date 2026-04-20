@@ -373,8 +373,8 @@
   <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
   <script>
   const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  let allListings = [];
-  let _ftype='all', _fsize='any', _fspecies='all';
+  var allListings = [];
+  var _ftype='all', _fsize='any', _fspecies='all';
 
   const FISH_KEYWORDS = ['bass','fish','trout','catfish','bream','crappie','walleye','carp','perch','bluegill','pond','creek','lake','water'];
   function isHunting(l) {
