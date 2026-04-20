@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outfitter Terms of Service — LeaseWild</title>
+  <meta name="description" content="LeaseWild Outfitter Terms of Service — rules and policies for licensed guides and outfitters listed in the LeaseWild directory." />
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,400&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <style>
+    :root,[data-theme="light"]{
+      --text-xs:clamp(0.85rem,0.8rem + 0.2vw,1rem);
+      --text-sm:clamp(1rem,0.9rem + 0.3vw,1.125rem);
+      --text-base:clamp(1.1rem,1rem + 0.3vw,1.25rem);
+      --text-lg:clamp(1.25rem,1.1rem + 0.6vw,1.55rem);
+      --text-xl:clamp(1.5rem,1.2rem + 1vw,2.1rem);
+      --text-2xl:clamp(1.9rem,1.2rem + 2vw,3rem);
+      --color-bg:#f5f1e8;--color-surface:#faf6ed;--color-surface-2:#fff;
+      --color-border:#d6cebd;--color-text:#1a1a12;--color-text-muted:#6b6656;--color-text-faint:#a09b8c;
+      --color-primary:#2d5a27;--color-accent:#c17f3a;--color-water:#1a6b7a;
+      --color-danger:#c0392b;
+      --radius-md:.625rem;--radius-lg:1rem;--radius-xl:1.5rem;--radius-full:9999px;
+      --font-display:'Cabinet Grotesk',system-ui,sans-serif;
+      --font-body:'Satoshi',system-ui,sans-serif;
+      --transition:.18s ease;
+    }
+    [data-theme="dark"]{
+      --color-bg:#111410;--color-surface:#171b14;--color-surface-2:#1d221a;
+      --color-border:#2e342b;--color-text:#e8e2d4;--color-text-muted:#9a9485;--color-text-faint:#605e52;
+      --color-primary:#5a9470;--color-accent:#d4922a;--color-water:#3d90b5;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+    body{font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);min-height:100dvh}
+
+    .nav{position:sticky;top:0;z-index:100;padding:0 clamp(1rem,4vw,3rem);background:color-mix(in oklab,var(--color-bg) 88%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--color-border)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px;gap:1rem}
+    .nav-links{display:flex;align-items:center;gap:1.5rem;font-size:var(--text-sm);font-weight:500}
+    .nav-links a{color:var(--color-text-muted);text-decoration:none;transition:color var(--transition)}
+    .nav-links a:hover{color:var(--color-text)}
+    .nav-divider{width:1px;height:1.25rem;background:var(--color-border)}
+    .nav-actions{display:flex;align-items:center;gap:.75rem}
+    .btn{padding:.55rem 1.1rem;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:700;font-family:inherit;cursor:pointer;border:none;text-decoration:none;display:inline-flex;align-items:center;transition:all var(--transition)}
+    .btn-ghost{background:none;border:1.5px solid var(--color-border);color:var(--color-text)}
+    .btn-accent{background:var(--color-accent);color:#fff}
+    .theme-btn{background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:.4rem;display:flex;align-items:center;border-radius:var(--radius-md)}
+    .mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--color-text);padding:.4rem}
+    .nav-mob-cta{display:none}
+    @media(max-width:768px){
+      .nav-links a:not(.nav-mob-cta){display:none}
+      .nav-divider{display:none}
+      .mobile-menu-btn{display:flex}
+      .btn-ghost,.btn-accent{display:none!important}
+      .nav-links.nav-open{display:flex;flex-direction:column;align-items:flex-start;position:absolute;top:72px;left:0;right:0;background:var(--color-surface);border-bottom:1px solid var(--color-border);padding:1rem 1.5rem;gap:.75rem;z-index:200}
+      .nav-links.nav-open a{display:block;font-size:var(--text-base);padding:.25rem 0}
+      .nav-links.nav-open .nav-mob-cta{display:block}
+    }
+
+    .terms-hero{padding:clamp(3rem,7vw,5rem) clamp(1rem,4vw,3rem) 2rem;text-align:center;border-bottom:1px solid var(--color-border)}
+    .badge{display:inline-block;padding:.3rem .85rem;border-radius:var(--radius-full);background:color-mix(in oklab,var(--color-accent) 15%,transparent);color:var(--color-accent);font-size:var(--text-xs);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1rem}
+    
+    .terms-body{max-width:760px;margin:0 auto;padding:clamp(2rem,5vw,4rem) clamp(1rem,4vw,3rem)}
+    .toc{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:2.5rem}
+    .toc h3{font-family:var(--font-display);font-weight:800;font-size:var(--text-sm);margin-bottom:.75rem}
+    .toc ol{padding-left:1.25rem;display:flex;flex-direction:column;gap:.4rem}
+    .toc a{font-size:var(--text-sm);color:var(--color-primary);text-decoration:none;font-weight:600}
+    .toc a:hover{text-decoration:underline}
+
+    .terms-section{margin-bottom:2.5rem}
+    .terms-section h2{font-family:var(--font-display);font-weight:800;font-size:var(--text-lg);letter-spacing:-.02em;margin-bottom:1rem;padding-top:.5rem}
+    .terms-section p{font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.75;margin-bottom:.85rem}
+    .terms-section ul,.terms-section ol{padding-left:1.5rem;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.85rem}
+    .terms-section li{font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.7}
+    .terms-section strong{color:var(--color-text);font-weight:700}
+
+    .highlight-box{background:color-mix(in oklab,var(--color-danger) 8%,transparent);border:1.5px solid color-mix(in oklab,var(--color-danger) 30%,transparent);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin:1.25rem 0}
+    .highlight-box p{color:var(--color-text-muted)!important;margin-bottom:0!important}
+    .highlight-box strong{color:var(--color-danger)!important}
+
+    .info-box{background:color-mix(in oklab,var(--color-primary) 8%,transparent);border:1px solid color-mix(in oklab,var(--color-primary) 25%,transparent);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin:1.25rem 0}
+    .info-box p{color:var(--color-text-muted)!important;margin-bottom:0!important}
+
+    hr{border:none;border-top:1px solid var(--color-border);margin:2rem 0}
+
+    footer{padding:2.5rem clamp(1rem,4vw,3rem);border-top:1px solid var(--color-border)}
+    .footer-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+    .footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+    .footer-links a{font-size:var(--text-xs);color:var(--color-text-faint);text-decoration:none;transition:color var(--transition)}
+    .footer-links a:hover{color:var(--color-text)}
+  </style>
+</head>
+<body>
+  <script>
+    try { var t = localStorage.getItem('lw-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){}
+  </script>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+        <svg width="34" height="34" viewBox="0 0 38 38" fill="none"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
+        <span style="font-family:var(--font-display);font-weight:800;font-size:1.45rem;letter-spacing:-.03em"><span style="color:var(--color-text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
+      </a>
+      <div class="nav-links" id="nav-links">
+        <a href="listings.html">Browse Land</a>
+        <a href="outfitters.html">Outfitters</a>
+        <a href="about.html">About</a>
+        <span class="nav-divider"></span>
+        <a href="landowner-portal.html" class="nav-mob-cta" style="color:var(--color-text-muted);font-weight:600">Landowner Login</a>
+        <a href="demo.html" class="nav-mob-cta" style="color:var(--color-accent);font-weight:700">Demo</a>
+      </div>
+      <div class="nav-actions">
+        <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a href="landowner-portal.html" class="btn btn-ghost">Landowner Login</a>
+        <a href="demo.html" class="btn btn-accent">Demo</a>
+        <button class="mobile-menu-btn" onclick="document.getElementById('nav-links').classList.toggle('nav-open')" aria-label="Menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="terms-hero">
+    <div class="badge">Outfitters Only</div>
+    <h1 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-2xl);letter-spacing:-.04em;line-height:1.1;margin-bottom:.75rem">Outfitter Terms of Service</h1>
+    <p style="color:var(--color-text-muted);font-size:var(--text-base);max-width:560px;margin:0 auto">These terms apply exclusively to licensed guides and outfitters listed in the LeaseWild Outfitter Directory. Last updated: April 2026.</p>
+  </div>
+
+  <div class="terms-body">
+
+    <div class="toc">
+      <h3>Contents</h3>
+      <ol>
+        <li><a href="#overview">Overview & Scope</a></li>
+        <li><a href="#separation">Separation from Land Listings</a></li>
+        <li><a href="#marketing">Social Media & Marketing Restrictions</a></li>
+        <li><a href="#redistribution">Content Redistribution Policy</a></li>
+        <li><a href="#eligibility">Eligibility Requirements</a></li>
+        <li><a href="#conduct">Conduct & Professionalism</a></li>
+        <li><a href="#removal">Removal from Directory</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ol>
+    </div>
+
+    <div class="terms-section" id="overview">
+      <h2>1. Overview &amp; Scope</h2>
+      <p>These Outfitter Terms of Service ("Outfitter Terms") govern the listing and participation of licensed guides, guide services, and outfitters ("Outfitters") in the LeaseWild Outfitter Directory ("the Directory").</p>
+      <p>By submitting an application to be listed in the Directory or accepting a listing from LeaseWild, you agree to be bound by these Outfitter Terms in addition to LeaseWild's general <a href="terms.html" style="color:var(--color-primary);font-weight:600">Terms of Service</a>. If there is any conflict, these Outfitter Terms take precedence for matters specific to outfitter listings.</p>
+      <p>LeaseWild reserves the right to update these terms at any time. Continued listing in the Directory constitutes acceptance of updated terms.</p>
+    </div>
+
+    <hr />
+
+    <div class="terms-section" id="separation">
+      <h2>2. Separation from Land Listings</h2>
+      <p><strong>Outfitter listings are entirely separate from private land lease listings on LeaseWild.</strong> The following rules apply without exception:</p>
+      <ul>
+        <li>Your outfitter listing does not grant you access to any land listed by landowners on LeaseWild.</li>
+        <li>You may not represent, imply, or suggest that booking your guide service provides guests with access to private land leases on LeaseWild.</li>
+        <li>You may not cross-promote or link your outfitter listing to any specific land lease listing on the platform without explicit written consent from both the landowner and LeaseWild.</li>
+        <li>Guests who book an outfitter service are not covered by any land lease agreement on LeaseWild — they are engaging directly with the outfitter.</li>
+      </ul>
+      <div class="info-box">
+        <p><strong>Why this rule exists:</strong> Land lease bookings and guide services are separate legal and commercial arrangements. Conflating the two creates liability and confusion for guests. LeaseWild maintains this separation to protect all parties.</p>
+      </div>
+    </div>
+
+    <hr />
+
+    <div class="terms-section" id="marketing">
+      <h2>3. Social Media &amp; Marketing Restrictions</h2>
+      <p>LeaseWild provides outfitters with a listing to connect with potential clients. This listing may <strong>not</strong> be used as a marketing or social media acquisition tool.</p>
+
+      <div class="highlight-box">
+        <p><strong>Prohibited:</strong> Using your LeaseWild outfitter listing to promote your social media profiles, drive Instagram/Facebook/TikTok followers, or redirect users to external platforms for the primary purpose of growing your social media audience.</p>
+      </div>
+
+      <p>Specifically, outfitters may NOT:</p>
+      <ul>
+        <li>Include social media handles as the primary call-to-action in your listing description</li>
+        <li>Instruct guests to "follow us on Instagram for availability" or similar language that redirects bookings off the platform</li>
+        <li>Use listing photos or content to run paid advertising campaigns on external platforms without LeaseWild's written consent</li>
+        <li>Post LeaseWild listing URLs directly to social media in a way that misrepresents LeaseWild's platform or implies endorsement</li>
+      </ul>
+
+      <p>Outfitters <strong>may</strong> include a single link to their official business website and a single social media link in their listing profile — provided these are supplementary to, not the focus of, the listing.</p>
+    </div>
+
+    <hr />
+
+    <div class="terms-section" id="redistribution">
+      <h2>4. Content Redistribution Policy</h2>
+      <p>All content submitted to LeaseWild for your outfitter listing — including photos, descriptions, pricing, and availability — is subject to this policy.</p>
+
+      <div class="highlight-box">
+        <p><strong>Prohibited:</strong> Copying, scraping, redistributing, or republishing LeaseWild listing content (yours or others') to external platforms, competitors, or third-party services without express written permission from LeaseWild.</p>
+      </div>
+
+      <p>This includes but is not limited to:</p>
+      <ul>
+        <li>Republishing your LeaseWild listing description verbatim on competitor booking platforms</li>
+        <li>Sharing other outfitters' or landowners' listing photos outside of LeaseWild without their consent</li>
+        <li>Using automated tools to extract listing data from LeaseWild</li>
+        <li>Embedding LeaseWild listing content in third-party websites without written agreement</li>
+      </ul>
+      <p>Outfitters retain ownership of original content they submit. By submitting content to LeaseWild, you grant LeaseWild a non-exclusive license to display, promote, and use that content on the LeaseWild platform and in LeaseWild marketing materials.</p>
+    </div>
+
+    <hr />
+
+    <div class="terms-section" id="eligibility">
+      <h2>5. Eligibility Requirements</h2>
+      <p>To be listed in the LeaseWild Outfitter Directory, you must:</p>
+      <ul>
+        <li>Hold a current, valid Florida freshwater guide license, saltwater guide license, or equivalent outfitter license as required by the Florida Fish and Wildlife Conservation Commission (FWC)</li>
+        <li>Carry appropriate liability insurance for guide and outfitter operations</li>
+        <li>Comply with all applicable Florida state and federal regulations governing guide services and wildlife management</li>
+        <li>Operate exclusively within the legal boundaries of your license and permitted activities</li>
+        <li>Be a legal business entity or sole proprietor operating lawfully in the state of Florida</li>
+      </ul>
+      <p>LeaseWild may request proof of licensure at any time. Failure to provide current license documentation within 5 business days of request will result in immediate suspension of your listing.</p>
+    </div>
+
+    <hr />
+
+    <div class="terms-section" id="conduct">
+      <h2>6. Conduct &amp; Professionalism</h2>
+      <p>Outfitters listed on LeaseWild represent the platform to guests. You agree to:</p>
+      <ul>
+        <li>Communicate professionally and promptly with guests who reach out through the platform</li>
+        <li>Accurately represent your services, available species, seasons, and pricing in your listing</li>
+        <li>Not engage in deceptive pricing, bait-and-switch tactics, or false advertising</li>
+        <li>Treat all guests without discrimination regardless of origin, background, or experience level</li>
+        <li>Comply with all applicable hunting and fishing regulations during guided experiences</li>
+        <li>Not use LeaseWild's platform to conduct any illegal activity</li>
+      </ul>
+    </div>
+
+    <hr />
+
+    <div class="terms-section" id="removal">
+      <h2>7. Removal from the Directory</h2>
+      <p>LeaseWild may remove or suspend an outfitter listing at any time, with or without notice, for any of the following reasons:</p>
+      <ul>
+        <li>Violation of any provision of these Outfitter Terms</li>
+        <li>Expiration or revocation of required licenses</li>
+        <li>Guest complaints substantiated by LeaseWild's review</li>
+        <li>Misleading, fraudulent, or harmful listing content</li>
+        <li>Any conduct LeaseWild deems harmful to the platform, its users, or its reputation</li>
+      </ul>
+      <p>Removed outfitters may appeal by contacting LeaseWild at the address below. LeaseWild's decision on appeals is final.</p>
+    </div>
+
+    <hr />
+
+    <div class="terms-section" id="contact">
+      <h2>8. Contact</h2>
+      <p>For questions about these Outfitter Terms, to submit an appeal, or to request written permission for content use, contact:</p>
+      <div class="info-box">
+        <p><strong>LeaseWild</strong><br />
+        New Smyrna Beach, Florida<br />
+        Email: <a href="mailto:hello@leasewild.com" style="color:var(--color-primary);font-weight:600">hello@leasewild.com</a><br />
+        Instagram: <a href="https://www.instagram.com/leasewild?igsh=Z2J6NG4zNmUxOGp0" target="_blank" style="color:var(--color-primary);font-weight:600">@leasewild</a></p>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:2rem">
+      <a href="outfitters.html" style="display:inline-block;padding:.75rem 2rem;border-radius:var(--radius-full);background:var(--color-primary);color:#fff;font-family:var(--font-display);font-weight:800;font-size:var(--text-sm);text-decoration:none">Back to Outfitters Directory</a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span style="font-family:var(--font-display);font-weight:800;font-size:1.1rem"><span style="color:var(--color-text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
+      <div class="footer-links">
+        <a href="listings.html">Browse Land</a>
+        <a href="outfitters.html">Outfitters</a>
+        <a href="terms.html">Terms</a>
+        <a href="about.html">About</a>
+      </div>
+      <span style="font-size:var(--text-xs);color:var(--color-text-faint)">&copy; 2026 LeaseWild</span>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTheme() {
+      var html = document.documentElement;
+      var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      try { localStorage.setItem('lw-theme', next); } catch(e) {}
+    }
+  </script>
+</body>
+</html>
