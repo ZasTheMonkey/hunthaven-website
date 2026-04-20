@@ -1,0 +1,10 @@
+[api]
+port = 54321
+
+[db]
+port = 54322
+
+[auth]
+site_url = "https://leasewild.com"
+
+[functions]
