@@ -730,6 +730,8 @@
     ───────────────────────────────────────────── */
     .fade-up{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
     .fade-up.in{opacity:1;transform:none}
+    /* Cards always visible — animation is a bonus not a visibility gate */
+    #cards-grid .card{opacity:1;transform:none}
     @keyframes spin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.fade-up{opacity:1;transform:none}}
   </style>
@@ -1510,7 +1512,7 @@
       </div>
     </div>
     <div class="ss-cta">
-      <button class="ss-go-btn" onclick="closeSearchSheet();document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})">
+      <button class="ss-go-btn" onclick="doSheetSearch()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;margin-right:6px;vertical-align:middle"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         Search
       </button>
@@ -1611,7 +1613,7 @@
 
   function initMap(){
     if(huntMap) return;
-    huntMap = L.map('hunt-map',{zoomControl:true,scrollWheelZoom:false}).setView([29.0,−81.5],7);
+    huntMap = L.map('hunt-map',{zoomControl:true,scrollWheelZoom:false}).setView([29.0,-81.5],7);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
       attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18
     }).addTo(huntMap);
@@ -1697,6 +1699,28 @@
   function closeSearchSheet(){
     document.getElementById('search-sheet').classList.remove('open');
     document.body.style.overflow='';
+  }
+  function doSheetSearch(){
+    /* Use text input to loosely filter cards by title/location, else show all */
+    var q = (document.getElementById('ss-input').value||'').trim().toLowerCase();
+    closeSearchSheet();
+    if(q){
+      var cards = document.querySelectorAll('#cards-grid .card');
+      var visible = 0;
+      cards.forEach(function(c){
+        var title = (c.querySelector('.card-title')||{}).textContent||'';
+        var loc   = (c.querySelector('.card-location')||{}).textContent||'';
+        var tags  = Array.from(c.querySelectorAll('.card-tag')).map(function(t){return t.textContent;}).join(' ');
+        var match = (title+loc+tags).toLowerCase().includes(q);
+        c.style.display = match ? '' : 'none';
+        if(match) visible++;
+      });
+      document.getElementById('listings-count-num').textContent = visible+' propert'+(visible===1?'y':'ies');
+      document.getElementById('filter-empty').style.display = visible===0?'block':'none';
+    } else {
+      filterCards(_activeFilter);
+    }
+    document.getElementById('listings-section').scrollIntoView({behavior:'smooth'});
   }
 
   /* ── WAITLIST MODAL ── */
