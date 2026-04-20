@@ -753,7 +753,80 @@
     #cards-grid .card{opacity:1;transform:none}
     @keyframes spin{to{transform:rotate(360deg)}}
     @media(prefers-reduced-motion:reduce){.fade-up{opacity:1;transform:none}}
+
+    /* ─────────────────────────────────────────────
+       CSS VAR ALIASES — for booking.js compatibility
+    ───────────────────────────────────────────── */
+    :root {
+      --color-primary: var(--green);
+      --color-primary-hover: var(--green-dk);
+      --color-accent: var(--amber);
+      --color-water: var(--water);
+      --color-border: var(--border);
+      --color-text: var(--text);
+      --color-text-muted: var(--muted);
+      --color-text-faint: var(--faint);
+      --color-bg: var(--bg);
+      --color-surface: var(--surface);
+      --color-surface-2: var(--surface2);
+      --color-surface-offset: var(--surface2);
+      --radius-md: var(--r-md);
+    }
+
+    /* ─────────────────────────────────────────────
+       LISTING DETAIL MODAL
+    ───────────────────────────────────────────── */
+    #listing-detail-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      align-items: flex-end;
+      justify-content: center;
+    }
+    @media(min-width:640px) {
+      #listing-detail-modal { align-items: center; }
+    }
+    #listing-detail-sheet {
+      background: var(--surface);
+      width: 100%;
+      max-width: 680px;
+      max-height: 92dvh;
+      border-radius: 20px 20px 0 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 0 -4px 48px rgba(0,0,0,.2);
+      position: relative;
+    }
+    @media(min-width:640px) {
+      #listing-detail-sheet { border-radius: 20px; max-height: 90dvh; }
+    }
+    .ldm-handle {
+      width: 40px; height: 4px; background: var(--border);
+      border-radius: 99px; margin: 12px auto 0;
+    }
+    .ldm-close {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; justify-content: flex-end;
+      padding: 8px 14px 0;
+      pointer-events: none;
+    }
+    .ldm-close button {
+      pointer-events: all;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-sm); cursor: pointer;
+      font-size: 1rem; color: var(--muted);
+      transition: background .15s;
+    }
+    .ldm-close button:hover { background: var(--surface2); }
   </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 </head>
 <body>
 
@@ -1609,11 +1682,127 @@
        LEAFLET MAP
   ══════════════════════════════════════════ -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- ══════════════════════════════════════════
+       LISTING DETAIL MODAL
+  ══════════════════════════════════════════ -->
+  <div id="listing-detail-modal" role="dialog" aria-modal="true" aria-label="Listing detail" onclick="if(event.target===this)closeListingDetail()">
+    <div id="listing-detail-sheet">
+      <div class="ldm-handle"></div>
+      <div class="ldm-close"><button onclick="closeListingDetail()" aria-label="Close">&times;</button></div>
+      <div id="listing-detail-content"></div>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
   <script>
   /* ── CONSTANTS ── */
   const WAITLIST_URL = 'https://script.google.com/macros/s/AKfycbxivcs1-B2GaVjf-iecUvzyDdduxxLHbD1azSqDIvikyzKBvtMeS9FZt507gkTQSUDQ/exec';
+
+  /* ── GLOBAL LISTING STORE ── */
+  var allListings = [];
+
+  /* ── HELPER FUNCTIONS (needed by booking.js) ── */
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function getType(l) {
+    var acts = (l.activities || []).join(' ').toLowerCase();
+    if (acts.includes('fish') || acts.includes('bass') || acts.includes('trout') || acts.includes('crappie')) return 'fishing';
+    return 'hunting';
+  }
+
+  /* ── RENDER LIVE LISTING CARDS ── */
+  function renderLiveCards(listings) {
+    if (!listings || listings.length === 0) return; // keep placeholders
+    var grid = document.getElementById('cards-grid');
+    if (!grid) return;
+    // Remove placeholder cards
+    grid.innerHTML = '';
+    listings.forEach(function(l) {
+      var type = getType(l);
+      var isHunt = type === 'hunting';
+      var price = l.price_per_day ? '$' + parseInt(l.price_per_day) : 'Contact';
+      var location = l.county ? l.county + ', FL' : 'Florida';
+      var acreage = l.acreage ? l.acreage + ' acres' : '';
+      var acts = (l.activities || []).join(' · ');
+      var firstPhoto = (l.photo_urls && l.photo_urls.length) ? l.photo_urls[0] : '';
+      var bgStyle = firstPhoto
+        ? 'background:url(' + escHtml(firstPhoto) + ') center/cover no-repeat;'
+        : isHunt ? 'background:linear-gradient(160deg,#2a4a30,#4a7040);'
+                 : 'background:linear-gradient(160deg,#0d2840,#2a90b0);';
+      var dataType = isHunt ? 'hunt' : 'fish';
+      var slug = l.county ? l.county.toLowerCase().replace(/\s+/g,'-') : 'fl';
+      var article = document.createElement('article');
+      article.className = 'card';
+      article.dataset.type = dataType;
+      article.dataset.acres = l.acreage || '';
+      article.dataset.species = (l.activities || []).join(' ').toLowerCase();
+      article.style.cursor = 'pointer';
+      article.setAttribute('tabindex','0');
+      article.setAttribute('role','button');
+      article.setAttribute('aria-label','View ' + (l.county || 'listing') + ' details');
+      article.onclick = function(){ openListingDetail(l); };
+      article.onkeydown = function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openListingDetail(l); } };
+      article.innerHTML =
+        '<div class="card-img" style="' + bgStyle + 'height:200px;border-radius:var(--r-lg) var(--r-lg) 0 0;overflow:hidden;position:relative;">' +
+          '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.08),rgba(0,0,0,.35))"></div>' +
+          '<button class="card-save" onclick="event.stopPropagation();toggleSave(this)" data-saved="" aria-label="Save listing">' +
+            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>' +
+          '</button>' +
+          '<div style="position:absolute;bottom:10px;left:12px;display:flex;gap:5px;flex-wrap:wrap">' +
+            (l.activities||[]).slice(0,2).map(function(a){
+              return '<span style="background:rgba(0,0,0,.55);color:#fff;font-size:.72rem;font-weight:600;padding:2px 7px;border-radius:999px;backdrop-filter:blur(4px)">' + escHtml(a) + '</span>';
+            }).join('') +
+          '</div>' +
+        '</div>' +
+        '<div class="card-body">' +
+          '<div class="card-top">' +
+            '<div class="card-title">' + escHtml(l.county ? l.county + ' Private Land' : 'Private Land') + '</div>' +
+            '<div class="card-price-inline">' + price + '<span>/day</span></div>' +
+          '</div>' +
+          '<div class="card-location">' +
+            '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>' +
+            escHtml(location) + (acreage ? ' · ' + acreage : '') +
+          '</div>' +
+          (acts ? '<div style="font-size:.8rem;color:var(--muted);margin-top:4px">' + escHtml(acts) + '</div>' : '') +
+          '<div class="card-tags" style="margin-top:8px">' +
+            (l.min_stay ? '<span class="card-tag">' + l.min_stay + '+ nights</span>' : '') +
+            (l.max_guests ? '<span class="card-tag">Up to ' + l.max_guests + ' guests</span>' : '') +
+          '</div>' +
+        '</div>';
+      grid.appendChild(article);
+    });
+    // Update count
+    var cnt = document.getElementById('listings-count-num');
+    if (cnt) cnt.textContent = listings.length + ' propert' + (listings.length === 1 ? 'y' : 'ies');
+  }
+
+  /* ── FETCH LIVE LISTINGS FROM SUPABASE ── */
+  (function fetchListings(){
+    var SB_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
+    var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
+    fetch(SB_URL + '/rest/v1/listings?status=eq.active&order=created_at.desc', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (Array.isArray(data) && data.length > 0) {
+        allListings = data;
+        renderLiveCards(data);
+      } else {
+        // No live listings yet — wire placeholder cards to open waitlist (existing behavior)
+        // but make them open a generic "coming soon" detail instead
+        document.querySelectorAll('#cards-grid .card').forEach(function(card){
+          // Keep existing onclick=openWaitlist() on placeholders
+        });
+      }
+    })
+    .catch(function(err){ console.warn('Listing fetch failed', err); });
+  })();
 
   const LISTINGS_DATA = [
     { id:1, type:'hunting', lat:27.30, lng:-81.34, title:'Palmetto Ridge Cabin', acres:450, price:240, species:'Deer · Hog', city:'Lake Placid' },
@@ -1788,7 +1977,13 @@
     document.getElementById('wl-success').style.display='block';
     btn.disabled=false;
   }
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeWaitlist();closeSearchSheet();}});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      closeWaitlist();
+      closeSearchSheet();
+      closeListingDetail();
+    }
+  });
 
   /* ── INLINE EMAIL ── */
   async function inlineSubmit(e){
@@ -1814,5 +2009,8 @@
     document.getElementById('main-nav').classList.toggle('scrolled',window.scrollY>10);
   },{passive:true});
   </script>
+
+  <!-- booking.js: openListingDetail, Stripe checkout, date pickers, promo codes -->
+  <script src="booking.js"></script>
 </body>
 </html>
