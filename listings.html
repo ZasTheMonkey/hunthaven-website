@@ -411,7 +411,7 @@
     var cleanFee = l.cleaning_fee ? '<span>+ $'+l.cleaning_fee+' cleaning</span>' : '';
     var minStay = l.min_stay && l.min_stay !== '' ? '<span>Min '+l.min_stay+'</span>' : '';
 
-    return '<div class="listing-card fade-up" data-type="'+type+'" data-acres="'+acres+'" data-species="'+species+'" onclick="openListingDetail(allListings.find(function(x){return String(x.id)==='"+l.id+"'}))">' +
+    return '<div class="listing-card fade-up" data-type="'+type+'" data-acres="'+acres+'" data-species="'+species+'" onclick="openListingById(this.dataset.lid)" data-lid="'+l.id+'">' +
       '<div class="card-media '+mediaClass+'">'+mediaContent+'<div class="card-price">'+price+'</div>'+typeLabel+'<button class="card-save">♡</button></div>' +
       '<div class="card-body">'+
         '<h3>'+escHtml(l.county ? l.county+' Private Land' : 'Private Land')+'</h3>'+
