@@ -78,8 +78,12 @@ function openListingDetail(l) {
         '<div style="padding:1.25rem">' +
           noteHtml +
           '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.75rem">' +
-            '<div><label style="'+labelStyle+'">Check-in</label><input type="date" id="bk-checkin" min="2026-07-01" style="'+inputStyle+'" onchange="updateBookingPrice()" /></div>' +
-            '<div><label style="'+labelStyle+'">Check-out</label><input type="date" id="bk-checkout" min="2026-07-02" style="'+inputStyle+'" onchange="updateBookingPrice()" /></div>' +
+            '<div><label style="'+labelStyle+'">Check-in</label><input type="text" id="bk-checkin" placeholder="Select date" readonly style="'+inputStyle+';cursor:pointer" /></div>' +
+            '<div><label style="'+labelStyle+'">Check-out</label><input type="text" id="bk-checkout" placeholder="Select date" readonly style="'+inputStyle+';cursor:pointer" /></div>' +
+          '</div>' +
+          '<div id="bk-calendar-legend" style="display:flex;gap:1rem;font-size:.75rem;color:var(--color-text-muted);margin-bottom:.75rem;align-items:center">' +
+            '<span style="display:flex;align-items:center;gap:.3rem"><span style="width:14px;height:14px;border-radius:3px;background:#22c55e;display:inline-block"></span>Available</span>' +
+            '<span style="display:flex;align-items:center;gap:.3rem"><span style="width:14px;height:14px;border-radius:3px;background:#ef4444;display:inline-block"></span>Booked</span>' +
           '</div>' +
           '<div style="margin-bottom:.75rem"><label style="'+labelStyle+'">Guests</label>' +
           '<select id="bk-guests" style="'+inputStyle+'">'+guestOpts+'</select></div>' +
@@ -90,6 +94,77 @@ function openListingDetail(l) {
           (!launched ? '<p style="font-size:.78rem;color:var(--color-text-faint);text-align:center;margin-top:.4rem">No payment now. We confirm when bookings open July 1.</p>' : '') +
         '</div>' +
       '</div>';
+  }
+
+
+  // ── Load booked dates and init Flatpickr calendars ────────
+  async function initDatePickers() {
+    // Fetch confirmed/pre_reserved bookings for this listing
+    var bookedDates = [];
+    try {
+      var SB_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
+      var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
+      var res = await fetch(SB_URL + "/rest/v1/bookings?listing_id=eq." + encodeURIComponent(l.id) + "&status=in.(pre_reserved,confirmed)&select=checkin,checkout", {
+        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+      });
+      var bookings = await res.json();
+      // Expand each booking into individual dates
+      bookings.forEach(function(b) {
+        var cur = new Date(b.checkin);
+        var end = new Date(b.checkout);
+        while (cur < end) {
+          bookedDates.push(cur.toISOString().split('T')[0]);
+          cur.setDate(cur.getDate() + 1);
+        }
+      });
+    } catch(e) { console.warn('Could not load booked dates', e); }
+
+    var fpConfig = {
+      minDate: '2026-07-01',
+      disableMobile: false,
+      dateFormat: 'Y-m-d',
+      disable: bookedDates,
+      onDayCreate: function(dObj, dStr, fp, dayElem) {
+        var dateStr = dayElem.dateObj ? dayElem.dateObj.toISOString().split('T')[0] : null;
+        if (!dateStr) return;
+        var today = new Date(); today.setHours(0,0,0,0);
+        var d = new Date(dateStr);
+        if (d < today || d < new Date('2026-07-01')) {
+          dayElem.style.background = '';
+          return;
+        }
+        if (bookedDates.includes(dateStr)) {
+          dayElem.style.background = '#fef2f2';
+          dayElem.style.color = '#ef4444';
+          dayElem.style.borderRadius = '4px';
+          dayElem.title = 'Already booked';
+        } else {
+          dayElem.style.background = '#f0fdf4';
+          dayElem.style.color = '#166534';
+          dayElem.style.borderRadius = '4px';
+        }
+      },
+      onChange: function() { updateBookingPrice(); }
+    };
+
+    // Wait a tick for DOM
+    await new Promise(r => setTimeout(r, 50));
+    var cinEl = document.getElementById('bk-checkin');
+    var coutEl = document.getElementById('bk-checkout');
+    if (!cinEl || !coutEl) return;
+
+    var fpIn = flatpickr(cinEl, Object.assign({}, fpConfig, {
+      onChange: function(dates, str) {
+        if (dates[0]) {
+          var next = new Date(dates[0]); next.setDate(next.getDate() + 1);
+          fpOut.set('minDate', next.toISOString().split('T')[0]);
+        }
+        updateBookingPrice();
+      }
+    }));
+    var fpOut = flatpickr(coutEl, Object.assign({}, fpConfig, {
+      onChange: function() { updateBookingPrice(); }
+    }));
   }
 
   document.getElementById('listing-detail-content').innerHTML =
