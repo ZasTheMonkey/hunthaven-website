@@ -1,656 +1,1380 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LeaseWild — Book Private Hunting Land & Fishing Water in Florida</title>
-  <meta name="description" content="LeaseWild is Florida's #1 marketplace to book private hunting land, fishing ponds, and outdoor stays by the day, weekend, or season. List your land or join the guest waitlist today." />
+  <meta name="description" content="LeaseWild is Florida's marketplace to book private hunting land, fishing ponds, and outdoor stays by the day, weekend, or season. List your land or join the guest waitlist today." />
   <meta name="keywords" content="private hunting land Florida, book hunting land Florida, hunting lease Florida, private fishing water Florida, rent hunting land Florida, hunting land rental, Florida deer hunting land, hog hunting Florida, bass fishing pond Florida" />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="LeaseWild" />
   <link rel="canonical" href="https://leasewild.com/" />
-
-  <!-- Open Graph -->
   <meta property="og:title" content="LeaseWild — Book Private Hunting Land & Fishing Water in Florida" />
-  <meta property="og:description" content="LeaseWild is Florida's #1 marketplace to book private hunting land, fishing ponds, and outdoor stays by the day, weekend, or season. List your land or join the guest waitlist today." />
+  <meta property="og:description" content="LeaseWild is Florida's marketplace to book private hunting land, fishing ponds, and outdoor stays by the day, weekend, or season." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://leasewild.com/" />
   <meta property="og:image" content="https://leasewild.com/wildbook-logo.png" />
   <meta property="og:site_name" content="LeaseWild" />
-  <meta property="og:locale" content="en_US" />
-
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="LeaseWild — Book Private Hunting Land & Fishing Water in Florida" />
-  <meta name="twitter:description" content="LeaseWild is Florida's #1 marketplace to book private hunting land, fishing ponds, and outdoor stays by the day, weekend, or season. List your land or join the guest waitlist today." />
+  <meta name="twitter:description" content="Florida's marketplace to book private hunting land and fishing water by the day, weekend, or season." />
   <meta name="twitter:image" content="https://leasewild.com/wildbook-logo.png" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"LeaseWild","url":"https://leasewild.com","description":"Florida's marketplace to book private hunting land and fishing water by the day, weekend, or season.","areaServed":{"@type":"State","name":"Florida"},"sameAs":["https://www.instagram.com/leasewild"],"contactPoint":{"@type":"ContactPoint","contactType":"customer support","email":"support@leasewild.com"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"LeaseWild","url":"https://leasewild.com","potentialAction":{"@type":"SearchAction","target":"https://leasewild.com/listings.html?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
 
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "LeaseWild",
-    "url": "https://leasewild.com",
-    "logo": "https://leasewild.com/wildbook-logo.png",
-    "description": "Florida's marketplace to book private hunting land and fishing water by the day, weekend, or season.",
-    "areaServed": {"@type": "State", "name": "Florida"},
-    "sameAs": ["https://www.instagram.com/leasewild"],
-    "contactPoint": {"@type": "ContactPoint", "contactType": "customer support", "email": "support@leasewild.com"}
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "LeaseWild",
-    "url": "https://leasewild.com",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://leasewild.com/listings.html?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
-  }
-  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
 
   <style>
-    /* ── TOKENS ─────────────────────────────────────────── */
-    :root, [data-theme="light"] {
-      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
-      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
-      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
-      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
-      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
-      --text-2xl: clamp(2rem, 1.2rem + 2.5vw, 3.5rem);
-      --text-3xl: clamp(2.5rem, 1rem + 4vw, 5rem);
-      --text-hero: clamp(3rem, 0.5rem + 7vw, 7rem);
-
-      --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
-      --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;
-      --space-12:3rem;--space-16:4rem;--space-20:5rem;--space-24:6rem;--space-32:8rem;
-
-      --color-bg: #f5f1e8;
-      --color-surface: #faf6ed;
-      --color-surface-2: #fff;
-      --color-surface-offset: #ede8db;
-      --color-border: #d6cebd;
-      --color-divider: #ddd6c5;
-      --color-text: #1a1a12;
-      --color-text-muted: #6b6656;
-      --color-text-faint: #a09b8c;
-      --color-text-inverse: #f5f1e8;
-      --color-primary: #2a5c3c;
-      --color-primary-hover: #1e4229;
-      --color-primary-light: #d4e5da;
-      --color-accent: #b85c1a;
-      --color-accent-light: #f5e2d0;
-      --color-water: #1a5c7a;
-      --color-water-light: #cde3ee;
-      --radius-sm:.375rem;--radius-md:.625rem;--radius-lg:1rem;--radius-xl:1.5rem;--radius-full:9999px;
-      --shadow-sm:0 1px 3px rgba(26,26,18,.07);
-      --shadow-md:0 4px 16px rgba(26,26,18,.10);
-      --shadow-lg:0 16px 48px rgba(26,26,18,.14);
-      --transition:180ms cubic-bezier(.16,1,.3,1);
+    /* ─────────────────────────────────────────────
+       TOKENS
+    ───────────────────────────────────────────── */
+    :root {
+      --green:#2d5a27;
+      --green-dk:#1e3d1a;
+      --green-lt:#d6e8d3;
+      --amber:#c17f3a;
+      --amber-dk:#a06828;
+      --water:#1a6b7a;
+      --water-lt:#cde9ee;
+      --bg:#f7f4ee;
+      --surface:#ffffff;
+      --surface2:#faf7f2;
+      --border:#e2ddd4;
+      --divider:#ede9e1;
+      --text:#222218;
+      --muted:#6b6656;
+      --faint:#a09b8c;
+      --danger:#c0392b;
+      --r-sm:8px;
+      --r-md:12px;
+      --r-lg:16px;
+      --r-xl:24px;
+      --r-full:9999px;
+      --shadow-sm:0 1px 4px rgba(0,0,0,.07);
+      --shadow-md:0 4px 20px rgba(0,0,0,.10);
+      --shadow-lg:0 12px 48px rgba(0,0,0,.14);
       --font-display:'Oswald',system-ui,sans-serif;
       --font-body:'Barlow',system-ui,sans-serif;
-    }
-    [data-theme="light"] {
-      --color-bg: #111410;
-      --color-surface: #171b14;
-      --color-surface-2: #1d221a;
-      --color-surface-offset: #222720;
-      --color-border: #2e342b;
-      --color-divider: #252b23;
-      --color-text: #e8e2d4;
-      --color-text-muted: #9a9485;
-      --color-text-faint: #605e52;
-      --color-text-inverse: #111410;
-      --color-primary: #5a9470;
-      --color-primary-hover: #6faa85;
-      --color-primary-light: #1e2f22;
-      --color-accent: #d4783a;
-      --color-accent-light: #2e1f10;
-      --color-water: #3d90b5;
-      --color-water-light: #102030;
-      --shadow-sm:0 1px 3px rgba(0,0,0,.25);
-      --shadow-md:0 4px 16px rgba(0,0,0,.35);
-      --shadow-lg:0 16px 48px rgba(0,0,0,.5);
+      --nav-h:72px;
+      --mob-bar:64px;
     }
 
-    /* ── BASE ───────────────────────────────────────────── */
+    /* ─────────────────────────────────────────────
+       RESET
+    ───────────────────────────────────────────── */
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth;scroll-padding-top:5rem;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-    body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);line-height:1.6;overflow-x:hidden;width:100%}
-    img,svg{display:block;max-width:100%}
-    button,input,select,textarea{font:inherit;color:inherit}
-    button{cursor:pointer;background:none;border:none}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    body{font-family:var(--font-body);font-size:16px;color:var(--text);background:var(--bg);overflow-x:hidden;min-height:100dvh}
     a{color:inherit;text-decoration:none}
-    h1,h2,h3,h4,h5{text-wrap:balance;line-height:1.1;font-family:var(--font-display)}
-    p,li{text-wrap:pretty;max-width:68ch}
-    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+    button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
+    img,svg{display:block;max-width:100%}
+    h1,h2,h3,h4{font-family:var(--font-display);line-height:1.1;text-wrap:balance}
 
-    /* ── NAV ────────────────────────────────────────────── */
-    .nav{position:sticky;top:0;z-index:100;padding:0 clamp(var(--space-4),4vw,var(--space-12));background:color-mix(in oklab,var(--color-bg) 88%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--color-border);transition:box-shadow var(--transition)}
-    .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:var(--space-8);height:72px}
-    .logo{display:flex;align-items:center;gap:var(--space-3);font-family:var(--font-display);font-weight:800;font-size:1.15rem;letter-spacing:0}
-    .logo-mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(160deg,var(--color-primary),color-mix(in oklab,var(--color-primary) 70%,black));display:grid;place-items:center;color:var(--color-text-inverse);flex:none}
-    .nav-links{display:flex;align-items:center;gap:var(--space-6)}
-    .nav-links a{font-size:var(--text-sm);color:var(--color-text-muted);transition:color var(--transition)}
-    .nav-links a:hover,.nav-links a.active{color:var(--color-text)}
-    .nav-actions{display:flex;align-items:center;gap:var(--space-3)}
-    .nav-mob-cta,.nav-divider{display:none}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);padding:.65rem 1.25rem;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:600;transition:all var(--transition);white-space:nowrap}
-    .btn-ghost{color:var(--color-text-muted);border:1px solid var(--color-border)}
-    .btn-ghost:hover{color:var(--color-text);background:var(--color-surface-offset)}
-    .btn-primary{background:var(--color-primary);color:#fff;border:1px solid transparent}
-    .btn-primary:hover{background:var(--color-primary-hover)}
-    .btn-accent{background:var(--color-accent);color:#fff;border:1px solid transparent}
-    .btn-accent:hover{background:var(--color-accent-hover,#8f4412)}
-    .btn-water{background:var(--color-water);color:#fff;border:1px solid transparent}
-    .btn-large{padding:.9rem 2rem;font-size:var(--text-base);border-radius:var(--radius-full)}
-    .theme-btn{width:40px;height:40px;border-radius:var(--radius-full);display:grid;place-items:center;color:var(--color-text-muted);border:1px solid var(--color-border);transition:all var(--transition)}
-    .theme-btn:hover{color:var(--color-text);background:var(--color-surface-offset)}
-    .mobile-menu-btn{display:none;width:40px;height:40px;border-radius:var(--radius-md);border:1px solid var(--color-border);place-items:center;color:var(--color-text-muted)}
+    /* ─────────────────────────────────────────────
+       NAV — DESKTOP
+    ───────────────────────────────────────────── */
+    .nav{
+      position:sticky;top:0;z-index:200;
+      height:var(--nav-h);
+      background:rgba(247,244,238,.92);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+      transition:box-shadow .2s;
+    }
+    .nav.scrolled{box-shadow:var(--shadow-md)}
+    .nav-inner{
+      max-width:1280px;margin:0 auto;height:100%;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 24px;gap:16px;
+    }
 
-    /* ── HERO ───────────────────────────────────────────── */
-    .hero{display:block;padding:clamp(var(--space-10),6vw,var(--space-20)) clamp(var(--space-4),4vw,var(--space-12));position:relative;overflow:hidden}
-    .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 60% 50%,color-mix(in oklab,var(--color-primary) 12%,transparent),transparent),radial-gradient(ellipse 50% 40% at 20% 80%,color-mix(in oklab,var(--color-accent) 8%,transparent),transparent);pointer-events:none}
-    .hero-bg-grid{position:absolute;inset:0;background-image:linear-gradient(var(--color-border) 1px,transparent 1px),linear-gradient(90deg,var(--color-border) 1px,transparent 1px);background-size:60px 60px;opacity:.25;pointer-events:none}
-    .hero-inner{max-width:960px;margin:0 auto;text-align:center;position:relative;z-index:1;display:grid;gap:var(--space-8)}
-    .eyebrow{display:inline-flex;align-items:center;gap:var(--space-2);padding:.45rem .9rem;border-radius:var(--radius-full);background:var(--color-primary-light);color:var(--color-primary);font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin:0 auto}
-    [data-theme="light"] .eyebrow{color:color-mix(in oklab,var(--color-primary) 160%,white)}
-    .hero h1{font-size:var(--text-hero);font-weight:800;letter-spacing:.02em;line-height:1;max-width:14ch;margin:0 auto}
-    .hero h1 em{font-style:normal;color:var(--color-primary)}
-    .hero-sub{font-size:var(--text-lg);color:var(--color-text-muted);max-width:52ch;margin:0 auto;line-height:1.5}
-    .hero-ctas{display:flex;flex-wrap:wrap;gap:var(--space-3);justify-content:center;align-items:center}
-    .hero-trust{display:flex;flex-wrap:wrap;gap:var(--space-4);justify-content:center;align-items:center}
-    .trust-pill{display:inline-flex;align-items:center;gap:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)}
-    .trust-dot{width:6px;height:6px;border-radius:99px;background:var(--color-primary);flex:none}
+    /* logo */
+    .logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .wordmark{font-family:var(--font-display);font-weight:800;font-size:1.45rem;letter-spacing:.01em;line-height:1}
 
-    /* ── LISTING CARDS ──────────────────────────────────── */
-    .section{padding:clamp(var(--space-16),8vw,var(--space-24)) clamp(var(--space-4),4vw,var(--space-12))}
-    .section-inner{max-width:1200px;margin:0 auto}
-    .section-label{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.14em;color:var(--color-text-faint);font-weight:600;margin-bottom:var(--space-3)}
-    .section h2{font-size:var(--text-2xl);font-weight:800;letter-spacing:.02em;margin-bottom:var(--space-4)}
-    .section-sub{font-size:var(--text-lg);color:var(--color-text-muted);max-width:52ch;margin-bottom:var(--space-10);line-height:1.5}
-    .listings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-5)}
-    .listing-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);overflow:hidden;transition:all var(--transition);cursor:pointer}
-    .listing-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:color-mix(in oklab,var(--color-primary) 30%,var(--color-border))}
-    .card-media{aspect-ratio:16/10;position:relative;overflow:hidden}
-    .card-media-hunt-1{background:linear-gradient(160deg,#2a4a30 0%,#4a7040 50%,#6b5a30 100%)}
-    .card-media-hunt-2{background:linear-gradient(160deg,#1e3528 0%,#3a5535 50%,#8a6840 100%)}
-    .card-media-hunt-3{background:linear-gradient(160deg,#2e4a20 0%,#4f7540 60%,#7a5c28 100%)}
-    .card-media-fish-1{background:linear-gradient(160deg,#0d2840 0%,#1a5878 50%,#2a90b0 100%)}
-    .card-media-fish-2{background:linear-gradient(160deg,#0a1e30 0%,#154060 50%,#2070a0 100%)}
-    .card-media::before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.45),transparent 60%)}
-    .card-media-fish-1::after,.card-media-fish-2::after{content:"";position:absolute;left:10%;right:10%;bottom:20%;height:18%;background:rgba(100,200,255,.15);border-radius:50%;filter:blur(8px)}
-    .card-media-hunt-1::after,.card-media-hunt-2::after,.card-media-hunt-3::after{content:"";position:absolute;left:15%;right:15%;bottom:10%;height:22%;background:rgba(255,255,255,.08);clip-path:polygon(0 100%,10% 60%,22% 80%,40% 30%,58% 55%,76% 20%,90% 40%,100% 100%)}
-    .card-price{position:absolute;top:.8rem;left:.8rem;padding:.35rem .7rem;border-radius:var(--radius-full);background:rgba(10,12,8,.75);color:#f0ece0;font-size:var(--text-xs);font-weight:700;backdrop-filter:blur(8px)}
-    .card-type{position:absolute;bottom:.8rem;left:.8rem;padding:.3rem .65rem;border-radius:var(--radius-full);font-size:var(--text-xs);font-weight:600;backdrop-filter:blur(8px)}
-    .card-type-hunt{background:rgba(42,92,60,.82);color:#c8e4d0}
-    .card-type-fish{background:rgba(26,92,122,.82);color:#bde3f5}
-    .card-save{position:absolute;top:.8rem;right:.8rem;width:34px;height:34px;border-radius:var(--radius-full);background:rgba(10,12,8,.5);color:#f0ece0;display:grid;place-items:center;font-size:1rem;transition:all var(--transition)}
-    .card-save:hover{background:var(--color-accent)}
-    .card-body{padding:var(--space-4)}
-    .card-body h3{font-size:1.05rem;font-weight:700;margin-bottom:var(--space-1)}
-    .card-meta{display:flex;flex-wrap:wrap;gap:.4rem;font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2)}
-    .card-meta span{display:flex;align-items:center;gap:.25rem}
-    .card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--color-divider)}
-    .card-rating{display:flex;align-items:center;gap:.3rem;font-size:var(--text-xs);font-weight:600}
-    .card-state{font-size:var(--text-xs);color:var(--color-text-faint);padding:.3rem .65rem;background:var(--color-surface-offset);border-radius:var(--radius-full)}
-    .verified-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:var(--text-xs);color:var(--color-primary);font-weight:600}
+    /* search pill — center of nav like Airbnb */
+    .nav-search{
+      flex:1;max-width:480px;
+      display:flex;align-items:center;
+      border:1.5px solid var(--border);border-radius:var(--r-full);
+      background:var(--surface);
+      box-shadow:var(--shadow-sm);
+      overflow:hidden;
+      cursor:pointer;
+      transition:box-shadow .2s,border-color .2s;
+    }
+    .nav-search:hover{box-shadow:var(--shadow-md);border-color:#ccc}
+    .ns-pill{
+      flex:1;padding:10px 18px;
+      font-size:.875rem;font-weight:600;color:var(--text);
+      border-right:1.5px solid var(--border);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .ns-pill:last-of-type{border-right:none}
+    .ns-pill span{display:block;font-size:.7rem;color:var(--muted);font-weight:400}
+    .ns-btn{
+      width:40px;height:40px;margin:5px;border-radius:var(--r-full);
+      background:var(--green);color:#fff;
+      display:grid;place-items:center;flex-shrink:0;
+      transition:background .15s;
+    }
+    .ns-btn:hover{background:var(--green-dk)}
 
-    /* ── STATS BAR ──────────────────────────────────────── */
-    .stats-bar{background:var(--color-primary);color:#fff;padding:clamp(var(--space-8),4vw,var(--space-12)) clamp(var(--space-4),4vw,var(--space-12))}
-    .stats-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--space-8);text-align:center}
-    .stat-num{font-family:var(--font-display);font-size:var(--text-2xl);font-weight:800;letter-spacing:.02em;display:block;margin-bottom:.2rem;color:#fff}
-    .stat-label{font-size:var(--text-sm);opacity:.8}
+    /* nav right */
+    .nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+    .nav-link{padding:10px 14px;border-radius:var(--r-full);font-size:.875rem;font-weight:600;color:var(--muted);white-space:nowrap;transition:background .15s,color .15s}
+    .nav-link:hover{background:var(--divider);color:var(--text)}
+    .nav-link.amber{color:var(--amber)}
+    .nav-cta{
+      display:flex;align-items:center;gap:8px;
+      padding:8px 10px 8px 16px;
+      border:1.5px solid var(--border);border-radius:var(--r-full);
+      background:var(--surface);font-size:.875rem;font-weight:600;
+      box-shadow:var(--shadow-sm);transition:box-shadow .15s;
+    }
+    .nav-cta:hover{box-shadow:var(--shadow-md)}
+    .nav-avatar{width:32px;height:32px;border-radius:50%;background:var(--green);display:grid;place-items:center;color:#fff;font-size:.8rem;font-weight:700;flex-shrink:0}
+    .nav-ham{display:none}
 
-    /* ── FINAL CTA ──────────────────────────────────────── */
-    .final-cta{padding:clamp(var(--space-20),10vw,var(--space-32)) clamp(var(--space-4),4vw,var(--space-12));text-align:center;background:radial-gradient(ellipse 70% 60% at 50% 50%,color-mix(in oklab,var(--color-primary) 12%,transparent),transparent)}
-    .final-cta h2{font-size:var(--text-3xl);font-weight:800;letter-spacing:-.05em;margin-bottom:var(--space-4)}
-    .final-cta p{font-size:var(--text-lg);color:var(--color-text-muted);max-width:48ch;margin:0 auto var(--space-8)}
-    .final-ctas{display:flex;flex-wrap:wrap;gap:var(--space-3);justify-content:center}
+    /* ─────────────────────────────────────────────
+       HERO — full-bleed, photo-style gradient like Airbnb
+    ───────────────────────────────────────────── */
+    .hero{
+      position:relative;
+      min-height:580px;
+      display:flex;align-items:center;
+      overflow:hidden;
+      padding:60px 24px 80px;
+    }
+    .hero-bg{
+      position:absolute;inset:0;
+      background:
+        linear-gradient(135deg,#1a2e1a 0%,#2d4a1e 30%,#3d5e28 55%,#6b5220 80%,#4a3810 100%);
+    }
+    /* texture overlay */
+    .hero-bg::after{
+      content:'';position:absolute;inset:0;
+      background:
+        radial-gradient(ellipse 60% 80% at 70% 50%,rgba(193,127,58,.18),transparent),
+        radial-gradient(ellipse 40% 60% at 10% 90%,rgba(26,107,122,.15),transparent),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+    }
+    /* foreground silhouette tree line */
+    .hero-trees{
+      position:absolute;bottom:0;left:0;right:0;height:160px;
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 160' preserveAspectRatio='none'%3E%3Cpath d='M0,160 L0,100 Q20,60 40,90 Q55,40 70,70 Q85,20 100,55 Q115,0 130,40 Q145,10 160,50 Q175,20 190,60 Q210,30 230,70 Q250,0 270,45 Q285,15 300,55 Q315,5 330,50 Q345,20 360,60 Q380,10 400,55 Q420,0 440,45 Q460,20 480,65 Q495,30 510,70 Q525,5 540,50 Q560,25 580,65 Q600,10 620,55 Q645,0 665,48 Q685,15 705,60 Q725,5 745,52 Q765,20 785,65 Q805,0 825,50 Q845,25 865,70 Q885,10 905,55 Q925,0 945,48 Q965,20 985,65 Q1005,5 1025,55 Q1050,15 1075,60 Q1100,0 1125,50 Q1145,20 1165,65 Q1185,10 1205,55 Q1225,0 1250,48 Q1270,20 1295,65 Q1315,0 1340,50 Q1360,20 1380,60 Q1400,10 1420,55 L1440,60 L1440,160 Z' fill='%23111810' opacity='0.85'/%3E%3C/svg%3E");
+      background-size:100% 100%;
+      pointer-events:none;
+    }
 
-    /* ── FOOTER ─────────────────────────────────────────── */
-    footer{padding:clamp(var(--space-10),5vw,var(--space-16)) clamp(var(--space-4),4vw,var(--space-12));border-top:1px solid var(--color-divider)}
-    .footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:clamp(var(--space-8),4vw,var(--space-16))}
-    .footer-brand p{font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-3);max-width:28ch}
-    .footer-col h4{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.12em;color:var(--color-text-faint);margin-bottom:var(--space-4);font-weight:700}
-    .footer-col ul{display:grid;gap:var(--space-2);list-style:none}
-    .footer-col li a{font-size:var(--text-sm);color:var(--color-text-muted);transition:color var(--transition)}
-    .footer-col li a:hover{color:var(--color-text)}
-    .footer-bottom{max-width:1200px;margin:var(--space-8) auto 0;padding-top:var(--space-6);border-top:1px solid var(--color-divider);display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;font-size:var(--text-xs);color:var(--color-text-faint)}
+    .hero-content{
+      position:relative;z-index:2;
+      max-width:640px;
+    }
+    .hero-eyebrow{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:5px 12px;border-radius:var(--r-full);
+      background:rgba(193,127,58,.25);border:1px solid rgba(193,127,58,.4);
+      font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+      color:#f0c878;margin-bottom:20px;
+    }
+    .hero h1{
+      font-size:clamp(2.6rem,5.5vw,4.2rem);
+      font-weight:700;letter-spacing:.01em;
+      color:#fff;line-height:1.08;
+      margin-bottom:20px;
+    }
+    .hero h1 em{font-style:normal;color:#c17f3a}
+    .hero-sub{
+      font-size:1.05rem;color:rgba(255,255,255,.78);
+      line-height:1.6;margin-bottom:32px;max-width:48ch;
+    }
 
-    /* ── RESPONSIVE ─────────────────────────────────────── */
+    /* search bar inside hero (mobile only, desktop uses nav) */
+    .hero-search{
+      background:var(--surface);border-radius:var(--r-xl);
+      box-shadow:var(--shadow-lg);overflow:hidden;
+      display:none; /* shown only on mobile */
+    }
+    .hs-row{
+      display:flex;align-items:center;
+      padding:14px 18px;gap:12px;
+      border-bottom:1px solid var(--divider);
+      cursor:pointer;
+    }
+    .hs-row:last-child{border-bottom:none}
+    .hs-icon{width:36px;height:36px;border-radius:50%;background:var(--surface2);display:grid;place-items:center;flex-shrink:0}
+    .hs-label{flex:1}
+    .hs-label strong{display:block;font-size:.875rem;font-weight:700}
+    .hs-label span{font-size:.8rem;color:var(--muted)}
+
+    /* hero CTA buttons (desktop) */
+    .hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+    .btn-hero-primary{
+      padding:14px 28px;border-radius:var(--r-full);
+      background:var(--green);color:#fff;
+      font-size:1rem;font-weight:700;
+      box-shadow:0 4px 20px rgba(45,90,39,.4);
+      transition:background .15s,transform .15s;
+      white-space:nowrap;
+    }
+    .btn-hero-primary:hover{background:var(--green-dk);transform:translateY(-1px)}
+    .btn-hero-secondary{
+      padding:14px 28px;border-radius:var(--r-full);
+      background:rgba(255,255,255,.15);color:#fff;
+      border:1.5px solid rgba(255,255,255,.35);
+      font-size:1rem;font-weight:700;
+      backdrop-filter:blur(6px);
+      transition:background .15s;
+      white-space:nowrap;
+    }
+    .btn-hero-secondary:hover{background:rgba(255,255,255,.25)}
+
+    /* hero trust badges */
+    .hero-trust{
+      display:flex;flex-wrap:wrap;gap:16px;margin-top:28px;
+    }
+    .trust-badge{
+      display:flex;align-items:center;gap:7px;
+      font-size:.78rem;color:rgba(255,255,255,.65);font-weight:600;
+    }
+    .trust-badge svg{color:rgba(193,127,58,.9)}
+
+    /* ─────────────────────────────────────────────
+       CATEGORY PILLS (below hero — Airbnb style)
+    ───────────────────────────────────────────── */
+    .categories{
+      background:var(--surface);
+      border-bottom:1px solid var(--border);
+      position:sticky;top:var(--nav-h);z-index:100;
+    }
+    .cat-inner{
+      max-width:1280px;margin:0 auto;
+      padding:0 24px;
+      display:flex;gap:0;overflow-x:auto;
+      scrollbar-width:none;-ms-overflow-style:none;
+    }
+    .cat-inner::-webkit-scrollbar{display:none}
+    .cat-pill{
+      display:flex;flex-direction:column;align-items:center;gap:6px;
+      padding:14px 20px;
+      border-bottom:2px solid transparent;
+      color:var(--muted);font-size:.75rem;font-weight:600;
+      white-space:nowrap;cursor:pointer;
+      transition:color .15s,border-color .15s;
+      flex-shrink:0;
+    }
+    .cat-pill:hover{color:var(--text);border-color:var(--faint)}
+    .cat-pill.active{color:var(--text);border-color:var(--text)}
+    .cat-pill svg,.cat-pill .cat-icon{color:inherit}
+
+    /* ─────────────────────────────────────────────
+       MAIN LAYOUT — two-column (listings + map)
+    ───────────────────────────────────────────── */
+    .main-layout{
+      max-width:1280px;margin:0 auto;
+      display:grid;
+      grid-template-columns:1fr 480px;
+      gap:0;
+      padding:0;
+      min-height:calc(100vh - var(--nav-h));
+    }
+
+    /* LEFT COLUMN — listing grid */
+    .listings-col{
+      padding:32px 24px 40px;
+      border-right:1px solid var(--border);
+    }
+    .listings-count{
+      font-size:.875rem;color:var(--muted);margin-bottom:20px;
+    }
+    .listings-count strong{color:var(--text)}
+
+    .cards-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+      gap:24px;
+    }
+
+    /* CARD */
+    .card{
+      border-radius:var(--r-lg);
+      overflow:hidden;
+      cursor:pointer;
+      transition:transform .2s,box-shadow .2s;
+      background:var(--surface);
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+    .card-img{
+      position:relative;
+      aspect-ratio:4/3;
+      overflow:hidden;
+    }
+    /* Gradient photo backgrounds */
+    .bg-hunt-1{background:linear-gradient(145deg,#1e3520 0%,#2d5228 40%,#4a7835 65%,#7a6030 100%)}
+    .bg-hunt-2{background:linear-gradient(145deg,#162a18 0%,#253e1e 40%,#3d6030 65%,#8a6a38 100%)}
+    .bg-hunt-3{background:linear-gradient(145deg,#1a2e10 0%,#2a4820 45%,#4a7030 65%,#704e20 100%)}
+    .bg-fish-1{background:linear-gradient(145deg,#0a1e30 0%,#144060 40%,#1a6b7a 70%,#2590b0 100%)}
+    .bg-fish-2{background:linear-gradient(145deg,#081828 0%,#103450 40%,#175e72 70%,#1e80a0 100%)}
+    /* subtle scene elements */
+    .card-img::before{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(to top,rgba(0,0,0,.5) 0%,rgba(0,0,0,.1) 50%,transparent 100%);
+    }
+    .card-img-scene{
+      position:absolute;bottom:0;left:0;right:0;height:45%;
+      opacity:.55;
+    }
+    .card-img-scene-hunt{
+      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 80' preserveAspectRatio='none'%3E%3Cpath d='M0,80 L0,50 Q16,30 32,48 Q44,15 56,40 Q70,5 84,35 Q96,20 108,45 Q120,0 136,30 Q150,15 164,42 Q180,5 196,35 Q212,0 228,38 Q244,15 260,42 Q276,5 292,35 Q305,20 320,40 L320,80Z' fill='%23111'/3E%3C/svg%3E") no-repeat bottom/cover;
+    }
+    .card-img-scene-fish{
+      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 80' preserveAspectRatio='none'%3E%3Cellipse cx='160' cy='60' rx='200' ry='40' fill='rgba(100,200,240,.12)'/%3E%3Cellipse cx='80' cy='65' rx='100' ry='28' fill='rgba(100,200,240,.08)'/%3E%3C/svg%3E") no-repeat bottom/cover;
+    }
+
+    /* save button */
+    .card-save{
+      position:absolute;top:12px;right:12px;z-index:2;
+      width:32px;height:32px;border-radius:50%;
+      background:rgba(0,0,0,.3);backdrop-filter:blur(4px);
+      display:grid;place-items:center;
+      transition:background .15s,transform .15s;
+      border:none;cursor:pointer;
+    }
+    .card-save:hover{background:rgba(0,0,0,.5);transform:scale(1.1)}
+    .card-save svg{pointer-events:none}
+
+    /* type chip */
+    .card-chip{
+      position:absolute;bottom:10px;left:10px;z-index:2;
+      padding:4px 10px;border-radius:var(--r-full);
+      font-size:.7rem;font-weight:700;letter-spacing:.04em;
+      backdrop-filter:blur(8px);
+    }
+    .chip-hunt{background:rgba(45,90,39,.85);color:#b8dfc0}
+    .chip-fish{background:rgba(26,107,122,.85);color:#b0e0f0}
+
+    /* rating badge top-left */
+    .card-rating-badge{
+      position:absolute;top:10px;left:10px;z-index:2;
+      display:flex;align-items:center;gap:4px;
+      padding:3px 8px;border-radius:var(--r-full);
+      background:rgba(0,0,0,.45);backdrop-filter:blur(6px);
+      font-size:.7rem;font-weight:700;color:#fff;
+    }
+
+    .card-body{padding:14px 16px 16px}
+    .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px}
+    .card-title{font-family:var(--font-display);font-size:1rem;font-weight:600;color:var(--text);line-height:1.2}
+    .card-price-inline{font-size:.875rem;font-weight:700;color:var(--text);white-space:nowrap}
+    .card-price-inline span{font-weight:400;color:var(--muted)}
+    .card-location{font-size:.8rem;color:var(--muted);margin-bottom:6px}
+    .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+    .card-tag{
+      padding:2px 8px;border-radius:var(--r-full);
+      font-size:.68rem;font-weight:600;
+      background:var(--surface2);border:1px solid var(--border);
+      color:var(--muted);
+    }
+    .card-footer-row{
+      display:flex;align-items:center;justify-content:space-between;
+      padding-top:10px;border-top:1px solid var(--divider);
+      font-size:.78rem;
+    }
+    .card-verified{display:flex;align-items:center;gap:4px;color:var(--green);font-weight:600}
+    .card-acreage{color:var(--muted)}
+
+    /* RIGHT COLUMN — sticky map */
+    .map-col{
+      position:sticky;
+      top:calc(var(--nav-h) + 49px); /* below categories bar */
+      height:calc(100vh - var(--nav-h) - 49px);
+      overflow:hidden;
+    }
+    #hunt-map{width:100%;height:100%}
+    .map-filter-bar{
+      position:absolute;top:12px;left:50%;transform:translateX(-50%);
+      z-index:500;display:flex;gap:6px;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r-full);padding:4px;
+      box-shadow:var(--shadow-md);
+    }
+    .mf-btn{
+      padding:6px 16px;border-radius:var(--r-full);
+      font-size:.78rem;font-weight:700;
+      transition:background .15s,color .15s;
+      color:var(--muted);
+    }
+    .mf-btn.active{background:var(--text);color:#fff}
+    .mf-btn:hover:not(.active){background:var(--surface2)}
+
+    /* ─────────────────────────────────────────────
+       SOCIAL PROOF STRIP
+    ───────────────────────────────────────────── */
+    .proof-strip{
+      background:var(--green);
+      padding:40px 24px;
+    }
+    .proof-inner{
+      max-width:1280px;margin:0 auto;
+      display:grid;grid-template-columns:repeat(4,1fr);
+      gap:24px;text-align:center;
+    }
+    .proof-num{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:#fff;display:block;margin-bottom:4px}
+    .proof-lbl{font-size:.85rem;color:rgba(255,255,255,.7)}
+
+    /* ─────────────────────────────────────────────
+       HOW IT WORKS
+    ───────────────────────────────────────────── */
+    .section{padding:64px 24px;max-width:1280px;margin:0 auto}
+    .section-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+    .section h2{font-size:clamp(1.8rem,3vw,2.6rem);font-weight:700;letter-spacing:.02em;margin-bottom:12px}
+    .section-sub{font-size:1rem;color:var(--muted);max-width:52ch;line-height:1.65;margin-bottom:40px}
+
+    .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+    .step{text-align:center}
+    .step-num{
+      width:52px;height:52px;border-radius:50%;
+      background:var(--green-lt);color:var(--green);
+      font-family:var(--font-display);font-size:1.3rem;font-weight:700;
+      display:grid;place-items:center;margin:0 auto 16px;
+    }
+    .step h3{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+    .step p{font-size:.875rem;color:var(--muted);line-height:1.6}
+
+    /* ─────────────────────────────────────────────
+       TESTIMONIALS
+    ───────────────────────────────────────────── */
+    .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+    .testi{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r-xl);padding:24px;
+    }
+    .testi-stars{color:var(--amber);font-size:1rem;margin-bottom:14px;letter-spacing:2px}
+    .testi p{font-size:.9rem;line-height:1.7;color:var(--text);margin-bottom:18px}
+    .testi-author{display:flex;align-items:center;gap:10px}
+    .testi-avatar{
+      width:40px;height:40px;border-radius:50%;
+      display:grid;place-items:center;font-weight:700;font-size:.85rem;color:#fff;
+      flex-shrink:0;
+    }
+    .testi-author strong{display:block;font-size:.875rem}
+    .testi-author span{font-size:.75rem;color:var(--muted)}
+
+    /* ─────────────────────────────────────────────
+       LANDOWNER CTA SPLIT
+    ───────────────────────────────────────────── */
+    .split-cta{
+      display:grid;grid-template-columns:1fr 1fr;
+      gap:0;overflow:hidden;
+      border-radius:var(--r-xl);
+      border:1px solid var(--border);
+      margin:0 24px 64px;
+      max-width:1232px;
+      margin-left:auto;margin-right:auto;
+    }
+    .split-panel{padding:52px 48px}
+    .split-panel.green-panel{background:var(--green);color:#fff}
+    .split-panel.water-panel{background:var(--water);color:#fff}
+    .split-panel h2{font-size:clamp(1.5rem,2.5vw,2.1rem);font-weight:700;margin-bottom:12px}
+    .split-panel p{font-size:.95rem;opacity:.82;line-height:1.65;margin-bottom:28px}
+    .split-btn{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:12px 24px;border-radius:var(--r-full);
+      background:#fff;font-size:.9rem;font-weight:700;
+      transition:opacity .15s;
+    }
+    .split-btn.green-btn{color:var(--green)}
+    .split-btn.water-btn{color:var(--water)}
+    .split-btn:hover{opacity:.9}
+
+    /* ─────────────────────────────────────────────
+       WAITLIST EMAIL STRIP
+    ───────────────────────────────────────────── */
+    .email-strip{
+      background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+      padding:56px 24px;text-align:center;
+    }
+    .email-strip h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;margin-bottom:10px}
+    .email-strip p{font-size:1rem;color:var(--muted);margin-bottom:28px}
+    .email-form{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;max-width:480px;margin:0 auto}
+    .email-input{
+      flex:1;min-width:220px;
+      padding:13px 18px;border:1.5px solid var(--border);border-radius:var(--r-full);
+      background:var(--surface);font-size:.9rem;outline:none;
+      transition:border-color .15s;
+    }
+    .email-input:focus{border-color:var(--green)}
+    .email-btn{
+      padding:13px 24px;border-radius:var(--r-full);
+      background:var(--green);color:#fff;font-size:.9rem;font-weight:700;
+      white-space:nowrap;transition:background .15s;
+    }
+    .email-btn:hover{background:var(--green-dk)}
+
+    /* ─────────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────────── */
+    footer{
+      background:var(--surface);border-top:1px solid var(--border);
+      padding:48px 24px 24px;
+    }
+    .footer-inner{
+      max-width:1280px;margin:0 auto;
+      display:grid;grid-template-columns:1.6fr repeat(3,1fr);
+      gap:40px;margin-bottom:40px;
+    }
+    .footer-brand p{font-size:.85rem;color:var(--muted);margin-top:12px;line-height:1.65;max-width:26ch}
+    .footer-socials{display:flex;gap:14px;margin-top:20px}
+    .footer-socials a{color:var(--faint);transition:color .15s}
+    .footer-socials a:hover{color:var(--text)}
+    .footer-col h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);font-weight:700;margin-bottom:14px}
+    .footer-col ul{list-style:none;display:grid;gap:10px}
+    .footer-col a{font-size:.875rem;color:var(--muted);transition:color .15s}
+    .footer-col a:hover{color:var(--text)}
+    .footer-bottom{
+      max-width:1280px;margin:0 auto;
+      padding-top:20px;border-top:1px solid var(--divider);
+      display:flex;align-items:center;justify-content:space-between;
+      flex-wrap:wrap;gap:12px;font-size:.8rem;color:var(--faint);
+    }
+    .footer-bottom-links{display:flex;gap:20px}
+    .footer-bottom-links a{color:var(--faint);transition:color .15s}
+    .footer-bottom-links a:hover{color:var(--text)}
+
+    /* ─────────────────────────────────────────────
+       MODALS
+    ───────────────────────────────────────────── */
+    .modal-backdrop{
+      display:none;position:fixed;inset:0;z-index:900;
+      background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
+      align-items:center;justify-content:center;padding:16px;
+    }
+    .modal-backdrop.open{display:flex}
+    .modal{
+      background:var(--surface);border-radius:var(--r-xl);
+      padding:36px 32px;width:100%;max-width:440px;
+      box-shadow:var(--shadow-lg);position:relative;
+      max-height:90vh;overflow-y:auto;
+    }
+    .modal-close{
+      position:absolute;top:14px;right:14px;
+      width:32px;height:32px;border-radius:50%;
+      background:var(--surface2);border:1px solid var(--border);
+      display:grid;place-items:center;
+      font-size:1rem;color:var(--muted);cursor:pointer;
+    }
+    .modal-close:hover{background:var(--divider)}
+    .modal h2{font-size:1.4rem;font-weight:700;margin-bottom:6px}
+    .modal-sub{font-size:.875rem;color:var(--muted);margin-bottom:24px;line-height:1.5}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+    .form-field{margin-bottom:12px}
+    .form-field label{display:block;font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+    .form-field input{
+      width:100%;padding:11px 14px;
+      border:1.5px solid var(--border);border-radius:var(--r-md);
+      background:var(--bg);font-size:.9rem;outline:none;
+      transition:border-color .15s;
+    }
+    .form-field input:focus{border-color:var(--green)}
+    .btn-submit{
+      width:100%;padding:13px;border-radius:var(--r-full);
+      background:var(--green);color:#fff;font-size:1rem;font-weight:700;
+      margin-top:8px;transition:background .15s;
+    }
+    .btn-submit:hover{background:var(--green-dk)}
+    .btn-submit:disabled{opacity:.6;cursor:not-allowed}
+    .modal-note{font-size:.75rem;color:var(--faint);text-align:center;margin-top:12px}
+    .modal-success{display:none;text-align:center;padding:20px 0}
+    .success-icon{
+      width:60px;height:60px;border-radius:50%;
+      background:var(--green-lt);display:grid;place-items:center;
+      margin:0 auto 16px;
+    }
+
+    /* ─────────────────────────────────────────────
+       MOBILE BOTTOM NAV BAR
+    ───────────────────────────────────────────── */
+    .mob-bar{
+      display:none;
+      position:fixed;bottom:0;left:0;right:0;z-index:300;
+      height:var(--mob-bar);
+      background:var(--surface);
+      border-top:1px solid var(--border);
+      box-shadow:0 -4px 20px rgba(0,0,0,.08);
+    }
+    .mob-bar-inner{
+      display:flex;align-items:stretch;height:100%;
+    }
+    .mob-tab{
+      flex:1;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;gap:4px;
+      font-size:.62rem;font-weight:600;color:var(--muted);
+      cursor:pointer;transition:color .15s;
+      border:none;background:none;
+      padding:8px 4px 10px;
+    }
+    .mob-tab.active{color:var(--green)}
+    .mob-tab svg{flex-shrink:0}
+
+    /* ─────────────────────────────────────────────
+       MOBILE SEARCH SHEET
+    ───────────────────────────────────────────── */
+    .search-sheet{
+      display:none;position:fixed;inset:0;z-index:400;
+      background:var(--surface);
+      flex-direction:column;
+    }
+    .search-sheet.open{display:flex}
+    .ss-header{
+      display:flex;align-items:center;gap:12px;
+      padding:14px 16px;border-bottom:1px solid var(--border);
+    }
+    .ss-back{
+      width:36px;height:36px;border-radius:50%;
+      background:var(--surface2);border:1px solid var(--border);
+      display:grid;place-items:center;flex-shrink:0;cursor:pointer;
+    }
+    .ss-title{font-family:var(--font-display);font-weight:700;font-size:1.05rem}
+    .ss-body{flex:1;overflow-y:auto;padding:16px}
+    .ss-section-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--faint);margin-bottom:10px}
+    .ss-option{
+      display:flex;align-items:center;gap:14px;
+      padding:14px 12px;border-radius:var(--r-md);
+      cursor:pointer;transition:background .15s;border:none;background:none;width:100%;text-align:left;
+    }
+    .ss-option:hover{background:var(--surface2)}
+    .ss-option-icon{
+      width:44px;height:44px;border-radius:var(--r-md);
+      display:grid;place-items:center;flex-shrink:0;
+    }
+    .ss-option strong{display:block;font-size:.9rem;font-weight:700;margin-bottom:2px}
+    .ss-option span{font-size:.78rem;color:var(--muted)}
+    .ss-cta{
+      padding:14px 16px;border-top:1px solid var(--border);
+    }
+    .ss-go-btn{
+      width:100%;padding:14px;border-radius:var(--r-full);
+      background:var(--green);color:#fff;font-size:1rem;font-weight:700;
+    }
+
+    /* ─────────────────────────────────────────────
+       MOBILE OVERRIDES  (≤ 900px)
+    ───────────────────────────────────────────── */
     @media(max-width:900px){
-      .nav-links{display:none}
-      .mobile-menu-btn{display:grid}
-      .nav-actions .btn-ghost,.nav-actions .btn-primary,.nav-actions .btn-accent{display:none!important}
-      .nav-links.nav-open .nav-mob-cta{display:block}
-      .nav-links.nav-open .nav-divider{display:block;width:100%;height:1px;background:var(--color-border);margin:var(--space-2) 0}
-    .nav-links.nav-open{display:flex!important;flex-direction:column;align-items:flex-start;position:absolute;top:100%;left:0;right:0;background:var(--color-bg);border-bottom:1px solid var(--color-border);padding:var(--space-4) clamp(var(--space-4),4vw,var(--space-12));gap:var(--space-4);z-index:99;}
-    .nav-links.nav-open a{font-size:var(--text-base);padding:var(--space-2) 0;}
+      /* nav — simpler mobile nav */
+      .nav-search,.nav-right .nav-link,.nav-right .nav-cta{display:none}
+      .nav-ham{
+        display:grid;place-items:center;
+        width:40px;height:40px;border-radius:50%;
+        border:1.5px solid var(--border);color:var(--muted);
+        cursor:pointer;
+      }
+      .nav-inner{padding:0 16px}
+
+      /* hero */
+      .hero{min-height:auto;padding:36px 16px 60px}
+      .hero h1{font-size:2.1rem}
+      .hero-btns{display:none}
+      .hero-trust{gap:10px;margin-top:20px}
+      .hero-search{display:block;margin-top:24px}
+
+      /* categories */
+      .categories{top:var(--nav-h)}
+      .cat-inner{padding:0 12px}
+      .cat-pill{padding:10px 14px;font-size:.7rem}
+
+      /* layout — single column */
+      .main-layout{grid-template-columns:1fr}
+      .map-col{display:none}
+      .listings-col{padding:20px 16px 100px;border-right:none}
+      .cards-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+
+      /* proof strip */
+      .proof-inner{grid-template-columns:repeat(2,1fr)}
+
+      /* steps */
+      .steps-grid{grid-template-columns:1fr;gap:24px}
+
+      /* testimonials */
+      .testi-grid{grid-template-columns:1fr}
+
+      /* split CTA */
+      .split-cta{grid-template-columns:1fr;margin:0 16px 48px}
+      .split-panel{padding:36px 28px}
+
+      /* footer */
       .footer-inner{grid-template-columns:1fr 1fr}
+
+      /* bottom bar */
+      .mob-bar{display:flex}
+
+      /* section padding */
+      .section{padding:40px 16px}
     }
+
     @media(max-width:540px){
-      .hero{padding:var(--space-6) var(--space-4);margin-top:0}
-      .hero h1{font-size:clamp(2.2rem,9vw,3.5rem)}
-      .section{padding:clamp(var(--space-10),6vw,var(--space-16)) clamp(var(--space-4),4vw,var(--space-8))}
-      .stats-bar{padding:var(--space-6) var(--space-4)}
+      .cards-grid{grid-template-columns:1fr}
+      .proof-inner{grid-template-columns:1fr 1fr}
       .footer-inner{grid-template-columns:1fr}
+      .form-row{grid-template-columns:1fr}
+      .hero h1{font-size:1.9rem}
     }
 
-    /* ── SCROLL ANIMATIONS ──────────────────────────────── */
-    .fade-up{opacity:0;transform:translateY(24px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1)}
-    .fade-up.visible{opacity:1;transform:none}
-    .fade-up:nth-child(2){transition-delay:.1s}
-    .fade-up:nth-child(3){transition-delay:.2s}
-    .fade-up:nth-child(4){transition-delay:.3s}
-
-    /* ── FILTER BUTTONS ─────────────────────────────────── */
-    .card-filter-btn{padding:.4rem .9rem;border-radius:var(--radius-full);border:1px solid var(--color-border);background:transparent;color:var(--color-text-muted);font-size:var(--text-xs);font-weight:600;cursor:pointer;transition:all var(--transition)}
-    .card-filter-btn:hover{color:var(--color-text);background:var(--color-surface-offset)}
-    .card-filter-btn.active{background:var(--color-primary);color:#fff;border-color:var(--color-primary)}
-
-    /* ── MAP STYLES ─────────────────────────────────────── */
-    @keyframes spin { to { transform: rotate(360deg); } }
-    [data-theme="light"] #hunt-map .leaflet-tile { filter: brightness(0.75) saturate(0.8); }
-    .leaflet-popup-content-wrapper { border-radius: 12px !important; border: 1px solid var(--color-border); box-shadow: var(--shadow-lg) !important; }
-    .leaflet-popup-content { margin: 0 !important; }
-    .map-popup { padding: 14px 16px; min-width: 200px; }
-    .map-popup .pop-badge { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
-    .map-popup .pop-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #1a1a12; }
-    .map-popup .pop-meta { font-size: 12px; color: #6b6656; margin-bottom: 10px; }
-    .map-popup .pop-price { font-size: 18px; font-weight: 800; color: #2a5c3c; margin-bottom: 10px; }
-    .map-popup .pop-btn { display: block; width: 100%; text-align: center; padding: 8px; background: #2a5c3c; color: #fff; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
-    .map-popup .pop-btn.water { background: #1a5c7a; }
-
-    /* ── WAITLIST MODAL ─────────────────────────────────── */
-    .wl-toggle{display:flex;gap:0;border:1px solid var(--color-border);border-radius:var(--radius-full);overflow:hidden;margin-bottom:var(--space-5)}
-    .wl-toggle label{flex:1;text-align:center;padding:.6rem 1rem;font-size:var(--text-sm);font-weight:600;cursor:pointer;transition:all var(--transition);color:var(--color-text-muted);user-select:none}
-    .wl-toggle input{display:none}
-    .wl-toggle input:checked + label{background:var(--color-primary);color:#fff}
-    .wl-toggle label:hover{color:var(--color-text)}
-    .wl-toggle input:checked + label:hover{color:#fff}
+    /* ─────────────────────────────────────────────
+       ANIMATIONS
+    ───────────────────────────────────────────── */
+    .fade-up{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
+    .fade-up.in{opacity:1;transform:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(prefers-reduced-motion:reduce){.fade-up{opacity:1;transform:none}}
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav class="nav">
+  <!-- ══════════════════════════════════════════
+       NAV
+  ══════════════════════════════════════════ -->
+  <nav class="nav" id="main-nav">
     <div class="nav-inner">
-      <a href="index.html" class="logo" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-        <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Stylized W with leaf -->
+      <!-- Logo -->
+      <a href="index.html" class="logo">
+        <svg width="36" height="36" viewBox="0 0 38 38" fill="none">
           <polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
           <ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/>
         </svg>
-        <span style="font-family:var(--font-display);font-weight:800;font-size:1.55rem;letter-spacing:.01em;line-height:1"><span style="color:var(--color-text)">Lease</span><span style="color:#c17f3a;">Wild</span></span>
+        <span class="wordmark"><span style="color:var(--text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
       </a>
-      <div class="nav-links">
-        <a href="listings.html">Browse Land</a>
-        <a href="fishing.html">Fishing</a>
-        <a href="outfitters.html">Outfitters</a>
-        <a href="howitworks.html">How It Works</a>
-        <a href="pricing.html">Pricing</a>
-        <a href="about.html">About</a>
-        <span class="nav-divider"></span>
-        <a href="landowner-portal.html" class="nav-mob-cta" style="color:var(--color-text-muted);font-weight:600">Landowner Login</a>
-        <a href="demo.html" class="nav-mob-cta" style="color:var(--color-accent);font-weight:700">Demo</a>
-        <a href="javascript:void(0)" class="nav-mob-cta" onclick="openWaitlist('guest')" style="color:var(--color-primary);font-weight:700">Get early access</a>
-      </div>
-      <div class="nav-actions">
-        <button class="theme-btn" data-theme-toggle aria-label="Toggle theme">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+
+      <!-- Center search pill (desktop) -->
+      <div class="nav-search" onclick="openSearchSheet()">
+        <div class="ns-pill">
+          Where<span>Search properties</span>
+        </div>
+        <div class="ns-pill">
+          Check-in<span>Add dates</span>
+        </div>
+        <div class="ns-pill" style="border-right:none">
+          Type<span>Hunt · Fish · Any</span>
+        </div>
+        <button class="ns-btn" aria-label="Search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         </button>
-        <button class="btn btn-ghost" onclick="openWaitlist('guest')">Sign In</button>
-        <button class="btn btn-primary" onclick="openWaitlist('guest')">Get early access</button>
-                <a href="demo.html" class="btn btn-accent">Demo</a>
-        <button class="mobile-menu-btn" aria-label="Open menu">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </div>
+
+      <!-- Right side -->
+      <div class="nav-right">
+        <a href="list-your-land.html" class="nav-link">List your land</a>
+        <a href="landowner-portal.html" class="nav-link">Landowner Login</a>
+        <button class="nav-cta" onclick="openWaitlist()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+          <div class="nav-avatar">LW</div>
+        </button>
+        <!-- mobile ham -->
+        <button class="nav-ham" onclick="openSearchSheet()" aria-label="Search">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         </button>
       </div>
     </div>
   </nav>
 
-  <!-- HERO -->
+  <!-- ══════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════ -->
   <section class="hero">
     <div class="hero-bg"></div>
-    <div class="hero-bg-grid"></div>
-    <div class="hero-inner">
-      <div class="eyebrow">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg>
-        Coming to Florida
+    <div class="hero-trees"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>
+        Coming to Florida · Bookings open July 1, 2026
       </div>
-      <h1>Book <em>private land</em> &amp; waters for hunting &amp; fishing</h1>
-      <p class="hero-sub">Access private hunting ranches, bass ponds, spring creeks, and guided stays that aren't listed anywhere else. State regulations shown on every listing.</p>
-      <div class="hero-ctas">
-        <a href="listings.html" class="btn btn-primary btn-large" style="text-decoration:none">Browse available land</a>
-        <button class="btn btn-water btn-large" onclick="openWaitlist('guest')">Explore fishing access</button>
+      <h1>Private land.<br>Your <em>hunt.</em><br>Your <em>water.</em></h1>
+      <p class="hero-sub">Book exclusive access to private hunting ranches, bass ponds, and spring creeks across Florida — land that's never been open to the public.</p>
+
+      <!-- Desktop CTAs -->
+      <div class="hero-btns">
+        <button class="btn-hero-primary" onclick="document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})">Browse available land</button>
+        <button class="btn-hero-secondary" onclick="openWaitlist()">Get early access — free</button>
       </div>
+
+      <!-- Mobile search card -->
+      <div class="hero-search">
+        <button class="hs-row" onclick="openSearchSheet()" style="width:100%;text-align:left;background:none;border:none;cursor:pointer">
+          <div class="hs-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </div>
+          <div class="hs-label">
+            <strong>Where are you hunting?</strong>
+            <span>County · Activity · Dates</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <button class="hs-row" onclick="filterCards('hunt');document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})" style="width:100%;text-align:left;background:none;border:none;cursor:pointer">
+          <div class="hs-icon" style="background:#d6e8d3">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div class="hs-label">
+            <strong>Hunting land</strong>
+            <span>Deer · Hog · Turkey · Quail</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <button class="hs-row" onclick="filterCards('fish');document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})" style="width:100%;text-align:left;background:none;border:none;cursor:pointer">
+          <div class="hs-icon" style="background:#cde9ee">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--water)" stroke-width="2"><path d="M17.5 2H6.5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M8 10h8M8 14h5"/></svg>
+          </div>
+          <div class="hs-label">
+            <strong>Private fishing water</strong>
+            <span>Bass · Trout · Bream</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <!-- Trust badges -->
       <div class="hero-trust">
-        <span class="trust-pill"><span class="trust-dot"></span>Verified landowners</span>
-        <span class="trust-pill"><span class="trust-dot"></span>$1M liability coverage</span>
-        <span class="trust-pill"><span class="trust-dot"></span>Digital waivers included</span>
-        <span class="trust-pill"><span class="trust-dot"></span>State rules on every listing</span>
+        <div class="trust-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Verified landowners
+        </div>
+        <div class="trust-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          $1M liability coverage
+        </div>
+        <div class="trust-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Digital waivers included
+        </div>
+        <div class="trust-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Flexible cancellation
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- STATS BAR -->
-  <div class="stats-bar">
-    <div class="stats-grid">
-      <div><span class="stat-num">1,200+</span><span class="stat-label">Acres in early access</span></div>
-      <div><span class="stat-num">1</span><span class="stat-label">Launch state</span></div>
-      <div><span class="stat-num">$0</span><span class="stat-label">Cost to list your land</span></div>
-      <div><span class="stat-num">TBD</span><span class="stat-label">Launch — stay tuned</span></div>
+  <!-- ══════════════════════════════════════════
+       CATEGORY PILLS
+  ══════════════════════════════════════════ -->
+  <div class="categories">
+    <div class="cat-inner">
+      <button class="cat-pill active" data-filter="all" onclick="setCat(this,'all')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        All
+      </button>
+      <button class="cat-pill" data-filter="hunt" onclick="setCat(this,'hunt')">
+        <!-- deer silhouette -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3c0 0 1 2 1 4s-2 3-2 5 1 3 3 3h4c2 0 3-1 3-3s-2-3-2-5 1-4 1-4"/><path d="M6 3L4 1M18 3l2-1"/><circle cx="12" cy="18" r="1"/></svg>
+        Deer Hunting
+      </button>
+      <button class="cat-pill" data-filter="hunt" onclick="setCat(this,'hunt')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2c-4 2-6 6-5 10s4 7 5 7 4-3 5-7-1-8-5-10z"/><path d="M8 8l-4-2M16 8l4-2"/></svg>
+        Hog Hunting
+      </button>
+      <button class="cat-pill" data-filter="hunt" onclick="setCat(this,'hunt')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z"/></svg>
+        Turkey
+      </button>
+      <button class="cat-pill" data-filter="fish" onclick="setCat(this,'fish')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 12C6 8 9 4 12 2c3 2 6 6 6 10s-3 8-6 10c-3-2-6-6-6-10z"/><path d="M2 12h4M18 12h4"/></svg>
+        Bass Fishing
+      </button>
+      <button class="cat-pill" data-filter="fish" onclick="setCat(this,'fish')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12c0-5 4-9 9-9s9 4 9 9"/><path d="M3 12c0 5 4 9 9 9"/><path d="M17 16l4 4M17 20l4-4"/></svg>
+        Private Ponds
+      </button>
+      <button class="cat-pill" data-filter="hunt" onclick="setCat(this,'hunt')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="8" width="20" height="12" rx="2"/><path d="M8 8V5a4 4 0 0 1 8 0v3"/></svg>
+        Cabin Stays
+      </button>
+      <button class="cat-pill" data-filter="fish" onclick="setCat(this,'fish')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12c1-4 4-7 7-8l2 8-2 8c-3-1-6-4-7-8z"/><path d="M22 12c-1-4-4-7-7-8l-2 8 2 8c3-1 6-4 7-8z"/></svg>
+        Guided Fishing
+      </button>
+      <button class="cat-pill" data-filter="hunt" onclick="setCat(this,'hunt')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3"/><path d="M6 21v-2a6 6 0 0 1 12 0v2"/></svg>
+        Guided Hunts
+      </button>
     </div>
   </div>
 
-  <!-- LISTINGS -->
-  <section class="section" id="listings">
-    <div class="section-inner">
-      <p class="section-label">Available now</p>
-      <h2>Find your perfect property</h2>
-      <p class="section-sub">Hunting land and private fishing waters across the South. Day access, weekend bookings, and seasonal leases.</p>
+  <!-- ══════════════════════════════════════════
+       MAIN — LISTINGS + MAP
+  ══════════════════════════════════════════ -->
+  <div class="main-layout" id="listings-section">
+    <!-- LEFT: cards -->
+    <div class="listings-col">
+      <p class="listings-count"><strong id="listings-count-num">8 properties</strong> in Florida</p>
 
-      <!-- FILTER BAR -->
-      <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;margin-bottom:var(--space-8);padding:var(--space-4);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg)">
-        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap">
-          <button class="card-filter-btn active" data-filter="all" onclick="filterCards(this,'all')">All</button>
-          <button class="card-filter-btn" data-filter="hunt" onclick="filterCards(this,'hunt')">Hunting</button>
-          <button class="card-filter-btn" data-filter="fish" onclick="filterCards(this,'fish')">Fishing</button>
-        </div>
-        <div style="width:1px;height:28px;background:var(--color-border);flex-shrink:0"></div>
-        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap">
-          <button class="card-filter-btn active" data-size="any" onclick="filterSize(this,'any')">Any size</button>
-          <button class="card-filter-btn" data-size="small" onclick="filterSize(this,'small')">&lt;50 acres</button>
-          <button class="card-filter-btn" data-size="med" onclick="filterSize(this,'med')">50–300 ac</button>
-          <button class="card-filter-btn" data-size="large" onclick="filterSize(this,'large')">300+ ac</button>
-        </div>
-        <div style="width:1px;height:28px;background:var(--color-border);flex-shrink:0"></div>
-        <select id="species-filter" onchange="filterSpecies(this.value)" style="padding:.45rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-full);background:var(--color-surface);color:var(--color-text);font-size:var(--text-sm);font-family:inherit;outline:none;cursor:pointer">
-          <option value="all">All species</option>
-          <option value="deer">Deer</option>
-          <option value="hog">Hog</option>
-          <option value="turkey">Turkey</option>
-          <option value="bass">Bass</option>
-          <option value="trout">Trout</option>
-        </select>
-      </div>
+      <div class="cards-grid" id="cards-grid">
 
-      <div class="listings-grid" id="listings-grid">
-        <article class="listing-card fade-up" data-type="hunt" data-acres="450" data-species="hog deer">
-          <div class="card-media card-media-hunt-1">
-            <span class="card-price">$240 / day</span>
-            <span class="card-type card-type-hunt">Hunting land</span>
-            <button class="card-save" aria-label="Save listing">♡</button>
+        <!-- Card 1 -->
+        <article class="card fade-up" data-type="hunt" data-acres="450" data-species="hog deer" onclick="openWaitlist()">
+          <div class="card-img bg-hunt-1">
+            <div class="card-img-scene card-img-scene-hunt"></div>
+            <div class="card-rating-badge">★ 4.9</div>
+            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-hunt">Hunting Land</span>
           </div>
           <div class="card-body">
-            <h3>Palmetto Ridge Cabin</h3>
-            <div class="card-meta">
-              <span>Lake Placid, FL</span>
-              <span>•</span><span>450 acres</span>
-              <span>•</span><span>Hog · Deer</span>
+            <div class="card-top">
+              <div class="card-title">Palmetto Ridge Cabin</div>
+              <div class="card-price-inline">$240<span>/day</span></div>
             </div>
-            <p style="font-size:var(--text-sm);color:var(--color-text-muted)">Private cabin, 2 rifle blinds, night hog access. No bag limit on hog. Gate code released 24 hrs before arrival.</p>
-            <div class="card-footer">
-              <span class="card-rating">⭐ 4.9 <span style="font-weight:400;color:var(--color-text-faint)">(24)</span></span>
-              <span class="verified-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Verified host</span>
+            <div class="card-location">Lake Placid, FL · 450 acres</div>
+            <div class="card-tags">
+              <span class="card-tag">Deer</span>
+              <span class="card-tag">Hog</span>
+              <span class="card-tag">Night access</span>
+              <span class="card-tag">Cabin</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified host
+              </span>
+              <span class="card-acreage">2 blinds included</span>
             </div>
           </div>
         </article>
 
-        <article class="listing-card fade-up" data-type="fish" data-acres="18" data-species="bass">
-          <div class="card-media card-media-fish-1">
-            <span class="card-price">$195 / day</span>
-            <span class="card-type card-type-fish">Private pond</span>
-            <button class="card-save" aria-label="Save listing">♡</button>
+        <!-- Card 2 -->
+        <article class="card fade-up" data-type="fish" data-acres="18" data-species="bass" onclick="openWaitlist()">
+          <div class="card-img bg-fish-1">
+            <div class="card-img-scene card-img-scene-fish"></div>
+            <div class="card-rating-badge">★ 5.0</div>
+            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-fish">Private Pond</span>
           </div>
           <div class="card-body">
-            <h3>Silver Springs Bass Ranch</h3>
-            <div class="card-meta">
-              <span>Ocala, FL</span>
-              <span>•</span><span>18-acre pond</span>
-              <span>•</span><span>Largemouth bass</span>
+            <div class="card-top">
+              <div class="card-title">Silver Springs Bass Ranch</div>
+              <div class="card-price-inline">$195<span>/day</span></div>
             </div>
-            <p style="font-size:var(--text-sm);color:var(--color-text-muted)">Fully private, non-navigable stocked pond. No FL fishing license required. Boat and trolling motor provided.</p>
-            <div class="card-footer">
-              <span class="card-rating">⭐ 5.0 <span style="font-weight:400;color:var(--color-text-faint)">(11)</span></span>
-              <span class="verified-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Water verified</span>
+            <div class="card-location">Ocala, FL · 18-acre pond</div>
+            <div class="card-tags">
+              <span class="card-tag">Largemouth bass</span>
+              <span class="card-tag">Boat included</span>
+              <span class="card-tag">No license req.</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Water verified
+              </span>
+              <span class="card-acreage">Trolling motor</span>
             </div>
           </div>
         </article>
 
-        <article class="listing-card fade-up" data-type="hunt" data-acres="210" data-species="turkey hog">
-          <div class="card-media card-media-hunt-2">
-            <span class="card-price">$175 / day</span>
-            <span class="card-type card-type-hunt">Hunting land</span>
-            <button class="card-save" aria-label="Save listing">♡</button>
+        <!-- Card 3 -->
+        <article class="card fade-up" data-type="hunt" data-acres="210" data-species="turkey hog" onclick="openWaitlist()">
+          <div class="card-img bg-hunt-2">
+            <div class="card-img-scene card-img-scene-hunt"></div>
+            <div class="card-rating-badge">★ 4.8</div>
+            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-hunt">Hunting Land</span>
           </div>
           <div class="card-body">
-            <h3>Cypress Hollow Preserve</h3>
-            <div class="card-meta">
-              <span>Ocala, FL</span>
-              <span>•</span><span>210 acres</span>
-              <span>•</span><span>Turkey · Hog</span>
+            <div class="card-top">
+              <div class="card-title">Cypress Hollow Preserve</div>
+              <div class="card-price-inline">$175<span>/day</span></div>
             </div>
-            <p style="font-size:var(--text-sm);color:var(--color-text-muted)">Cypress hammocks and open fields. Turkey spring season access with blind placement and private gate code.</p>
-            <div class="card-footer">
-              <span class="card-rating">⭐ 4.8 <span style="font-weight:400;color:var(--color-text-faint)">(17)</span></span>
-              <span class="verified-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Verified host</span>
+            <div class="card-location">Ocala, FL · 210 acres</div>
+            <div class="card-tags">
+              <span class="card-tag">Turkey</span>
+              <span class="card-tag">Hog</span>
+              <span class="card-tag">Cypress hammock</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified host
+              </span>
+              <span class="card-acreage">Private gate code</span>
             </div>
           </div>
         </article>
 
-        <article class="listing-card fade-up" data-type="fish" data-acres="5" data-species="trout bass">
-          <div class="card-media card-media-fish-2">
-            <span class="card-price">$320 / day</span>
-            <span class="card-type card-type-fish">Spring creek</span>
-            <button class="card-save" aria-label="Save listing">♡</button>
+        <!-- Card 4 -->
+        <article class="card fade-up" data-type="fish" data-acres="5" data-species="trout bass" onclick="openWaitlist()">
+          <div class="card-img bg-fish-2">
+            <div class="card-img-scene card-img-scene-fish"></div>
+            <div class="card-rating-badge">★ 4.9</div>
+            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-fish">Spring Creek</span>
           </div>
           <div class="card-body">
-            <h3>Big Creek Trout Access</h3>
-            <div class="card-meta">
-              <span>Highlands Co., FL</span>
-              <span>•</span><span>1.2 mi of creek</span>
-              <span>•</span><span>Trout · Bluegill</span>
+            <div class="card-top">
+              <div class="card-title">Big Creek Trout Access</div>
+              <div class="card-price-inline">$320<span>/day</span></div>
             </div>
-            <p style="font-size:var(--text-sm);color:var(--color-text-muted)">Exclusive access to private spring-fed creek. FL freshwater license required. Catch-and-release on trout per host rules.</p>
-            <div class="card-footer">
-              <span class="card-rating">⭐ 4.9 <span style="font-weight:400;color:var(--color-text-faint)">(8)</span></span>
-              <span class="verified-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Water verified</span>
+            <div class="card-location">Highlands Co., FL · 1.2 mi creek</div>
+            <div class="card-tags">
+              <span class="card-tag">Trout</span>
+              <span class="card-tag">Bluegill</span>
+              <span class="card-tag">Spring-fed</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Water verified
+              </span>
+              <span class="card-acreage">Exclusive access</span>
             </div>
           </div>
         </article>
+
+        <!-- Card 5 -->
+        <article class="card fade-up" data-type="hunt" data-acres="890" data-species="deer turkey" onclick="openWaitlist()">
+          <div class="card-img bg-hunt-3">
+            <div class="card-img-scene card-img-scene-hunt"></div>
+            <div class="card-rating-badge">★ 4.7</div>
+            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-hunt">Hunting Land</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">Gainesville Ranch</div>
+              <div class="card-price-inline">$250<span>/day</span></div>
+            </div>
+            <div class="card-location">Gainesville, FL · 890 acres</div>
+            <div class="card-tags">
+              <span class="card-tag">Whitetail deer</span>
+              <span class="card-tag">Turkey</span>
+              <span class="card-tag">Food plots</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified host
+              </span>
+              <span class="card-acreage">Trail cam access</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 6 -->
+        <article class="card fade-up" data-type="fish" data-acres="8" data-species="bass crappie" onclick="openWaitlist()">
+          <div class="card-img bg-fish-1">
+            <div class="card-img-scene card-img-scene-fish"></div>
+            <div class="card-rating-badge">★ 4.8</div>
+            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-fish">Private Lake</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">Orlando Private Lake Frontage</div>
+              <div class="card-price-inline">$110<span>/day</span></div>
+            </div>
+            <div class="card-location">Orlando, FL · 8-acre lake</div>
+            <div class="card-tags">
+              <span class="card-tag">Bass</span>
+              <span class="card-tag">Crappie</span>
+              <span class="card-tag">Kayak incl.</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Water verified
+              </span>
+              <span class="card-acreage">Shore + kayak</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 7 -->
+        <article class="card fade-up" data-type="hunt" data-acres="1200" data-species="deer hog turkey" onclick="openWaitlist()">
+          <div class="card-img bg-hunt-1">
+            <div class="card-img-scene card-img-scene-hunt"></div>
+            <div class="card-rating-badge">★ 4.9</div>
+            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-hunt">Timber Tract</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">North FL Timber Tract</div>
+              <div class="card-price-inline">$195<span>/day</span></div>
+            </div>
+            <div class="card-location">Jacksonville, FL · 1,200 acres</div>
+            <div class="card-tags">
+              <span class="card-tag">Deer</span>
+              <span class="card-tag">Hog</span>
+              <span class="card-tag">Turkey</span>
+              <span class="card-tag">Multi-day</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified host
+              </span>
+              <span class="card-acreage">4 stand sites</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 8 -->
+        <article class="card fade-up" data-type="hunt" data-acres="700" data-species="quail turkey" onclick="openWaitlist()">
+          <div class="card-img bg-hunt-3">
+            <div class="card-img-scene card-img-scene-hunt"></div>
+            <div class="card-rating-badge">★ 5.0</div>
+            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-hunt">Guided Hunt</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">Tallahassee Quail Farm</div>
+              <div class="card-price-inline">$300<span>/day</span></div>
+            </div>
+            <div class="card-location">Tallahassee, FL · 700 acres</div>
+            <div class="card-tags">
+              <span class="card-tag">Quail</span>
+              <span class="card-tag">Turkey</span>
+              <span class="card-tag">Dogs incl.</span>
+              <span class="card-tag">Guided</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified host
+              </span>
+              <span class="card-acreage">Bird dogs provided</span>
+            </div>
+          </div>
+        </article>
+
+      </div><!-- /cards-grid -->
+
+      <p id="filter-empty" style="display:none;text-align:center;padding:40px 0;color:var(--muted)">No listings match that filter — try a different category.</p>
+
+    </div><!-- /listings-col -->
+
+    <!-- RIGHT: sticky map -->
+    <div class="map-col">
+      <div class="map-filter-bar">
+        <button class="mf-btn active" id="mf-all" onclick="setMapFilter('all')">All</button>
+        <button class="mf-btn" id="mf-hunt" onclick="setMapFilter('hunting')">Hunting</button>
+        <button class="mf-btn" id="mf-fish" onclick="setMapFilter('fishing')">Fishing</button>
       </div>
-      <p id="filter-empty" style="display:none;text-align:center;padding:var(--space-8);color:var(--color-text-muted);font-size:var(--text-base)">No listings match those filters — try a different combination.</p>
-      <div style="text-align:center;margin-top:var(--space-10)">
-        <a href="listings.html" class="btn btn-ghost btn-large">View all listings →</a>
+      <div id="hunt-map"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PROOF STRIP
+  ══════════════════════════════════════════ -->
+  <div class="proof-strip">
+    <div class="proof-inner">
+      <div class="fade-up">
+        <span class="proof-num">1,200+</span>
+        <span class="proof-lbl">Acres in early access</span>
+      </div>
+      <div class="fade-up">
+        <span class="proof-num">1</span>
+        <span class="proof-lbl">Launch state — Florida</span>
+      </div>
+      <div class="fade-up">
+        <span class="proof-num">$0</span>
+        <span class="proof-lbl">Cost to list your land</span>
+      </div>
+      <div class="fade-up">
+        <span class="proof-num">85%</span>
+        <span class="proof-lbl">Landowner keeps every booking</span>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- MAP VIEW -->
-  <section class="section" id="map" style="padding-top:clamp(var(--space-16),8vw,var(--space-24))">
-    <div style="max-width:1200px;margin:0 auto">
-      <div class="fade-up" style="text-align:center;margin-bottom:var(--space-8)">
-        <p class="section-label">Explore near you</p>
-        <h2 style="font-size:var(--text-2xl);font-weight:800;letter-spacing:.02em;margin-bottom:var(--space-4)">Find private land on the map</h2>
-        <p style="font-size:var(--text-base);color:var(--color-text-muted);max-width:52ch;margin:0 auto">Enter your zip code or city to see available hunting land and fishing waters nearby.</p>
-      </div>
-
-      <div class="fade-up" style="display:flex;gap:var(--space-3);flex-wrap:wrap;justify-content:center;margin-bottom:var(--space-6)">
-        <div style="position:relative;flex:1;min-width:240px;max-width:420px">
-          <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--color-text-muted)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input id="map-search" type="text" placeholder="Zip code or city (e.g. 32168 or Ocala, FL)"
-            style="width:100%;padding:.75rem 1rem .75rem 2.5rem;border:1px solid var(--color-border);border-radius:var(--radius-full);background:var(--color-surface);color:var(--color-text);font-size:var(--text-sm);box-sizing:border-box;outline:none;transition:border-color var(--transition)"
-            onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'" />
+  <!-- ══════════════════════════════════════════
+       HOW IT WORKS
+  ══════════════════════════════════════════ -->
+  <div style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="section">
+      <p class="section-eyebrow">How it works</p>
+      <h2>Book land like you book a hotel</h2>
+      <p class="section-sub">LeaseWild gives you Airbnb-style simplicity for private outdoor access — search, pick dates, pay, and show up.</p>
+      <div class="steps-grid">
+        <div class="step fade-up">
+          <div class="step-num">1</div>
+          <h3>Find your property</h3>
+          <p>Browse private hunting land and fishing water across Florida. Filter by species, acreage, activity type, and price. Every listing shows state regulations.</p>
         </div>
-        <div style="display:flex;gap:var(--space-2)">
-          <button id="map-filter-all" class="btn btn-primary" onclick="setMapFilter('all')" style="border-radius:var(--radius-full)">All</button>
-          <button id="map-filter-hunt" class="btn btn-ghost" onclick="setMapFilter('hunting')" style="border-radius:var(--radius-full)">Hunting</button>
-          <button id="map-filter-fish" class="btn btn-ghost" onclick="setMapFilter('fishing')" style="border-radius:var(--radius-full)">Fishing</button>
+        <div class="step fade-up">
+          <div class="step-num">2</div>
+          <h3>Pick your dates & book</h3>
+          <p>Select check-in and check-out dates, review the full pricing breakdown — daily rate + 15% service fee + $18 trip protection — and confirm with Stripe.</p>
         </div>
-        <button class="btn btn-primary" onclick="doMapSearch()" style="border-radius:var(--radius-full);padding:.75rem 1.5rem">Search</button>
-      </div>
-
-      <div class="fade-up" style="position:relative;border-radius:var(--radius-xl);overflow:hidden;border:1px solid var(--color-border);box-shadow:var(--shadow-lg)">
-        <div id="hunt-map" style="height:520px;width:100%;background:var(--color-surface-offset)"></div>
-        <div style="position:absolute;bottom:var(--space-4);left:var(--space-4);z-index:1000;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);display:flex;gap:var(--space-4);font-size:var(--text-xs);font-weight:600;box-shadow:var(--shadow-md)">
-          <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:50%;background:#2a5c3c;display:inline-block"></span>Hunting</span>
-          <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:50%;background:#1a5c7a;display:inline-block"></span>Fishing</span>
-        </div>
-        <div id="map-loading" style="display:none;position:absolute;inset:0;z-index:2000;background:color-mix(in oklab,var(--color-surface) 85%,transparent);backdrop-filter:blur(2px);align-items:center;justify-content:center;flex-direction:column;gap:var(--space-3)">
-          <div style="width:36px;height:36px;border:3px solid var(--color-border);border-top-color:var(--color-primary);border-radius:50%;animation:spin 0.8s linear infinite"></div>
-          <p style="font-size:var(--text-sm);font-weight:600;color:var(--color-text-muted)">Finding listings near you…</p>
+        <div class="step fade-up">
+          <div class="step-num">3</div>
+          <h3>Show up & hunt</h3>
+          <p>Receive gate codes, directions, and rules 24 hours before arrival. Digital waiver signed at checkout. $1M liability coverage on every booking.</p>
         </div>
       </div>
-      <p id="map-results-label" style="text-align:center;margin-top:var(--space-4);font-size:var(--text-sm);color:var(--color-text-muted)"></p>
     </div>
-  </section>
+  </div>
 
-  <!-- TESTIMONIALS -->
-  <section class="section" id="testimonials">
-    <div style="max-width:1200px;margin:0 auto">
-      <div class="fade-up" style="text-align:center;margin-bottom:var(--space-10)">
-        <p class="section-label">Early access members</p>
-        <h2 style="font-size:var(--text-2xl);font-weight:800;letter-spacing:.02em">People who can't wait to use it</h2>
+  <!-- ══════════════════════════════════════════
+       SPLIT CTA (List / Fish)
+  ══════════════════════════════════════════ -->
+  <div style="padding:64px 0 0">
+    <div class="split-cta">
+      <div class="split-panel green-panel">
+        <p style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:12px">For landowners</p>
+        <h2>Your land is sitting idle. Start earning.</h2>
+        <p>List your hunting land or fishing water in minutes — no approval needed. Keep 85% of every booking. We handle payments, waivers, and insurance.</p>
+        <a href="list-your-land.html" class="split-btn green-btn">
+          List your land
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--space-6)">
-        <div class="fade-up" style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);box-shadow:var(--shadow-sm)">
-          <div style="display:flex;gap:var(--space-1);margin-bottom:var(--space-4);color:#c17f3a">★★★★★</div>
-          <p style="font-size:var(--text-base);line-height:1.65;color:var(--color-text);margin-bottom:var(--space-5)">&ldquo;I&rsquo;ve been trying to find a private place to deer hunt near Tampa for 3 years. Every piece of land I wanted was either leased or not for sale. This is exactly what we need.&rdquo;</p>
-          <div style="display:flex;align-items:center;gap:var(--space-3)">
-            <div style="width:42px;height:42px;border-radius:50%;background:var(--color-primary-light);display:grid;place-items:center;font-size:1rem;font-weight:700;color:var(--color-primary)">JD</div>
-            <div><p style="font-weight:700;font-size:var(--text-sm);margin-bottom:2px">Jason D.</p><p style="font-size:var(--text-xs);color:var(--color-text-muted)">Tampa, FL — Deer &amp; hog hunter</p></div>
+      <div class="split-panel water-panel">
+        <p style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:12px">For anglers</p>
+        <h2>Private fishing water you can't find anywhere else.</h2>
+        <p>Skip the crowded public access. Book exclusive bass ponds, spring creeks, and freshwater lakes — no license required on fully private water.</p>
+        <a href="fishing.html" class="split-btn water-btn">
+          Explore fishing
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TESTIMONIALS
+  ══════════════════════════════════════════ -->
+  <div style="background:var(--bg);padding:0 0 64px">
+    <div class="section" style="padding-bottom:0">
+      <p class="section-eyebrow">What people are saying</p>
+      <h2>Early access members</h2>
+      <p class="section-sub">Hunters and anglers across Florida who are first in line.</p>
+    </div>
+    <div style="max-width:1280px;margin:0 auto;padding:0 24px">
+      <div class="testi-grid">
+        <div class="testi fade-up">
+          <div class="testi-stars">★★★★★</div>
+          <p>"I've been trying to find a private place to deer hunt near Tampa for 3 years. Every piece of land I wanted was leased or not for sale. LeaseWild is exactly what we've needed."</p>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:var(--green)">JD</div>
+            <div>
+              <strong>Jason D.</strong>
+              <span>Tampa, FL — Deer &amp; hog hunter</span>
+            </div>
           </div>
         </div>
-        <div class="fade-up" style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);box-shadow:var(--shadow-sm)">
-          <div style="display:flex;gap:var(--space-1);margin-bottom:var(--space-4);color:#c17f3a">★★★★★</div>
-          <p style="font-size:var(--text-base);line-height:1.65;color:var(--color-text);margin-bottom:var(--space-5)">&ldquo;I own a 180-acre bass pond in Central Florida that sits empty 300 days a year. If I can book even 40 weekends at $200 a pop, that&rsquo;s $8k a year from land I&rsquo;m already paying taxes on.&rdquo;</p>
-          <div style="display:flex;align-items:center;gap:var(--space-3)">
-            <div style="width:42px;height:42px;border-radius:50%;background:var(--color-water-light);display:grid;place-items:center;font-size:1rem;font-weight:700;color:var(--color-water)">MR</div>
-            <div><p style="font-weight:700;font-size:var(--text-sm);margin-bottom:2px">Mike R.</p><p style="font-size:var(--text-xs);color:var(--color-text-muted)">Polk County, FL — Landowner</p></div>
+        <div class="testi fade-up">
+          <div class="testi-stars">★★★★★</div>
+          <p>"I own a 180-acre bass pond in Central Florida that sits empty 300 days a year. If I can book even 40 weekends at $200 a pop, that's $8k per year from land I'm already paying taxes on."</p>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:var(--water)">MR</div>
+            <div>
+              <strong>Mike R.</strong>
+              <span>Polk County, FL — Landowner</span>
+            </div>
           </div>
         </div>
-        <div class="fade-up" style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);box-shadow:var(--shadow-sm)">
-          <div style="display:flex;gap:var(--space-1);margin-bottom:var(--space-4);color:#c17f3a">★★★★★</div>
-          <p style="font-size:var(--text-base);line-height:1.65;color:var(--color-text);margin-bottom:var(--space-5)">&ldquo;The state rules panel is a game changer. I fish all over Georgia and Florida and I&rsquo;m always second-guessing license requirements on private ponds. Seeing it right on the listing is huge.&rdquo;</p>
-          <div style="display:flex;align-items:center;gap:var(--space-3)">
-            <div style="width:42px;height:42px;border-radius:50%;background:var(--color-primary-light);display:grid;place-items:center;font-size:1rem;font-weight:700;color:var(--color-primary)">CW</div>
-            <div><p style="font-weight:700;font-size:var(--text-sm);margin-bottom:2px">Chris W.</p><p style="font-size:var(--text-xs);color:var(--color-text-muted)">Savannah, GA — Bass &amp; trout angler</p></div>
+        <div class="testi fade-up">
+          <div class="testi-stars">★★★★★</div>
+          <p>"The state regulations panel on every listing is a game changer. I fish all over Florida and always second-guess license requirements on private ponds. Seeing it on the listing is huge."</p>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:var(--amber)">CW</div>
+            <div>
+              <strong>Chris W.</strong>
+              <span>Jacksonville, FL — Bass angler</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- INLINE EMAIL STRIP -->
-  <section class="fade-up" style="background:var(--color-primary);padding:clamp(var(--space-10),6vw,var(--space-16)) clamp(var(--space-4),4vw,var(--space-12))">
-    <div style="max-width:700px;margin:0 auto;text-align:center">
-      <p style="font-size:var(--text-xs);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:var(--space-3)">Now accepting waitlist</p>
-      <h2 style="font-size:var(--text-2xl);font-weight:800;letter-spacing:.02em;color:#fff;margin-bottom:var(--space-3)">Be first in Florida.</h2>
-      <p style="font-size:var(--text-base);color:rgba(255,255,255,.75);margin-bottom:var(--space-6)">Enter your email and we'll notify you the day LeaseWild opens for bookings. No spam, ever.</p>
-      <form onsubmit="inlineSubmit(event)" style="display:flex;gap:var(--space-3);flex-wrap:wrap;justify-content:center;max-width:480px;margin:0 auto">
-        <input id="inline-email" type="email" required placeholder="your@email.com"
-          style="flex:1;min-width:200px;padding:.8rem 1.1rem;border:none;border-radius:var(--radius-full);background:rgba(255,255,255,.15);color:#fff;font-size:var(--text-sm);outline:none;backdrop-filter:blur(4px);" />
-        <button type="submit" id="inline-submit" style="padding:.8rem 1.5rem;background:#fff;color:var(--color-primary);border:none;border-radius:var(--radius-full);font-size:var(--text-sm);font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .18s">Join waitlist</button>
-      </form>
-      <p id="inline-confirm" style="display:none;color:rgba(255,255,255,.85);margin-top:var(--space-4);font-weight:600">You&rsquo;re on the list. We&rsquo;ll be in touch soon.</p>
-    </div>
-  </section>
+  <!-- ══════════════════════════════════════════
+       EMAIL STRIP
+  ══════════════════════════════════════════ -->
+  <div class="email-strip">
+    <p style="font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:10px">Be first in Florida</p>
+    <h2>Bookings open July 1, 2026.</h2>
+    <p>Join the waitlist and we'll notify you the day access opens. No spam, ever.</p>
+    <form class="email-form" onsubmit="inlineSubmit(event)">
+      <input class="email-input" type="email" id="inline-email" placeholder="your@email.com" required />
+      <button class="email-btn" type="submit" id="inline-btn">Join waitlist</button>
+    </form>
+    <p id="inline-confirm" style="display:none;color:var(--green);font-weight:600;margin-top:14px">You're on the list — we'll be in touch.</p>
+  </div>
 
-  <!-- FINAL CTA -->
-  <section class="final-cta">
-    <div style="max-width:800px;margin:0 auto">
-      <h2>Private land nobody else has access to.</h2>
-      <p>LeaseWild is coming to Florida first. Join the waitlist and be the first to book when bookings open July 1, 2026.</p>
-      <div class="final-ctas" style="margin-bottom:var(--space-8)">
-        <button class="btn btn-primary btn-large" onclick="openWaitlist('guest')">Get early access — free</button>
-
-      </div>
-      <div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:var(--space-3);padding:.65rem 1.25rem;border:1px solid rgba(255,255,255,.2);border-radius:var(--radius-md);opacity:.6;cursor:default">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-          <div style="text-align:left"><p style="font-size:9px;margin-bottom:1px;opacity:.8">Coming to</p><p style="font-size:15px;font-weight:700;line-height:1">App Store</p></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:var(--space-3);padding:.65rem 1.25rem;border:1px solid rgba(255,255,255,.2);border-radius:var(--radius-md);opacity:.6;cursor:default">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.65.19.96.06l11.37-6.57-2.45-2.46-9.88 8.97zm16.4-10.3L16.43 11l3.16-3.16-9.43-5.44c-.37-.21-.8-.21-1.17-.02L3.12 8.7l9.91 9.91 6.55-5.15zm-15.7 9.13.04-17.18L13.85 15l-9.97 7.59zM20.8 10.06l-1.6-.92-2.97 2.97 2.9 2.9 1.73-1c.74-.43 1.14-1.22 1.14-2s-.43-1.52-1.2-1.95z"/></svg>
-          <div style="text-align:left"><p style="font-size:9px;margin-bottom:1px;opacity:.8">Coming to</p><p style="font-size:15px;font-weight:700;line-height:1">Google Play</p></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SEO FAQ SECTION -->
-  <section style="background:var(--color-surface);border-top:1px solid var(--color-border);padding:4rem 1.5rem">
-    <div style="max-width:800px;margin:0 auto">
-      <h2 style="font-family:var(--font-display);font-weight:700;font-size:var(--text-xl);text-align:center;margin-bottom:2.5rem;text-transform:uppercase;letter-spacing:.04em">Frequently Asked Questions</h2>
-      <div style="display:flex;flex-direction:column;gap:1.25rem">
-        <details style="border:1px solid var(--color-border);border-radius:10px;padding:1.1rem 1.25rem">
-          <summary style="font-weight:700;font-size:var(--text-sm);cursor:pointer;list-style:none">How do I book private hunting land in Florida?</summary>
-          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:.75rem;line-height:1.65">Browse available listings on LeaseWild, select your check-in and check-out dates, and submit a pre-reservation. Bookings officially open July 1, 2026. Your spot is held at no charge until then.</p>
+  <!-- ══════════════════════════════════════════
+       FAQ
+  ══════════════════════════════════════════ -->
+  <div style="background:var(--surface);border-top:1px solid var(--border)">
+    <div class="section" style="max-width:800px">
+      <p class="section-eyebrow">FAQ</p>
+      <h2>Common questions</h2>
+      <div style="display:grid;gap:10px;margin-top:28px">
+        <details style="border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px">
+          <summary style="font-weight:700;font-size:.9rem;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">How do I book private hunting land in Florida? <span style="font-size:1.2rem;color:var(--faint)">+</span></summary>
+          <p style="font-size:.875rem;color:var(--muted);margin-top:10px;line-height:1.65">Browse listings, select your dates, and complete checkout with Stripe. Bookings officially open July 1, 2026. Pre-reservations are saved now at no charge.</p>
         </details>
-        <details style="border:1px solid var(--color-border);border-radius:10px;padding:1.1rem 1.25rem">
-          <summary style="font-weight:700;font-size:var(--text-sm);cursor:pointer;list-style:none">Can I rent private land for hog hunting in Florida?</summary>
-          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:.75rem;line-height:1.65">Yes. LeaseWild has Florida properties that allow hog hunting, including night hog access. Filter listings by activity to find hog hunting land near you.</p>
+        <details style="border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px">
+          <summary style="font-weight:700;font-size:.9rem;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">Do I need a hunting license on private land? <span style="font-size:1.2rem;color:var(--faint)">+</span></summary>
+          <p style="font-size:.875rem;color:var(--muted);margin-top:10px;line-height:1.65">Florida state regulations apply to private land for most species. Regulations are displayed on every listing. Fully private, non-navigable ponds do not require a Florida fishing license.</p>
         </details>
-        <details style="border:1px solid var(--color-border);border-radius:10px;padding:1.1rem 1.25rem">
-          <summary style="font-weight:700;font-size:var(--text-sm);cursor:pointer;list-style:none">How much does it cost to book a hunting lease in Florida?</summary>
-          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:.75rem;line-height:1.65">Prices vary by property, acreage, and season. Guests pay the listed nightly rate plus a 15% service fee and ~$18 trip protection. There are no monthly subscription fees.</p>
+        <details style="border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px">
+          <summary style="font-weight:700;font-size:.9rem;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">What is the cancellation policy? <span style="font-size:1.2rem;color:var(--faint)">+</span></summary>
+          <p style="font-size:.875rem;color:var(--muted);margin-top:10px;line-height:1.65">Flexible — full refund if you cancel 48+ hours before check-in. No refund within 48 hours of check-in.</p>
         </details>
-        <details style="border:1px solid var(--color-border);border-radius:10px;padding:1.1rem 1.25rem">
-          <summary style="font-weight:700;font-size:var(--text-sm);cursor:pointer;list-style:none">Can I list my Florida hunting land on LeaseWild?</summary>
-          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:.75rem;line-height:1.65">Yes — landowners can list immediately, no approval required. Create your landowner account, upload photos and details, and go live within minutes. You keep 85% of every booking.</p>
+        <details style="border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px">
+          <summary style="font-weight:700;font-size:.9rem;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">Can I list my land immediately? <span style="font-size:1.2rem;color:var(--faint)">+</span></summary>
+          <p style="font-size:.875rem;color:var(--muted);margin-top:10px;line-height:1.65">Yes — no approval needed. Create your landowner account, upload photos and details, and go live in minutes. You keep 85% of every booking.</p>
         </details>
-        <details style="border:1px solid var(--color-border);border-radius:10px;padding:1.1rem 1.25rem">
-          <summary style="font-weight:700;font-size:var(--text-sm);cursor:pointer;list-style:none">Does LeaseWild offer private fishing water rentals in Florida?</summary>
-          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:.75rem;line-height:1.65">Yes. Browse our fishing section for private bass ponds, freshwater lakes, and creek access across Florida. Guests can book exclusive water access by the day or weekend.</p>
-        </details>
-        <details style="border:1px solid var(--color-border);border-radius:10px;padding:1.1rem 1.25rem">
-          <summary style="font-weight:700;font-size:var(--text-sm);cursor:pointer;list-style:none">What is the cancellation policy?</summary>
-          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:.75rem;line-height:1.65">LeaseWild uses a flexible cancellation policy. Cancel more than 48 hours before check-in for a full refund. Cancellations within 48 hours are non-refundable.</p>
+        <details style="border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px">
+          <summary style="font-weight:700;font-size:.9rem;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">How much does it cost guests? <span style="font-size:1.2rem;color:var(--faint)">+</span></summary>
+          <p style="font-size:.875rem;color:var(--muted);margin-top:10px;line-height:1.65">Guests pay the listed daily rate + 15% service fee (on rate + cleaning fee) + ~$18 trip protection + Stripe payment processing fee (2.9% + $0.30). No monthly subscription required.</p>
         </details>
       </div>
     </div>
-  </section>
+  </div>
 
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {"@type":"Question","name":"How do I book private hunting land in Florida?","acceptedAnswer":{"@type":"Answer","text":"Browse available listings on LeaseWild, select your check-in and check-out dates, and submit a pre-reservation. Bookings officially open July 1, 2026."}},
-      {"@type":"Question","name":"Can I rent private land for hog hunting in Florida?","acceptedAnswer":{"@type":"Answer","text":"Yes. LeaseWild has Florida properties that allow hog hunting, including night hog access. Filter listings by activity to find hog hunting land near you."}},
-      {"@type":"Question","name":"How much does it cost to book a hunting lease in Florida?","acceptedAnswer":{"@type":"Answer","text":"Prices vary by property, acreage, and season. Guests pay the listed nightly rate plus a 15% service fee and ~$18 trip protection. No monthly subscription fees."}},
-      {"@type":"Question","name":"Can I list my Florida hunting land on LeaseWild?","acceptedAnswer":{"@type":"Answer","text":"Yes — landowners can list immediately, no approval required. You keep 85% of every booking."}},
-      {"@type":"Question","name":"Does LeaseWild offer private fishing water rentals in Florida?","acceptedAnswer":{"@type":"Answer","text":"Yes. Browse private bass ponds, freshwater lakes, and creek access across Florida by the day or weekend."}},
-      {"@type":"Question","name":"What is the cancellation policy?","acceptedAnswer":{"@type":"Answer","text":"Flexible policy: cancel 48+ hours before check-in for a full refund. Within 48 hours is non-refundable."}}
-    ]
-  }
-  </script>
-
-  <!-- FOOTER -->
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
   <footer>
     <div class="footer-inner">
       <div class="footer-brand">
-        <a href="index.html" class="logo" style="display:flex;align-items:center;gap:10px;text-decoration:none;"><svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg><span style="font-family:var(--font-display);font-weight:800;font-size:1.55rem;letter-spacing:.01em;line-height:1"><span style="color:var(--color-text)">Lease</span><span style="color:#c17f3a;">Wild</span></span></a>
-        <p>Private hunting land and fishing water access — booking the land that was never available before.</p>
-        <div style="display:flex;gap:var(--space-4);margin-top:var(--space-4)">
-          <a href="https://www.instagram.com/leasewild?igsh=Z2J6NG4zNmUxOGp0" target="_blank" aria-label="Instagram" style="color:var(--color-text-faint);transition:color var(--transition)" onmouseover="this.style.color='var(--color-text)'" onmouseout="this.style.color='var(--color-text-faint)'">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        <a href="index.html" class="logo">
+          <svg width="34" height="34" viewBox="0 0 38 38" fill="none"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
+          <span class="wordmark"><span style="color:var(--text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
+        </a>
+        <p>Private hunting land and fishing water access — land that was never available before.</p>
+        <div class="footer-socials">
+          <a href="https://www.instagram.com/leasewild?igsh=Z2J6NG4zNmUxOGp0" target="_blank" aria-label="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
           </a>
-          <a href="#" aria-label="Facebook" style="color:var(--color-text-faint);transition:color var(--transition)" onmouseover="this.style.color='var(--color-text)'" onmouseout="this.style.color='var(--color-text-faint)'">
+          <a href="#" aria-label="Facebook">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
           </a>
-          <a href="#" aria-label="TikTok" style="color:var(--color-text-faint);transition:color var(--transition)" onmouseover="this.style.color='var(--color-text)'" onmouseout="this.style.color='var(--color-text-faint)'">
+          <a href="#" aria-label="TikTok">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.28 6.28 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>
           </a>
-          <a href="#" aria-label="YouTube" style="color:var(--color-text-faint);transition:color var(--transition)" onmouseover="this.style.color='var(--color-text)'" onmouseout="this.style.color='var(--color-text-faint)'">
+          <a href="#" aria-label="YouTube">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/></svg>
           </a>
         </div>
@@ -671,7 +1395,7 @@
           <li><a href="fishing.html">Private ponds</a></li>
           <li><a href="fishing.html">Spring creeks</a></li>
           <li><a href="fishing.html">Lake frontage</a></li>
-          <li><a href="fishing.html">Guided fly fishing</a></li>
+          <li><a href="fishing.html">Guided fishing</a></li>
           <li><a href="fishing.html">License guide</a></li>
         </ul>
       </div>
@@ -679,363 +1403,355 @@
         <h4>Company</h4>
         <ul>
           <li><a href="about.html">About LeaseWild</a></li>
-          <li><a href="about.html#mission">Mission &amp; vision</a></li>
-          <li><a href="about.html#team">Our team</a></li>
           <li><a href="pricing.html">How pricing works</a></li>
-          <li><a href="howitworks.html#faq">FAQ</a></li>
+          <li><a href="howitworks.html">How it works</a></li>
+          <li><a href="list-your-land.html">List your land</a></li>
+          <li><a href="landowner-portal.html">Landowner login</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 LeaseWild. All rights reserved.</span>
-      <div style="display:flex;gap:var(--space-6)">
-        <a href="#" style="transition:color var(--transition)">Terms</a>
-        <a href="#" style="transition:color var(--transition)">Privacy</a>
-        <a href="#" style="transition:color var(--transition)">Landowner agreement</a>
-        <a href="#" style="transition:color var(--transition)">Support</a>
+      <span>© 2026 LeaseWild · Florida</span>
+      <div class="footer-bottom-links">
+        <a href="terms.html">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">Landowner Agreement</a>
+        <a href="#">Support</a>
       </div>
     </div>
   </footer>
 
-  <!-- WAITLIST MODAL -->
-  <div id="waitlist-modal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:var(--space-4)" onclick="if(event.target===this)closeWaitlist()">
-    <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:clamp(var(--space-8),5vw,var(--space-12));max-width:440px;width:100%;box-shadow:var(--shadow-lg);position:relative">
-      <button onclick="closeWaitlist()" style="position:absolute;top:var(--space-4);right:var(--space-4);background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:1.25rem;line-height:1;padding:4px" aria-label="Close">✕</button>
-      <div id="waitlist-form-view">
-        <p style="font-size:var(--text-xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--color-primary);margin-bottom:var(--space-3)">Early Access</p>
-        <h2 style="font-size:var(--text-xl);font-weight:800;letter-spacing:.02em;margin-bottom:var(--space-2)">Get early access</h2>
-        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5)">Be first to book when LeaseWild opens in Florida on July 1, 2026.</p>
-        <form id="waitlist-form" onsubmit="submitWaitlist(event)">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-3)">
-            <div>
-              <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.3rem;color:var(--color-text-muted)">First Name</label>
-              <input type="text" id="wl-first" required placeholder="First"
-                style="width:100%;padding:.7rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-size:var(--text-sm);box-sizing:border-box;outline:none;transition:border-color var(--transition);font-family:inherit"
-                onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'" />
-            </div>
-            <div>
-              <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.3rem;color:var(--color-text-muted)">Last Name</label>
-              <input type="text" id="wl-last" required placeholder="Last"
-                style="width:100%;padding:.7rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-size:var(--text-sm);box-sizing:border-box;outline:none;transition:border-color var(--transition);font-family:inherit"
-                onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'" />
-            </div>
-          </div>
-          <div style="margin-bottom:var(--space-3)">
-            <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.3rem;color:var(--color-text-muted)">Email</label>
-            <input type="email" id="waitlist-email" required placeholder="your@email.com"
-              style="width:100%;padding:.7rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-size:var(--text-sm);box-sizing:border-box;outline:none;transition:border-color var(--transition);font-family:inherit"
-              onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'" />
-          </div>
-          <div style="margin-bottom:var(--space-3)">
-            <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.3rem;color:var(--color-text-muted)">Phone Number</label>
-            <input type="tel" id="wl-phone" required placeholder="(555) 000-0000"
-              style="width:100%;padding:.7rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-size:var(--text-sm);box-sizing:border-box;outline:none;transition:border-color var(--transition);font-family:inherit"
-              onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'" />
-          </div>
-          <div style="margin-bottom:var(--space-4)">
-            <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.3rem;color:var(--color-text-muted)">City, State</label>
-            <input type="text" id="wl-location" required placeholder="e.g. Tampa, FL"
-              style="width:100%;padding:.7rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-size:var(--text-sm);box-sizing:border-box;outline:none;transition:border-color var(--transition);font-family:inherit"
-              onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'" />
-          </div>
-          <button type="submit" id="waitlist-submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem 1.5rem;font-size:var(--text-base)">
-            Get early access — free
-          </button>
-          <p id="waitlist-error" style="display:none;color:#c0392b;font-size:var(--text-xs);margin-top:var(--space-2);text-align:center"></p>
-        </form>
-        <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-4);text-align:center">No spam. We'll only contact you when early access opens.</p>
+  <!-- ══════════════════════════════════════════
+       MOBILE BOTTOM NAV BAR
+  ══════════════════════════════════════════ -->
+  <nav class="mob-bar" aria-label="Mobile navigation">
+    <div class="mob-bar-inner">
+      <button class="mob-tab active" onclick="mobTab(this,'explore')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Explore
+      </button>
+      <button class="mob-tab" onclick="mobTab(this,'hunting');filterCards('hunt');document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Hunting
+      </button>
+      <button class="mob-tab" onclick="mobTab(this,'fishing');filterCards('fish');document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 12C6 8 9 4 12 2c3 2 6 6 6 10s-3 8-6 10c-3-2-6-6-6-10z"/></svg>
+        Fishing
+      </button>
+      <button class="mob-tab" onclick="openWaitlist()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Saved
+      </button>
+      <button class="mob-tab" onclick="window.location='guest-portal.html'">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Account
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════
+       MOBILE SEARCH SHEET
+  ══════════════════════════════════════════ -->
+  <div class="search-sheet" id="search-sheet">
+    <div class="ss-header">
+      <button class="ss-back" onclick="closeSearchSheet()" aria-label="Back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <span class="ss-title">Find private land</span>
+    </div>
+    <div class="ss-body">
+      <!-- search input -->
+      <div style="position:relative;margin-bottom:24px">
+        <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="County, city, or zip code" id="ss-input"
+          style="width:100%;padding:13px 16px 13px 40px;border:1.5px solid var(--border);border-radius:var(--r-full);background:var(--surface2);font-size:.95rem;outline:none;font-family:inherit"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'" />
       </div>
-      <div id="waitlist-success-view" style="display:none;text-align:center;padding:var(--space-4) 0">
-        <div style="width:56px;height:56px;background:color-mix(in oklab,var(--color-primary) 12%,transparent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-4)">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+
+      <p class="ss-section-label">Browse by activity</p>
+      <button class="ss-option" onclick="closeSearchSheet();filterCards('hunt');document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})">
+        <div class="ss-option-icon" style="background:var(--green-lt)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
         </div>
-        <h2 style="font-size:var(--text-xl);font-weight:800;letter-spacing:.02em;margin-bottom:var(--space-2)">You're in!</h2>
-        <p style="font-size:var(--text-base);font-weight:600;color:var(--color-primary);margin-bottom:var(--space-3)">Your request has been submitted.</p>
-        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-6);line-height:1.6">We'll reach out by email and phone as soon as early access opens in Florida. You're on the list — first come, first served.</p>
-        <button onclick="closeWaitlist()" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem 1.5rem">Got it</button>
+        <div>
+          <strong>Hunting land</strong>
+          <span>Deer · Hog · Turkey · Quail</span>
+        </div>
+      </button>
+      <button class="ss-option" onclick="closeSearchSheet();filterCards('fish');document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})">
+        <div class="ss-option-icon" style="background:var(--water-lt)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--water)" stroke-width="2"><path d="M6 12C6 8 9 4 12 2c3 2 6 6 6 10s-3 8-6 10c-3-2-6-6-6-10z"/></svg>
+        </div>
+        <div>
+          <strong>Private fishing water</strong>
+          <span>Bass · Trout · Bream</span>
+        </div>
+      </button>
+      <button class="ss-option" onclick="closeSearchSheet();filterCards('all');document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})">
+        <div class="ss-option-icon" style="background:var(--divider)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+        </div>
+        <div>
+          <strong>All properties</strong>
+          <span>See everything in Florida</span>
+        </div>
+      </button>
+
+      <p class="ss-section-label" style="margin-top:24px">Dates</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div style="border:1.5px solid var(--border);border-radius:var(--r-md);padding:12px 14px">
+          <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin-bottom:4px">Check-in</div>
+          <input type="date" style="border:none;background:none;font-size:.9rem;font-family:inherit;color:var(--text);width:100%;outline:none" />
+        </div>
+        <div style="border:1.5px solid var(--border);border-radius:var(--r-md);padding:12px 14px">
+          <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin-bottom:4px">Check-out</div>
+          <input type="date" style="border:none;background:none;font-size:.9rem;font-family:inherit;color:var(--text);width:100%;outline:none" />
+        </div>
+      </div>
+    </div>
+    <div class="ss-cta">
+      <button class="ss-go-btn" onclick="closeSearchSheet();document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;margin-right:6px;vertical-align:middle"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Search
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       WAITLIST MODAL
+  ══════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="wl-modal" onclick="if(event.target===this)closeWaitlist()">
+    <div class="modal">
+      <button class="modal-close" onclick="closeWaitlist()" aria-label="Close">✕</button>
+      <div id="wl-form-view">
+        <p style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:10px">Early Access</p>
+        <h2>Join the waitlist</h2>
+        <p class="modal-sub">Be first to book when LeaseWild opens in Florida on July 1, 2026.</p>
+        <form onsubmit="submitWaitlist(event)">
+          <div class="form-row">
+            <div class="form-field">
+              <label>First name</label>
+              <input type="text" id="wl-first" required placeholder="First" />
+            </div>
+            <div class="form-field">
+              <label>Last name</label>
+              <input type="text" id="wl-last" placeholder="Last" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Email</label>
+            <input type="email" id="wl-email" required placeholder="your@email.com" />
+          </div>
+          <div class="form-field">
+            <label>Phone</label>
+            <input type="tel" id="wl-phone" required placeholder="(555) 000-0000" />
+          </div>
+          <div class="form-field">
+            <label>City, State</label>
+            <input type="text" id="wl-location" required placeholder="Tampa, FL" />
+          </div>
+          <button class="btn-submit" type="submit" id="wl-submit">Get early access — free</button>
+          <p id="wl-error" style="display:none;color:var(--danger);font-size:.78rem;text-align:center;margin-top:8px"></p>
+        </form>
+        <p class="modal-note">No spam. We'll only contact you when early access opens.</p>
+      </div>
+      <div class="modal-success" id="wl-success">
+        <div class="success-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2>You're in!</h2>
+        <p style="font-size:.9rem;color:var(--muted);margin:8px 0 24px;line-height:1.6">We'll reach out when early access opens in Florida. First come, first served.</p>
+        <button class="btn-submit" onclick="closeWaitlist()">Got it</button>
       </div>
     </div>
   </div>
-  <iframe name="wl-sink" style="display:none" aria-hidden="true"></iframe>
+
+  <!-- ══════════════════════════════════════════
+       LEAFLET MAP
+  ══════════════════════════════════════════ -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-  // ── SAMPLE LISTINGS DATA ──
-  const LISTINGS = [
-    { id:1, type:'hunting', lat:29.027, lng:-81.002, title:'Palmetto Ridge Cabin', acres:340, price:180, unit:'day', species:['Deer','Hog','Turkey'], state:'FL', city:'New Smyrna Beach' },
-    { id:2, type:'fishing', lat:29.191, lng:-81.102, title:'Lake Ashby Bass Pond', acres:12, price:95, unit:'day', species:['Bass','Bream'], state:'FL', city:'Osteen' },
-    { id:3, type:'hunting', lat:29.411, lng:-81.306, title:'Ocala Flatwoods', acres:620, price:220, unit:'day', species:['Deer','Hog'], state:'FL', city:'Ocala' },
-    { id:4, type:'fishing', lat:28.812, lng:-81.355, title:'Spring Creek Private Stretch', acres:4, price:120, unit:'day', species:['Bass','Trout'], state:'FL', city:'Sanford' },
-    { id:5, type:'hunting', lat:29.652, lng:-82.325, title:'Gainesville Ranch', acres:890, price:250, unit:'day', species:['Deer','Turkey'], state:'FL', city:'Gainesville' },
-    { id:6, type:'fishing', lat:28.538, lng:-81.379, title:'Private Lake Frontage', acres:8, price:110, unit:'day', species:['Bass','Crappie'], state:'FL', city:'Orlando' },
-    { id:7, type:'hunting', lat:30.332, lng:-81.655, title:'North FL Timber Tract', acres:1200, price:195, unit:'day', species:['Deer','Hog','Turkey'], state:'FL', city:'Jacksonville' },
-    { id:8, type:'hunting', lat:29.886, lng:-81.317, title:'St. Johns River Bottom', acres:480, price:165, unit:'day', species:['Deer','Duck'], state:'FL', city:'Palatka' },
-    { id:9, type:'fishing', lat:30.189, lng:-85.668, title:'Panhandle Bass Pond', acres:6, price:85, unit:'day', species:['Bass','Bream'], state:'FL', city:'Panama City' },
-    { id:10, type:'hunting', lat:30.438, lng:-84.280, title:'Tallahassee Quail Farm', acres:700, price:300, unit:'day', species:['Quail','Turkey'], state:'FL', city:'Tallahassee' },
+  /* ── CONSTANTS ── */
+  const WAITLIST_URL = 'https://script.google.com/macros/s/AKfycbxivcs1-B2GaVjf-iecUvzyDdduxxLHbD1azSqDIvikyzKBvtMeS9FZt507gkTQSUDQ/exec';
+
+  const LISTINGS_DATA = [
+    { id:1, type:'hunting', lat:27.30, lng:-81.34, title:'Palmetto Ridge Cabin', acres:450, price:240, species:'Deer · Hog', city:'Lake Placid' },
+    { id:2, type:'fishing', lat:29.19, lng:-82.13, title:'Silver Springs Bass Ranch', acres:18, price:195, species:'Largemouth Bass', city:'Ocala' },
+    { id:3, type:'hunting', lat:29.19, lng:-82.13, title:'Cypress Hollow Preserve', acres:210, price:175, species:'Turkey · Hog', city:'Ocala' },
+    { id:4, type:'fishing', lat:27.49, lng:-81.22, title:'Big Creek Trout Access', acres:5, price:320, species:'Trout · Bluegill', city:'Highlands Co.' },
+    { id:5, type:'hunting', lat:29.65, lng:-82.33, title:'Gainesville Ranch', acres:890, price:250, species:'Deer · Turkey', city:'Gainesville' },
+    { id:6, type:'fishing', lat:28.54, lng:-81.38, title:'Orlando Private Lake', acres:8, price:110, species:'Bass · Crappie', city:'Orlando' },
+    { id:7, type:'hunting', lat:30.33, lng:-81.66, title:'North FL Timber Tract', acres:1200, price:195, species:'Deer · Hog · Turkey', city:'Jacksonville' },
+    { id:8, type:'hunting', lat:30.44, lng:-84.28, title:'Tallahassee Quail Farm', acres:700, price:300, species:'Quail · Turkey', city:'Tallahassee' },
   ];
 
-  let huntMap, markers = [], currentFilter = 'all', allMarkers = [];
+  /* ── MAP ── */
+  var huntMap, allMarkers = [], currentMapFilter = 'all';
 
-  function makeIcon(type) {
-    const color = type === 'hunting' ? '#2d5a27' : '#1a5c7a';
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42"><path d="M16 0C7.16 0 0 7.16 0 16c0 10.67 14.22 24.67 15.11 25.55a1.25 1.25 0 0 0 1.78 0C17.78 40.67 32 26.67 32 16 32 7.16 24.84 0 16 0z" fill="${color}"/><circle cx="16" cy="16" r="7" fill="white" fill-opacity="0.9"/></svg>`;
-    return L.divIcon({ html: svg, className: '', iconSize: [32, 42], iconAnchor: [16, 42], popupAnchor: [0, -44] });
+  function makeIcon(type){
+    var color = type==='hunting'?'#2d5a27':'#1a6b7a';
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 30 40"><path d="M15 0C6.72 0 0 6.72 0 15c0 10 13.33 23.11 14.16 23.94a1.17 1.17 0 0 0 1.68 0C16.67 38.11 30 25 30 15 30 6.72 23.28 0 15 0z" fill="'+color+'"/><circle cx="15" cy="15" r="6" fill="rgba(255,255,255,.85)"/></svg>';
+    return L.divIcon({html:svg,className:'',iconSize:[30,40],iconAnchor:[15,40],popupAnchor:[0,-42]});
   }
 
-  function makePopup(l) {
-    const isHunt = l.type === 'hunting';
-    const color = isHunt ? '#2d5a27' : '#1a5c7a';
-    const badgeColor = isHunt ? '#d4e5da' : '#cde3ee';
-    return `<div class="map-popup">
-      <p class="pop-badge" style="color:${color};background:${badgeColor};display:inline-block;padding:2px 8px;border-radius:999px">${isHunt ? '🌲 Hunting' : '🎣 Fishing'}</p>
-      <p class="pop-title">${l.title}</p>
-      <p class="pop-meta">${l.city}, ${l.state} &middot; ${l.acres} acres &middot; ${l.species.join(', ')}</p>
-      <p class="pop-price">$${l.price}<span style="font-size:13px;font-weight:400;color:#6b6656"> / ${l.unit}</span></p>
-      <button class="pop-btn${isHunt ? '' : ' water'}" onclick="openWaitlist('guest')">Request access</button>
-    </div>`;
+  function makePopup(l){
+    var isHunt = l.type==='hunting';
+    var col = isHunt?'#2d5a27':'#1a6b7a';
+    var bg  = isHunt?'#d6e8d3':'#cde9ee';
+    return '<div style="padding:14px 16px;min-width:200px;font-family:Barlow,sans-serif">'
+      +'<span style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+col+';background:'+bg+';padding:2px 8px;border-radius:999px;display:inline-block;margin-bottom:8px">'+(isHunt?'Hunting':'Fishing')+'</span>'
+      +'<p style="font-size:14px;font-weight:700;margin-bottom:3px;color:#222">'+l.title+'</p>'
+      +'<p style="font-size:12px;color:#6b6656;margin-bottom:8px">'+l.city+', FL &middot; '+l.acres+' acres &middot; '+l.species+'</p>'
+      +'<p style="font-size:17px;font-weight:800;color:'+col+';margin-bottom:10px">$'+l.price+'<span style="font-size:12px;font-weight:400;color:#6b6656"> / day</span></p>'
+      +'<button onclick="openWaitlist()" style="width:100%;padding:8px;background:'+col+';color:#fff;border:none;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Request access</button>'
+      +'</div>';
   }
 
-  function initMap() {
-    if (huntMap) return;
-    huntMap = L.map('hunt-map', { zoomControl: true, scrollWheelZoom: false }).setView([29.02, -81.0], 8);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 18
+  function initMap(){
+    if(huntMap) return;
+    huntMap = L.map('hunt-map',{zoomControl:true,scrollWheelZoom:false}).setView([29.0,−81.5],7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18
     }).addTo(huntMap);
-    plotListings(LISTINGS);
+    plotMap(LISTINGS_DATA);
   }
 
-  function plotListings(list) {
-    allMarkers.forEach(m => huntMap.removeLayer(m));
-    allMarkers = [];
-    const filtered = list.filter(l => currentFilter === 'all' || l.type === currentFilter);
-    filtered.forEach(l => {
-      const m = L.marker([l.lat, l.lng], { icon: makeIcon(l.type) })
-        .addTo(huntMap).bindPopup(makePopup(l), { maxWidth: 260 });
+  function plotMap(list){
+    allMarkers.forEach(m=>huntMap.removeLayer(m));
+    allMarkers=[];
+    var filtered = list.filter(l=>currentMapFilter==='all'||l.type===currentMapFilter);
+    filtered.forEach(l=>{
+      var m = L.marker([l.lat,l.lng],{icon:makeIcon(l.type)})
+        .addTo(huntMap).bindPopup(makePopup(l),{maxWidth:260});
       allMarkers.push(m);
     });
-    const label = document.getElementById('map-results-label');
-    if (label) label.textContent = filtered.length > 0
-      ? `Showing ${filtered.length} listing${filtered.length !== 1 ? 's' : ''} in this area`
-      : 'No listings found in this area yet — check back soon.';
-    if (filtered.length > 0) {
-      const group = L.featureGroup(allMarkers);
-      huntMap.fitBounds(group.getBounds().pad(0.2));
+    if(filtered.length>0){
+      var g = L.featureGroup(allMarkers);
+      huntMap.fitBounds(g.getBounds().pad(.25));
     }
   }
 
-  function setMapFilter(f) {
-    currentFilter = f;
-    ['all','hunt','fish'].forEach(k => {
-      const btn = document.getElementById('map-filter-'+k);
-      if (!btn) return;
-      btn.className = 'btn ' + (k === f || (k==='all'&&f==='all') ? 'btn-primary' : 'btn-ghost');
-      btn.style.borderRadius = 'var(--radius-full)';
+  function setMapFilter(f){
+    currentMapFilter=f;
+    ['all','hunt','fish'].forEach(k=>{
+      var btn=document.getElementById('mf-'+k);
+      if(!btn)return;
+      btn.classList.toggle('active', (k==='all'&&f==='all')||(k==='hunt'&&f==='hunting')||(k==='fish'&&f==='fishing'));
     });
-    if (huntMap) plotListings(LISTINGS);
+    if(huntMap) plotMap(LISTINGS_DATA);
   }
 
-  async function doMapSearch() {
-    const q = document.getElementById('map-search').value.trim();
-    if (!q) return;
-    if (!huntMap) initMap();
-    const loading = document.getElementById('map-loading');
-    loading.style.display = 'flex';
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+', USA')}&format=json&limit=1`, {
-        headers: { 'Accept-Language': 'en', 'User-Agent': 'LeaseWild/1.0' }
-      });
-      const data = await res.json();
-      if (data && data[0]) {
-        const { lat, lon } = data[0];
-        huntMap.setView([+lat, +lon], 9);
-        const nearby = LISTINGS.filter(l => {
-          const dlat = l.lat - lat, dlng = l.lng - lon;
-          return Math.sqrt(dlat*dlat + dlng*dlng) < 2.5;
-        });
-        plotListings(nearby.length ? nearby : LISTINGS);
-        if (!nearby.length) document.getElementById('map-results-label').textContent = 'No listings near that location yet. Showing all available listings.';
-      } else {
-        document.getElementById('map-results-label').textContent = 'Location not found. Try a zip code or "City, State".';
-      }
-    } catch {
-      document.getElementById('map-results-label').textContent = 'Search failed. Please try again.';
-    } finally {
-      loading.style.display = 'none';
-    }
-  }
-
-  const mapObserver = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting) { initMap(); mapObserver.disconnect(); }
-  }, { threshold: 0.1 });
-  document.addEventListener('DOMContentLoaded', () => {
-    const sec = document.getElementById('map');
-    if (sec) mapObserver.observe(sec);
-    const inp = document.getElementById('map-search');
-    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') doMapSearch(); });
+  // lazy-init map when column scrolls into view
+  var mapObs = new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting){initMap();mapObs.disconnect();}
+  },{threshold:.05});
+  document.addEventListener('DOMContentLoaded',()=>{
+    var mc=document.querySelector('.map-col');
+    if(mc) mapObs.observe(mc);
   });
 
-  // ── LISTING FILTERS ──
-  let _ftype = 'all', _fsize = 'any', _fspecies = 'all';
-  function applyCardFilters() {
-    const cards = document.querySelectorAll('#listings-grid .listing-card');
-    let visible = 0;
-    cards.forEach(c => {
-      const type = c.dataset.type;
-      const acres = parseInt(c.dataset.acres);
-      const species = c.dataset.species || '';
-      const typeOk = _ftype === 'all' || type === _ftype;
-      const sizeOk = _fsize === 'any' ||
-        (_fsize === 'small' && acres < 50) ||
-        (_fsize === 'med' && acres >= 50 && acres <= 300) ||
-        (_fsize === 'large' && acres > 300);
-      const speciesOk = _fspecies === 'all' || species.includes(_fspecies);
-      const show = typeOk && sizeOk && speciesOk;
-      c.style.display = show ? '' : 'none';
-      if (show) visible++;
+  /* ── CARD FILTER ── */
+  var _activeFilter = 'all';
+  function filterCards(type){
+    _activeFilter = type;
+    var cards = document.querySelectorAll('#cards-grid .card');
+    var visible = 0;
+    cards.forEach(c=>{
+      var show = type==='all'||c.dataset.type===type;
+      c.style.display = show?'':'none';
+      if(show) visible++;
     });
-    const empty = document.getElementById('filter-empty');
-    if (empty) empty.style.display = visible === 0 ? 'block' : 'none';
+    document.getElementById('listings-count-num').textContent = visible+' propert'+(visible===1?'y':'ies');
+    document.getElementById('filter-empty').style.display = visible===0?'block':'none';
   }
-  function filterCards(btn, val) {
-    _ftype = val;
-    document.querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('active', b.dataset.filter === val));
-    applyCardFilters();
-  }
-  function filterSize(btn, val) {
-    _fsize = val;
-    document.querySelectorAll('[data-size]').forEach(b => b.classList.toggle('active', b.dataset.size === val));
-    applyCardFilters();
-  }
-  function filterSpecies(val) { _fspecies = val; applyCardFilters(); }
 
-  // ── INLINE EMAIL ──
-  async function inlineSubmit(e) {
+  function setCat(btn,filter){
+    document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    filterCards(filter);
+  }
+
+  /* ── SAVE / HEART ── */
+  function toggleSave(btn){
+    var saved = btn.dataset.saved==='1';
+    btn.dataset.saved = saved?'':'1';
+    btn.innerHTML = saved
+      ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>'
+      : '<svg width="15" height="15" viewBox="0 0 24 24" fill="#e74c3c" stroke="#e74c3c" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+  }
+
+  /* ── MOBILE BOTTOM TAB ── */
+  function mobTab(btn,name){
+    document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  /* ── SEARCH SHEET ── */
+  function openSearchSheet(){
+    document.getElementById('search-sheet').classList.add('open');
+    document.body.style.overflow='hidden';
+    setTimeout(()=>document.getElementById('ss-input').focus(),100);
+  }
+  function closeSearchSheet(){
+    document.getElementById('search-sheet').classList.remove('open');
+    document.body.style.overflow='';
+  }
+
+  /* ── WAITLIST MODAL ── */
+  function openWaitlist(){
+    document.getElementById('wl-form-view').style.display='';
+    document.getElementById('wl-success').style.display='none';
+    document.getElementById('wl-modal').classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeWaitlist(){
+    document.getElementById('wl-modal').classList.remove('open');
+    document.body.style.overflow='';
+  }
+  async function submitWaitlist(e){
     e.preventDefault();
-    const email = document.getElementById('inline-email').value.trim();
-    if (!email) return;
-    const btn = document.getElementById('inline-submit');
-    btn.disabled = true; btn.textContent = 'Submitting…';
-    try {
-      await fetch(WAITLIST_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName: '', lastName: '', email, phone: '', location: 'Florida' })
-      });
-    } catch(err) { console.warn('Inline waitlist error:', err); }
-    document.getElementById('inline-confirm').style.display = 'block';
-    document.querySelector('#inline-email').closest('form').style.display = 'none';
+    var first    = document.getElementById('wl-first').value.trim();
+    var last     = document.getElementById('wl-last').value.trim();
+    var email    = document.getElementById('wl-email').value.trim();
+    var phone    = document.getElementById('wl-phone').value.trim();
+    var location = document.getElementById('wl-location').value.trim();
+    var btn = document.getElementById('wl-submit');
+    btn.disabled=true; btn.textContent='Submitting…';
+    try{
+      var params = new URLSearchParams({firstName:first,lastName:last,email,phone,location,timestamp:new Date().toLocaleString('en-US',{timeZone:'America/New_York'})});
+      await fetch(WAITLIST_URL+'?'+params,{method:'GET',mode:'no-cors'});
+    }catch(err){console.warn(err);}
+    document.getElementById('wl-form-view').style.display='none';
+    document.getElementById('wl-success').style.display='block';
+    btn.disabled=false;
   }
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeWaitlist();closeSearchSheet();}});
 
-  // ── WAITLIST MODAL ──
-  const FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSflRqncpu1U2GKag97hbgK8LqhxVImlQf87IRzjzTAX_blfhQ/formResponse';
-  const FIELD_EMAIL = 'entry.248c66f4';
-  const FIELD_TYPE  = 'entry.7bcb4a58';
-
-  function openWaitlist(type) {
-    // Guest waitlist only
-    document.getElementById('waitlist-form-view').style.display = '';
-    document.getElementById('waitlist-success-view').style.display = 'none';
-    document.getElementById('waitlist-email').value = '';
-    document.getElementById('waitlist-error').style.display = 'none';
-    const btn = document.getElementById('waitlist-submit');
-    btn.disabled = false; btn.textContent = "Join waitlist — it's free";
-    document.getElementById('waitlist-modal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => document.getElementById('waitlist-email').focus(), 50);
-  }
-  function closeWaitlist() {
-    document.getElementById('waitlist-modal').style.display = 'none';
-    document.body.style.overflow = '';
-  }
-  // Google Sheets spreadsheet ID for guest waitlist
-  const WAITLIST_SHEET_ID = '1AWPPKO8AYJ2lWufeulHav9KUJ-EVRzBobYObd_rpW30';
-  // Apps Script Web App URL — set after deploying Apps Script
-  const WAITLIST_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxivcs1-B2GaVjf-iecUvzyDdduxxLHbD1azSqDIvikyzKBvtMeS9FZt507gkTQSUDQ/exec';
-
-  async function submitWaitlist(e) {
+  /* ── INLINE EMAIL ── */
+  async function inlineSubmit(e){
     e.preventDefault();
-    const firstName = document.getElementById('wl-first').value.trim();
-    const lastName  = document.getElementById('wl-last').value.trim();
-    const email     = document.getElementById('waitlist-email').value.trim();
-    const phone     = document.getElementById('wl-phone').value.trim();
-    const location  = document.getElementById('wl-location').value.trim();
-    const btn   = document.getElementById('waitlist-submit');
-    const errEl = document.getElementById('waitlist-error');
-    if (!firstName || !email || !phone) return;
-    btn.disabled = true; btn.textContent = 'Submitting…'; errEl.style.display = 'none';
-    try {
-      const params = new URLSearchParams({
-        firstName, lastName, email, phone, location,
-        timestamp: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })
-      });
-      // Use no-cors mode — response will be opaque but data will save
-      await fetch(WAITLIST_SCRIPT_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
-    } catch(err) { console.warn('Waitlist submit error:', err); }
-    document.getElementById('waitlist-form-view').style.display = 'none';
-    document.getElementById('waitlist-success-view').style.display = '';
-    btn.disabled = false;
+    var email = document.getElementById('inline-email').value.trim();
+    var btn = document.getElementById('inline-btn');
+    btn.disabled=true; btn.textContent='Joining…';
+    try{
+      await fetch(WAITLIST_URL+'?'+new URLSearchParams({firstName:'',lastName:'',email,phone:'',location:'',timestamp:new Date().toLocaleString()}),{method:'GET',mode:'no-cors'});
+    }catch(err){}
+    document.getElementById('inline-confirm').style.display='block';
+    e.target.style.display='none';
   }
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeWaitlist(); });
 
-  // ── THEME TOGGLE ──
-  (function(){
-    const r = document.documentElement;
-    const btn = document.querySelector('[data-theme-toggle]');
-    let theme = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
-    r.setAttribute('data-theme', theme);
-    function updateIcon(){
-      btn.innerHTML = theme === 'dark'
-        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
-        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-    }
-    updateIcon();
-    btn.addEventListener('click', () => { theme = theme === 'dark' ? 'light' : 'dark'; r.setAttribute('data-theme', theme); updateIcon(); });
-    document.querySelectorAll('.card-save').forEach(b => {
-      b.addEventListener('click', e => {
-        e.stopPropagation();
-        const saved = b.textContent.trim() === '♥';
-        b.textContent = saved ? '♡' : '♥';
-        b.style.background = saved ? '' : 'var(--color-accent)';
-      });
-    });
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
-    }, { threshold: 0.12 });
-    document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
-    const nav = document.querySelector('.nav');
-    window.addEventListener('scroll', () => { nav.style.boxShadow = scrollY > 10 ? 'var(--shadow-md)' : 'none'; }, { passive: true });
-  })();
-  </script>
-  <script>
-    // Mobile menu toggle
-    (function(){
-      var btn = document.querySelector('.mobile-menu-btn');
-      var links = document.querySelector('.nav-links');
-      if(!btn || !links) return;
-      btn.addEventListener('click', function(e){
-        e.stopPropagation();
-        var open = links.classList.toggle('nav-open');
-        btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-        btn.innerHTML = open
-          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>'
-          : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>';
-      });
-      document.addEventListener('click', function(e){
-        if(!btn.contains(e.target) && !links.contains(e.target)){
-          links.classList.remove('nav-open');
-          btn.setAttribute('aria-label','Open menu');
-          btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>';
-        }
-      });
-      // close on nav link tap
-      links.querySelectorAll('a').forEach(function(a){
-        a.addEventListener('click', function(){
-          links.classList.remove('nav-open');
-          btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>';
-        });
-      });
-    })();
+  /* ── SCROLL ANIMATIONS ── */
+  var io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+  },{threshold:.1});
+  document.querySelectorAll('.fade-up').forEach(el=>io.observe(el));
+
+  /* ── NAV SHADOW ── */
+  window.addEventListener('scroll',()=>{
+    document.getElementById('main-nav').classList.toggle('scrolled',window.scrollY>10);
+  },{passive:true});
   </script>
 </body>
 </html>
