@@ -70,8 +70,8 @@ function openListingDetail(l) {
         '<input id="bk-phone" type="tel" placeholder="Phone (optional)" style="'+inputStyle+';margin-bottom:.85rem" />'
       : '';
 
-    var btnLabel = launched ? 'Book Now &rarr;' : 'Pre-reserve my dates &mdash; free';
-    var btnAction = launched ? 'submitBookingStripe()' : 'submitPreReservation()';
+    var btnLabel = 'Book Now &rarr;';
+    var btnAction = 'submitBookingStripe()';
 
     bookingHtml =
       '<div style="margin-top:1.25rem;border:1.5px solid var(--color-border);border-radius:16px;overflow:hidden">' +
@@ -100,7 +100,7 @@ function openListingDetail(l) {
           nameEmailHtml +
           '<button onclick="'+btnAction+'" id="bk-btn" style="width:100%;padding:.9rem;background:var(--color-primary);color:#fff;border:none;border-radius:999px;font-family:var(--font-display);font-weight:800;font-size:1.1rem;cursor:pointer">'+btnLabel+'</button>' +
           '<p id="bk-msg" style="font-size:.85rem;text-align:center;margin-top:.5rem;display:none"></p>' +
-          (!launched ? '<p style="font-size:.78rem;color:var(--color-text-faint);text-align:center;margin-top:.4rem">No payment now. We confirm when bookings open July 1.</p>' : '') +
+          '<p style="font-size:.78rem;color:var(--color-text-faint);text-align:center;margin-top:.4rem">Secure checkout powered by Stripe.</p>' +
         '</div>' +
       '</div>';
   }
