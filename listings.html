@@ -156,6 +156,12 @@
     .card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--color-divider)}
     .card-rating{display:flex;align-items:center;gap:.3rem;font-size:var(--text-xs);font-weight:600}
     .card-state{font-size:var(--text-xs);color:var(--color-text-faint);padding:.3rem .65rem;background:var(--color-surface-offset);border-radius:var(--radius-full)}
+
+    .badge-hot{background:linear-gradient(135deg,#c17f3a,#e09444);color:#fff;font-size:10px;font-weight:700;padding:.25rem .55rem;border-radius:var(--radius-full);letter-spacing:.04em;text-transform:uppercase}
+    .badge-deal{background:linear-gradient(135deg,#1a6b7a,#2a9ab0);color:#fff;font-size:10px;font-weight:700;padding:.25rem .55rem;border-radius:var(--radius-full);letter-spacing:.04em;text-transform:uppercase}
+    .badge-hog{background:rgba(80,40,10,.85);color:#f5c87a;font-size:10px;font-weight:700;padding:.25rem .55rem;border-radius:var(--radius-full);letter-spacing:.04em}
+    .badge-deer{background:rgba(30,60,25,.85);color:#90d090;font-size:10px;font-weight:700;padding:.25rem .55rem;border-radius:var(--radius-full);letter-spacing:.04em}
+    .activity-badge-row{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:var(--space-2)}
     .verified-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:var(--text-xs);color:var(--color-primary);font-weight:600}
 
     /* ── STATS BAR ──────────────────────────────────────── */
@@ -285,6 +291,11 @@
       <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;margin-bottom:var(--space-6)">
         <button class="card-filter-btn active" data-filter="all" onclick="filterCards(this,'all')">All</button>
         <button class="card-filter-btn" data-filter="hunting" onclick="filterCards(this,'hunting')">Hunting</button>
+        <button class="card-filter-btn" data-filter="hotspot" onclick="filterCards(this,'hotspot')">🔥 Hot Spots</button>
+        <button class="card-filter-btn" data-filter="lastminute" onclick="filterCards(this,'lastminute')">⚡ Last Minute</button>
+        <button class="card-filter-btn" data-filter="deerhigh" onclick="filterCards(this,'deerhigh')">🦌 Deer Active</button>
+        <button class="card-filter-btn" data-filter="hogsactive" onclick="filterCards(this,'hogsactive')">🐗 Hogs Active</button>
+        
         <button class="card-filter-btn" data-filter="fishing" onclick="filterCards(this,'fishing')">Fishing</button>
         <div style="margin-left:auto;display:flex;gap:var(--space-2)">
           <button class="card-filter-btn" data-size="any" onclick="filterSize(this,'any')">Any size</button>
@@ -411,16 +422,32 @@
     var cleanFee = l.cleaning_fee ? '<span>+ $'+l.cleaning_fee+' cleaning</span>' : '';
     var minStay = l.min_stay && l.min_stay !== '' ? '<span>Min '+l.min_stay+'</span>' : '';
 
-    return '<div class="listing-card fade-up" data-type="'+type+'" data-acres="'+acres+'" data-species="'+species+'" onclick="openListingById(this.dataset.lid)" data-lid="'+l.id+'">' +
+    // Determine badges
+    var isHot = l.deer_activity === 'very_high' || l.deer_activity === 'high';
+    var isLastMinute = false; // future: check availability within 7 days
+    var hogsActive = l.hogs_active === true;
+    var deerHigh = l.deer_activity === 'high' || l.deer_activity === 'very_high';
+    var deerLabel = l.deer_activity ? {'low':'Low','moderate':'Moderate','high':'High','very_high':'Very High'}[l.deer_activity] : null;
+
+    var activityBadges = '';
+    if (isHot) activityBadges += '<span class="badge-hot">🔥 Hot Spot</span>';
+    if (hogsActive) activityBadges += '<span class="badge-hog">🐗 Hogs Active</span>';
+    if (deerHigh) activityBadges += '<span class="badge-deer">🦌 Deer: '+deerLabel+'</span>';
+    var activityRow = activityBadges ? '<div class="activity-badge-row">'+activityBadges+'</div>' : '';
+
+    var trailCam = l.trail_cam_date ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">📷 Trail cam: '+l.trail_cam_date+'</span>' : '';
+
+    return '<div class="listing-card fade-up" data-type="'+type+'" data-acres="'+acres+'" data-species="'+species+'" data-hotspot="'+(isHot?'1':'0')+'" data-lastminute="'+(isLastMinute?'1':'0')+'" data-deerhigh="'+(deerHigh?'1':'0')+'" data-hogsactive="'+(hogsActive?'1':'0')+'" onclick="openListingById(this.dataset.lid)" data-lid="'+l.id+'">' +
       '<div class="card-media '+mediaClass+'">'+mediaContent+'<div class="card-price">'+price+'</div>'+typeLabel+'<button class="card-save">♡</button></div>' +
       '<div class="card-body">'+
+        activityRow+
         '<h3>'+escHtml(l.county ? l.county+' Private Land' : 'Private Land')+'</h3>'+
         '<div class="card-meta"><span>📍 '+escHtml(location)+'</span>'+(l.acreage?'<span>'+escHtml(l.acreage)+' ac</span>':'')+'</div>'+
         (guestInfo.length ? '<div class="card-meta"><span>👥 '+guestInfo.join(' &middot; ')+'</span></div>' : '')+
         (speciesTags ? '<div class="card-meta"><span>'+speciesTags+'</span></div>' : '')+
         '<div class="card-footer">'+
           '<span class="verified-badge">🌱 Early Listing</span>'+
-          (cleanFee||minStay ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">'+[cleanFee,minStay].filter(Boolean).join(' ')+'</span>' : '')+
+          (trailCam ? trailCam : (cleanFee||minStay ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">'+[cleanFee,minStay].filter(Boolean).join(' ')+'</span>' : ''))+
         '</div>'+
       '</div>'+
     '</div>';
