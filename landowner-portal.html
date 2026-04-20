@@ -737,8 +737,34 @@
           <div><span style="font-weight:600;color:var(--color-text)">Your earnings</span><br><span style="color:var(--color-primary);font-weight:700">${landEarnings}</span></div>
           <div><span style="font-weight:600;color:var(--color-text)">Booked</span><br>${new Date(b.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
         </div>
+        ${st !== 'cancelled' ? `
+        <div style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+          <p style="font-size:.72rem;color:var(--color-text-muted)">Flexible policy: full refund if cancelled 48+ hrs before check-in</p>
+          <button onclick="cancelReservation('${b.id}','${(b.guest_name||'Guest').replace(/'/g,'&#39;')}','${cin}')" style="padding:.4rem .9rem;border:1.5px solid #ef4444;color:#ef4444;background:none;border-radius:var(--radius-md);font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit">Cancel Reservation</button>
+        </div>` : '<p style="margin-top:.6rem;font-size:.72rem;color:#ef4444;font-weight:700">This reservation was cancelled.</p>'}
       </div>`;
     }).join('');
+  }
+
+  async function cancelReservation(bookingId, guestName, checkin) {
+    // Check 48-hour rule
+    var cin = new Date(checkin + 'T00:00:00');
+    var now = new Date();
+    var hoursUntilCheckin = (cin - now) / (1000 * 60 * 60);
+    var refundMsg = hoursUntilCheckin >= 48
+      ? 'The guest will receive a full refund when payments go live.'
+      : 'Check-in is less than 48 hours away — no refund applies under the flexible policy.';
+    if (!confirm('Cancel reservation for ' + guestName + '?\n\n' + refundMsg + '\n\nProceed?')) return;
+    var { error } = await sb.from('bookings').update({
+      status: 'cancelled',
+      cancelled_at: new Date().toISOString(),
+      cancelled_by: 'landowner'
+    }).eq('id', bookingId);
+    if (error) { alert('Error: ' + error.message); return; }
+    loadReservations(null); // refresh
+    // Reload reservations with current listing ids
+    var { data } = await sb.from('listings').select('id').eq('email', currentUserEmail);
+    if (data) loadReservations(data.map(l => l.id));
   }
 
   async function toggleListing(id, newStatus) {

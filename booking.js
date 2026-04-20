@@ -271,14 +271,14 @@ async function submitPreReservation() {
       trip_protection: 18,
       total: total,
       status: 'pre_reserved'
-    });
+    }}).select();
     if (result.error) throw result.error;
     btn.style.display = 'none';
     msg.style.display = 'block';
     msg.style.color = 'var(--color-primary)';
     msg.style.fontWeight = '700';
     msg.style.fontSize = '1rem';
-    msg.textContent = 'Pre-reservation saved! We\'ll email ' + email + ' when bookings open July 1.';
+    msg.innerHTML = 'Pre-reservation saved! We\'ll email <strong>' + email + '</strong> when bookings open July 1.<br><a href="cancel.html?id=' + result.data[0].id + '" style="color:#ef4444;font-size:.8rem">Need to cancel? Click here.</a>';
   } catch(e) {
     btn.disabled = false; btn.textContent = 'Pre-reserve my dates - free';
     msg.style.display = 'block'; msg.style.color = '#c0392b';
