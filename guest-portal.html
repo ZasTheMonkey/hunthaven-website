@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guest Portal — LeaseWild</title>
+  <meta name="description" content="LeaseWild guest portal. Sign in to view your bookings and messages." />
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,400&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root,[data-theme="light"]{
+      --text-xs:clamp(0.85rem,0.8rem + 0.25vw,1rem);
+      --text-sm:clamp(1rem,0.9rem + 0.35vw,1.125rem);
+      --text-base:clamp(1.125rem,1.05rem + 0.3vw,1.3rem);
+      --text-lg:clamp(1.3rem,1.1rem + 0.75vw,1.65rem);
+      --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+      --color-bg:#f5f1e8;--color-surface:#faf6ed;--color-surface-2:#fff;
+      --color-border:#d6cebd;--color-text:#1a1a12;--color-text-muted:#6b6656;
+      --color-primary:#2d5a27;--color-primary-hover:#1e3d1a;
+      --color-accent:#c17f3a;--color-accent-hover:#a06828;
+      --color-danger:#c0392b;
+      --radius-md:.625rem;--radius-lg:1rem;--radius-xl:1.5rem;
+      --shadow-md:0 4px 16px rgba(26,26,18,.10);--shadow-lg:0 16px 48px rgba(26,26,18,.14);
+      --font-display:'Cabinet Grotesk',system-ui,sans-serif;
+      --font-body:'Satoshi',system-ui,sans-serif;
+    }
+    [data-theme="dark"]{
+      --color-bg:#111410;--color-surface:#171b14;--color-surface-2:#1d221a;
+      --color-border:#2e342b;--color-text:#e8e2d4;--color-text-muted:#9a9485;
+      --color-primary:#5a9470;--color-accent:#d4922a;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+    body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);display:flex;flex-direction:column;align-items:center;padding:1.5rem}
+    .portal-card{background:var(--color-surface-2);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);padding:2.5rem 2rem;width:100%;max-width:460px;border:1px solid var(--color-border);margin:auto}
+    .logo-row{display:flex;align-items:center;gap:.75rem;margin-bottom:2rem;text-decoration:none}
+    .wordmark{font-family:var(--font-display);font-weight:800;font-size:1.55rem;letter-spacing:-.03em;line-height:1}
+    h1{font-family:var(--font-display);font-weight:800;font-size:var(--text-xl);margin-bottom:.5rem}
+    .subtitle{color:var(--color-text-muted);font-size:var(--text-sm);margin-bottom:2rem}
+    .tabs{display:flex;border-bottom:2px solid var(--color-border);margin-bottom:1.75rem}
+    .tab{flex:1;text-align:center;padding:.75rem;font-weight:600;font-size:var(--text-sm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);transition:all .15s}
+    .tab.active{color:var(--color-primary);border-bottom-color:var(--color-primary)}
+    .tab-panel{display:none}.tab-panel.active{display:block}
+    .field{margin-bottom:1.25rem}
+    label{display:block;font-weight:600;font-size:var(--text-sm);margin-bottom:.4rem}
+    input[type=text],input[type=email],input[type=password],input[type=tel]{width:100%;padding:.8rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);font-size:var(--text-base);font-family:inherit;color:var(--color-text);transition:border-color .15s}
+    input:focus{outline:none;border-color:var(--color-primary)}
+    .btn-primary{width:100%;padding:.9rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--text-base);font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s;margin-top:.5rem}
+    .btn-primary:hover{background:var(--color-primary-hover)}
+    .btn-primary:disabled{opacity:.6;cursor:not-allowed}
+    .msg{padding:.8rem 1rem;border-radius:var(--radius-md);font-size:var(--text-sm);margin-bottom:1rem}
+    .msg.error{background:#fde8e8;color:var(--color-danger);border:1px solid #f5c6c6}
+    .msg.success{background:#e8f5e9;color:#2d6a2d;border:1px solid #b2d8b2}
+    /* Dashboard */
+    #dashboard{display:none;width:100%;max-width:600px;margin:0 auto;padding-bottom:3rem}
+    .dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;padding:1.5rem 0 0}
+    .dash-welcome{font-family:var(--font-display);font-weight:800;font-size:var(--text-lg)}
+    .btn-ghost{padding:.6rem 1.1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-weight:600;font-family:inherit;font-size:var(--text-sm);cursor:pointer;background:none;color:var(--color-text)}
+    /* Tabs */
+    .dash-tabs{display:flex;border-bottom:2px solid var(--color-border);margin-bottom:1.5rem;gap:0}
+    .dash-tab{padding:.65rem 1.25rem;font-weight:600;font-size:var(--text-sm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all .15s}
+    .dash-tab.active{color:var(--color-primary);border-bottom-color:var(--color-primary)}
+    .dash-panel{display:none}.dash-panel.active{display:block}
+    /* Booking cards */
+    .booking-card{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:.85rem}
+    /* Message thread */
+    .thread-list{display:flex;flex-direction:column;gap:.6rem}
+    .thread-item{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem 1.25rem;cursor:pointer;transition:border-color .15s;position:relative}
+    .thread-item:hover{border-color:var(--color-primary)}
+    .thread-item.unread{border-left:3px solid var(--color-accent)}
+    .thread-title{font-weight:700;font-size:var(--text-sm);margin-bottom:.25rem}
+    .thread-preview{font-size:var(--text-xs);color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .thread-time{font-size:.72rem;color:var(--color-text-muted);position:absolute;top:1rem;right:1.25rem}
+    /* Conversation */
+    #conversation-view{display:none}
+    .conv-header{display:flex;align-items:center;gap:.75rem;padding:.75rem 0 1rem;border-bottom:1px solid var(--color-border);margin-bottom:1rem}
+    .conv-back{background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--color-text-muted);padding:4px 8px}
+    .conv-title{font-weight:700;font-size:var(--text-sm)}
+    .messages-container{display:flex;flex-direction:column;gap:.6rem;min-height:200px;max-height:55vh;overflow-y:auto;padding:.5rem 0;margin-bottom:1rem}
+    .msg-bubble{max-width:80%;padding:.65rem .9rem;border-radius:12px;font-size:var(--text-sm);line-height:1.5;word-break:break-word}
+    .msg-bubble.mine{background:var(--color-primary);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+    .msg-bubble.theirs{background:var(--color-surface);border:1px solid var(--color-border);align-self:flex-start;border-bottom-left-radius:4px}
+    .msg-meta{font-size:.7rem;color:var(--color-text-muted);margin-top:.2rem;text-align:right}
+    .msg-meta.theirs{text-align:left}
+    .msg-wrap{display:flex;flex-direction:column}
+    .compose-row{display:flex;gap:.6rem;align-items:flex-end}
+    .compose-input{flex:1;padding:.75rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-sm);font-family:inherit;resize:none;min-height:48px;max-height:120px;background:var(--color-surface);color:var(--color-text)}
+    .compose-input:focus{outline:none;border-color:var(--color-primary)}
+    .send-btn{padding:.7rem 1.1rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-weight:700;font-family:inherit;cursor:pointer;font-size:var(--text-sm);white-space:nowrap}
+    .send-btn:disabled{opacity:.5;cursor:not-allowed}
+  </style>
+</head>
+<body>
+
+  <!-- AUTH CARD -->
+  <div class="portal-card" id="auth-card">
+    <a href="index.html" class="logo-row">
+      <svg width="34" height="34" viewBox="0 0 38 38" fill="none"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
+      <span class="wordmark"><span style="color:var(--color-text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
+    </a>
+    <h1>Guest Portal</h1>
+    <p class="subtitle">Sign in to view your bookings and messages.</p>
+
+    <div class="tabs">
+      <div class="tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</div>
+      <div class="tab" id="tab-signup" onclick="switchTab('signup')">Create Account</div>
+    </div>
+
+    <div id="msg" class="msg"></div>
+
+    <!-- SIGN IN -->
+    <div class="tab-panel active" id="panel-signin">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="si-email" placeholder="your@email.com" autocomplete="email" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="si-pass" placeholder="Password" autocomplete="current-password" />
+      </div>
+      <button class="btn-primary" onclick="signIn()" id="si-btn">Sign In</button>
+      <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-align:center;margin-top:1rem;cursor:pointer;text-decoration:underline" onclick="resetPassword()">Forgot password?</p>
+    </div>
+
+    <!-- SIGN UP -->
+    <div class="tab-panel" id="panel-signup">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div class="field"><label>First Name</label><input type="text" id="su-first" placeholder="Jane" /></div>
+        <div class="field"><label>Last Name</label><input type="text" id="su-last" placeholder="Smith" /></div>
+      </div>
+      <div class="field"><label>Phone</label><input type="tel" id="su-phone" placeholder="+1 (555) 000-0000" /></div>
+      <div class="field"><label>Email</label><input type="email" id="su-email" placeholder="your@email.com" autocomplete="email" /></div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="su-pass" placeholder="Min 8 chars + 1 special character" autocomplete="new-password" />
+      </div>
+      <button class="btn-primary" onclick="signUp()" id="su-btn">Create Guest Account</button>
+      <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-align:center;margin-top:1rem;line-height:1.5">By creating an account you agree to our <a href="terms.html#guest" style="color:var(--color-primary)">Guest Terms</a>.</p>
+    </div>
+
+    <div style="text-align:center;margin-top:1.5rem;font-size:var(--text-xs);color:var(--color-text-muted)">
+      Are you a landowner? <a href="landowner-portal.html" style="color:var(--color-primary);font-weight:600">Landowner portal →</a>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard">
+    <div class="dash-header">
+      <div>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.07em;font-weight:700">Guest Portal</p>
+        <div class="dash-welcome" id="dash-name">Welcome back</div>
+      </div>
+      <div style="display:flex;gap:.6rem;align-items:center">
+        <a href="listings.html" style="text-decoration:none"><button class="btn-ghost">Browse land</button></a>
+        <button class="btn-ghost" onclick="signOut()">Sign out</button>
+      </div>
+    </div>
+
+    <div class="dash-tabs">
+      <button class="dash-tab active" id="dtab-bookings" onclick="switchDashTab('bookings')">My Bookings</button>
+      <button class="dash-tab" id="dtab-messages" onclick="switchDashTab('messages')">Messages <span id="unread-badge" style="display:none;background:var(--color-accent);color:#fff;border-radius:99px;font-size:.7rem;padding:.1rem .45rem;margin-left:.3rem;font-weight:700"></span></button>
+    </div>
+
+    <!-- BOOKINGS PANEL -->
+    <div class="dash-panel active" id="dpanel-bookings">
+      <div id="bookings-container">
+        <p style="color:var(--color-text-muted);text-align:center;padding:2rem">Loading your bookings…</p>
+      </div>
+    </div>
+
+    <!-- MESSAGES PANEL -->
+    <div class="dash-panel" id="dpanel-messages">
+      <!-- Thread list -->
+      <div id="thread-list-view">
+        <div id="threads-container" class="thread-list">
+          <p style="color:var(--color-text-muted);text-align:center;padding:2rem">Loading messages…</p>
+        </div>
+      </div>
+
+      <!-- Conversation view -->
+      <div id="conversation-view">
+        <div class="conv-header">
+          <button class="conv-back" onclick="showThreadList()">← Back</button>
+          <div>
+            <div class="conv-title" id="conv-title">Conversation</div>
+            <div style="font-size:.75rem;color:var(--color-text-muted)" id="conv-subtitle"></div>
+          </div>
+        </div>
+        <div class="messages-container" id="messages-container"></div>
+        <div class="compose-row">
+          <textarea class="compose-input" id="compose-input" placeholder="Type a message…" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+          <button class="send-btn" id="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const SB_URL  = 'https://teohfzegpoxzimfsmviy.supabase.co';
+  const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
+  let sb, currentUser, currentConvId, pollInterval;
+
+  try { sb = supabase.createClient(SB_URL, SB_ANON); } catch(e) { console.error(e); }
+
+  function switchTab(t) {
+    ['signin','signup'].forEach(function(x) {
+      document.getElementById('tab-'+x).classList.toggle('active', x===t);
+      document.getElementById('panel-'+x).classList.toggle('active', x===t);
+    });
+    showMsg('','');
+  }
+
+  function showMsg(text, type) {
+    var el = document.getElementById('msg');
+    el.textContent = text;
+    el.className = 'msg' + (type ? ' '+type : '');
+    el.style.display = text ? 'block' : 'none';
+  }
+
+  async function signIn() {
+    var email = document.getElementById('si-email').value.trim();
+    var pass  = document.getElementById('si-pass').value;
+    var btn   = document.getElementById('si-btn');
+    if (!email || !pass) { showMsg('Please enter email and password.','error'); return; }
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    var { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    btn.disabled = false; btn.textContent = 'Sign In';
+    if (error) { showMsg(error.message, 'error'); return; }
+    showDashboard(data.user);
+  }
+
+  async function signUp() {
+    var first = document.getElementById('su-first').value.trim();
+    var last  = document.getElementById('su-last').value.trim();
+    var phone = document.getElementById('su-phone').value.trim();
+    var email = document.getElementById('su-email').value.trim();
+    var pass  = document.getElementById('su-pass').value;
+    var btn   = document.getElementById('su-btn');
+    if (!first || !email || !pass || !phone) { showMsg('Please fill in all required fields.','error'); return; }
+    var passOk = pass.length >= 8 && /[^a-zA-Z0-9]/.test(pass);
+    if (!passOk) { showMsg('Password must be at least 8 characters and include 1 special character.','error'); return; }
+    btn.disabled = true; btn.textContent = 'Creating account…';
+    var { data, error } = await sb.auth.signUp({
+      email, password: pass,
+      options: {
+        data: { full_name: first+' '+last, first_name: first, last_name: last, phone, role: 'guest' },
+        emailRedirectTo: 'https://leasewild.com/guest-portal.html'
+      }
+    });
+    btn.disabled = false; btn.textContent = 'Create Guest Account';
+    if (error) { showMsg(error.message,'error'); return; }
+    showMsg('Account created! Check your email to confirm your account, then sign in.','success');
+    switchTab('signin');
+  }
+
+  async function resetPassword() {
+    var email = document.getElementById('si-email').value.trim();
+    if (!email) { showMsg('Enter your email first.','error'); return; }
+    await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://leasewild.com/guest-portal.html' });
+    showMsg('Password reset email sent!','success');
+  }
+
+  async function signOut() {
+    clearInterval(pollInterval);
+    await sb.auth.signOut();
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('auth-card').style.display = 'block';
+    document.body.style.alignItems = 'center';
+    document.body.style.justifyContent = 'center';
+  }
+
+  function showDashboard(user) {
+    currentUser = user;
+    document.getElementById('auth-card').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.body.style.alignItems = 'flex-start';
+    document.body.style.justifyContent = 'flex-start';
+    var name = user.user_metadata?.first_name || user.email.split('@')[0];
+    document.getElementById('dash-name').textContent = 'Welcome, ' + name;
+    loadBookings();
+    loadThreads();
+    pollInterval = setInterval(function() { if (currentConvId) loadMessages(currentConvId); loadUnreadCount(); }, 8000);
+  }
+
+  function switchDashTab(t) {
+    ['bookings','messages'].forEach(function(x) {
+      document.getElementById('dtab-'+x).classList.toggle('active', x===t);
+      document.getElementById('dpanel-'+x).classList.toggle('active', x===t);
+    });
+    if (t === 'messages') loadThreads();
+  }
+
+  // ── BOOKINGS ────────────────────────────────────────────────
+  async function loadBookings() {
+    var container = document.getElementById('bookings-container');
+    var email = currentUser.email;
+    var res = await fetch(SB_URL + '/rest/v1/bookings?guest_email=eq.' + encodeURIComponent(email) + '&order=created_at.desc&select=*', {
+      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
+    });
+    var data = await res.json();
+    if (!data.length) {
+      container.innerHTML = '<div style="text-align:center;padding:2rem"><p style="color:var(--color-text-muted);margin-bottom:1rem">No bookings yet.</p><a href="listings.html" style="color:var(--color-accent);font-weight:700;text-decoration:none">Browse available land →</a></div>';
+      return;
+    }
+    var statusColor = { pre_reserved: '#c17f3a', confirmed: '#2d5a27', cancelled: '#ef4444' };
+    var statusLabel = { pre_reserved: 'Pre-reserved', confirmed: 'Confirmed', cancelled: 'Cancelled' };
+    container.innerHTML = data.map(function(b) {
+      var cin = b.checkin || b.check_in || '';
+      var cout = b.checkout || b.check_out || '';
+      var cinFmt = cin ? new Date(cin+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+      var coutFmt = cout ? new Date(cout+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+      var st = b.status || 'pre_reserved';
+      var sc = statusColor[st] || '#888';
+      var sl = statusLabel[st] || st;
+      return `<div class="booking-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem">
+          <div>
+            <p style="font-weight:700;font-size:var(--text-sm)">Booking #${b.id.slice(0,8).toUpperCase()}</p>
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted)">${cinFmt} → ${coutFmt} &middot; ${b.nights||'?'} nights</p>
+          </div>
+          <span style="padding:.2rem .7rem;border-radius:99px;font-size:.72rem;font-weight:700;color:#fff;background:${sc};white-space:nowrap">${sl}</span>
+        </div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.75rem">
+          <button onclick="openConversation('${b.id}','${b.listing_id}','Booking #${b.id.slice(0,8).toUpperCase()}')" style="padding:.4rem .9rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:inherit">Message Landowner</button>
+          ${st !== 'cancelled' ? `<a href="cancel.html?id=${b.id}" style="padding:.4rem .9rem;border:1.5px solid #ef4444;color:#ef4444;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;text-decoration:none;display:inline-block">Cancel</a>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── MESSAGING ───────────────────────────────────────────────
+  async function loadThreads() {
+    var container = document.getElementById('threads-container');
+    var email = currentUser.email;
+    var res = await fetch(SB_URL + '/rest/v1/conversations?guest_email=eq.' + encodeURIComponent(email) + '&order=updated_at.desc&select=*', {
+      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
+    });
+    var threads = await res.json();
+    if (!threads.length) {
+      container.innerHTML = '<p style="color:var(--color-text-muted);text-align:center;padding:2rem">No messages yet. Message a landowner from your bookings.</p>';
+      return;
+    }
+    container.innerHTML = threads.map(function(t) {
+      var time = t.updated_at ? new Date(t.updated_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+      var isUnread = t.guest_unread > 0;
+      return `<div class="thread-item${isUnread?' unread':''}" onclick="openConversation('${t.booking_id}','${t.listing_id}','${escStr(t.subject||'Booking conversation')}','${t.id}')">
+        <div class="thread-time">${time}</div>
+        <div class="thread-title">${escStr(t.subject || 'Booking conversation')}</div>
+        <div class="thread-preview">${escStr(t.last_message || 'No messages yet')}</div>
+        ${isUnread ? `<span style="display:inline-block;background:var(--color-accent);color:#fff;border-radius:99px;font-size:.65rem;padding:.1rem .4rem;font-weight:700;margin-top:.3rem">${t.guest_unread} new</span>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  async function loadUnreadCount() {
+    if (!currentUser) return;
+    var res = await fetch(SB_URL + '/rest/v1/conversations?guest_email=eq.' + encodeURIComponent(currentUser.email) + '&guest_unread=gt.0&select=id', {
+      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
+    });
+    var data = await res.json();
+    var badge = document.getElementById('unread-badge');
+    if (data.length > 0) { badge.style.display='inline'; badge.textContent=data.length; }
+    else { badge.style.display='none'; }
+  }
+
+  async function openConversation(bookingId, listingId, subject, convId) {
+    // Find or create conversation
+    if (!convId) {
+      var res = await fetch(SB_URL + '/rest/v1/conversations?booking_id=eq.' + encodeURIComponent(bookingId) + '&select=*', {
+        headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
+      });
+      var existing = await res.json();
+      if (existing.length) {
+        convId = existing[0].id;
+      } else {
+        // Create new conversation
+        var createRes = await fetch(SB_URL + '/rest/v1/conversations', {
+          method: 'POST',
+          headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+          body: JSON.stringify({
+            booking_id: bookingId,
+            listing_id: listingId,
+            guest_email: currentUser.email,
+            subject: subject,
+            last_message: null,
+            guest_unread: 0,
+            landowner_unread: 0
+          })
+        });
+        var created = await createRes.json();
+        convId = created[0]?.id;
+      }
+    }
+    currentConvId = convId;
+
+    // Mark guest messages as read
+    await fetch(SB_URL + '/rest/v1/conversations?id=eq.' + convId, {
+      method: 'PATCH',
+      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ guest_unread: 0 })
+    });
+
+    document.getElementById('conv-title').textContent = subject;
+    document.getElementById('thread-list-view').style.display = 'none';
+    document.getElementById('conversation-view').style.display = 'block';
+    loadMessages(convId);
+  }
+
+  async function loadMessages(convId) {
+    var container = document.getElementById('messages-container');
+    var res = await fetch(SB_URL + '/rest/v1/messages?conversation_id=eq.' + encodeURIComponent(convId) + '&order=created_at.asc&select=*', {
+      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
+    });
+    var msgs = await res.json();
+    if (!msgs.length) {
+      container.innerHTML = '<p style="color:var(--color-text-muted);text-align:center;padding:2rem;font-size:var(--text-sm)">No messages yet. Say hello to your landowner!</p>';
+      return;
+    }
+    var myEmail = currentUser.email;
+    container.innerHTML = msgs.map(function(m) {
+      var mine = m.sender_email === myEmail;
+      var time = new Date(m.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+      return `<div class="msg-wrap">
+        <div class="msg-bubble ${mine?'mine':'theirs'}">${escStr(m.body)}</div>
+        <div class="msg-meta ${mine?'':'theirs'}">${mine?'You':escStr(m.sender_name||'Landowner')} &middot; ${time}</div>
+      </div>`;
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  async function sendMessage() {
+    var input = document.getElementById('compose-input');
+    var btn   = document.getElementById('send-btn');
+    var body  = input.value.trim();
+    if (!body || !currentConvId) return;
+    btn.disabled = true;
+    var senderName = currentUser.user_metadata?.first_name || currentUser.email.split('@')[0];
+    await fetch(SB_URL + '/rest/v1/messages', {
+      method: 'POST',
+      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        conversation_id: currentConvId,
+        sender_email: currentUser.email,
+        sender_name: senderName,
+        sender_role: 'guest',
+        body: body
+      })
+    });
+    // Update conversation: last_message + increment landowner_unread
+    await fetch(SB_URL + '/rest/v1/conversations?id=eq.' + currentConvId, {
+      method: 'PATCH',
+      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ last_message: body, updated_at: new Date().toISOString() })
+    });
+    input.value = '';
+    btn.disabled = false;
+    loadMessages(currentConvId);
+  }
+
+  function showThreadList() {
+    currentConvId = null;
+    document.getElementById('conversation-view').style.display = 'none';
+    document.getElementById('thread-list-view').style.display = 'block';
+    loadThreads();
+  }
+
+  function escStr(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // ── AUTO LOGIN ───────────────────────────────────────────────
+  (async function() {
+    try {
+      if (!sb) return;
+      var { data } = await sb.auth.getSession();
+      if (data?.session?.user) showDashboard(data.session.user);
+    } catch(e) { console.warn(e); }
+  })();
+  </script>
+</body>
+</html>

@@ -250,6 +250,36 @@
         <p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">Loading reservations…</p>
       </div>
     </div>
+
+    <!-- Messages Section -->
+    <div id="messages-section" style="margin-top:2rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <h3 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-lg);letter-spacing:-.03em">Messages <span id="lo-unread-badge" style="display:none;background:var(--color-accent);color:#fff;border-radius:99px;font-size:.7rem;padding:.1rem .45rem;margin-left:.3rem;font-weight:700;vertical-align:middle"></span></h3>
+      </div>
+
+      <!-- Thread list -->
+      <div id="lo-thread-list">
+        <div id="lo-threads-container">
+          <p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:1.5rem 0">No messages yet.</p>
+        </div>
+      </div>
+
+      <!-- Conversation -->
+      <div id="lo-conversation" style="display:none">
+        <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem 0 1rem;border-bottom:1px solid var(--color-border);margin-bottom:1rem">
+          <button onclick="showLoThreadList()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--color-text-muted);padding:4px 8px">←</button>
+          <div>
+            <div style="font-weight:700;font-size:var(--text-sm)" id="lo-conv-title">Conversation</div>
+            <div style="font-size:.75rem;color:var(--color-text-muted)" id="lo-conv-subtitle"></div>
+          </div>
+        </div>
+        <div id="lo-messages-container" style="display:flex;flex-direction:column;gap:.6rem;min-height:200px;max-height:50vh;overflow-y:auto;padding:.5rem 0;margin-bottom:1rem"></div>
+        <div style="display:flex;gap:.6rem;align-items:flex-end">
+          <textarea id="lo-compose" placeholder="Type a message…" rows="1" style="flex:1;padding:.75rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-sm);font-family:inherit;resize:none;min-height:48px;max-height:120px;background:var(--color-surface);color:var(--color-text)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendLoMessage()}" onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='var(--color-border)'"></textarea>
+          <button onclick="sendLoMessage()" id="lo-send-btn" style="padding:.7rem 1.1rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-weight:700;font-family:inherit;cursor:pointer;font-size:var(--text-sm);white-space:nowrap">Send</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -390,7 +420,10 @@
     var name = user.user_metadata?.full_name || user.email;
     document.getElementById('dash-welcome').textContent = 'Welcome, ' + name.split(' ')[0];
     loadListings(user.email);
+    loadLoThreads(user.email);
     checkStripeStatus(user);
+    // Poll for new messages every 10 seconds
+    setInterval(function() { loadLoThreads(loCurrentUserEmail); if (loCurrentConvId) loadLoMessages(loCurrentConvId); }, 10000);
     // Handle stripe_connected redirect
     if (params.get('stripe_connected') === '1') {
       showStripeConnected();
@@ -737,11 +770,14 @@
           <div><span style="font-weight:600;color:var(--color-text)">Your earnings</span><br><span style="color:var(--color-primary);font-weight:700">${landEarnings}</span></div>
           <div><span style="font-weight:600;color:var(--color-text)">Booked</span><br>${new Date(b.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
         </div>
-        ${st !== 'cancelled' ? `
-        <div style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
-          <p style="font-size:.72rem;color:var(--color-text-muted)">Flexible policy: full refund if cancelled 48+ hrs before check-in</p>
-          <button onclick="cancelReservation('${b.id}','${(b.guest_name||'Guest').replace(/'/g,'&#39;')}','${cin}')" style="padding:.4rem .9rem;border:1.5px solid #ef4444;color:#ef4444;background:none;border-radius:var(--radius-md);font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit">Cancel Reservation</button>
-        </div>` : '<p style="margin-top:.6rem;font-size:.72rem;color:#ef4444;font-weight:700">This reservation was cancelled.</p>'}
+        <div style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--color-border);display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:space-between">
+          ${st !== 'cancelled' ? `<button onclick="openLoConversationFromBooking('${b.id}','${b.listing_id}','${(b.guest_name||'Guest').replace(/'/g,"&#39;")}','${b.guest_email||''}')" style="padding:.4rem .9rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit">Message Guest</button>` : ''}
+          ${st !== 'cancelled' ? `
+          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+            <p style="font-size:.72rem;color:var(--color-text-muted)">Flexible policy: full refund if cancelled 48+ hrs before check-in</p>
+            <button onclick="cancelReservation('${b.id}','${(b.guest_name||'Guest').replace(/'/g,'&#39;')}','${cin}')" style="padding:.4rem .9rem;border:1.5px solid #ef4444;color:#ef4444;background:none;border-radius:var(--radius-md);font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit">Cancel Reservation</button>
+          </div>` : '<p style="font-size:.72rem;color:#ef4444;font-weight:700">This reservation was cancelled.</p>'}
+        </div>
       </div>`;
     }).join('');
   }
@@ -778,6 +814,144 @@
     var { error } = await sb.from('listings').delete().eq('id', id);
     if (error) { alert('Error: ' + error.message); return; }
     loadListings(currentUserEmail);
+  }
+
+  // ── LANDOWNER MESSAGING ─────────────────────────────────────
+  var loCurrentConvId = null;
+  var loCurrentUserEmail = '';
+  var loPollInterval;
+
+  async function loadLoThreads(email) {
+    loCurrentUserEmail = email;
+    var container = document.getElementById('lo-threads-container');
+    var res = await fetch(SB_URL + '/rest/v1/conversations?landowner_email=eq.' + encodeURIComponent(email) + '&order=updated_at.desc&select=*', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    var threads = await res.json();
+    // Also load by listing_id for backwards compat
+    if (!threads.length) {
+      container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:1.5rem 0">No messages yet. Guests can message you from their booking.</p>';
+      return;
+    }
+    var unread = threads.filter(function(t){ return t.landowner_unread > 0; }).length;
+    var badge = document.getElementById('lo-unread-badge');
+    if (unread > 0) { badge.style.display='inline'; badge.textContent=unread; }
+    else { badge.style.display='none'; }
+    container.innerHTML = threads.map(function(t) {
+      var time = t.updated_at ? new Date(t.updated_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+      var isUnread = t.landowner_unread > 0;
+      return `<div style="background:var(--color-bg);border:1px solid ${isUnread ? 'var(--color-accent)' : 'var(--color-border)'};border-left:${isUnread ? '3px solid var(--color-accent)' : '1px solid var(--color-border)'};border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:.6rem;cursor:pointer;position:relative" onclick="openLoConversation('${t.id}','${(t.subject||'Booking conversation').replace(/'/g,"&#39;")}','${t.guest_email||''}')">
+        <div style="position:absolute;top:.9rem;right:1.1rem;font-size:.72rem;color:var(--color-text-muted)">${time}</div>
+        <p style="font-weight:700;font-size:var(--text-sm);margin-bottom:.2rem;padding-right:3rem">${t.subject || 'Booking conversation'}</p>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.guest_email || ''} &middot; ${t.last_message || 'No messages yet'}</p>
+        ${isUnread ? `<span style="display:inline-block;background:var(--color-accent);color:#fff;border-radius:99px;font-size:.65rem;padding:.1rem .4rem;font-weight:700;margin-top:.3rem">${t.landowner_unread} new</span>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  async function openLoConversation(convId, subject, guestEmail) {
+    loCurrentConvId = convId;
+    document.getElementById('lo-conv-title').textContent = subject;
+    document.getElementById('lo-conv-subtitle').textContent = guestEmail ? 'Guest: ' + guestEmail : '';
+    // Mark as read
+    await fetch(SB_URL + '/rest/v1/conversations?id=eq.' + convId, {
+      method: 'PATCH',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ landowner_unread: 0 })
+    });
+    document.getElementById('lo-thread-list').style.display = 'none';
+    document.getElementById('lo-conversation').style.display = 'block';
+    loadLoMessages(convId);
+  }
+
+  async function loadLoMessages(convId) {
+    var container = document.getElementById('lo-messages-container');
+    var res = await fetch(SB_URL + '/rest/v1/messages?conversation_id=eq.' + encodeURIComponent(convId) + '&order=created_at.asc&select=*', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    var msgs = await res.json();
+    if (!msgs.length) {
+      container.innerHTML = '<p style="color:var(--color-text-muted);text-align:center;padding:2rem;font-size:var(--text-sm)">No messages yet. Send the first message!</p>';
+      return;
+    }
+    container.innerHTML = msgs.map(function(m) {
+      var mine = m.sender_role === 'landowner';
+      var time = new Date(m.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+      return `<div style="display:flex;flex-direction:column">
+        <div style="max-width:80%;padding:.65rem .9rem;border-radius:12px;font-size:var(--text-sm);line-height:1.5;word-break:break-word;${mine ? 'background:var(--color-primary);color:#fff;align-self:flex-end;border-bottom-right-radius:4px' : 'background:var(--color-surface);border:1px solid var(--color-border);align-self:flex-start;border-bottom-left-radius:4px'}">${m.body}</div>
+        <div style="font-size:.7rem;color:var(--color-text-muted);margin-top:.2rem;${mine ? 'text-align:right' : 'text-align:left'}">${mine ? 'You' : m.sender_name || 'Guest'} &middot; ${time}</div>
+      </div>`;
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  async function sendLoMessage() {
+    var input = document.getElementById('lo-compose');
+    var btn   = document.getElementById('lo-send-btn');
+    var body  = input.value.trim();
+    if (!body || !loCurrentConvId) return;
+    btn.disabled = true;
+    var { data: { session } } = await sb.auth.getSession();
+    var senderName = session?.user?.user_metadata?.full_name || 'Landowner';
+    await fetch(SB_URL + '/rest/v1/messages', {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        conversation_id: loCurrentConvId,
+        sender_email: loCurrentUserEmail,
+        sender_name: senderName,
+        sender_role: 'landowner',
+        body: body
+      })
+    });
+    await fetch(SB_URL + '/rest/v1/conversations?id=eq.' + loCurrentConvId, {
+      method: 'PATCH',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ last_message: body, updated_at: new Date().toISOString() })
+    });
+    input.value = '';
+    btn.disabled = false;
+    loadLoMessages(loCurrentConvId);
+  }
+
+  async function openLoConversationFromBooking(bookingId, listingId, guestName, guestEmail) {
+    // Find or create conversation, then open it
+    var res = await fetch(SB_URL + '/rest/v1/conversations?booking_id=eq.' + encodeURIComponent(bookingId) + '&select=*', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    var existing = await res.json();
+    var convId;
+    if (existing.length) {
+      convId = existing[0].id;
+    } else {
+      var createRes = await fetch(SB_URL + '/rest/v1/conversations', {
+        method: 'POST',
+        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+        body: JSON.stringify({
+          booking_id: bookingId,
+          listing_id: listingId,
+          guest_email: guestEmail,
+          landowner_email: loCurrentUserEmail,
+          subject: 'Booking with ' + guestName,
+          last_message: null,
+          guest_unread: 0,
+          landowner_unread: 0
+        })
+      });
+      var created = await createRes.json();
+      convId = created[0]?.id;
+    }
+    if (!convId) { alert('Could not open conversation.'); return; }
+    openLoConversation(convId, 'Booking with ' + guestName, guestEmail);
+    // Scroll to messages section
+    document.getElementById('messages-section').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function showLoThreadList() {
+    loCurrentConvId = null;
+    document.getElementById('lo-conversation').style.display = 'none';
+    document.getElementById('lo-thread-list').style.display = 'block';
+    loadLoThreads(loCurrentUserEmail);
   }
 
   // Auto-login if session exists
