@@ -185,6 +185,9 @@ function openListingDetail(l) {
 
   document.getElementById('listing-detail-modal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
+
+  // Init Flatpickr after DOM is ready
+  if (priceNum) initDatePickers();
 }
 
 function updateBookingPrice() {
