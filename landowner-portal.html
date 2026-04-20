@@ -242,6 +242,14 @@
     <div id="listings-container">
       <p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">Loading your listings…</p>
     </div>
+
+    <!-- Reservations Section -->
+    <div id="reservations-section" style="margin-top:2rem;display:none">
+      <h3 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-lg);margin-bottom:1rem;letter-spacing:-.03em">Reservations</h3>
+      <div id="reservations-container">
+        <p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">Loading reservations…</p>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -639,6 +647,7 @@
     var { data, error } = await sb.from('listings').select('id,created_at,state,county,status,activities,street_address,description,price_per_day,cleaning_fee,acreage,min_stay,max_guests,num_beds,allow_out_of_state,photo_urls,video_url,deer_activity,hogs_active,trail_cam_date,harvest_history').eq('email', email).order('created_at', { ascending: false });
     if (error || !data?.length) {
       container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">No listings yet. Tap "Add New Listing" to get started.</p>';
+      document.getElementById('reservations-section').style.display = 'none';
       return;
     }
     container.innerHTML = data.map(l => {
@@ -659,6 +668,74 @@
             : `<button onclick="toggleListing('${l.id}','active')" style="padding:.45rem .9rem;border:1.5px solid var(--color-primary);color:var(--color-primary);background:none;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:inherit">Re-list</button>`
           }
           <button onclick="deleteListing('${l.id}','${label.replace(/'/g,"&#39;")}')" style="padding:.45rem .9rem;border:1.5px solid var(--color-border);color:var(--color-text-muted);background:none;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:600;cursor:pointer;font-family:inherit">Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Load reservations for all listings
+    loadReservations(data.map(l => l.id));
+  }
+
+  async function loadReservations(listingIds) {
+    var section = document.getElementById('reservations-section');
+    var container = document.getElementById('reservations-container');
+    if (!listingIds || !listingIds.length) {
+      section.style.display = 'none';
+      return;
+    }
+    section.style.display = 'block';
+
+    // Fetch all bookings for this landowner's listings
+    var { data, error } = await sb.from('bookings')
+      .select('*')
+      .in('listing_id', listingIds)
+      .order('created_at', { ascending: false });
+
+    if (error || !data?.length) {
+      container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:1.5rem 0">No reservations yet.</p>';
+      return;
+    }
+
+    // Build a map of listing id → label
+    var listingMap = {};
+    document.querySelectorAll('.listing-card').forEach(function(card) {
+      var id = card.id.replace('lcard-', '');
+      var h3 = card.querySelector('h3');
+      if (h3) listingMap[id] = h3.textContent;
+    });
+
+    var statusColor = { pre_reserved: '#c17f3a', confirmed: '#2d5a27', cancelled: '#ef4444' };
+    var statusLabel = { pre_reserved: 'Pre-reserved', confirmed: 'Confirmed', cancelled: 'Cancelled' };
+
+    container.innerHTML = data.map(function(b) {
+      var cin = b.checkin || b.check_in || '';
+      var cout = b.checkout || b.check_out || '';
+      var cinFmt = cin ? new Date(cin + 'T00:00:00').toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : '—';
+      var coutFmt = cout ? new Date(cout + 'T00:00:00').toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : '—';
+      var nights = b.nights || (cin && cout ? Math.round((new Date(cout) - new Date(cin)) / 86400000) : '—');
+      var listingLabel = listingMap[b.listing_id] || 'Listing';
+      var st = b.status || 'pre_reserved';
+      var color = statusColor[st] || '#888';
+      var label = statusLabel[st] || st;
+      var landEarnings = b.rate_per_night && b.nights ? '$' + (b.rate_per_night * b.nights * 0.85 + (b.cleaning_fee || 0)).toFixed(2) : '—';
+      return `
+      <div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:.85rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem">
+          <div>
+            <p style="font-weight:700;font-size:var(--text-sm)">${b.guest_name || 'Guest'}</p>
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted)">${listingLabel}</p>
+          </div>
+          <span style="padding:.25rem .7rem;border-radius:999px;font-size:.72rem;font-weight:700;color:#fff;background:${color}">${label}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .75rem;font-size:var(--text-xs);color:var(--color-text-muted)">
+          <div><span style="font-weight:600;color:var(--color-text)">Check-in</span><br>${cinFmt}</div>
+          <div><span style="font-weight:600;color:var(--color-text)">Check-out</span><br>${coutFmt}</div>
+          <div><span style="font-weight:600;color:var(--color-text)">Nights</span><br>${nights}</div>
+          <div><span style="font-weight:600;color:var(--color-text)">Guests</span><br>${b.guests || 1}</div>
+          ${b.guest_email ? `<div style="grid-column:1/-1"><span style="font-weight:600;color:var(--color-text)">Email</span><br><a href="mailto:${b.guest_email}" style="color:var(--color-accent);text-decoration:none">${b.guest_email}</a></div>` : ''}
+          ${b.guest_phone ? `<div style="grid-column:1/-1"><span style="font-weight:600;color:var(--color-text)">Phone</span><br><a href="tel:${b.guest_phone}" style="color:var(--color-accent);text-decoration:none">${b.guest_phone}</a></div>` : ''}
+          <div><span style="font-weight:600;color:var(--color-text)">Your earnings</span><br><span style="color:var(--color-primary);font-weight:700">${landEarnings}</span></div>
+          <div><span style="font-weight:600;color:var(--color-text)">Booked</span><br>${new Date(b.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
         </div>
       </div>`;
     }).join('');
