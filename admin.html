@@ -137,6 +137,16 @@
     .btn-login:disabled{opacity:.6;cursor:not-allowed}
 
     /* ── DASHBOARD ──────────────────────────────────────── */
+
+    .admin-tab{padding:.55rem 1.1rem;border:none;background:none;font-family:inherit;font-size:var(--text-sm);font-weight:600;color:var(--color-text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+    .admin-tab:hover{color:var(--color-text)}
+    .admin-tab.active{color:var(--color-primary);border-bottom-color:var(--color-primary)}
+    .admin-panel{display:none}
+    .admin-panel.active{display:block}
+    .code-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-3)}
+    .code-badge{font-family:monospace;font-size:1rem;font-weight:700;letter-spacing:.08em;background:var(--color-surface-offset);border:1px solid var(--color-border);padding:.35rem .75rem;border-radius:var(--radius-md);color:var(--color-text)}
+    .code-pct{font-size:1.3rem;font-weight:800;color:var(--color-primary)}
+    .code-meta{font-size:var(--text-xs);color:var(--color-text-muted)}
     #dashboard-screen{display:none}
     .dashboard-wrap{max-width:1200px;margin:0 auto;padding:var(--space-10) clamp(var(--space-4),4vw,var(--space-12))}
 
@@ -303,14 +313,24 @@
       <!-- Page header -->
       <div class="page-header">
         <div>
-          <h1>Listings Dashboard</h1>
-          <p>Manage all submitted land listings</p>
+          <h1 id="admin-page-title">Listings Dashboard</h1>
+          <p id="admin-page-sub">Manage all submitted land listings</p>
         </div>
         <button class="btn btn-ghost btn-sm" onclick="loadListings()" id="refresh-btn">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.4"/></svg>
           Refresh
         </button>
       </div>
+
+      <!-- Admin nav tabs -->
+      <div style="display:flex;gap:.5rem;margin-bottom:var(--space-6);border-bottom:1px solid var(--color-border);padding-bottom:0">
+        <button class="admin-tab active" id="tab-listings" onclick="switchAdminTab('listings')">Listings</button>
+        <button class="admin-tab" id="tab-promo" onclick="switchAdminTab('promo')">Promo Codes</button>
+        <button class="admin-tab" id="tab-affiliate" onclick="switchAdminTab('affiliate')">Affiliates</button>
+      </div>
+
+      <!-- LISTINGS PANEL -->
+      <div class="admin-panel active" id="panel-listings">
 
       <!-- Stats row -->
       <div class="stats-row" id="stats-row">
@@ -352,6 +372,103 @@
       <!-- Listings count + grid -->
       <p class="listings-count" id="listings-count"></p>
       <div id="listings-container"></div>
+
+    </div>
+
+      </div> <!-- /panel-listings -->
+
+      <!-- PROMO CODES PANEL -->
+      <div class="admin-panel" id="panel-promo">
+        <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);margin-bottom:var(--space-6)">
+          <h2 style="font-size:var(--text-lg);font-weight:800;margin-bottom:var(--space-1)">Create Discount Code</h2>
+          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5)">Guests apply the code at checkout for a percentage off their booking.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4);margin-bottom:var(--space-4)">
+            <div>
+              <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.4rem;color:var(--color-text-muted)">Discount %</label>
+              <select id="promo-pct" style="width:100%;padding:.65rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-family:inherit;font-size:var(--text-sm);outline:none">
+                <option value="10">10% off</option>
+                <option value="15">15% off</option>
+                <option value="20">20% off</option>
+                <option value="25">25% off</option>
+                <option value="30">30% off</option>
+                <option value="40">40% off</option>
+                <option value="50">50% off</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.4rem;color:var(--color-text-muted)">Code (or generate one)</label>
+              <div style="display:flex;gap:.4rem">
+                <input type="text" id="promo-code-input" placeholder="e.g. SUMMER20" maxlength="20"
+                  style="flex:1;padding:.65rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-family:monospace;font-size:var(--text-sm);text-transform:uppercase;outline:none" />
+                <button onclick="generatePromoCode()" title="Generate random code" style="padding:.65rem .75rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-offset);cursor:pointer;font-size:.9rem">🎲</button>
+              </div>
+            </div>
+            <div>
+              <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.4rem;color:var(--color-text-muted)">Max uses (blank = unlimited)</label>
+              <input type="number" id="promo-max-uses" placeholder="e.g. 100" min="1"
+                style="width:100%;padding:.65rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-family:inherit;font-size:var(--text-sm);outline:none;box-sizing:border-box" />
+            </div>
+          </div>
+          <button onclick="savePromoCode()" class="btn btn-primary btn-sm">Create Promo Code</button>
+          <span id="promo-msg" style="margin-left:1rem;font-size:var(--text-sm)"></span>
+        </div>
+
+        <h3 style="font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-4)">Active Codes</h3>
+        <div id="promo-list"><p style="color:var(--color-text-muted);font-size:var(--text-sm)">Loading…</p></div>
+      </div>
+
+      <!-- AFFILIATE CODES PANEL -->
+      <div class="admin-panel" id="panel-affiliate">
+        <div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);margin-bottom:var(--space-6)">
+          <h2 style="font-size:var(--text-lg);font-weight:800;margin-bottom:var(--space-1)">Create Affiliate Code</h2>
+          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5)">Influencers share their code. When a guest books using it, the influencer earns a commission from LeaseWild's cut.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4);margin-bottom:var(--space-4)">
+            <div>
+              <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.4rem;color:var(--color-text-muted)">Influencer Name</label>
+              <input type="text" id="aff-name" placeholder="e.g. Jake Outdoors"
+                style="width:100%;padding:.65rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-family:inherit;font-size:var(--text-sm);outline:none;box-sizing:border-box" />
+            </div>
+            <div>
+              <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.4rem;color:var(--color-text-muted)">Their Code</label>
+              <div style="display:flex;gap:.4rem">
+                <input type="text" id="aff-code-input" placeholder="e.g. JAKE10" maxlength="20"
+                  style="flex:1;padding:.65rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-family:monospace;font-size:var(--text-sm);text-transform:uppercase;outline:none" />
+                <button onclick="generateAffCode()" title="Generate" style="padding:.65rem .75rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-offset);cursor:pointer;font-size:.9rem">🎲</button>
+              </div>
+            </div>
+            <div>
+              <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.4rem;color:var(--color-text-muted)">Their Commission %</label>
+              <select id="aff-commission" style="width:100%;padding:.65rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-family:inherit;font-size:var(--text-sm);outline:none">
+                <option value="5">5% per booking</option>
+                <option value="10" selected>10% per booking</option>
+                <option value="15">15% per booking</option>
+                <option value="20">20% per booking</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-bottom:var(--space-4)">
+            <div>
+              <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.4rem;color:var(--color-text-muted)">Guest discount % (optional — to incentivize bookings)</label>
+              <select id="aff-guest-discount" style="width:100%;padding:.65rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-family:inherit;font-size:var(--text-sm);outline:none">
+                <option value="0">No guest discount</option>
+                <option value="5">5% off for guest</option>
+                <option value="10">10% off for guest</option>
+                <option value="15">15% off for guest</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:var(--text-xs);font-weight:600;display:block;margin-bottom:.4rem;color:var(--color-text-muted)">Influencer email (for payouts)</label>
+              <input type="email" id="aff-email" placeholder="influencer@email.com"
+                style="width:100%;padding:.65rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-family:inherit;font-size:var(--text-sm);outline:none;box-sizing:border-box" />
+            </div>
+          </div>
+          <button onclick="saveAffiliateCode()" class="btn btn-primary btn-sm">Create Affiliate Code</button>
+          <span id="aff-msg" style="margin-left:1rem;font-size:var(--text-sm)"></span>
+        </div>
+
+        <h3 style="font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-4)">Active Affiliates</h3>
+        <div id="aff-list"><p style="color:var(--color-text-muted);font-size:var(--text-sm)">Loading…</p></div>
+      </div>
 
     </div>
   </div>
@@ -431,7 +548,142 @@
       }
     }
 
-    function logout() {
+
+    // ── Admin tab switching ──────────────────────────────────
+    function switchAdminTab(tab) {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      document.getElementById('panel-' + tab).classList.add('active');
+      if (tab === 'promo') loadPromoCodes();
+      if (tab === 'affiliate') loadAffiliateCodes();
+    }
+
+    // ── Code generators ──────────────────────────────────────
+    function randomCode(prefix) {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = prefix || '';
+      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      return code;
+    }
+    function generatePromoCode() {
+      document.getElementById('promo-code-input').value = randomCode('WILD');
+    }
+    function generateAffCode() {
+      document.getElementById('aff-code-input').value = randomCode('AFF');
+    }
+
+    // ── Promo codes ──────────────────────────────────────────
+    async function savePromoCode() {
+      const code = document.getElementById('promo-code-input').value.trim().toUpperCase();
+      const pct  = parseInt(document.getElementById('promo-pct').value);
+      const maxUses = document.getElementById('promo-max-uses').value;
+      const msg  = document.getElementById('promo-msg');
+      if (!code) { msg.textContent = 'Enter a code first.'; msg.style.color = '#c0392b'; return; }
+      msg.textContent = 'Saving…'; msg.style.color = 'var(--color-text-muted)';
+      const { error } = await sb.from('promo_codes').insert({
+        code, discount_pct: pct,
+        max_uses: maxUses ? parseInt(maxUses) : null,
+        uses: 0, active: true, created_at: new Date().toISOString()
+      });
+      if (error) { msg.textContent = error.message; msg.style.color = '#c0392b'; return; }
+      msg.textContent = '✓ Code created!'; msg.style.color = 'var(--color-primary)';
+      document.getElementById('promo-code-input').value = '';
+      loadPromoCodes();
+    }
+
+    async function loadPromoCodes() {
+      const list = document.getElementById('promo-list');
+      list.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm)">Loading…</p>';
+      const { data, error } = await sb.from('promo_codes').select('*').order('created_at', { ascending: false });
+      if (error || !data.length) { list.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm)">No promo codes yet.</p>'; return; }
+      list.innerHTML = data.map(c => `
+        <div class="code-card">
+          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+            <span class="code-badge">${c.code}</span>
+            <span class="code-pct">${c.discount_pct}% off</span>
+            <span class="code-meta">${c.uses || 0} uses${c.max_uses ? ' / ' + c.max_uses + ' max' : ' (unlimited)'}</span>
+            <span style="font-size:var(--text-xs);padding:.2rem .6rem;border-radius:var(--radius-full);background:${c.active ? 'color-mix(in oklab,var(--color-primary) 12%,transparent)' : 'var(--color-surface-offset)'};color:${c.active ? 'var(--color-primary)' : 'var(--color-text-muted)'};font-weight:700">${c.active ? 'Active' : 'Inactive'}</span>
+          </div>
+          <div style="display:flex;gap:.5rem">
+            <button onclick="copyCode('${c.code}')" style="padding:.4rem .8rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-offset);cursor:pointer;font-size:var(--text-xs);font-weight:600">Copy</button>
+            <button onclick="togglePromoCode('${c.id}',${!c.active})" style="padding:.4rem .8rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-offset);cursor:pointer;font-size:var(--text-xs);font-weight:600">${c.active ? 'Disable' : 'Enable'}</button>
+            <button onclick="deletePromoCode('${c.id}')" style="padding:.4rem .8rem;border:1px solid #fca5a5;border-radius:var(--radius-md);background:transparent;cursor:pointer;font-size:var(--text-xs);font-weight:600;color:#dc2626">Delete</button>
+          </div>
+        </div>`).join('');
+    }
+
+    async function togglePromoCode(id, active) {
+      await sb.from('promo_codes').update({ active }).eq('id', id);
+      loadPromoCodes();
+    }
+    async function deletePromoCode(id) {
+      if (!confirm('Delete this promo code?')) return;
+      await sb.from('promo_codes').delete().eq('id', id);
+      loadPromoCodes();
+    }
+
+    // ── Affiliate codes ──────────────────────────────────────
+    async function saveAffiliateCode() {
+      const code       = document.getElementById('aff-code-input').value.trim().toUpperCase();
+      const name       = document.getElementById('aff-name').value.trim();
+      const commission = parseInt(document.getElementById('aff-commission').value);
+      const guestDiscount = parseInt(document.getElementById('aff-guest-discount').value);
+      const email      = document.getElementById('aff-email').value.trim();
+      const msg        = document.getElementById('aff-msg');
+      if (!code || !name) { msg.textContent = 'Enter name and code.'; msg.style.color = '#c0392b'; return; }
+      msg.textContent = 'Saving…'; msg.style.color = 'var(--color-text-muted)';
+      const { error } = await sb.from('affiliate_codes').insert({
+        code, influencer_name: name, commission_pct: commission,
+        guest_discount_pct: guestDiscount, email, uses: 0,
+        total_earnings: 0, active: true, created_at: new Date().toISOString()
+      });
+      if (error) { msg.textContent = error.message; msg.style.color = '#c0392b'; return; }
+      msg.textContent = '✓ Affiliate created!'; msg.style.color = 'var(--color-primary)';
+      document.getElementById('aff-code-input').value = '';
+      document.getElementById('aff-name').value = '';
+      document.getElementById('aff-email').value = '';
+      loadAffiliateCodes();
+    }
+
+    async function loadAffiliateCodes() {
+      const list = document.getElementById('aff-list');
+      list.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm)">Loading…</p>';
+      const { data, error } = await sb.from('affiliate_codes').select('*').order('created_at', { ascending: false });
+      if (error || !data.length) { list.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm)">No affiliate codes yet.</p>'; return; }
+      list.innerHTML = data.map(c => `
+        <div class="code-card">
+          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+            <span class="code-badge">${c.code}</span>
+            <div>
+              <p style="font-weight:700;font-size:var(--text-sm)">${c.influencer_name}</p>
+              <p class="code-meta">${c.commission_pct}% commission${c.guest_discount_pct ? ' · ' + c.guest_discount_pct + '% off for guest' : ''} · ${c.uses || 0} bookings · $${(c.total_earnings||0).toFixed(2)} earned</p>
+            </div>
+            <span style="font-size:var(--text-xs);padding:.2rem .6rem;border-radius:var(--radius-full);background:${c.active ? 'color-mix(in oklab,var(--color-primary) 12%,transparent)' : 'var(--color-surface-offset)'};color:${c.active ? 'var(--color-primary)' : 'var(--color-text-muted)'};font-weight:700">${c.active ? 'Active' : 'Inactive'}</span>
+          </div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <button onclick="copyCode('${c.code}')" style="padding:.4rem .8rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-offset);cursor:pointer;font-size:var(--text-xs);font-weight:600">Copy Code</button>
+            <button onclick="toggleAffCode('${c.id}',${!c.active})" style="padding:.4rem .8rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-offset);cursor:pointer;font-size:var(--text-xs);font-weight:600">${c.active ? 'Disable' : 'Enable'}</button>
+            <button onclick="deleteAffCode('${c.id}')" style="padding:.4rem .8rem;border:1px solid #fca5a5;border-radius:var(--radius-md);background:transparent;cursor:pointer;font-size:var(--text-xs);font-weight:600;color:#dc2626">Delete</button>
+          </div>
+        </div>`).join('');
+    }
+
+    async function toggleAffCode(id, active) {
+      await sb.from('affiliate_codes').update({ active }).eq('id', id);
+      loadAffiliateCodes();
+    }
+    async function deleteAffCode(id) {
+      if (!confirm('Delete this affiliate code?')) return;
+      await sb.from('affiliate_codes').delete().eq('id', id);
+      loadAffiliateCodes();
+    }
+
+    function copyCode(code) {
+      navigator.clipboard.writeText(code).then(() => showToast('Code copied: ' + code));
+    }
+
+        function logout() {
       isAuthed = false;
       allListings = [];
       document.getElementById('dashboard-screen').style.display = 'none';
