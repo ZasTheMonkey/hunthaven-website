@@ -1612,7 +1612,8 @@
         <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" placeholder="County, city, or zip code" id="ss-input"
           style="width:100%;padding:13px 16px 13px 40px;border:1.5px solid var(--border);border-radius:var(--r-full);background:var(--surface2);font-size:.95rem;outline:none;font-family:inherit"
-          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'" />
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"
+          onkeydown="if(event.key==='Enter')doSheetSearch()" />
       </div>
 
       <p class="ss-section-label">Browse by activity</p>
@@ -1753,16 +1754,30 @@
   /* ── RENDER LIVE LISTING CARDS ── */
   function renderLiveCards(listings) {
     if (!listings || listings.length === 0) return; // keep placeholders
+    // Only render listings that have at least a county or price — skip totally empty ones
+    var valid = listings.filter(function(l){ return l.county || l.price_per_day || (l.activities && l.activities.length); });
+    if (!valid.length) return;
     var grid = document.getElementById('cards-grid');
     if (!grid) return;
     // Remove placeholder cards
     grid.innerHTML = '';
-    listings.forEach(function(l) {
+    valid.forEach(function(l) {
       var type = getType(l);
       var isHunt = type === 'hunting';
       var price = l.price_per_day ? '$' + parseInt(l.price_per_day) : 'Contact';
-      var location = l.county ? l.county + ', FL' : 'Florida';
-      var acreage = l.acreage ? l.acreage + ' acres' : '';
+      // Location: prefer street_address city parsing, else county, else state
+      var city = '';
+      if (l.street_address) {
+        // e.g. "3051 Meleto Blvd, New Smyrna Beach, FL, 32168" — grab city part
+        var parts = l.street_address.split(',');
+        city = parts.length >= 2 ? parts[1].trim() : '';
+      }
+      var location = city ? city + ', FL' : (l.county ? l.county + ' Co., FL' : (l.state || 'Florida'));
+      // acreage: if it's a string like "Under 50 acres" use as-is, if numeric add 'acres'
+      var acreageRaw = l.acreage || '';
+      var acreage = acreageRaw
+        ? (isNaN(parseInt(acreageRaw)) ? acreageRaw : parseInt(acreageRaw) + ' acres')
+        : '';
       var acts = (l.activities || []).join(' · ');
       var firstPhoto = (l.photo_urls && l.photo_urls.length) ? l.photo_urls[0] : '';
       var bgStyle = firstPhoto
@@ -1776,6 +1791,8 @@
       article.dataset.type = dataType;
       article.dataset.acres = l.acreage || '';
       article.dataset.species = (l.activities || []).join(' ').toLowerCase();
+      article.dataset.address = (l.street_address || '').toLowerCase(); // for ZIP + city search
+      article.dataset.county = (l.county || '').toLowerCase();
       article.style.cursor = 'pointer';
       article.setAttribute('tabindex','0');
       article.setAttribute('role','button');
@@ -1982,29 +1999,36 @@
      Biased to Florida. On result: fly map to location, highlight nearby pins.
   */
   function geocodeSearch(){
-    var q = ((document.getElementById('map-loc-input') || {}).value || '').trim();
+    // Accept query from either the map bar OR the search sheet
+    var mapInput = document.getElementById('map-loc-input');
+    var sheetInput = document.getElementById('ss-input');
+    var q = ((mapInput && mapInput.value) || (sheetInput && sheetInput.value) || '').trim();
+    // Prefer map input if both have values
+    if (mapInput && mapInput.value.trim()) q = mapInput.value.trim();
     if (!q) return;
     hideSuggestions();
-    if (!huntMap) { initMap(); }
-    // Show loading state
+    // Init map if needed (works even if map col is hidden on mobile)
+    if (!huntMap) initMap();
+    // Show loading state on Go button
     var goBtn = document.querySelector('#map-search-bar button');
     if (goBtn) { goBtn.textContent = '…'; goBtn.disabled = true; }
 
+    // Strip ZIP to just digits for cleaner geocode
+    var isZip = /^\d{5}$/.test(q);
+    var geocodeQ = isZip ? q + ' Florida' : q + (q.toLowerCase().includes('florida') ? '' : ' Florida');
+
     var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us'
-      + '&q=' + encodeURIComponent(q + ' Florida')
-      + '&bounded=1&viewbox=-87.6,24.4,-79.9,31.0';
+      + '&q=' + encodeURIComponent(geocodeQ);
 
     fetch(url, { headers: { 'Accept-Language': 'en-US', 'User-Agent': 'LeaseWild/1.0 contact@leasewild.com' } })
     .then(function(r){ return r.json(); })
     .then(function(results){
       if (goBtn) { goBtn.textContent = 'Go'; goBtn.disabled = false; }
       if (!results || !results.length) {
-        // Try without Florida bias
+        // Try without FL suffix as last resort
         return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(q), { headers: {'User-Agent':'LeaseWild/1.0'} })
-          .then(function(r){ return r.json(); })
-          .then(function(r2){
-            if (r2 && r2.length) flyToResult(r2[0]);
-          });
+          .then(function(r2){ return r2.json(); })
+          .then(function(r2data){ if (r2data && r2data.length) flyToResult(r2data[0]); });
       }
       flyToResult(results[0]);
     })
@@ -2071,11 +2095,8 @@
   /* ─ Update map when live Supabase listings are loaded ─ */
   function updateMapWithLiveListings(listings){
     if (!listings || !listings.length) return;
-    // Convert Supabase listing shape to map-compatible shape
-    var mapListings = listings.filter(function(l){
-      // Need coordinates — geocode from address or use county centroid
-      return l.id; // include all; we'll compute coords below
-    }).map(function(l){
+    // Only map listings with at least a county
+    var mapListings = listings.filter(function(l){ return l.county || l.street_address; }).map(function(l){
       // Florida county centroids fallback lookup
       var countyCoords = {
         'Alachua':[29.67,-82.35],'Baker':[30.33,-82.27],'Bay':[30.19,-85.62],
@@ -2173,24 +2194,35 @@
     document.body.style.overflow='';
   }
   function doSheetSearch(){
-    /* Use text input to loosely filter cards by title/location, else show all */
-    var q = (document.getElementById('ss-input').value||'').trim().toLowerCase();
+    var q = (document.getElementById('ss-input').value||'').trim();
+    var qLow = q.toLowerCase();
     closeSearchSheet();
-    /* Also trigger map geocode so map flies to the searched location */
-    if (q && document.getElementById('map-loc-input')) {
-      document.getElementById('map-loc-input').value = q;
+
+    /* Fly map to searched location (and init map if not yet started) */
+    if (q) {
+      if (!huntMap) initMap();
+      if (document.getElementById('map-loc-input')) {
+        document.getElementById('map-loc-input').value = q;
+      }
       if (typeof geocodeSearch === 'function') geocodeSearch();
     }
-    if(q){
+
+    if (qLow) {
       var cards = document.querySelectorAll('#cards-grid .card');
       var visible = 0;
       cards.forEach(function(c){
-        var title = (c.querySelector('.card-title')||{}).textContent||'';
-        var loc   = (c.querySelector('.card-location')||{}).textContent||'';
-        var tags  = Array.from(c.querySelectorAll('.card-tag')).map(function(t){return t.textContent;}).join(' ');
-        var match = (title+loc+tags).toLowerCase().includes(q);
+        // Search across title, location, tags AND data-address attribute
+        var title   = (c.querySelector('.card-title')||{}).textContent||'';
+        var loc     = (c.querySelector('.card-location')||{}).textContent||'';
+        var tags    = Array.from(c.querySelectorAll('.card-tag')).map(function(t){return t.textContent;}).join(' ');
+        var addr    = (c.dataset.address||'');
+        var county  = (c.dataset.county||'');
+        var haystack = (title+loc+tags+addr+county).toLowerCase();
+        // Also match ZIP codes
+        var matchZip = /^\d{5}$/.test(q.trim()) ? addr.includes(q.trim()) : false;
+        var match = haystack.includes(qLow) || matchZip;
         c.style.display = match ? '' : 'none';
-        if(match) visible++;
+        if (match) visible++;
       });
       document.getElementById('listings-count-num').textContent = visible+' propert'+(visible===1?'y':'ies');
       document.getElementById('filter-empty').style.display = visible===0?'block':'none';
