@@ -60,15 +60,8 @@ function openListingDetail(l) {
         '</div>'
       : '';
 
-    var noteHtml = !launched
-      ? '<p style="font-size:.85rem;color:var(--color-text-muted);margin-bottom:1rem;line-height:1.6">Pre-reserve your dates now \u2014 no payment until July 1. We\u2019ll confirm by email when bookings open.</p>'
-      : '';
-
-    var nameEmailHtml = !launched
-      ? '<input id="bk-name" type="text" placeholder="Your full name" style="'+inputStyle+';margin-bottom:.6rem" />' +
-        '<input id="bk-email" type="email" placeholder="Email address" style="'+inputStyle+';margin-bottom:.6rem" />' +
-        '<input id="bk-phone" type="tel" placeholder="Phone (optional)" style="'+inputStyle+';margin-bottom:.85rem" />'
-      : '';
+    var noteHtml = '';
+    var nameEmailHtml = '';
 
     var btnLabel = 'Book Now &rarr;';
     var btnAction = 'submitBookingStripe()';

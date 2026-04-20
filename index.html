@@ -553,8 +553,8 @@
   <section class="fade-up" style="background:var(--color-primary);padding:clamp(var(--space-10),6vw,var(--space-16)) clamp(var(--space-4),4vw,var(--space-12))">
     <div style="max-width:700px;margin:0 auto;text-align:center">
       <p style="font-size:var(--text-xs);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:var(--space-3)">Now accepting waitlist</p>
-      <h2 style="font-size:var(--text-2xl);font-weight:800;letter-spacing:.02em;color:#fff;margin-bottom:var(--space-3)">Be first in your state.</h2>
-      <p style="font-size:var(--text-base);color:rgba(255,255,255,.75);margin-bottom:var(--space-6)">Enter your email and we'll notify you the day LeaseWild goes live near you. No spam, ever.</p>
+      <h2 style="font-size:var(--text-2xl);font-weight:800;letter-spacing:.02em;color:#fff;margin-bottom:var(--space-3)">Be first in Florida.</h2>
+      <p style="font-size:var(--text-base);color:rgba(255,255,255,.75);margin-bottom:var(--space-6)">Enter your email and we'll notify you the day LeaseWild opens for bookings. No spam, ever.</p>
       <form onsubmit="inlineSubmit(event)" style="display:flex;gap:var(--space-3);flex-wrap:wrap;justify-content:center;max-width:480px;margin:0 auto">
         <input id="inline-email" type="email" required placeholder="your@email.com"
           style="flex:1;min-width:200px;padding:.8rem 1.1rem;border:none;border-radius:var(--radius-full);background:rgba(255,255,255,.15);color:#fff;font-size:var(--text-sm);outline:none;backdrop-filter:blur(4px);" />
@@ -638,7 +638,7 @@
   <footer>
     <div class="footer-inner">
       <div class="footer-brand">
-        <a href="index.html" class="logo"><img src="leasewild-logo.png" alt="LeaseWild" style="height:80px;width:auto;object-fit:contain;" /></a>
+        <a href="index.html" class="logo" style="display:flex;align-items:center;gap:10px;text-decoration:none;"><svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg><span style="font-family:var(--font-display);font-weight:800;font-size:1.55rem;letter-spacing:.01em;line-height:1"><span style="color:var(--color-text)">Lease</span><span style="color:#c17f3a;">Wild</span></span></a>
         <p>Private hunting land and fishing water access — booking the land that was never available before.</p>
         <div style="display:flex;gap:var(--space-4);margin-top:var(--space-4)">
           <a href="https://www.instagram.com/leasewild?igsh=Z2J6NG4zNmUxOGp0" target="_blank" aria-label="Instagram" style="color:var(--color-text-faint);transition:color var(--transition)" onmouseover="this.style.color='var(--color-text)'" onmouseout="this.style.color='var(--color-text-faint)'">
@@ -909,24 +909,22 @@
   function filterSpecies(val) { _fspecies = val; applyCardFilters(); }
 
   // ── INLINE EMAIL ──
-  function inlineSubmit(e) {
+  async function inlineSubmit(e) {
     e.preventDefault();
     const email = document.getElementById('inline-email').value.trim();
     if (!email) return;
     const btn = document.getElementById('inline-submit');
     btn.disabled = true; btn.textContent = 'Submitting…';
-    const f = document.createElement('form');
-    f.method = 'POST';
-    f.action = 'https://docs.google.com/forms/d/e/1FAIpQLSflRqncpu1U2GKag97hbgK8LqhxVImlQf87IRzjzTAX_blfhQ/formResponse';
-    f.target = 'wl-sink'; f.style.display = 'none';
-    [['entry.248c66f4', email],['entry.7bcb4a58','Find a listing']].forEach(([n,v]) => {
-      const i = document.createElement('input'); i.type='hidden'; i.name=n; i.value=v; f.appendChild(i);
-    });
-    document.body.appendChild(f); f.submit(); document.body.removeChild(f);
-    setTimeout(() => {
-      document.getElementById('inline-confirm').style.display = 'block';
-      document.querySelector('#inline-email').closest('form').style.display = 'none';
-    }, 400);
+    try {
+      await fetch(WAITLIST_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName: '', lastName: '', email, phone: '', location: 'Florida' })
+      });
+    } catch(err) { console.warn('Inline waitlist error:', err); }
+    document.getElementById('inline-confirm').style.display = 'block';
+    document.querySelector('#inline-email').closest('form').style.display = 'none';
   }
 
   // ── WAITLIST MODAL ──
