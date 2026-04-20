@@ -12,90 +12,145 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     :root,[data-theme="light"]{
-      --text-xs:clamp(0.85rem,0.8rem + 0.25vw,1rem);
-      --text-sm:clamp(1rem,0.9rem + 0.35vw,1.125rem);
-      --text-base:clamp(1.125rem,1.05rem + 0.3vw,1.3rem);
-      --text-lg:clamp(1.3rem,1.1rem + 0.75vw,1.65rem);
-      --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+      --text-xs:.82rem;--text-sm:.95rem;--text-base:1.05rem;--text-lg:1.25rem;--text-xl:1.6rem;--text-2xl:2rem;
       --color-bg:#f5f1e8;--color-surface:#faf6ed;--color-surface-2:#fff;
-      --color-border:#d6cebd;--color-text:#1a1a12;--color-text-muted:#6b6656;
-      --color-primary:#2d5a27;--color-primary-hover:#1e3d1a;
+      --color-border:#d6cebd;--color-divider:#e8e2d5;
+      --color-text:#1a1a12;--color-text-muted:#6b6656;--color-text-faint:#a09b8c;
+      --color-primary:#2d5a27;--color-primary-hover:#1e3d1a;--color-primary-light:#d6ead3;
       --color-accent:#c17f3a;--color-accent-hover:#a06828;
-      --color-danger:#c0392b;
-      --radius-md:.625rem;--radius-lg:1rem;--radius-xl:1.5rem;
-      --shadow-md:0 4px 16px rgba(26,26,18,.10);--shadow-lg:0 16px 48px rgba(26,26,18,.14);
-      --font-display:'Oswald',system-ui,sans-serif;
-      --font-body:'Barlow',system-ui,sans-serif;
+      --color-danger:#c0392b;--color-danger-light:#fde8e8;
+      --color-water:#1a6b7a;
+      --radius-sm:.375rem;--radius-md:.625rem;--radius-lg:1rem;--radius-xl:1.5rem;--radius-full:9999px;
+      --shadow-sm:0 1px 4px rgba(26,26,18,.07);--shadow-md:0 4px 16px rgba(26,26,18,.10);--shadow-lg:0 16px 48px rgba(26,26,18,.14);
+      --font-display:'Oswald',system-ui,sans-serif;--font-body:'Barlow',system-ui,sans-serif;
+      --transition:180ms cubic-bezier(.16,1,.3,1);
     }
     [data-theme="dark"]{
       --color-bg:#111410;--color-surface:#171b14;--color-surface-2:#1d221a;
-      --color-border:#2e342b;--color-text:#e8e2d4;--color-text-muted:#9a9485;
+      --color-border:#2e342b;--color-divider:#222;--color-text:#e8e2d4;--color-text-muted:#9a9485;--color-text-faint:#605e52;
       --color-primary:#5a9470;--color-accent:#d4922a;
+      --shadow-md:0 4px 16px rgba(0,0,0,.35);--shadow-lg:0 16px 48px rgba(0,0,0,.5);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
-    body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);display:flex;flex-direction:column;align-items:center;padding:1.5rem}
-    .portal-card{background:var(--color-surface-2);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);padding:2.5rem 2rem;width:100%;max-width:460px;border:1px solid var(--color-border);margin:auto}
+    body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);display:flex;flex-direction:column;align-items:center;padding:2rem 1rem}
+
+    /* ── AUTH CARD ─────────────────────────────────────────── */
+    .portal-card{background:var(--color-surface-2);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);padding:2.5rem 2rem;width:100%;max-width:440px;border:1px solid var(--color-border);margin:auto}
     .logo-row{display:flex;align-items:center;gap:.75rem;margin-bottom:2rem;text-decoration:none}
     .wordmark{font-family:var(--font-display);font-weight:800;font-size:1.55rem;letter-spacing:.01em;line-height:1}
-    h1{font-family:var(--font-display);font-weight:800;font-size:var(--text-xl);margin-bottom:.5rem}
-    .subtitle{color:var(--color-text-muted);font-size:var(--text-sm);margin-bottom:2rem}
-    .tabs{display:flex;border-bottom:2px solid var(--color-border);margin-bottom:1.75rem}
-    .tab{flex:1;text-align:center;padding:.75rem;font-weight:600;font-size:var(--text-sm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);transition:all .15s}
+    h1{font-family:var(--font-display);font-weight:800;font-size:var(--text-xl);margin-bottom:.35rem}
+    .subtitle{color:var(--color-text-muted);font-size:var(--text-sm);margin-bottom:1.75rem}
+
+    /* Social buttons */
+    .social-btn{display:flex;align-items:center;justify-content:center;gap:.65rem;width:100%;padding:.8rem 1rem;border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:600;font-family:inherit;cursor:pointer;transition:all var(--transition);border:1.5px solid var(--color-border);background:var(--color-surface-2);color:var(--color-text);margin-bottom:.6rem}
+    .social-btn:hover{border-color:var(--color-text-muted);background:var(--color-surface)}
+    .social-btn svg{flex-shrink:0}
+
+    /* Divider */
+    .divider{display:flex;align-items:center;gap:.75rem;color:var(--color-text-faint);font-size:var(--text-xs);margin:1.1rem 0}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--color-border)}
+
+    /* Tabs */
+    .tabs{display:flex;border-bottom:2px solid var(--color-border);margin-bottom:1.5rem}
+    .tab{flex:1;text-align:center;padding:.65rem;font-weight:600;font-size:var(--text-sm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);transition:all .15s}
     .tab.active{color:var(--color-primary);border-bottom-color:var(--color-primary)}
     .tab-panel{display:none}.tab-panel.active{display:block}
-    .field{margin-bottom:1.25rem}
-    label{display:block;font-weight:600;font-size:var(--text-sm);margin-bottom:.4rem}
-    input[type=text],input[type=email],input[type=password],input[type=tel]{width:100%;padding:.8rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);font-size:var(--text-base);font-family:inherit;color:var(--color-text);transition:border-color .15s}
+
+    .field{margin-bottom:1rem}
+    label{display:block;font-weight:600;font-size:var(--text-sm);margin-bottom:.35rem;color:var(--color-text-muted)}
+    input[type=text],input[type=email],input[type=password],input[type=tel]{width:100%;padding:.75rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);font-size:var(--text-base);font-family:inherit;color:var(--color-text);transition:border-color .15s}
     input:focus{outline:none;border-color:var(--color-primary)}
-    .btn-primary{width:100%;padding:.9rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--text-base);font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s;margin-top:.5rem}
+    .btn-primary{width:100%;padding:.85rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--text-base);font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s;margin-top:.25rem}
     .btn-primary:hover{background:var(--color-primary-hover)}
     .btn-primary:disabled{opacity:.6;cursor:not-allowed}
-    .msg{padding:.8rem 1rem;border-radius:var(--radius-md);font-size:var(--text-sm);margin-bottom:1rem}
-    .msg.error{background:#fde8e8;color:var(--color-danger);border:1px solid #f5c6c6}
-    .msg.success{background:#e8f5e9;color:#2d6a2d;border:1px solid #b2d8b2}
-    /* Dashboard */
-    #dashboard{display:none;width:100%;max-width:600px;margin:0 auto;padding-bottom:3rem}
-    .dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;padding:1.5rem 0 0}
-    .dash-welcome{font-family:var(--font-display);font-weight:800;font-size:var(--text-lg)}
-    .btn-ghost{padding:.6rem 1.1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-weight:600;font-family:inherit;font-size:var(--text-sm);cursor:pointer;background:none;color:var(--color-text)}
-    /* Tabs */
-    .dash-tabs{display:flex;border-bottom:2px solid var(--color-border);margin-bottom:1.5rem;gap:0}
-    .dash-tab{padding:.65rem 1.25rem;font-weight:600;font-size:var(--text-sm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all .15s}
+    .msg-box{padding:.75rem 1rem;border-radius:var(--radius-md);font-size:var(--text-sm);margin-bottom:1rem;display:none}
+    .msg-box.error{background:var(--color-danger-light);color:var(--color-danger);border:1px solid #f5c6c6;display:block}
+    .msg-box.success{background:var(--color-primary-light);color:var(--color-primary);border:1px solid #b2d8b2;display:block}
+
+    /* ── DASHBOARD ─────────────────────────────────────────── */
+    #dashboard{display:none;width:100%;max-width:680px;padding-bottom:4rem}
+    .dash-nav{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 0;margin-bottom:.5rem;flex-wrap:wrap;gap:.75rem;border-bottom:1px solid var(--color-divider)}
+    .dash-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+    .dash-actions{display:flex;gap:.5rem;align-items:center}
+    .btn-ghost{padding:.55rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-weight:600;font-family:inherit;font-size:var(--text-sm);cursor:pointer;background:none;color:var(--color-text);transition:all var(--transition)}
+    .btn-ghost:hover{border-color:var(--color-text-muted)}
+    .btn-accent{padding:.55rem 1rem;background:var(--color-accent);color:#fff;border:none;border-radius:var(--radius-md);font-weight:700;font-family:inherit;font-size:var(--text-sm);cursor:pointer;transition:background var(--transition);text-decoration:none;display:inline-block}
+    .btn-accent:hover{background:var(--color-accent-hover)}
+
+    /* Avatar */
+    .avatar{width:40px;height:40px;border-radius:50%;background:var(--color-primary);display:grid;place-items:center;color:#fff;font-weight:800;font-size:1rem;flex-shrink:0;font-family:var(--font-display)}
+
+    /* Dash tabs */
+    .dash-tabs{display:flex;gap:0;border-bottom:2px solid var(--color-border);margin:1.25rem 0;overflow-x:auto;scrollbar-width:none}
+    .dash-tabs::-webkit-scrollbar{display:none}
+    .dash-tab{padding:.6rem 1.1rem;font-weight:600;font-size:var(--text-sm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all .15s;white-space:nowrap}
     .dash-tab.active{color:var(--color-primary);border-bottom-color:var(--color-primary)}
     .dash-panel{display:none}.dash-panel.active{display:block}
+
     /* Booking cards */
-    .booking-card{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:.85rem}
-    /* Message thread */
+    .booking-card{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:.85rem;box-shadow:var(--shadow-sm)}
+    .status-pill{padding:.2rem .65rem;border-radius:var(--radius-full);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+
+    /* Profile form */
+    .profile-section{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:1.5rem;margin-bottom:1.25rem}
+    .profile-section h3{font-family:var(--font-display);font-weight:700;font-size:var(--text-base);margin-bottom:1rem;letter-spacing:.01em}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+    @media(max-width:500px){.field-row{grid-template-columns:1fr}}
+    .field-inline{margin-bottom:.85rem}
+    .field-inline label{display:block;font-weight:600;font-size:var(--text-xs);margin-bottom:.3rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em}
+    .field-inline input,.field-inline select,.field-inline textarea{width:100%;padding:.7rem .9rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);font-size:var(--text-sm);font-family:inherit;color:var(--color-text);transition:border-color .15s;resize:vertical}
+    .field-inline input:focus,.field-inline select:focus,.field-inline textarea:focus{outline:none;border-color:var(--color-primary)}
+    .btn-save{padding:.7rem 1.5rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-weight:700;font-family:inherit;font-size:var(--text-sm);cursor:pointer;transition:background var(--transition)}
+    .btn-save:hover{background:var(--color-primary-hover)}
+    .btn-save:disabled{opacity:.5;cursor:not-allowed}
+
+    /* Messages */
     .thread-list{display:flex;flex-direction:column;gap:.6rem}
-    .thread-item{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem 1.25rem;cursor:pointer;transition:border-color .15s;position:relative}
+    .thread-item{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem 1.25rem;cursor:pointer;transition:border-color .15s;position:relative;box-shadow:var(--shadow-sm)}
     .thread-item:hover{border-color:var(--color-primary)}
     .thread-item.unread{border-left:3px solid var(--color-accent)}
-    .thread-title{font-weight:700;font-size:var(--text-sm);margin-bottom:.25rem}
-    .thread-preview{font-size:var(--text-xs);color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .thread-time{font-size:.72rem;color:var(--color-text-muted);position:absolute;top:1rem;right:1.25rem}
-    /* Conversation */
+    .thread-title{font-weight:700;font-size:var(--text-sm);margin-bottom:.2rem}
+    .thread-preview{font-size:var(--text-xs);color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85%}
+    .thread-time{font-size:.7rem;color:var(--color-text-muted);position:absolute;top:1rem;right:1.25rem}
     #conversation-view{display:none}
     .conv-header{display:flex;align-items:center;gap:.75rem;padding:.75rem 0 1rem;border-bottom:1px solid var(--color-border);margin-bottom:1rem}
-    .conv-back{background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--color-text-muted);padding:4px 8px}
+    .conv-back{background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--color-text-muted);padding:4px 8px;border-radius:var(--radius-sm)}
     .conv-title{font-weight:700;font-size:var(--text-sm)}
     .messages-container{display:flex;flex-direction:column;gap:.6rem;min-height:200px;max-height:55vh;overflow-y:auto;padding:.5rem 0;margin-bottom:1rem}
     .msg-bubble{max-width:80%;padding:.65rem .9rem;border-radius:12px;font-size:var(--text-sm);line-height:1.5;word-break:break-word}
     .msg-bubble.mine{background:var(--color-primary);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
     .msg-bubble.theirs{background:var(--color-surface);border:1px solid var(--color-border);align-self:flex-start;border-bottom-left-radius:4px}
-    .msg-meta{font-size:.7rem;color:var(--color-text-muted);margin-top:.2rem;text-align:right}
-    .msg-meta.theirs{text-align:left}
+    .msg-meta{font-size:.7rem;color:var(--color-text-muted);margin-top:.2rem}
+    .msg-meta.mine{text-align:right}
     .msg-wrap{display:flex;flex-direction:column}
     .compose-row{display:flex;gap:.6rem;align-items:flex-end}
     .compose-input{flex:1;padding:.75rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-sm);font-family:inherit;resize:none;min-height:48px;max-height:120px;background:var(--color-surface);color:var(--color-text)}
     .compose-input:focus{outline:none;border-color:var(--color-primary)}
     .send-btn{padding:.7rem 1.1rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-weight:700;font-family:inherit;cursor:pointer;font-size:var(--text-sm);white-space:nowrap}
     .send-btn:disabled{opacity:.5;cursor:not-allowed}
+
+    /* Settings toggles */
+    .setting-row{display:flex;align-items:center;justify-content:space-between;padding:1rem 0;border-bottom:1px solid var(--color-divider)}
+    .setting-row:last-child{border-bottom:none}
+    .toggle-switch{position:relative;width:48px;height:26px;border-radius:999px;border:none;cursor:pointer;transition:background .25s;padding:0;flex-shrink:0}
+    .toggle-knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .25s}
+    .toggle-on{background:var(--color-primary)}
+    .toggle-off{background:#d1d5db}
+    .toggle-on .toggle-knob{left:25px}
+
+    /* Notification badge */
+    .notif-dot{width:8px;height:8px;border-radius:50%;background:var(--color-accent);display:inline-block;margin-left:.3rem;vertical-align:middle}
+
+    /* Empty states */
+    .empty-state{text-align:center;padding:3rem 1rem}
+    .empty-state svg{margin:0 auto 1rem;opacity:.3;display:block}
+    .empty-state p{color:var(--color-text-muted);font-size:var(--text-sm);margin-bottom:1.25rem}
   </style>
 </head>
 <body>
 
-  <!-- AUTH CARD -->
+  <!-- ── AUTH CARD ──────────────────────────────────────────── -->
   <div class="portal-card" id="auth-card">
     <a href="index.html" class="logo-row">
       <svg width="34" height="34" viewBox="0 0 38 38" fill="none"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
@@ -104,41 +159,54 @@
     <h1>Guest Portal</h1>
     <p class="subtitle">Sign in to view your bookings and messages.</p>
 
+    <!-- Social sign-in -->
+    <button class="social-btn" onclick="signInWithGoogle()">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+      Continue with Google
+    </button>
+    <button class="social-btn" onclick="signInWithApple()" style="background:#000;color:#fff;border-color:#000">
+      <svg width="20" height="20" viewBox="0 0 814 1000" fill="#fff"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.5-166.1-111.5c-52.2-61.3-98.5-159.1-98.5-251.6 0-165.3 107.5-252.8 213.8-252.8 63.8 0 116.7 43.2 157.2 43.2 39.3 0 100.7-46.1 171.7-46.1zm-17.5-191.3c35 0 71.7-23.1 95.2-53.6 21.1-27.5 37.5-65.6 37.5-103.7 0-5.2-.4-10.4-1.3-14.9-35.4 1.3-77.9 23.7-103.1 55.6-19.8 24.4-38.6 62.2-38.6 101s.6 7.9 1.3 7.9z"/></svg>
+      Continue with Apple
+    </button>
+
+    <div class="divider">or</div>
+
+    <!-- Email tabs -->
     <div class="tabs">
       <div class="tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</div>
       <div class="tab" id="tab-signup" onclick="switchTab('signup')">Create Account</div>
     </div>
 
-    <div id="msg" class="msg"></div>
+    <div id="auth-msg" class="msg-box"></div>
 
     <!-- SIGN IN -->
     <div class="tab-panel active" id="panel-signin">
       <div class="field">
         <label>Email</label>
-        <input type="email" id="si-email" placeholder="your@email.com" autocomplete="email" />
+        <input type="email" id="si-email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')signIn()" />
       </div>
       <div class="field">
         <label>Password</label>
-        <input type="password" id="si-pass" placeholder="Password" autocomplete="current-password" />
+        <input type="password" id="si-pass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()" />
       </div>
       <button class="btn-primary" onclick="signIn()" id="si-btn">Sign In</button>
-      <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-align:center;margin-top:1rem;cursor:pointer;text-decoration:underline" onclick="resetPassword()">Forgot password?</p>
+      <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-align:center;margin-top:.85rem;cursor:pointer;text-decoration:underline" onclick="resetPassword()">Forgot password?</p>
     </div>
 
     <!-- SIGN UP -->
     <div class="tab-panel" id="panel-signup">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
-        <div class="field"><label>First Name</label><input type="text" id="su-first" placeholder="Jane" /></div>
-        <div class="field"><label>Last Name</label><input type="text" id="su-last" placeholder="Smith" /></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+        <div class="field"><label>First Name *</label><input type="text" id="su-first" placeholder="Jane" /></div>
+        <div class="field"><label>Last Name *</label><input type="text" id="su-last" placeholder="Smith" /></div>
       </div>
-      <div class="field"><label>Phone</label><input type="tel" id="su-phone" placeholder="+1 (555) 000-0000" /></div>
-      <div class="field"><label>Email</label><input type="email" id="su-email" placeholder="your@email.com" autocomplete="email" /></div>
+      <div class="field"><label>Phone *</label><input type="tel" id="su-phone" placeholder="+1 (555) 000-0000" /></div>
+      <div class="field"><label>Email *</label><input type="email" id="su-email" placeholder="your@email.com" autocomplete="email" /></div>
       <div class="field">
-        <label>Password</label>
+        <label>Password *</label>
         <input type="password" id="su-pass" placeholder="Min 8 chars + 1 special character" autocomplete="new-password" />
       </div>
       <button class="btn-primary" onclick="signUp()" id="su-btn">Create Guest Account</button>
-      <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-align:center;margin-top:1rem;line-height:1.5">By creating an account you agree to our <a href="terms.html#guest" style="color:var(--color-primary)">Guest Terms</a>.</p>
+      <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-align:center;margin-top:.85rem;line-height:1.5">By creating an account you agree to our <a href="terms.html" style="color:var(--color-primary)">Terms</a>.</p>
     </div>
 
     <div style="text-align:center;margin-top:1.5rem;font-size:var(--text-xs);color:var(--color-text-muted)">
@@ -146,41 +214,51 @@
     </div>
   </div>
 
-  <!-- DASHBOARD -->
+  <!-- ── DASHBOARD ──────────────────────────────────────────── -->
   <div id="dashboard">
-    <div class="dash-header">
-      <div>
-        <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.07em;font-weight:700">Guest Portal</p>
-        <div class="dash-welcome" id="dash-name">Welcome back</div>
-      </div>
-      <div style="display:flex;gap:.6rem;align-items:center">
-        <a href="listings.html" style="text-decoration:none"><button class="btn-ghost">Browse land</button></a>
-        <button class="btn-ghost" onclick="signOut()">Sign out</button>
+    <!-- Top nav -->
+    <div class="dash-nav">
+      <a href="index.html" class="dash-logo">
+        <svg width="30" height="30" viewBox="0 0 38 38" fill="none"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
+        <span style="font-family:var(--font-display);font-weight:800;font-size:1.2rem"><span style="color:var(--color-text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
+      </a>
+      <div class="dash-actions">
+        <a href="listings.html" class="btn-accent">Browse land</a>
+        <div class="avatar" id="dash-avatar">?</div>
+        <button class="btn-ghost" onclick="signOut()" style="font-size:.8rem;padding:.45rem .8rem">Sign out</button>
       </div>
     </div>
 
+    <!-- Welcome bar -->
+    <div style="padding:.75rem 0 0">
+      <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.07em;font-weight:700">Guest Account</p>
+      <div style="font-family:var(--font-display);font-weight:800;font-size:var(--text-lg)" id="dash-name">Welcome back</div>
+    </div>
+
+    <!-- Tab bar -->
     <div class="dash-tabs">
       <button class="dash-tab active" id="dtab-bookings" onclick="switchDashTab('bookings')">My Bookings</button>
-      <button class="dash-tab" id="dtab-messages" onclick="switchDashTab('messages')">Messages <span id="unread-badge" style="display:none;background:var(--color-accent);color:#fff;border-radius:99px;font-size:.7rem;padding:.1rem .45rem;margin-left:.3rem;font-weight:700"></span></button>
+      <button class="dash-tab" id="dtab-messages" onclick="switchDashTab('messages')">
+        Messages <span id="unread-badge" style="display:none;background:var(--color-accent);color:#fff;border-radius:99px;font-size:.65rem;padding:.05rem .4rem;margin-left:.25rem;font-weight:700"></span>
+      </button>
+      <button class="dash-tab" id="dtab-profile" onclick="switchDashTab('profile')">Profile</button>
+      <button class="dash-tab" id="dtab-settings" onclick="switchDashTab('settings')">Settings</button>
     </div>
 
-    <!-- BOOKINGS PANEL -->
+    <!-- ── BOOKINGS PANEL ───────────────────────────────────── -->
     <div class="dash-panel active" id="dpanel-bookings">
       <div id="bookings-container">
         <p style="color:var(--color-text-muted);text-align:center;padding:2rem">Loading your bookings…</p>
       </div>
     </div>
 
-    <!-- MESSAGES PANEL -->
+    <!-- ── MESSAGES PANEL ───────────────────────────────────── -->
     <div class="dash-panel" id="dpanel-messages">
-      <!-- Thread list -->
       <div id="thread-list-view">
         <div id="threads-container" class="thread-list">
           <p style="color:var(--color-text-muted);text-align:center;padding:2rem">Loading messages…</p>
         </div>
       </div>
-
-      <!-- Conversation view -->
       <div id="conversation-view">
         <div class="conv-header">
           <button class="conv-back" onclick="showThreadList()">← Back</button>
@@ -196,7 +274,141 @@
         </div>
       </div>
     </div>
-  </div>
+
+    <!-- ── PROFILE PANEL ────────────────────────────────────── -->
+    <div class="dash-panel" id="dpanel-profile">
+      <div id="profile-msg" class="msg-box" style="margin-bottom:1rem"></div>
+
+      <!-- Avatar + name -->
+      <div class="profile-section">
+        <h3>Personal Info</h3>
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem">
+          <div class="avatar" id="profile-avatar" style="width:56px;height:56px;font-size:1.4rem">?</div>
+          <div>
+            <div style="font-weight:700" id="profile-fullname">—</div>
+            <div style="font-size:var(--text-xs);color:var(--color-text-muted)" id="profile-email-display">—</div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-inline"><label>First Name</label><input type="text" id="p-first" placeholder="Jane" /></div>
+          <div class="field-inline"><label>Last Name</label><input type="text" id="p-last" placeholder="Smith" /></div>
+        </div>
+        <div class="field-inline"><label>Phone</label><input type="tel" id="p-phone" placeholder="+1 (555) 000-0000" /></div>
+        <div class="field-inline"><label>City / State</label><input type="text" id="p-location" placeholder="Tampa, FL" /></div>
+        <div class="field-inline"><label>Bio (optional)</label><textarea id="p-bio" rows="3" placeholder="Tell landowners a little about yourself…"></textarea></div>
+        <button class="btn-save" onclick="saveProfile()" id="profile-save-btn">Save Changes</button>
+      </div>
+
+      <!-- Hunting & Fishing preferences -->
+      <div class="profile-section">
+        <h3>Hunting & Fishing Preferences</h3>
+        <div class="field-row">
+          <div class="field-inline">
+            <label>Primary Species</label>
+            <select id="p-species">
+              <option value="">Select…</option>
+              <option>Whitetail Deer</option>
+              <option>Hog / Wild Boar</option>
+              <option>Turkey</option>
+              <option>Waterfowl</option>
+              <option>Bass Fishing</option>
+              <option>Catfish / Freshwater</option>
+              <option>Multiple</option>
+            </select>
+          </div>
+          <div class="field-inline">
+            <label>Experience Level</label>
+            <select id="p-exp">
+              <option value="">Select…</option>
+              <option>Beginner</option>
+              <option>Intermediate</option>
+              <option>Advanced</option>
+              <option>Expert / Guide</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-inline">
+          <label>Preferred Trip Type</label>
+          <select id="p-trip">
+            <option value="">Select…</option>
+            <option>Day trip</option>
+            <option>Weekend (2-3 nights)</option>
+            <option>Full week</option>
+            <option>Seasonal lease</option>
+          </select>
+        </div>
+        <button class="btn-save" onclick="saveProfile()" style="margin-top:.25rem">Save Preferences</button>
+      </div>
+
+      <!-- Change password -->
+      <div class="profile-section">
+        <h3>Change Password</h3>
+        <div class="field-inline"><label>New Password</label><input type="password" id="p-newpass" placeholder="Min 8 chars + 1 special character" /></div>
+        <div class="field-inline"><label>Confirm New Password</label><input type="password" id="p-confirmpass" placeholder="Repeat new password" /></div>
+        <button class="btn-save" onclick="changePassword()">Update Password</button>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS PANEL ───────────────────────────────────── -->
+    <div class="dash-panel" id="dpanel-settings">
+      <div class="profile-section">
+        <h3>Notifications</h3>
+        <div class="setting-row">
+          <div>
+            <div style="font-weight:600;font-size:var(--text-sm)">Booking confirmations</div>
+            <div style="font-size:var(--text-xs);color:var(--color-text-muted)">Email when your booking is confirmed or updated</div>
+          </div>
+          <button class="toggle-switch toggle-on" id="tog-booking" onclick="toggleSetting('booking')"><span class="toggle-knob"></span></button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div style="font-weight:600;font-size:var(--text-sm)">New messages</div>
+            <div style="font-size:var(--text-xs);color:var(--color-text-muted)">Email when a landowner replies to you</div>
+          </div>
+          <button class="toggle-switch toggle-on" id="tog-messages" onclick="toggleSetting('messages')"><span class="toggle-knob"></span></button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div style="font-weight:600;font-size:var(--text-sm)">New listings in your area</div>
+            <div style="font-size:var(--text-xs);color:var(--color-text-muted)">Email when new land is listed in Florida</div>
+          </div>
+          <button class="toggle-switch toggle-off" id="tog-listings" onclick="toggleSetting('listings')"><span class="toggle-knob"></span></button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div style="font-weight:600;font-size:var(--text-sm)">Promotions & deals</div>
+            <div style="font-size:var(--text-xs);color:var(--color-text-muted)">Discount codes and seasonal offers</div>
+          </div>
+          <button class="toggle-switch toggle-off" id="tog-promos" onclick="toggleSetting('promos')"><span class="toggle-knob"></span></button>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h3>Account</h3>
+        <div class="setting-row">
+          <div>
+            <div style="font-weight:600;font-size:var(--text-sm)">Email address</div>
+            <div style="font-size:var(--text-xs);color:var(--color-text-muted)" id="settings-email">—</div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div style="font-weight:600;font-size:var(--text-sm)">Account type</div>
+            <div style="font-size:var(--text-xs);color:var(--color-text-muted)">Guest</div>
+          </div>
+          <span style="padding:.2rem .6rem;background:var(--color-primary-light);color:var(--color-primary);border-radius:var(--radius-full);font-size:.7rem;font-weight:700">Guest</span>
+        </div>
+        <div class="setting-row" style="border-bottom:none">
+          <div>
+            <div style="font-weight:600;font-size:var(--text-sm);color:var(--color-danger)">Delete account</div>
+            <div style="font-size:var(--text-xs);color:var(--color-text-muted)">Permanently remove your account and data</div>
+          </div>
+          <button onclick="deleteAccount()" style="padding:.45rem .9rem;border:1.5px solid var(--color-danger);color:var(--color-danger);border-radius:var(--radius-md);background:none;font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:inherit">Delete</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /dashboard -->
 
   <script>
   const SB_URL  = 'https://teohfzegpoxzimfsmviy.supabase.co';
@@ -205,18 +417,36 @@
 
   try { sb = supabase.createClient(SB_URL, SB_ANON); } catch(e) { console.error(e); }
 
+  // ── OAUTH ────────────────────────────────────────────────────
+  async function signInWithGoogle() {
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.href }
+    });
+    if (error) showAuthMsg(error.message, 'error');
+  }
+
+  async function signInWithApple() {
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'apple',
+      options: { redirectTo: window.location.href }
+    });
+    if (error) showAuthMsg(error.message, 'error');
+  }
+
+  // ── EMAIL AUTH ───────────────────────────────────────────────
   function switchTab(t) {
     ['signin','signup'].forEach(function(x) {
       document.getElementById('tab-'+x).classList.toggle('active', x===t);
       document.getElementById('panel-'+x).classList.toggle('active', x===t);
     });
-    showMsg('','');
+    showAuthMsg('','');
   }
 
-  function showMsg(text, type) {
-    var el = document.getElementById('msg');
+  function showAuthMsg(text, type) {
+    var el = document.getElementById('auth-msg');
     el.textContent = text;
-    el.className = 'msg' + (type ? ' '+type : '');
+    el.className = 'msg-box' + (type ? ' '+type : '');
     el.style.display = text ? 'block' : 'none';
   }
 
@@ -224,11 +454,11 @@
     var email = document.getElementById('si-email').value.trim();
     var pass  = document.getElementById('si-pass').value;
     var btn   = document.getElementById('si-btn');
-    if (!email || !pass) { showMsg('Please enter email and password.','error'); return; }
+    if (!email || !pass) { showAuthMsg('Please enter email and password.','error'); return; }
     btn.disabled = true; btn.textContent = 'Signing in…';
     var { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
     btn.disabled = false; btn.textContent = 'Sign In';
-    if (error) { showMsg(error.message, 'error'); return; }
+    if (error) { showAuthMsg(error.message, 'error'); return; }
     showDashboard(data.user);
   }
 
@@ -239,9 +469,8 @@
     var email = document.getElementById('su-email').value.trim();
     var pass  = document.getElementById('su-pass').value;
     var btn   = document.getElementById('su-btn');
-    if (!first || !email || !pass || !phone) { showMsg('Please fill in all required fields.','error'); return; }
-    var passOk = pass.length >= 8 && /[^a-zA-Z0-9]/.test(pass);
-    if (!passOk) { showMsg('Password must be at least 8 characters and include 1 special character.','error'); return; }
+    if (!first || !last || !email || !pass || !phone) { showAuthMsg('Please fill in all required fields.','error'); return; }
+    if (pass.length < 8 || !/[^a-zA-Z0-9]/.test(pass)) { showAuthMsg('Password must be at least 8 characters and include 1 special character.','error'); return; }
     btn.disabled = true; btn.textContent = 'Creating account…';
     var { data, error } = await sb.auth.signUp({
       email, password: pass,
@@ -251,16 +480,16 @@
       }
     });
     btn.disabled = false; btn.textContent = 'Create Guest Account';
-    if (error) { showMsg(error.message,'error'); return; }
-    showMsg('Account created! Check your email to confirm your account, then sign in.','success');
+    if (error) { showAuthMsg(error.message,'error'); return; }
+    showAuthMsg('Account created! Check your email to confirm, then sign in.','success');
     switchTab('signin');
   }
 
   async function resetPassword() {
     var email = document.getElementById('si-email').value.trim();
-    if (!email) { showMsg('Enter your email first.','error'); return; }
+    if (!email) { showAuthMsg('Enter your email first.','error'); return; }
     await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://leasewild.com/guest-portal.html' });
-    showMsg('Password reset email sent!','success');
+    showAuthMsg('Password reset email sent — check your inbox.','success');
   }
 
   async function signOut() {
@@ -268,79 +497,163 @@
     await sb.auth.signOut();
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('auth-card').style.display = 'block';
-    document.body.style.alignItems = 'center';
-    document.body.style.justifyContent = 'center';
   }
 
+  // ── DASHBOARD INIT ───────────────────────────────────────────
   function showDashboard(user) {
     currentUser = user;
     document.getElementById('auth-card').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-    document.body.style.alignItems = 'flex-start';
-    document.body.style.justifyContent = 'flex-start';
-    var name = user.user_metadata?.first_name || user.email.split('@')[0];
-    document.getElementById('dash-name').textContent = 'Welcome, ' + name;
+    var meta = user.user_metadata || {};
+    var first = meta.first_name || meta.full_name?.split(' ')[0] || user.email.split('@')[0];
+    var initials = (meta.first_name?.[0]||'') + (meta.last_name?.[0]||'');
+    if (!initials) initials = first[0].toUpperCase();
+    document.getElementById('dash-name').textContent = 'Welcome back, ' + first;
+    document.getElementById('dash-avatar').textContent = initials.toUpperCase();
+    document.getElementById('settings-email').textContent = user.email;
+    // Pre-fill profile
+    document.getElementById('profile-avatar').textContent = initials.toUpperCase();
+    document.getElementById('profile-fullname').textContent = meta.full_name || (first + ' ' + (meta.last_name||''));
+    document.getElementById('profile-email-display').textContent = user.email;
+    document.getElementById('p-first').value = meta.first_name || first;
+    document.getElementById('p-last').value = meta.last_name || '';
+    document.getElementById('p-phone').value = meta.phone || '';
+    document.getElementById('p-location').value = meta.location || '';
+    document.getElementById('p-bio').value = meta.bio || '';
+    document.getElementById('p-species').value = meta.species || '';
+    document.getElementById('p-exp').value = meta.experience || '';
+    document.getElementById('p-trip').value = meta.trip_type || '';
     loadBookings();
-    loadThreads();
+    loadUnreadCount();
     pollInterval = setInterval(function() { if (currentConvId) loadMessages(currentConvId); loadUnreadCount(); }, 8000);
   }
 
   function switchDashTab(t) {
-    ['bookings','messages'].forEach(function(x) {
+    ['bookings','messages','profile','settings'].forEach(function(x) {
       document.getElementById('dtab-'+x).classList.toggle('active', x===t);
       document.getElementById('dpanel-'+x).classList.toggle('active', x===t);
     });
     if (t === 'messages') loadThreads();
   }
 
-  // ── BOOKINGS ────────────────────────────────────────────────
+  // ── BOOKINGS ─────────────────────────────────────────────────
   async function loadBookings() {
     var container = document.getElementById('bookings-container');
-    var email = currentUser.email;
-    var res = await fetch(SB_URL + '/rest/v1/bookings?guest_email=eq.' + encodeURIComponent(email) + '&order=created_at.desc&select=*', {
-      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
-    });
-    var data = await res.json();
-    if (!data.length) {
-      container.innerHTML = '<div style="text-align:center;padding:2rem"><p style="color:var(--color-text-muted);margin-bottom:1rem">No bookings yet.</p><a href="listings.html" style="color:var(--color-accent);font-weight:700;text-decoration:none">Browse available land →</a></div>';
-      return;
-    }
-    var statusColor = { pre_reserved: '#c17f3a', confirmed: '#2d5a27', cancelled: '#ef4444' };
-    var statusLabel = { pre_reserved: 'Pre-reserved', confirmed: 'Confirmed', cancelled: 'Cancelled' };
-    container.innerHTML = data.map(function(b) {
-      var cin = b.checkin || b.check_in || '';
-      var cout = b.checkout || b.check_out || '';
-      var cinFmt = cin ? new Date(cin+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
-      var coutFmt = cout ? new Date(cout+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
-      var st = b.status || 'pre_reserved';
-      var sc = statusColor[st] || '#888';
-      var sl = statusLabel[st] || st;
-      return `<div class="booking-card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem">
-          <div>
-            <p style="font-weight:700;font-size:var(--text-sm)">Booking #${b.id.slice(0,8).toUpperCase()}</p>
-            <p style="font-size:var(--text-xs);color:var(--color-text-muted)">${cinFmt} → ${coutFmt} &middot; ${b.nights||'?'} nights</p>
+    try {
+      var res = await fetch(SB_URL + '/rest/v1/bookings?guest_email=eq.' + encodeURIComponent(currentUser.email) + '&order=created_at.desc&select=*', {
+        headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
+      });
+      var data = await res.json();
+      if (!Array.isArray(data) || !data.length) {
+        container.innerHTML = '<div class="empty-state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><p>No bookings yet.</p><a href="listings.html" style="color:var(--color-accent);font-weight:700;text-decoration:none;font-size:var(--text-sm)">Browse available land →</a></div>';
+        return;
+      }
+      var statusColor = { pre_reserved:'#c17f3a', confirmed:'#2d5a27', cancelled:'#ef4444', pending_payment:'#6366f1' };
+      var statusLabel = { pre_reserved:'Pre-reserved', confirmed:'Confirmed', cancelled:'Cancelled', pending_payment:'Payment pending' };
+      container.innerHTML = data.map(function(b) {
+        var cin = b.checkin || b.check_in || '';
+        var cout = b.checkout || b.check_out || '';
+        var cinFmt = cin ? new Date(cin+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+        var coutFmt = cout ? new Date(cout+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+        var st = b.status || 'pre_reserved';
+        var sc = statusColor[st] || '#888';
+        var sl = statusLabel[st] || st;
+        var total = b.total ? '$' + parseFloat(b.total).toFixed(2) : '—';
+        return `<div class="booking-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.6rem">
+            <div>
+              <p style="font-weight:700;font-size:var(--text-sm)">Booking #${b.id.slice(0,8).toUpperCase()}</p>
+              <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.15rem">${cinFmt} → ${coutFmt} &middot; ${b.nights||'?'} night${b.nights!==1?'s':''}</p>
+            </div>
+            <span class="status-pill" style="background:${sc};color:#fff;flex-shrink:0">${sl}</span>
           </div>
-          <span style="padding:.2rem .7rem;border-radius:99px;font-size:.72rem;font-weight:700;color:#fff;background:${sc};white-space:nowrap">${sl}</span>
-        </div>
-        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.75rem">
-          <button onclick="openConversation('${b.id}','${b.listing_id}','Booking #${b.id.slice(0,8).toUpperCase()}')" style="padding:.4rem .9rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:inherit">Message Landowner</button>
-          ${st !== 'cancelled' ? `<a href="cancel.html?id=${b.id}" style="padding:.4rem .9rem;border:1.5px solid #ef4444;color:#ef4444;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;text-decoration:none;display:inline-block">Cancel</a>` : ''}
-        </div>
-      </div>`;
-    }).join('');
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+            <span style="font-size:var(--text-sm);font-weight:700;color:var(--color-primary)">${total}</span>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button onclick="openConversation('${b.id}','${b.listing_id}','Booking #${b.id.slice(0,8).toUpperCase()}')" style="padding:.4rem .85rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:inherit">Message Landowner</button>
+              ${st !== 'cancelled' ? `<a href="cancel.html?id=${b.id}" style="padding:.4rem .85rem;border:1.5px solid var(--color-danger);color:var(--color-danger);border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;text-decoration:none;display:inline-block">Cancel</a>` : ''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      container.innerHTML = '<p style="color:var(--color-danger);text-align:center;padding:1.5rem">Error loading bookings.</p>';
+    }
   }
 
-  // ── MESSAGING ───────────────────────────────────────────────
+  // ── PROFILE ──────────────────────────────────────────────────
+  async function saveProfile() {
+    var btn = document.getElementById('profile-save-btn');
+    var msgEl = document.getElementById('profile-msg');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    var first = document.getElementById('p-first').value.trim();
+    var last  = document.getElementById('p-last').value.trim();
+    var { error } = await sb.auth.updateUser({
+      data: {
+        first_name: first,
+        last_name: last,
+        full_name: (first+' '+last).trim(),
+        phone: document.getElementById('p-phone').value.trim(),
+        location: document.getElementById('p-location').value.trim(),
+        bio: document.getElementById('p-bio').value.trim(),
+        species: document.getElementById('p-species').value,
+        experience: document.getElementById('p-exp').value,
+        trip_type: document.getElementById('p-trip').value
+      }
+    });
+    btn.disabled = false; btn.textContent = 'Save Changes';
+    if (error) {
+      msgEl.className = 'msg-box error'; msgEl.textContent = error.message; msgEl.style.display = 'block';
+    } else {
+      msgEl.className = 'msg-box success'; msgEl.textContent = 'Profile saved!'; msgEl.style.display = 'block';
+      document.getElementById('profile-fullname').textContent = (first+' '+last).trim();
+      var initials = (first[0]||'')+(last[0]||'');
+      document.getElementById('profile-avatar').textContent = initials.toUpperCase();
+      document.getElementById('dash-avatar').textContent = initials.toUpperCase();
+      setTimeout(function(){ msgEl.style.display='none'; }, 3000);
+    }
+  }
+
+  async function changePassword() {
+    var np = document.getElementById('p-newpass').value;
+    var cp = document.getElementById('p-confirmpass').value;
+    var msgEl = document.getElementById('profile-msg');
+    if (!np || !cp) { msgEl.className='msg-box error'; msgEl.textContent='Enter and confirm your new password.'; msgEl.style.display='block'; return; }
+    if (np !== cp) { msgEl.className='msg-box error'; msgEl.textContent='Passwords do not match.'; msgEl.style.display='block'; return; }
+    if (np.length < 8 || !/[^a-zA-Z0-9]/.test(np)) { msgEl.className='msg-box error'; msgEl.textContent='Password must be 8+ chars and include 1 special character.'; msgEl.style.display='block'; return; }
+    var { error } = await sb.auth.updateUser({ password: np });
+    if (error) { msgEl.className='msg-box error'; msgEl.textContent=error.message; msgEl.style.display='block'; }
+    else { msgEl.className='msg-box success'; msgEl.textContent='Password updated!'; msgEl.style.display='block'; document.getElementById('p-newpass').value=''; document.getElementById('p-confirmpass').value=''; setTimeout(function(){ msgEl.style.display='none'; },3000); }
+  }
+
+  // ── SETTINGS ─────────────────────────────────────────────────
+  var _settings = { booking: true, messages: true, listings: false, promos: false };
+
+  function toggleSetting(key) {
+    _settings[key] = !_settings[key];
+    var btn = document.getElementById('tog-'+key);
+    btn.classList.toggle('toggle-on', _settings[key]);
+    btn.classList.toggle('toggle-off', !_settings[key]);
+  }
+
+  async function deleteAccount() {
+    if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
+    if (!confirm('This will permanently delete all your data. Type OK to confirm.')) return;
+    await sb.auth.signOut();
+    alert('Account deletion requested. Our team will process this within 48 hours.');
+    window.location.href = 'index.html';
+  }
+
+  // ── MESSAGING ────────────────────────────────────────────────
   async function loadThreads() {
     var container = document.getElementById('threads-container');
-    var email = currentUser.email;
-    var res = await fetch(SB_URL + '/rest/v1/conversations?guest_email=eq.' + encodeURIComponent(email) + '&order=updated_at.desc&select=*', {
+    container.innerHTML = '<p style="color:var(--color-text-muted);text-align:center;padding:1.5rem">Loading…</p>';
+    var res = await fetch(SB_URL + '/rest/v1/conversations?guest_email=eq.' + encodeURIComponent(currentUser.email) + '&order=updated_at.desc&select=*', {
       headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
     });
     var threads = await res.json();
-    if (!threads.length) {
-      container.innerHTML = '<p style="color:var(--color-text-muted);text-align:center;padding:2rem">No messages yet. Message a landowner from your bookings.</p>';
+    if (!Array.isArray(threads) || !threads.length) {
+      container.innerHTML = '<div class="empty-state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><p>No messages yet. Message a landowner from your bookings.</p></div>';
       return;
     }
     container.innerHTML = threads.map(function(t) {
@@ -348,8 +661,8 @@
       var isUnread = t.guest_unread > 0;
       return `<div class="thread-item${isUnread?' unread':''}" onclick="openConversation('${t.booking_id}','${t.listing_id}','${escStr(t.subject||'Booking conversation')}','${t.id}')">
         <div class="thread-time">${time}</div>
-        <div class="thread-title">${escStr(t.subject || 'Booking conversation')}</div>
-        <div class="thread-preview">${escStr(t.last_message || 'No messages yet')}</div>
+        <div class="thread-title">${escStr(t.subject||'Booking conversation')}</div>
+        <div class="thread-preview">${escStr(t.last_message||'No messages yet')}</div>
         ${isUnread ? `<span style="display:inline-block;background:var(--color-accent);color:#fff;border-radius:99px;font-size:.65rem;padding:.1rem .4rem;font-weight:700;margin-top:.3rem">${t.guest_unread} new</span>` : ''}
       </div>`;
     }).join('');
@@ -357,52 +670,40 @@
 
   async function loadUnreadCount() {
     if (!currentUser) return;
-    var res = await fetch(SB_URL + '/rest/v1/conversations?guest_email=eq.' + encodeURIComponent(currentUser.email) + '&guest_unread=gt.0&select=id', {
-      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
-    });
-    var data = await res.json();
-    var badge = document.getElementById('unread-badge');
-    if (data.length > 0) { badge.style.display='inline'; badge.textContent=data.length; }
-    else { badge.style.display='none'; }
+    try {
+      var res = await fetch(SB_URL + '/rest/v1/conversations?guest_email=eq.' + encodeURIComponent(currentUser.email) + '&guest_unread=gt.0&select=id', {
+        headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
+      });
+      var data = await res.json();
+      var badge = document.getElementById('unread-badge');
+      if (Array.isArray(data) && data.length) { badge.style.display='inline'; badge.textContent=data.length; }
+      else { badge.style.display='none'; }
+    } catch(e) {}
   }
 
   async function openConversation(bookingId, listingId, subject, convId) {
-    // Find or create conversation
     if (!convId) {
       var res = await fetch(SB_URL + '/rest/v1/conversations?booking_id=eq.' + encodeURIComponent(bookingId) + '&select=*', {
         headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
       });
       var existing = await res.json();
-      if (existing.length) {
-        convId = existing[0].id;
-      } else {
-        // Create new conversation
+      if (existing.length) { convId = existing[0].id; }
+      else {
         var createRes = await fetch(SB_URL + '/rest/v1/conversations', {
           method: 'POST',
           headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
-          body: JSON.stringify({
-            booking_id: bookingId,
-            listing_id: listingId,
-            guest_email: currentUser.email,
-            subject: subject,
-            last_message: null,
-            guest_unread: 0,
-            landowner_unread: 0
-          })
+          body: JSON.stringify({ booking_id: bookingId, listing_id: listingId, guest_email: currentUser.email, subject, last_message: null, guest_unread: 0, landowner_unread: 0 })
         });
         var created = await createRes.json();
         convId = created[0]?.id;
       }
     }
     currentConvId = convId;
-
-    // Mark guest messages as read
     await fetch(SB_URL + '/rest/v1/conversations?id=eq.' + convId, {
       method: 'PATCH',
       headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ guest_unread: 0 })
     });
-
     document.getElementById('conv-title').textContent = subject;
     document.getElementById('thread-list-view').style.display = 'none';
     document.getElementById('conversation-view').style.display = 'block';
@@ -415,17 +716,18 @@
       headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
     });
     var msgs = await res.json();
-    if (!msgs.length) {
-      container.innerHTML = '<p style="color:var(--color-text-muted);text-align:center;padding:2rem;font-size:var(--text-sm)">No messages yet. Say hello to your landowner!</p>';
+    if (!Array.isArray(msgs) || !msgs.length) {
+      container.innerHTML = '<p style="color:var(--color-text-muted);text-align:center;padding:2rem;font-size:var(--text-sm)">No messages yet. Say hello!</p>';
       return;
     }
     var myEmail = currentUser.email;
+    var prev = container.scrollTop === container.scrollHeight - container.clientHeight;
     container.innerHTML = msgs.map(function(m) {
       var mine = m.sender_email === myEmail;
       var time = new Date(m.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
       return `<div class="msg-wrap">
         <div class="msg-bubble ${mine?'mine':'theirs'}">${escStr(m.body)}</div>
-        <div class="msg-meta ${mine?'':'theirs'}">${mine?'You':escStr(m.sender_name||'Landowner')} &middot; ${time}</div>
+        <div class="msg-meta ${mine?'mine':''}">${mine?'You':escStr(m.sender_name||'Landowner')} · ${time}</div>
       </div>`;
     }).join('');
     container.scrollTop = container.scrollHeight;
@@ -437,26 +739,19 @@
     var body  = input.value.trim();
     if (!body || !currentConvId) return;
     btn.disabled = true;
-    var senderName = currentUser.user_metadata?.first_name || currentUser.email.split('@')[0];
+    var meta = currentUser.user_metadata || {};
+    var senderName = meta.first_name || currentUser.email.split('@')[0];
     await fetch(SB_URL + '/rest/v1/messages', {
       method: 'POST',
       headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({
-        conversation_id: currentConvId,
-        sender_email: currentUser.email,
-        sender_name: senderName,
-        sender_role: 'guest',
-        body: body
-      })
+      body: JSON.stringify({ conversation_id: currentConvId, sender_email: currentUser.email, sender_name: senderName, sender_role: 'guest', body })
     });
-    // Update conversation: last_message + increment landowner_unread
     await fetch(SB_URL + '/rest/v1/conversations?id=eq.' + currentConvId, {
       method: 'PATCH',
       headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ last_message: body, updated_at: new Date().toISOString() })
     });
-    input.value = '';
-    btn.disabled = false;
+    input.value = ''; btn.disabled = false;
     loadMessages(currentConvId);
   }
 
@@ -469,10 +764,16 @@
 
   function escStr(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  // ── AUTO LOGIN ───────────────────────────────────────────────
+  // ── AUTO LOGIN (OAuth redirect / existing session) ───────────
   (async function() {
     try {
       if (!sb) return;
+      // Handle OAuth redirect
+      var hash = window.location.hash;
+      if (hash && (hash.includes('access_token') || hash.includes('error'))) {
+        var { data, error } = await sb.auth.getSession();
+        if (data?.session?.user) { showDashboard(data.session.user); return; }
+      }
       var { data } = await sb.auth.getSession();
       if (data?.session?.user) showDashboard(data.session.user);
     } catch(e) { console.warn(e); }
