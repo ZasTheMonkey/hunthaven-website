@@ -118,10 +118,10 @@ function openListingDetail(l) {
               '<p style="font-size:.83rem;color:var(--color-text-muted);margin-bottom:.65rem;line-height:1.55">Florida law requires a valid hunting or fishing license. Upload yours before booking — JPG, PNG, or PDF, max 10MB.</p>' +
               '<div style="display:flex;gap:.5rem;margin-bottom:.65rem">' +
                 '<label style="flex:1;display:flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border:1.5px solid var(--color-border);border-radius:8px;cursor:pointer;font-size:.83rem;font-weight:600;transition:border-color .15s" id="lic-type-hunt-label">' +
-                  '<input type="radio" name="lic-type" value="hunting" id="lic-type-hunt" style="accent-color:var(--color-primary)" checked onchange="updateLicLabel()" /> Hunting' +
+                  '<input type="radio" name="lic-type" value="hunting" id="lic-type-hunt" style="accent-color:var(--color-primary)" ' + (type !== 'fishing' ? 'checked' : '') + ' onchange="updateLicLabel()" /> Hunting' +
                 '</label>' +
                 '<label style="flex:1;display:flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border:1.5px solid var(--color-border);border-radius:8px;cursor:pointer;font-size:.83rem;font-weight:600;transition:border-color .15s" id="lic-type-fish-label">' +
-                  '<input type="radio" name="lic-type" value="fishing" id="lic-type-fish" style="accent-color:var(--color-primary)" onchange="updateLicLabel()" /> Fishing' +
+                  '<input type="radio" name="lic-type" value="fishing" id="lic-type-fish" style="accent-color:var(--color-primary)" ' + (type === 'fishing' ? 'checked' : '') + ' onchange="updateLicLabel()" /> Fishing' +
                 '</label>' +
                 '<label style="flex:1;display:flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border:1.5px solid var(--color-border);border-radius:8px;cursor:pointer;font-size:.83rem;font-weight:600;transition:border-color .15s" id="lic-type-both-label">' +
                   '<input type="radio" name="lic-type" value="both" id="lic-type-both" style="accent-color:var(--color-primary)" onchange="updateLicLabel()" /> Both' +
@@ -129,7 +129,7 @@ function openListingDetail(l) {
               '</div>' +
               '<label id="lic-upload-label" style="display:flex;align-items:center;gap:.6rem;padding:.6rem .85rem;border:1.5px dashed var(--color-border);border-radius:8px;cursor:pointer;font-size:.85rem;color:var(--color-text-muted);background:var(--color-bg);transition:border-color .15s">' +
                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
-                '<span id="lic-file-name">Tap to upload hunting license</span>' +
+                '<span id="lic-file-name">Tap to upload ' + (type === 'fishing' ? 'fishing' : 'hunting') + ' license</span>' +
                 '<input type="file" id="lic-file-input" accept="image/*,.pdf" style="display:none" onchange="handleLicFile(this)" />' +
               '</label>' +
               '<p id="lic-status" style="font-size:.78rem;margin-top:.4rem;display:none"></p>' +
@@ -150,14 +150,14 @@ function openListingDetail(l) {
     try {
       var SB_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
       var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
-      var res = await fetch(SB_URL + "/rest/v1/bookings?listing_id=eq." + encodeURIComponent(l.id) + "&status=in.(pre_reserved,confirmed)&select=checkin,checkout", {
+      var res = await fetch(SB_URL + "/rest/v1/bookings?listing_id=eq." + encodeURIComponent(l.id) + "&status=in.(pre_reserved,confirmed)&select=check_in,check_out", {
         headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
       });
       var bookings = await res.json();
       // Expand each booking into individual dates
       bookings.forEach(function(b) {
-        var cur = new Date(b.checkin);
-        var end = new Date(b.checkout);
+        var cur = new Date(b.check_in);
+        var end = new Date(b.check_out);
         while (cur < end) {
           bookedDates.push(cur.toISOString().split('T')[0]);
           cur.setDate(cur.getDate() + 1);
@@ -204,16 +204,17 @@ function openListingDetail(l) {
     }
     if (!cinEl || !coutEl) { console.warn('bk-checkin/bk-checkout not found'); return; }
 
+    var fpOut; // declared first so fpIn's onChange closure can reference it
     var fpIn = flatpickr(cinEl, Object.assign({}, fpConfig, {
       onChange: function(dates, str) {
-        if (dates[0]) {
+        if (dates[0] && fpOut) {
           var next = new Date(dates[0]); next.setDate(next.getDate() + 1);
           fpOut.set('minDate', next.toISOString().split('T')[0]);
         }
         updateBookingPrice();
       }
     }));
-    var fpOut = flatpickr(coutEl, Object.assign({}, fpConfig, {
+    fpOut = flatpickr(coutEl, Object.assign({}, fpConfig, {
       onChange: function() { updateBookingPrice(); }
     }));
   }
@@ -427,6 +428,7 @@ async function submitPreReservation() {
   if (!name || !email) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Please enter your name and email.'; return; }
   var d1 = new Date(cin), d2 = new Date(cout);
   var nights = Math.round((d2-d1)/(1000*60*60*24));
+  if (l.min_stay && nights < l.min_stay) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='This property requires a minimum stay of '+l.min_stay+' night'+(l.min_stay>1?'s':'')+'. Please adjust your dates.'; return; }
   var rate = parseFloat(l.price_per_day) || 0;
   var cleaning = parseFloat(l.cleaning_fee) || 0;
   var subtotal = rate * nights + cleaning;
@@ -514,6 +516,15 @@ async function submitBookingStripe() {
     msg.style.display = 'block'; msg.style.color = '#c0392b';
     msg.textContent = 'Please select check-in and check-out dates.';
     return;
+  }
+  if (l.min_stay) {
+    var _d1 = new Date(cin), _d2 = new Date(cout);
+    var _nights = Math.round((_d2 - _d1) / (1000*60*60*24));
+    if (_nights < l.min_stay) {
+      msg.style.display = 'block'; msg.style.color = '#c0392b';
+      msg.textContent = 'This property requires a minimum stay of ' + l.min_stay + ' night' + (l.min_stay > 1 ? 's' : '') + '. Please adjust your dates.';
+      return;
+    }
   }
 
   btn.disabled = true; btn.textContent = 'Checking…';
@@ -612,19 +623,6 @@ async function submitBookingStripe() {
   // The return URL brings the guest back to a confirmation page.
   var listingName = l.county ? l.county + ' Private Land' : 'LeaseWild Booking';
   var description = listingName + ' \u2014 ' + nights + ' night' + (nights > 1 ? 's' : '') + ' (' + cin + ' to ' + cout + ')';
-
-  // Build Stripe Checkout session via our simple redirect endpoint
-  // Since we have no backend, we use Stripe.js Payment Links with amount
-  // We'll open a Stripe Payment Link that accepts variable amounts.
-  // The cleanest no-backend solution: redirect to a Stripe-hosted page
-  // pre-filled with the amount using Stripe's checkout.stripe.com
-  var stripeParams = new URLSearchParams({
-    booking_id: bookingId,
-    amount: totalCents,
-    description: description,
-    success_url: window.location.origin + '/guest-portal.html?booking=' + bookingId + '&payment=success',
-    cancel_url: window.location.href
-  });
 
   // Use Stripe Checkout JS to redirect
   // Load Stripe.js if not already loaded
