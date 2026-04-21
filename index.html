@@ -2158,6 +2158,13 @@
     return L.divIcon({html:svg, className:'', iconSize:[w,38], iconAnchor:[Math.round(w/2),38], popupAnchor:[0,-40]});
   }
 
+  /* ─ Global listing cache for map popups ─ */
+  if (!window._mapListingCache) window._mapListingCache = {};
+  window.openMapListing = function(cacheKey) {
+    var l = window._mapListingCache[cacheKey];
+    if (l) { openListingDetail(l); }
+  };
+
   /* ─ Rich popup with "View listing" CTA ─ */
   function makePopup(l){
     var isHunt = l.type === 'hunting';
@@ -2171,9 +2178,14 @@
     var price = l.price || l.price_per_day;
     var priceStr = price ? '$' + parseInt(price) : 'Contact';
     var actLabel = isHunt ? 'Hunting' : 'Fishing';
-    // Click action: open listing detail if real listing (has an id), else open waitlist
-    var onclickAttr = l.id
-      ? 'openListingById('+JSON.stringify(l.id)+')'
+    // Store listing in cache with a safe numeric key, pass key to onclick
+    var cacheKey;
+    if (l.id) {
+      cacheKey = 'lm_' + String(l.id).replace(/[^a-zA-Z0-9]/g, '_');
+      window._mapListingCache[cacheKey] = l;
+    }
+    var onclickAttr = cacheKey
+      ? 'openMapListing(\'' + cacheKey + '\')'
       : 'openWaitlist()';
     return '<div style="padding:14px 16px;min-width:210px;font-family:Barlow,sans-serif">'
       +'<span style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+col+';background:'+bg+';padding:2px 8px;border-radius:999px;display:inline-block;margin-bottom:8px">'+actLabel+'</span>'
@@ -2182,7 +2194,7 @@
         +location+(acres?' &middot; '+acres+' acres':'')+(species?' &middot; '+species:'')+'</p>'
       +'<p style="font-size:18px;font-weight:800;color:'+col+';margin-bottom:10px">'
         +priceStr+'<span style="font-size:12px;font-weight:400;color:#6b6656"> / day</span></p>'
-      +'<button onclick="'+onclickAttr+'" style="width:100%;padding:9px;background:'+col+';color:#fff;border:none;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">View listing →</button>'
+      +'<button onclick="openMapListing(\'' + cacheKey + '\')" style="width:100%;padding:9px;background:'+col+';color:#fff;border:none;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">View listing →</button>'
       +'</div>';
   }
 
