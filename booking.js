@@ -14,6 +14,7 @@ function openListingDetail(l) {
   if (!l) return;
   _currentListing = l;
   _appliedCode = null; // reset code when opening a new listing
+  _licenseFile = null; _licenseUrl = null; // reset license when opening a new listing
   var type = getType(l);
   var isHunt = type === 'hunting';
   var color = isHunt ? 'var(--color-primary)' : 'var(--color-water)';
@@ -108,6 +109,32 @@ function openListingDetail(l) {
             '<p id="bk-code-msg" style="font-size:.78rem;margin-top:.3rem;display:none"></p>' +
           '</div>' +
           nameEmailHtml +
+          '<div style="margin-bottom:.75rem;border:1.5px solid var(--color-border);border-radius:12px;overflow:hidden">' +
+            '<div style="background:var(--color-surface-offset);padding:.65rem 1rem;display:flex;align-items:center;gap:.5rem">' +
+              '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
+              '<span style="font-size:.78rem;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em">License Required</span>' +
+            '</div>' +
+            '<div style="padding:.85rem 1rem">' +
+              '<p style="font-size:.83rem;color:var(--color-text-muted);margin-bottom:.65rem;line-height:1.55">Florida law requires a valid hunting or fishing license. Upload yours before booking — JPG, PNG, or PDF, max 10MB.</p>' +
+              '<div style="display:flex;gap:.5rem;margin-bottom:.65rem">' +
+                '<label style="flex:1;display:flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border:1.5px solid var(--color-border);border-radius:8px;cursor:pointer;font-size:.83rem;font-weight:600;transition:border-color .15s" id="lic-type-hunt-label">' +
+                  '<input type="radio" name="lic-type" value="hunting" id="lic-type-hunt" style="accent-color:var(--color-primary)" checked onchange="updateLicLabel()" /> Hunting' +
+                '</label>' +
+                '<label style="flex:1;display:flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border:1.5px solid var(--color-border);border-radius:8px;cursor:pointer;font-size:.83rem;font-weight:600;transition:border-color .15s" id="lic-type-fish-label">' +
+                  '<input type="radio" name="lic-type" value="fishing" id="lic-type-fish" style="accent-color:var(--color-primary)" onchange="updateLicLabel()" /> Fishing' +
+                '</label>' +
+                '<label style="flex:1;display:flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border:1.5px solid var(--color-border);border-radius:8px;cursor:pointer;font-size:.83rem;font-weight:600;transition:border-color .15s" id="lic-type-both-label">' +
+                  '<input type="radio" name="lic-type" value="both" id="lic-type-both" style="accent-color:var(--color-primary)" onchange="updateLicLabel()" /> Both' +
+                '</label>' +
+              '</div>' +
+              '<label id="lic-upload-label" style="display:flex;align-items:center;gap:.6rem;padding:.6rem .85rem;border:1.5px dashed var(--color-border);border-radius:8px;cursor:pointer;font-size:.85rem;color:var(--color-text-muted);background:var(--color-bg);transition:border-color .15s">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+                '<span id="lic-file-name">Tap to upload hunting license</span>' +
+                '<input type="file" id="lic-file-input" accept="image/*,.pdf" style="display:none" onchange="handleLicFile(this)" />' +
+              '</label>' +
+              '<p id="lic-status" style="font-size:.78rem;margin-top:.4rem;display:none"></p>' +
+            '</div>' +
+          '</div>' +
           '<button onclick="'+btnAction+'" id="bk-btn" style="width:100%;padding:.9rem;background:var(--color-primary);color:#fff;border:none;border-radius:999px;font-family:var(--font-display);font-weight:800;font-size:1.1rem;cursor:pointer">'+btnLabel+'</button>' +
           '<p id="bk-msg" style="font-size:.85rem;text-align:center;margin-top:.5rem;display:none"></p>' +
           '<p style="font-size:.78rem;color:var(--color-text-faint);text-align:center;margin-top:.4rem">Secure checkout powered by Stripe.</p>' +
@@ -224,6 +251,66 @@ function openListingDetail(l) {
         }
       }, 100);
     }
+  }
+}
+
+// ── License upload state ─────────────────────────────────────
+var _licenseFile = null;   // the File object
+var _licenseUrl  = null;   // Supabase storage URL after upload
+
+function updateLicLabel() {
+  var type = (document.querySelector('input[name="lic-type"]:checked') || {}).value || 'hunting';
+  var label = type === 'fishing' ? 'fishing license'
+            : type === 'both'    ? 'hunting + fishing licenses'
+            : 'hunting license';
+  var el = document.getElementById('lic-file-name');
+  if (el && !_licenseFile) el.textContent = 'Tap to upload ' + label;
+}
+
+function handleLicFile(input) {
+  var file = input.files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) {
+    showLicStatus('File too large — max 10MB.', false);
+    input.value = '';
+    return;
+  }
+  _licenseFile = file;
+  _licenseUrl  = null; // reset any prior upload
+  var nameEl = document.getElementById('lic-file-name');
+  if (nameEl) nameEl.textContent = '\u2713 ' + file.name;
+  var label = document.getElementById('lic-upload-label');
+  if (label) label.style.borderColor = 'var(--color-primary)';
+  showLicStatus('', false);
+}
+
+function showLicStatus(msg, ok) {
+  var el = document.getElementById('lic-status');
+  if (!el) return;
+  if (!msg) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.style.color = ok ? 'var(--color-primary)' : '#c0392b';
+  el.style.fontWeight = ok ? '700' : '400';
+  el.textContent = msg;
+}
+
+async function uploadLicense() {
+  if (_licenseUrl) return _licenseUrl; // already uploaded
+  if (!_licenseFile) return null;
+  try {
+    var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var ext  = _licenseFile.name.split('.').pop();
+    var path = 'licenses/' + Date.now() + '_' + Math.random().toString(36).slice(2) + '.' + ext;
+    var { data: upData, error: upErr } = await _sb.storage
+      .from('listing-photos') // reuse same bucket
+      .upload(path, _licenseFile, { cacheControl: '3600', upsert: false });
+    if (upErr) throw upErr;
+    var { data: urlData } = _sb.storage.from('listing-photos').getPublicUrl(path);
+    _licenseUrl = urlData.publicUrl;
+    return _licenseUrl;
+  } catch(e) {
+    console.warn('License upload failed:', e);
+    return null;
   }
 }
 
@@ -347,7 +434,22 @@ async function submitPreReservation() {
   var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
   var discountAmt = discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0;
   var total = +(subtotal + svcFee + 18 - discountAmt).toFixed(2);
-  btn.disabled = true; btn.textContent = 'Saving...';
+  // ─ Upload license before saving ─────────────────────
+  if (!_licenseFile) {
+    msg.style.display = 'block'; msg.style.color = '#c0392b';
+    msg.textContent = 'Please upload your hunting or fishing license before submitting.';
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'Uploading license…';
+  var licUrl = await uploadLicense();
+  if (!licUrl) {
+    btn.disabled = false; btn.textContent = 'Pre-reserve my dates — free';
+    msg.style.display = 'block'; msg.style.color = '#c0392b';
+    msg.textContent = 'License upload failed. Please try again or choose a smaller file.';
+    return;
+  }
+  var licType = (document.querySelector('input[name="lic-type"]:checked') || {}).value || 'hunting';
+  btn.textContent = 'Saving...';
   try {
     var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     var result = await _sb.from('bookings').insert({
@@ -368,6 +470,8 @@ async function submitPreReservation() {
       discount_amt: discountAmt || null,
       affiliate_code: _appliedCode && _appliedCode.type === 'affiliate' ? _appliedCode.code : null,
       total: total,
+      license_url: licUrl,
+      license_type: licType,
       status: 'pre_reserved'
     }).select();
     // Increment code use count
@@ -435,6 +539,22 @@ async function submitBookingStripe() {
   }
 
   // ─ 3. Checkout IS enabled — calculate totals ───────
+  // ─ Upload license before Stripe checkout ────────────
+  if (!_licenseFile) {
+    btn.disabled = false; btn.innerHTML = 'Book Now &rarr;';
+    msg.style.display = 'block'; msg.style.color = '#c0392b';
+    msg.textContent = 'Please upload your hunting or fishing license before booking.';
+    return;
+  }
+  btn.textContent = 'Uploading license…';
+  var licUrl = await uploadLicense();
+  if (!licUrl) {
+    btn.disabled = false; btn.innerHTML = 'Book Now &rarr;';
+    msg.style.display = 'block'; msg.style.color = '#c0392b';
+    msg.textContent = 'License upload failed. Please try again or choose a smaller file.';
+    return;
+  }
+  var licType = (document.querySelector('input[name="lic-type"]:checked') || {}).value || 'hunting';
   btn.textContent = 'Preparing checkout…';
   var d1 = new Date(cin), d2 = new Date(cout);
   var nights = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
@@ -473,6 +593,8 @@ async function submitBookingStripe() {
       discount_amt: discountAmt || null,
       affiliate_code: _appliedCode && _appliedCode.type === 'affiliate' ? _appliedCode.code : null,
       total: total,
+      license_url: licUrl,
+      license_type: licType,
       status: 'pending_payment'
     }).select();
     if (result.error) throw result.error;
