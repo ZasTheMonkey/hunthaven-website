@@ -1828,11 +1828,14 @@
         Wishlist
       </button>
 
-      <button class="mob-tab" onclick="mobTab(this,'messages');goToMessages()">
-        <div class="mob-icon-wrap">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <!-- Smart login/messages tab — swapped by JS based on auth state -->
+      <button class="mob-tab" id="mob-tab-account" onclick="mobTab(this,'account');handleAccountTab()">
+        <div class="mob-icon-wrap" id="mob-account-icon">
+          <!-- default: person/login icon -->
+          <svg id="mob-icon-login" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <svg id="mob-icon-messages" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </div>
-        Messages
+        <span id="mob-account-label">Sign In</span>
       </button>
 
     </div>
@@ -2627,32 +2630,56 @@
     btn.classList.add('active');
   }
 
-  function goToMessages() {
-    // Detect which portal the user belongs to by checking Supabase session
-    // and routing them to the right portal's messages section
+  // ── ACCOUNT / MESSAGES TAB ──────────────────────────────────
+  var _mobUserLoggedIn = false;
+
+  function updateAccountTab(loggedIn) {
+    _mobUserLoggedIn = loggedIn;
+    var label  = document.getElementById('mob-account-label');
+    var iconL  = document.getElementById('mob-icon-login');
+    var iconM  = document.getElementById('mob-icon-messages');
+    if (!label) return;
+    if (loggedIn) {
+      label.textContent = 'Messages';
+      if (iconL) iconL.style.display = 'none';
+      if (iconM) iconM.style.display = '';
+    } else {
+      label.textContent = 'Sign In';
+      if (iconL) iconL.style.display = '';
+      if (iconM) iconM.style.display = 'none';
+    }
+  }
+
+  function handleAccountTab() {
+    if (_mobUserLoggedIn) {
+      // Logged in — route to messages
+      try {
+        var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        _sb.auth.getSession().then(function(res) {
+          var session = res.data && res.data.session;
+          if (!session) { window.location.href = 'guest-portal.html'; return; }
+          _sb.from('listings').select('id').eq('email', session.user.email).limit(1).then(function(r) {
+            window.location.href = (r.data && r.data.length > 0)
+              ? 'landowner-portal.html?tab=messages'
+              : 'guest-portal.html?tab=messages';
+          });
+        });
+      } catch(e) { window.location.href = 'guest-portal.html?tab=messages'; }
+    } else {
+      // Not logged in — go to login
+      window.location.href = 'guest-portal.html';
+    }
+  }
+
+  // Check session on load and update the tab
+  (function() {
     try {
       var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       _sb.auth.getSession().then(function(res) {
-        var session = res.data && res.data.session;
-        if (!session) {
-          // Not logged in — send to guest portal login
-          window.location.href = 'guest-portal.html?tab=messages';
-          return;
-        }
-        var email = session.user.email;
-        // Check if they have a landowner listing
-        _sb.from('listings').select('id').eq('email', email).limit(1).then(function(r) {
-          if (r.data && r.data.length > 0) {
-            window.location.href = 'landowner-portal.html?tab=messages';
-          } else {
-            window.location.href = 'guest-portal.html?tab=messages';
-          }
-        });
+        updateAccountTab(!!(res.data && res.data.session));
       });
-    } catch(e) {
-      window.location.href = 'guest-portal.html?tab=messages';
-    }
-  }
+    } catch(e) {}
+  })();
 
   /* ── SEARCH SHEET ── */
   function openSearchSheet(){
