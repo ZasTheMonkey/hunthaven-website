@@ -500,6 +500,10 @@
     loadBookings();
     loadUnreadCount();
     pollInterval = setInterval(function() { if (currentConvId) loadMessages(currentConvId); loadUnreadCount(); }, 8000);
+    // Auto-open messages tab if navigated from bottom nav
+    if (new URLSearchParams(window.location.search).get('tab') === 'messages') {
+      switchDashTab('messages');
+    }
   }
 
   function switchDashTab(t) {
@@ -753,5 +757,35 @@
     } catch(e) { console.warn(e); }
   })();
   </script>
+
+  <!-- ── MOBILE BOTTOM NAV ── -->
+  <style>
+    .portal-mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:var(--color-surface);border-top:1px solid var(--color-border);height:64px;align-items:stretch}
+    .portal-mob-bar-inner{display:flex;width:100%;max-width:480px;margin:0 auto}
+    .portal-mob-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:.68rem;font-weight:600;font-family:var(--font-body);padding:0;transition:color .15s;text-decoration:none}
+    .portal-mob-tab svg{flex-shrink:0}
+    .portal-mob-tab.active,.portal-mob-tab:hover{color:var(--color-primary)}
+    @media(max-width:768px){.portal-mob-bar{display:flex}body{padding-bottom:72px}}
+  </style>
+  <nav class="portal-mob-bar" aria-label="Mobile navigation">
+    <div class="portal-mob-bar-inner">
+      <a href="index.html" class="portal-mob-tab">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Explore
+      </a>
+      <button class="portal-mob-tab active" onclick="switchDashTab('messages');this.closest('nav').querySelectorAll('.portal-mob-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+      </button>
+      <button class="portal-mob-tab" onclick="switchDashTab('bookings');this.closest('nav').querySelectorAll('.portal-mob-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Bookings
+      </button>
+      <button class="portal-mob-tab" onclick="switchDashTab('profile');this.closest('nav').querySelectorAll('.portal-mob-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Account
+      </button>
+    </div>
+  </nav>
 </body>
 </html>

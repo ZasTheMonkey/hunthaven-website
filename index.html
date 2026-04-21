@@ -1828,11 +1828,11 @@
         Wishlist
       </button>
 
-      <button class="mob-tab" onclick="mobTab(this,'account');window.location='guest-portal.html'">
+      <button class="mob-tab" onclick="mobTab(this,'messages');goToMessages()">
         <div class="mob-icon-wrap">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </div>
-        Account
+        Messages
       </button>
 
     </div>
@@ -2625,6 +2625,33 @@
   function mobTab(btn,name){
     document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active'));
     btn.classList.add('active');
+  }
+
+  function goToMessages() {
+    // Detect which portal the user belongs to by checking Supabase session
+    // and routing them to the right portal's messages section
+    try {
+      var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      _sb.auth.getSession().then(function(res) {
+        var session = res.data && res.data.session;
+        if (!session) {
+          // Not logged in — send to guest portal login
+          window.location.href = 'guest-portal.html?tab=messages';
+          return;
+        }
+        var email = session.user.email;
+        // Check if they have a landowner listing
+        _sb.from('listings').select('id').eq('email', email).limit(1).then(function(r) {
+          if (r.data && r.data.length > 0) {
+            window.location.href = 'landowner-portal.html?tab=messages';
+          } else {
+            window.location.href = 'guest-portal.html?tab=messages';
+          }
+        });
+      });
+    } catch(e) {
+      window.location.href = 'guest-portal.html?tab=messages';
+    }
   }
 
   /* ── SEARCH SHEET ── */
