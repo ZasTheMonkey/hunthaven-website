@@ -1043,10 +1043,25 @@
       <div class="nav-right">
         <a href="list-your-land.html" class="nav-link">List your land</a>
         <a href="landowner-portal.html" class="nav-link">Landowner Login</a>
-        <button class="nav-cta" onclick="openWaitlist()">
+        <!-- Logged-out: Join waitlist CTA -->
+        <button class="nav-cta" id="nav-cta-waitlist" onclick="openWaitlist()" style="display:flex">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
-          <div class="nav-avatar">LW</div>
+          Join waitlist
         </button>
+        <!-- Logged-in: profile avatar dropdown -->
+        <div id="nav-profile-wrap" style="display:none;position:relative">
+          <button id="nav-profile-btn" onclick="toggleProfileMenu()" style="display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border-radius:var(--r-full);border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-family:var(--font-body)">
+            <div class="nav-avatar" id="nav-avatar-initials">?</div>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div id="nav-profile-menu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-lg,12px);box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:180px;padding:.4rem 0;z-index:300">
+            <div id="nav-profile-name" style="padding:.6rem 1rem .4rem;font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);margin-bottom:.3rem">My Account</div>
+            <a id="nav-portal-link" href="guest-portal.html" style="display:block;padding:.55rem 1rem;font-size:.9rem;font-weight:600;color:var(--text);text-decoration:none" onmouseover="this.style.background='var(--divider)'" onmouseout="this.style.background=''">My dashboard</a>
+            <a href="guest-portal.html" style="display:block;padding:.55rem 1rem;font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none" id="nav-messages-link" onmouseover="this.style.background='var(--divider)'" onmouseout="this.style.background=''">Messages</a>
+            <div style="border-top:1px solid var(--border);margin:.3rem 0"></div>
+            <button onclick="navSignOut()" style="width:100%;text-align:left;padding:.55rem 1rem;font-size:.9rem;font-weight:600;color:var(--color-danger,#c0392b);background:none;border:none;cursor:pointer;font-family:inherit" onmouseover="this.style.background='var(--divider)'" onmouseout="this.style.background=''">Sign out</button>
+          </div>
+        </div>
         <!-- mobile ham -->
         <button class="nav-ham" onclick="openSearchSheet()" aria-label="Search">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -2645,7 +2660,7 @@
   // ── ACCOUNT / MESSAGES TAB ──────────────────────────────────
   var _mobUserLoggedIn = false;
 
-  function updateAccountTab(loggedIn) {
+  function updateAccountTab(loggedIn, userMeta) {
     _mobUserLoggedIn = loggedIn;
     var label  = document.getElementById('mob-account-label');
     var iconL  = document.getElementById('mob-icon-login');
@@ -2660,6 +2675,47 @@
       if (iconL) iconL.style.display = '';
       if (iconM) iconM.style.display = 'none';
     }
+    // Desktop profile avatar
+    var waitlistBtn = document.getElementById('nav-cta-waitlist');
+    var profileWrap = document.getElementById('nav-profile-wrap');
+    if (loggedIn && userMeta) {
+      var initials = ((userMeta.first_name||'')[0]||'') + ((userMeta.last_name||'')[0]||'');
+      if (!initials) initials = (userMeta.full_name||'?')[0].toUpperCase();
+      document.getElementById('nav-avatar-initials').textContent = initials || '?';
+      var firstName = userMeta.first_name || userMeta.full_name?.split(' ')[0] || '';
+      document.getElementById('nav-profile-name').textContent = firstName || 'My Account';
+      // Route dashboard link based on role
+      var role = userMeta.role || 'guest';
+      var portalLink = role === 'landowner' ? 'landowner-portal.html' : role === 'outfitter' ? 'outfitter-portal.html' : 'guest-portal.html';
+      document.getElementById('nav-portal-link').href = portalLink;
+      document.getElementById('nav-messages-link').href = portalLink + '?tab=messages';
+      if (waitlistBtn) waitlistBtn.style.display = 'none';
+      if (profileWrap) profileWrap.style.display = '';
+    } else {
+      if (waitlistBtn) waitlistBtn.style.display = 'flex';
+      if (profileWrap) profileWrap.style.display = 'none';
+    }
+  }
+
+  function toggleProfileMenu() {
+    var menu = document.getElementById('nav-profile-menu');
+    if (!menu) return;
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // Close profile menu on outside click
+  document.addEventListener('click', function(e) {
+    var wrap = document.getElementById('nav-profile-wrap');
+    var menu = document.getElementById('nav-profile-menu');
+    if (wrap && menu && !wrap.contains(e.target)) menu.style.display = 'none';
+  });
+
+  async function navSignOut() {
+    try {
+      var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      await _sb.auth.signOut();
+    } catch(e) {}
+    updateAccountTab(false, null);
   }
 
   function handleAccountTab() {
@@ -2683,12 +2739,14 @@
     }
   }
 
-  // Check session on load and update the tab
+  // Check session on load and update the tab + desktop profile nav
   (function() {
     try {
       var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       _sb.auth.getSession().then(function(res) {
-        updateAccountTab(!!(res.data && res.data.session));
+        var session = res.data && res.data.session;
+        var meta = session ? (session.user.user_metadata || {}) : null;
+        updateAccountTab(!!session, meta);
       });
     } catch(e) {}
   })();

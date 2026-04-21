@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+  <link rel="apple-touch-icon" href="/favicon-192.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outfitter Portal — LeaseWild</title>
+  <meta name="description" content="LeaseWild outfitter portal. Sign in or create an outfitter account to manage your listing." />
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    :root,[data-theme="light"]{
+      --text-xs:.82rem;--text-sm:.95rem;--text-base:1.05rem;--text-lg:1.25rem;--text-xl:1.6rem;--text-2xl:2rem;
+      --color-bg:#f5f1e8;--color-surface:#faf6ed;--color-surface-2:#fff;
+      --color-border:#d6cebd;--color-divider:#e8e2d5;
+      --color-text:#1a1a12;--color-text-muted:#6b6656;--color-text-faint:#a09b8c;
+      --color-primary:#2d5a27;--color-primary-hover:#1e3d1a;--color-primary-light:#d6ead3;
+      --color-accent:#c17f3a;--color-accent-hover:#a06828;
+      --color-water:#1a6b7a;--color-water-lt:#d0edf0;
+      --color-danger:#c0392b;--color-danger-light:#fde8e8;
+      --radius-sm:.375rem;--radius-md:.625rem;--radius-lg:1rem;--radius-xl:1.5rem;--radius-full:9999px;
+      --shadow-sm:0 1px 4px rgba(26,26,18,.07);--shadow-md:0 4px 16px rgba(26,26,18,.10);--shadow-lg:0 16px 48px rgba(26,26,18,.14);
+      --font-display:'Oswald',system-ui,sans-serif;--font-body:'Barlow',system-ui,sans-serif;
+      --transition:180ms cubic-bezier(.16,1,.3,1);
+    }
+    [data-theme="dark"]{
+      --color-bg:#111410;--color-surface:#171b14;--color-surface-2:#1d221a;
+      --color-border:#2e342b;--color-divider:#222;--color-text:#e8e2d4;--color-text-muted:#9a9485;--color-text-faint:#605e52;
+      --color-primary:#5a9470;--color-accent:#d4922a;--color-water:#2a8fa0;
+      --shadow-md:0 4px 16px rgba(0,0,0,.35);--shadow-lg:0 16px 48px rgba(0,0,0,.5);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+    body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);display:flex;flex-direction:column;align-items:center;padding:2rem 1rem}
+
+    /* ── AUTH CARD ─────────────────────────────────────────── */
+    .portal-card{background:var(--color-surface-2);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);padding:2.5rem 2rem;width:100%;max-width:480px;border:1px solid var(--color-border);margin:auto}
+    .logo-row{display:flex;align-items:center;gap:.75rem;margin-bottom:2rem;text-decoration:none}
+    .wordmark{font-family:var(--font-display);font-weight:800;font-size:1.55rem;letter-spacing:.01em;line-height:1}
+    h1{font-family:var(--font-display);font-weight:800;font-size:var(--text-xl);margin-bottom:.35rem}
+    .subtitle{color:var(--color-text-muted);font-size:var(--text-sm);margin-bottom:1.75rem}
+
+    /* Tabs */
+    .tabs{display:flex;border-bottom:2px solid var(--color-border);margin-bottom:1.5rem}
+    .tab{flex:1;text-align:center;padding:.65rem;font-weight:600;font-size:var(--text-sm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);transition:all .15s}
+    .tab.active{color:var(--color-water);border-bottom-color:var(--color-water)}
+    .tab-panel{display:none}.tab-panel.active{display:block}
+
+    /* Fields */
+    .field{margin-bottom:1rem}
+    label{display:block;font-weight:600;font-size:var(--text-sm);margin-bottom:.35rem;color:var(--color-text-muted)}
+    input[type=text],input[type=email],input[type=password],input[type=tel],select{width:100%;padding:.75rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);font-size:var(--text-base);font-family:inherit;color:var(--color-text);transition:border-color .15s;appearance:none;-webkit-appearance:none}
+    input:focus,select:focus{outline:none;border-color:var(--color-water)}
+    .btn-primary{width:100%;padding:.85rem;background:var(--color-water);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--text-base);font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s;margin-top:.25rem}
+    .btn-primary:hover{background:#155a68}
+    .btn-primary:disabled{opacity:.6;cursor:not-allowed}
+    .msg-box{padding:.75rem 1rem;border-radius:var(--radius-md);font-size:var(--text-sm);margin-bottom:1rem;display:none}
+    .msg-box.error{background:var(--color-danger-light);color:var(--color-danger);border:1px solid #f5c6c6;display:block}
+    .msg-box.success{background:var(--color-water-lt);color:var(--color-water);border:1px solid #9dd4dc;display:block}
+
+    /* Disclaimer box */
+    .disclaimer-box{background:color-mix(in oklab,var(--color-water) 8%,transparent);border:1.5px solid color-mix(in oklab,var(--color-water) 30%,transparent);border-radius:var(--radius-lg);padding:1.25rem 1.25rem 1rem;margin-bottom:1.25rem}
+    .disclaimer-box h3{font-family:var(--font-display);font-weight:700;font-size:var(--text-sm);color:var(--color-water);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.85rem}
+    .disclaimer-box ul{padding-left:1.25rem;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.85rem}
+    .disclaimer-box li{font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.65}
+    .disclaimer-box p{font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.65;margin-bottom:.6rem}
+    .disclaimer-box strong{color:var(--color-text);font-weight:700}
+
+    /* Agree checkbox */
+    .agree-row{display:flex;align-items:flex-start;gap:.65rem;margin-bottom:1.1rem}
+    .agree-row input[type=checkbox]{width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:var(--color-water);cursor:pointer;border-radius:4px}
+    .agree-row label{font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.6;cursor:pointer;font-weight:500}
+    .agree-row label a{color:var(--color-water);font-weight:600}
+
+    /* ── DASHBOARD ─────────────────────────────────────────── */
+    #dashboard{display:none;width:100%;max-width:720px;padding-bottom:4rem}
+    .dash-nav{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 0;margin-bottom:.5rem;flex-wrap:wrap;gap:.75rem;border-bottom:1px solid var(--color-divider)}
+    .dash-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+    .dash-actions{display:flex;gap:.5rem;align-items:center}
+    .btn-ghost{padding:.55rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-weight:600;font-family:inherit;font-size:var(--text-sm);cursor:pointer;background:none;color:var(--color-text);transition:all var(--transition)}
+    .btn-ghost:hover{border-color:var(--color-text-muted)}
+    .btn-accent{padding:.55rem 1rem;background:var(--color-water);color:#fff;border:none;border-radius:var(--radius-md);font-weight:700;font-family:inherit;font-size:var(--text-sm);cursor:pointer;transition:background var(--transition);text-decoration:none;display:inline-block}
+    .btn-accent:hover{background:#155a68}
+
+    .avatar{width:40px;height:40px;border-radius:50%;background:var(--color-water);display:grid;place-items:center;color:#fff;font-weight:800;font-size:1rem;flex-shrink:0;font-family:var(--font-display)}
+
+    .dash-tabs{display:flex;gap:0;border-bottom:2px solid var(--color-border);margin:1.25rem 0;overflow-x:auto;scrollbar-width:none}
+    .dash-tabs::-webkit-scrollbar{display:none}
+    .dash-tab{padding:.6rem 1.1rem;font-weight:600;font-size:var(--text-sm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all .15s;white-space:nowrap}
+    .dash-tab.active{color:var(--color-water);border-bottom-color:var(--color-water)}
+    .dash-panel{display:none}.dash-panel.active{display:block}
+
+    /* Profile form */
+    .profile-section{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:1.5rem;margin-bottom:1.25rem}
+    .profile-section h3{font-family:var(--font-display);font-weight:700;font-size:var(--text-base);margin-bottom:1rem;letter-spacing:.01em}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+    @media(max-width:500px){.field-row{grid-template-columns:1fr}}
+    .field-inline{margin-bottom:.85rem}
+    .field-inline label{display:block;font-weight:600;font-size:var(--text-xs);margin-bottom:.3rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em}
+    .field-inline input,.field-inline select,.field-inline textarea{width:100%;padding:.7rem .9rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);font-size:var(--text-sm);font-family:inherit;color:var(--color-text);transition:border-color .15s;resize:vertical;appearance:none;-webkit-appearance:none}
+    .field-inline input:focus,.field-inline select:focus,.field-inline textarea:focus{outline:none;border-color:var(--color-water)}
+    .btn-save{padding:.7rem 1.5rem;background:var(--color-water);color:#fff;border:none;border-radius:var(--radius-md);font-weight:700;font-family:inherit;font-size:var(--text-sm);cursor:pointer;transition:background var(--transition)}
+    .btn-save:hover{background:#155a68}
+    .btn-save:disabled{opacity:.5;cursor:not-allowed}
+
+    /* Messages */
+    .thread-list{display:flex;flex-direction:column;gap:.6rem}
+    .thread-item{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem 1.25rem;cursor:pointer;transition:border-color .15s;position:relative;box-shadow:var(--shadow-sm)}
+    .thread-item:hover{border-color:var(--color-water)}
+    .thread-item.unread{border-left:3px solid var(--color-accent)}
+    .thread-title{font-weight:700;font-size:var(--text-sm);margin-bottom:.2rem}
+    .thread-preview{font-size:var(--text-xs);color:var(--color-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85%}
+    .thread-time{font-size:.7rem;color:var(--color-text-muted);position:absolute;top:1rem;right:1.25rem}
+    #conversation-view{display:none}
+    .conv-header{display:flex;align-items:center;gap:.75rem;padding:.75rem 0 1rem;border-bottom:1px solid var(--color-border);margin-bottom:1rem}
+    .conv-back{background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--color-text-muted);padding:4px 8px;border-radius:var(--radius-sm)}
+    .conv-title{font-weight:700;font-size:var(--text-sm)}
+    .messages-container{display:flex;flex-direction:column;gap:.6rem;min-height:200px;max-height:55vh;overflow-y:auto;padding:.5rem 0;margin-bottom:1rem}
+    .msg-bubble{max-width:80%;padding:.65rem .9rem;border-radius:12px;font-size:var(--text-sm);line-height:1.5;word-break:break-word}
+    .msg-bubble.mine{background:var(--color-water);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+    .msg-bubble.theirs{background:var(--color-surface);border:1px solid var(--color-border);align-self:flex-start;border-bottom-left-radius:4px}
+    .msg-meta{font-size:.7rem;color:var(--color-text-muted);margin-top:.2rem}
+    .msg-meta.mine{text-align:right}
+    .msg-wrap{display:flex;flex-direction:column}
+    .compose-row{display:flex;gap:.6rem;align-items:flex-end}
+    .compose-input{flex:1;padding:.75rem 1rem;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-sm);font-family:inherit;resize:none;min-height:48px;max-height:120px;background:var(--color-surface);color:var(--color-text)}
+    .compose-input:focus{outline:none;border-color:var(--color-water)}
+    .send-btn{padding:.7rem 1.1rem;background:var(--color-water);color:#fff;border:none;border-radius:var(--radius-md);font-weight:700;font-family:inherit;cursor:pointer;font-size:var(--text-sm);white-space:nowrap}
+    .send-btn:disabled{opacity:.5;cursor:not-allowed}
+
+    /* Settings */
+    .setting-row{display:flex;align-items:center;justify-content:space-between;padding:1rem 0;border-bottom:1px solid var(--color-divider)}
+    .setting-row:last-child{border-bottom:none}
+
+    /* Mobile bottom nav */
+    .portal-mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:64px;background:var(--color-surface-2);border-top:1px solid var(--color-border);z-index:200;box-shadow:0 -2px 12px rgba(26,26,18,.08)}
+    .portal-mob-bar-inner{display:flex;height:100%;align-items:stretch}
+    .portal-mob-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:.68rem;font-weight:600;font-family:var(--font-body);padding:0;transition:color .15s;text-decoration:none}
+    .portal-mob-tab svg{flex-shrink:0}
+    .portal-mob-tab.active,.portal-mob-tab:hover{color:var(--color-water)}
+    @media(max-width:768px){.portal-mob-bar{display:flex}body{padding-bottom:72px}}
+
+    /* Empty states */
+    .empty-state{text-align:center;padding:3rem 1rem}
+    .empty-state p{color:var(--color-text-muted);font-size:var(--text-sm);margin-bottom:1.25rem}
+  </style>
+</head>
+<body>
+
+  <!-- ── AUTH CARD ──────────────────────────────────────────── -->
+  <div class="portal-card" id="auth-card">
+    <a href="index.html" class="logo-row">
+      <svg width="34" height="34" viewBox="0 0 38 38" fill="none"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
+      <span class="wordmark"><span style="color:var(--color-text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
+    </a>
+
+    <div style="display:inline-block;padding:.3rem .85rem;border-radius:var(--radius-full);background:var(--color-water-lt);color:var(--color-water);font-size:var(--text-xs);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1rem">Outfitter Portal</div>
+    <h1>Outfitter Account</h1>
+    <p class="subtitle">For licensed Florida guides &amp; outfitters. Manage your listing and connect with guests.</p>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</div>
+      <div class="tab" id="tab-signup" onclick="switchTab('signup')">Create Account</div>
+    </div>
+
+    <div id="auth-msg" class="msg-box"></div>
+
+    <!-- SIGN IN -->
+    <div class="tab-panel active" id="panel-signin">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="si-email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')signIn()" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="si-pass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()" />
+      </div>
+      <button class="btn-primary" onclick="signIn()" id="si-btn">Sign In</button>
+      <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-align:center;margin-top:.85rem;cursor:pointer;text-decoration:underline" onclick="resetPassword()">Forgot password?</p>
+    </div>
+
+    <!-- SIGN UP -->
+    <div class="tab-panel" id="panel-signup">
+      <!-- Personal info -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+        <div class="field"><label>First Name *</label><input type="text" id="su-first" placeholder="Jane" /></div>
+        <div class="field"><label>Last Name *</label><input type="text" id="su-last" placeholder="Smith" /></div>
+      </div>
+      <div class="field"><label>Phone *</label><input type="tel" id="su-phone" placeholder="+1 (555) 000-0000" /></div>
+      <div class="field"><label>Email *</label><input type="email" id="su-email" placeholder="your@email.com" autocomplete="email" /></div>
+      <div class="field">
+        <label>Password *</label>
+        <input type="password" id="su-pass" placeholder="Min 8 chars + 1 special character" autocomplete="new-password" />
+      </div>
+
+      <!-- Business info -->
+      <div class="field"><label>Business / Guide Name *</label><input type="text" id="su-business" placeholder="Smith Guide Service" /></div>
+      <div class="field">
+        <label>Outfitter Type *</label>
+        <div style="position:relative">
+          <select id="su-type">
+            <option value="">Select type…</option>
+            <option value="hunting_guide">Hunting Guide</option>
+            <option value="fishing_guide">Fishing Guide</option>
+            <option value="hunting_fishing">Hunting &amp; Fishing</option>
+            <option value="outfitter">Full Outfitter</option>
+          </select>
+          <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--color-text-muted)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="field"><label>Florida License # <span style="font-weight:400;color:var(--color-text-faint)">(optional — can add later)</span></label><input type="text" id="su-license" placeholder="FWC license number" /></div>
+      <div class="field"><label>City, FL *</label><input type="text" id="su-city" placeholder="Ocala, FL" /></div>
+
+      <!-- Disclaimers -->
+      <div class="disclaimer-box">
+        <h3>Platform Rules — Read Before Signing Up</h3>
+
+        <p><strong>Separate from land listings.</strong> Your outfitter listing does not grant access to any land on LeaseWild. You may not imply that booking your guide service provides guests with access to private land leases on this platform.</p>
+
+        <p><strong>Social media restrictions.</strong> Your listing may not be used to drive social media followers. You may not make social media handles the primary call-to-action, or instruct guests to "follow for availability." A single supplementary website link and social link are permitted.</p>
+
+        <p><strong>Content policy.</strong> You may not republish, copy, or redistribute LeaseWild listing content (yours or others') to external platforms or competitors. By submitting content, you grant LeaseWild a non-exclusive license to display and promote it.</p>
+
+        <p><strong>Eligibility.</strong> You must hold a current, valid Florida FWC guide or outfitter license and carry appropriate liability insurance. LeaseWild may request proof of licensure at any time.</p>
+
+        <p><strong>Conduct.</strong> You agree to communicate professionally, accurately represent your services, and comply with all Florida state and federal hunting and fishing regulations.</p>
+
+        <p><strong>Removal.</strong> LeaseWild may remove or suspend your listing at any time for violations of these rules, license expiration, or conduct harmful to the platform or its guests.</p>
+      </div>
+
+      <div class="agree-row">
+        <input type="checkbox" id="su-agree-platform" />
+        <label for="su-agree-platform">I have read and agree to the <a href="outfitter-terms.html" target="_blank">Outfitter Platform Rules</a> including the separation from land listings, social media restrictions, content policy, and eligibility requirements.</label>
+      </div>
+      <div class="agree-row">
+        <input type="checkbox" id="su-agree-terms" />
+        <label for="su-agree-terms">I agree to LeaseWild's <a href="terms.html" target="_blank">Terms of Service</a> and confirm I hold a valid Florida FWC license or will obtain one before my listing goes live.</label>
+      </div>
+
+      <button class="btn-primary" onclick="signUp()" id="su-btn">Create Outfitter Account</button>
+    </div>
+
+    <div style="text-align:center;margin-top:1.5rem;font-size:var(--text-xs);color:var(--color-text-muted)">
+      Are you a landowner? <a href="landowner-portal.html" style="color:var(--color-primary);font-weight:600">Landowner portal →</a>
+      &nbsp;·&nbsp;
+      Guest? <a href="guest-portal.html" style="color:var(--color-primary);font-weight:600">Guest portal →</a>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD ─────────────────────────────────────────── -->
+  <div id="dashboard" style="display:none;width:100%;max-width:720px;padding-bottom:4rem">
+    <!-- Top nav -->
+    <div class="dash-nav">
+      <a href="index.html" class="dash-logo">
+        <svg width="30" height="30" viewBox="0 0 38 38" fill="none"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
+        <span style="font-family:var(--font-display);font-weight:800;font-size:1.2rem"><span style="color:var(--color-text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
+      </a>
+      <div class="dash-actions">
+        <div style="padding:.3rem .75rem;background:var(--color-water-lt);color:var(--color-water);border-radius:var(--radius-full);font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase">Outfitter</div>
+        <div class="avatar" id="dash-avatar">?</div>
+        <button class="btn-ghost" onclick="signOut()" style="font-size:.8rem;padding:.45rem .8rem">Sign out</button>
+      </div>
+    </div>
+
+    <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:.25rem">Welcome back, <strong id="dash-name">—</strong></p>
+    <p style="font-size:var(--text-xs);color:var(--color-text-faint)" id="dash-business-name"></p>
+
+    <div class="dash-tabs">
+      <button class="dash-tab active" id="dtab-listing" onclick="switchDashTab('listing')">My Listing</button>
+      <button class="dash-tab" id="dtab-messages" onclick="switchDashTab('messages')">
+        Messages <span id="msg-badge" style="display:none;background:var(--color-accent);color:#fff;border-radius:var(--radius-full);font-size:.65rem;padding:.1rem .45rem;font-weight:700;margin-left:.3rem">!</span>
+      </button>
+      <button class="dash-tab" id="dtab-profile" onclick="switchDashTab('profile')">Profile</button>
+      <button class="dash-tab" id="dtab-settings" onclick="switchDashTab('settings')">Settings</button>
+    </div>
+
+    <!-- MY LISTING -->
+    <div class="dash-panel active" id="dpanel-listing">
+      <div class="profile-section">
+        <h3>Your Outfitter Listing</h3>
+        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:1.25rem">Your listing is managed by LeaseWild staff. To update your listing details, photos, or pricing, contact us at <a href="mailto:hello@leasewild.com" style="color:var(--color-water);font-weight:600">hello@leasewild.com</a>.</p>
+        <a href="outfitters.html" class="btn-accent" style="display:inline-block;margin-bottom:.5rem">View outfitter directory →</a>
+      </div>
+      <div class="profile-section">
+        <h3>Platform Rules Reminder</h3>
+        <div class="disclaimer-box" style="margin-bottom:0">
+          <ul>
+            <li>Your listing is <strong>entirely separate</strong> from private land leases on LeaseWild — do not imply otherwise to guests.</li>
+            <li>Social media handles may not be the primary call-to-action in your listing.</li>
+            <li>You may not republish or copy LeaseWild listing content to other platforms.</li>
+            <li>Your Florida FWC license must remain current. LeaseWild may request proof at any time.</li>
+            <li>Violations may result in immediate listing removal. <a href="outfitter-terms.html" style="color:var(--color-water);font-weight:600">Full terms →</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="dash-panel" id="dpanel-messages">
+      <div id="thread-list-view">
+        <div class="thread-list" id="thread-list"><div class="empty-state"><p>No messages yet.</p></div></div>
+      </div>
+      <div id="conversation-view" style="display:none">
+        <div class="conv-header">
+          <button class="conv-back" onclick="showThreadList()">←</button>
+          <div class="conv-title" id="conv-title-text">Conversation</div>
+        </div>
+        <div class="messages-container" id="messages-container"></div>
+        <div class="compose-row">
+          <textarea class="compose-input" id="compose-input" placeholder="Type a message…" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+          <button class="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="dash-panel" id="dpanel-profile">
+      <div class="profile-section">
+        <h3>Personal Info</h3>
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem">
+          <div class="avatar" id="profile-avatar-large" style="width:56px;height:56px;font-size:1.4rem">?</div>
+          <div>
+            <div style="font-weight:700" id="profile-name-display">—</div>
+            <div style="font-size:var(--text-xs);color:var(--color-text-muted)" id="profile-email-display">—</div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-inline"><label>First Name</label><input type="text" id="p-first" placeholder="Jane" /></div>
+          <div class="field-inline"><label>Last Name</label><input type="text" id="p-last" placeholder="Smith" /></div>
+        </div>
+        <div class="field-inline"><label>Phone</label><input type="tel" id="p-phone" placeholder="+1 (555) 000-0000" /></div>
+        <div class="field-inline"><label>City, FL</label><input type="text" id="p-city" placeholder="Ocala, FL" /></div>
+        <div class="field-inline"><label>Business / Guide Name</label><input type="text" id="p-business" placeholder="Smith Guide Service" /></div>
+        <div class="field-inline">
+          <label>Outfitter Type</label>
+          <div style="position:relative">
+            <select id="p-type">
+              <option value="">Select type…</option>
+              <option value="hunting_guide">Hunting Guide</option>
+              <option value="fishing_guide">Fishing Guide</option>
+              <option value="hunting_fishing">Hunting &amp; Fishing</option>
+              <option value="outfitter">Full Outfitter</option>
+            </select>
+            <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--color-text-muted)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="field-inline"><label>Florida FWC License #</label><input type="text" id="p-license" placeholder="License number" /></div>
+        <button class="btn-save" onclick="saveProfile()" id="save-profile-btn">Save changes</button>
+        <div id="profile-msg" class="msg-box" style="margin-top:.75rem;margin-bottom:0"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="dash-panel" id="dpanel-settings">
+      <div class="profile-section">
+        <h3>Account</h3>
+        <div class="setting-row">
+          <div>
+            <div style="font-weight:600;font-size:var(--text-sm)">Email address</div>
+            <div style="font-size:var(--text-xs);color:var(--color-text-muted)" id="settings-email">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="profile-section">
+        <h3>Change Password</h3>
+        <div class="field-inline"><label>New Password</label><input type="password" id="p-newpass" placeholder="Min 8 chars + 1 special character" /></div>
+        <div class="field-inline"><label>Confirm New Password</label><input type="password" id="p-confirmpass" placeholder="Repeat new password" /></div>
+        <button class="btn-save" onclick="changePassword()" id="change-pass-btn">Update password</button>
+        <div id="pass-msg" class="msg-box" style="margin-top:.75rem;margin-bottom:0"></div>
+      </div>
+      <div class="profile-section" style="border-color:var(--color-danger-light)">
+        <h3 style="color:var(--color-danger)">Danger Zone</h3>
+        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:1rem">Signing out will end your session on this device.</p>
+        <button onclick="signOut()" style="padding:.65rem 1.5rem;border-radius:var(--radius-md);border:1.5px solid var(--color-danger);color:var(--color-danger);background:none;font-weight:700;font-family:inherit;font-size:var(--text-sm);cursor:pointer">Sign out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MOBILE BOTTOM NAV ──────────────────────────────────── -->
+  <nav class="portal-mob-bar" style="display:none" id="portal-mob-bar">
+    <div class="portal-mob-bar-inner">
+      <a href="index.html" class="portal-mob-tab">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Explore
+      </a>
+      <button class="portal-mob-tab" onclick="switchDashTab('messages');highlightMobTab(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+      </button>
+      <button class="portal-mob-tab" onclick="switchDashTab('listing');highlightMobTab(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        Listing
+      </button>
+      <button class="portal-mob-tab" onclick="switchDashTab('profile');highlightMobTab(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </button>
+    </div>
+  </nav>
+
+  <script src="supabase-config.js"></script>
+  <script>
+    var SUPABASE_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
+    var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var currentUser = null;
+    var currentConvId = null;
+    var msgPollTimer = null;
+
+    function switchTab(t) {
+      ['signin','signup'].forEach(function(x) {
+        document.getElementById('tab-'+x).classList.toggle('active', x===t);
+        document.getElementById('panel-'+x).classList.toggle('active', x===t);
+      });
+      document.getElementById('auth-msg').style.display = 'none';
+    }
+
+    function showAuthMsg(txt, type) {
+      var el = document.getElementById('auth-msg');
+      el.textContent = txt; el.className = 'msg-box ' + type;
+    }
+
+    async function signIn() {
+      var email = document.getElementById('si-email').value.trim();
+      var pass  = document.getElementById('si-pass').value;
+      if (!email || !pass) { showAuthMsg('Please enter email and password.','error'); return; }
+      var btn = document.getElementById('si-btn'); btn.disabled = true; btn.textContent = 'Signing in…';
+      var { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+      btn.disabled = false; btn.textContent = 'Sign In';
+      if (error) { showAuthMsg(error.message, 'error'); return; }
+      // Check role
+      var meta = data.user?.user_metadata || {};
+      if (meta.role && meta.role !== 'outfitter') {
+        showAuthMsg('This account is not an outfitter account. Please use the correct portal.', 'error');
+        await sb.auth.signOut(); return;
+      }
+      loadDashboard(data.user);
+    }
+
+    async function signUp() {
+      var first    = document.getElementById('su-first').value.trim();
+      var last     = document.getElementById('su-last').value.trim();
+      var phone    = document.getElementById('su-phone').value.trim();
+      var email    = document.getElementById('su-email').value.trim();
+      var pass     = document.getElementById('su-pass').value;
+      var business = document.getElementById('su-business').value.trim();
+      var type     = document.getElementById('su-type').value;
+      var license  = document.getElementById('su-license').value.trim();
+      var city     = document.getElementById('su-city').value.trim();
+      var agreeP   = document.getElementById('su-agree-platform').checked;
+      var agreeT   = document.getElementById('su-agree-terms').checked;
+
+      if (!first || !last || !phone || !email || !pass || !business || !type || !city) {
+        showAuthMsg('Please fill in all required fields.','error'); return;
+      }
+      if (!agreeP || !agreeT) {
+        showAuthMsg('You must agree to both the Platform Rules and Terms of Service to create an account.','error'); return;
+      }
+      var passRe = /^(?=.*[!@#$%^&*()_\-+=\[\]{}|;:,.<>?]).{8,}$/;
+      if (!passRe.test(pass)) {
+        showAuthMsg('Password must be at least 8 characters and include at least 1 special character.','error'); return;
+      }
+      var btn = document.getElementById('su-btn'); btn.disabled = true; btn.textContent = 'Creating account…';
+      var { data, error } = await sb.auth.signUp({
+        email, password: pass,
+        options: {
+          data: { full_name: first+' '+last, first_name: first, last_name: last, phone, role: 'outfitter', business_name: business, outfitter_type: type, license_number: license, city },
+          emailRedirectTo: 'https://leasewild.com/outfitter-portal.html'
+        }
+      });
+      btn.disabled = false; btn.textContent = 'Create Outfitter Account';
+      if (error) { showAuthMsg(error.message,'error'); return; }
+      showAuthMsg('Account created! Check your email to confirm, then sign in.','success');
+      switchTab('signin');
+    }
+
+    async function resetPassword() {
+      var email = document.getElementById('si-email').value.trim();
+      if (!email) { showAuthMsg('Enter your email first.','error'); return; }
+      await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://leasewild.com/outfitter-portal.html' });
+      showAuthMsg('Password reset email sent — check your inbox.','success');
+    }
+
+    async function signOut() {
+      clearInterval(msgPollTimer);
+      await sb.auth.signOut();
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('auth-card').style.display = 'block';
+      document.getElementById('portal-mob-bar').style.display = 'none';
+      currentUser = null;
+    }
+
+    function loadDashboard(user) {
+      currentUser = user;
+      var meta = user.user_metadata || {};
+      var first = meta.first_name || meta.full_name?.split(' ')[0] || user.email.split('@')[0];
+      var initials = (meta.first_name?.[0]||'') + (meta.last_name?.[0]||'');
+      document.getElementById('dash-avatar').textContent = initials || first[0]?.toUpperCase() || '?';
+      document.getElementById('dash-name').textContent = first;
+      document.getElementById('dash-business-name').textContent = meta.business_name ? '📋 ' + meta.business_name : '';
+      document.getElementById('profile-email-display').textContent = user.email;
+      document.getElementById('profile-name-display').textContent = (meta.first_name||'') + ' ' + (meta.last_name||'');
+      document.getElementById('profile-avatar-large').textContent = initials || first[0]?.toUpperCase() || '?';
+      document.getElementById('settings-email').textContent = user.email;
+      // Fill profile fields
+      document.getElementById('p-first').value   = meta.first_name || '';
+      document.getElementById('p-last').value    = meta.last_name  || '';
+      document.getElementById('p-phone').value   = meta.phone      || '';
+      document.getElementById('p-city').value    = meta.city       || '';
+      document.getElementById('p-business').value = meta.business_name || '';
+      document.getElementById('p-type').value    = meta.outfitter_type || '';
+      document.getElementById('p-license').value = meta.license_number || '';
+
+      document.getElementById('auth-card').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('portal-mob-bar').style.display = 'flex';
+
+      // Auto-open messages if ?tab=messages
+      if (new URLSearchParams(window.location.search).get('tab') === 'messages') {
+        switchDashTab('messages');
+      }
+      loadThreads();
+      msgPollTimer = setInterval(checkUnread, 30000);
+    }
+
+    function switchDashTab(t) {
+      ['listing','messages','profile','settings'].forEach(function(x) {
+        document.getElementById('dtab-'+x).classList.toggle('active', x===t);
+        document.getElementById('dpanel-'+x).classList.toggle('active', x===t);
+      });
+      if (t === 'messages') loadThreads();
+    }
+
+    function highlightMobTab(btn) {
+      document.querySelectorAll('.portal-mob-tab').forEach(t=>t.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    async function saveProfile() {
+      var btn = document.getElementById('save-profile-btn');
+      var msgEl = document.getElementById('profile-msg');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      var updates = {
+        first_name:    document.getElementById('p-first').value.trim(),
+        last_name:     document.getElementById('p-last').value.trim(),
+        phone:         document.getElementById('p-phone').value.trim(),
+        city:          document.getElementById('p-city').value.trim(),
+        business_name: document.getElementById('p-business').value.trim(),
+        outfitter_type:document.getElementById('p-type').value,
+        license_number:document.getElementById('p-license').value.trim(),
+      };
+      updates.full_name = updates.first_name + ' ' + updates.last_name;
+      var { error } = await sb.auth.updateUser({ data: updates });
+      btn.disabled = false; btn.textContent = 'Save changes';
+      if (error) { msgEl.className='msg-box error'; msgEl.textContent=error.message; msgEl.style.display='block'; return; }
+      msgEl.className='msg-box success'; msgEl.textContent='Profile updated!'; msgEl.style.display='block';
+      document.getElementById('dash-name').textContent = updates.first_name;
+      document.getElementById('dash-business-name').textContent = updates.business_name ? '📋 ' + updates.business_name : '';
+      var initials = (updates.first_name[0]||'') + (updates.last_name[0]||'');
+      document.getElementById('dash-avatar').textContent = initials;
+      document.getElementById('profile-avatar-large').textContent = initials;
+    }
+
+    async function changePassword() {
+      var btn = document.getElementById('change-pass-btn');
+      var msgEl = document.getElementById('pass-msg');
+      var np = document.getElementById('p-newpass').value;
+      var cp = document.getElementById('p-confirmpass').value;
+      if (!np || !cp) { msgEl.className='msg-box error'; msgEl.textContent='Enter and confirm your new password.'; msgEl.style.display='block'; return; }
+      if (np !== cp) { msgEl.className='msg-box error'; msgEl.textContent='Passwords do not match.'; msgEl.style.display='block'; return; }
+      var passRe = /^(?=.*[!@#$%^&*()_\-+=\[\]{}|;:,.<>?]).{8,}$/;
+      if (!passRe.test(np)) { msgEl.className='msg-box error'; msgEl.textContent='Password must be at least 8 characters and include 1 special character.'; msgEl.style.display='block'; return; }
+      btn.disabled = true; btn.textContent = 'Updating…';
+      var { error } = await sb.auth.updateUser({ password: np });
+      btn.disabled = false; btn.textContent = 'Update password';
+      if (error) { msgEl.className='msg-box error'; msgEl.textContent=error.message; msgEl.style.display='block'; return; }
+      msgEl.className='msg-box success'; msgEl.textContent='Password updated!'; msgEl.style.display='block';
+      document.getElementById('p-newpass').value = '';
+      document.getElementById('p-confirmpass').value = '';
+    }
+
+    // ── MESSAGES ────────────────────────────────────────────
+    async function loadThreads() {
+      if (!currentUser) return;
+      var res = await fetch(SUPABASE_URL + '/rest/v1/conversations?outfitter_email=eq.' + encodeURIComponent(currentUser.email) + '&order=updated_at.desc&select=*', {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+      });
+      var threads = await res.json();
+      var list = document.getElementById('thread-list');
+      if (!threads || threads.length === 0) {
+        list.innerHTML = '<div class="empty-state"><p>No messages yet.</p></div>'; return;
+      }
+      list.innerHTML = threads.map(function(t) {
+        var unread = t.outfitter_unread > 0;
+        return '<div class="thread-item'+(unread?' unread':'')+'" onclick="openThread(\''+t.id+'\',\''+escHtml(t.subject||'Conversation')+'\')">'+
+          '<div class="thread-title">'+escHtml(t.subject||'Conversation')+'</div>'+
+          '<div class="thread-preview">'+escHtml(t.last_message||'No messages yet')+'</div>'+
+          '<div class="thread-time">'+(t.updated_at?new Date(t.updated_at).toLocaleDateString():'')+'</div>'+
+        '</div>';
+      }).join('');
+    }
+
+    async function openThread(convId, title) {
+      currentConvId = convId;
+      document.getElementById('conv-title-text').textContent = title;
+      document.getElementById('thread-list-view').style.display = 'none';
+      document.getElementById('conversation-view').style.display = 'block';
+      await loadMessages();
+      // Mark read
+      await fetch(SUPABASE_URL + '/rest/v1/conversations?id=eq.' + convId, {
+        method: 'PATCH',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ outfitter_unread: 0 })
+      });
+    }
+
+    function showThreadList() {
+      document.getElementById('thread-list-view').style.display = 'block';
+      document.getElementById('conversation-view').style.display = 'none';
+      currentConvId = null;
+      loadThreads();
+    }
+
+    async function loadMessages() {
+      if (!currentConvId) return;
+      var res = await fetch(SUPABASE_URL + '/rest/v1/messages?conversation_id=eq.' + currentConvId + '&order=created_at.asc&select=*', {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+      });
+      var msgs = await res.json();
+      var container = document.getElementById('messages-container');
+      if (!msgs || msgs.length === 0) { container.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);font-size:var(--text-sm);padding:2rem">No messages yet. Start the conversation!</p>'; return; }
+      var myEmail = currentUser.email;
+      container.innerHTML = msgs.map(function(m) {
+        var mine = m.sender_email === myEmail;
+        return '<div class="msg-wrap"><div class="msg-bubble '+(mine?'mine':'theirs')+'">'+escHtml(m.body)+'</div>'+
+          '<div class="msg-meta'+(mine?' mine':'')+'">'+escHtml(m.sender_name||m.sender_email)+' · '+(m.created_at?new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'')+'</div></div>';
+      }).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendMessage() {
+      if (!currentConvId || !currentUser) return;
+      var input = document.getElementById('compose-input');
+      var btn = document.querySelector('.send-btn');
+      var body = input.value.trim();
+      if (!body) return;
+      btn.disabled = true;
+      var meta = currentUser.user_metadata || {};
+      var senderName = meta.business_name || meta.first_name || currentUser.email.split('@')[0];
+      await fetch(SUPABASE_URL + '/rest/v1/messages', {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ conversation_id: currentConvId, sender_email: currentUser.email, sender_name: senderName, sender_role: 'outfitter', body })
+      });
+      await fetch(SUPABASE_URL + '/rest/v1/conversations?id=eq.' + currentConvId, {
+        method: 'PATCH',
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ last_message: body, updated_at: new Date().toISOString() })
+      });
+      input.value = ''; btn.disabled = false;
+      loadMessages();
+    }
+
+    async function checkUnread() {
+      if (!currentUser) return;
+      var res = await fetch(SUPABASE_URL + '/rest/v1/conversations?outfitter_email=eq.' + encodeURIComponent(currentUser.email) + '&outfitter_unread=gt.0&select=id', {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY }
+      });
+      var data = await res.json();
+      var badge = document.getElementById('msg-badge');
+      if (badge) badge.style.display = (data && data.length > 0) ? '' : 'none';
+    }
+
+    function escHtml(str) {
+      return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── INIT ─────────────────────────────────────────────────
+    (async function() {
+      var { data } = await sb.auth.getSession();
+      if (data && data.session) {
+        var meta = data.session.user.user_metadata || {};
+        if (meta.role && meta.role !== 'outfitter') {
+          // Wrong portal — silently ignore, show auth card
+          await sb.auth.signOut();
+          return;
+        }
+        loadDashboard(data.session.user);
+      }
+    })();
+  </script>
+</body>
+</html>
