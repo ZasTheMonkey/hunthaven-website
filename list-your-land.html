@@ -3,12 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>List Your Hunting Land & Earn | LeaseWild Florida</title>
-  <meta name="description" content="Landowners in Florida — list your hunting or fishing property on LeaseWild and earn from hunters and anglers. No approval needed. Keep 85% of every booking." />
-  <meta name="keywords" content="list hunting land Florida, earn from hunting lease, rent land to hunters Florida, hunting land for lease by owner Florida, landowner hunting platform Florida" />
-  <meta name="robots" content="index, follow" />
+  <title>List Your Hunting Land & Earn Money | LeaseWild Florida Landowners</title>
+  <meta name="description" content="Florida landowners: list your hunting or fishing property on LeaseWild for free. No approval wait. Keep 85% of every booking. Earn from deer, hog, turkey hunters and anglers starting July 2026." />
+  <meta name="keywords" content="list hunting land Florida, earn from hunting lease Florida, rent land to hunters Florida, hunting land for lease by owner Florida, landowner hunting platform Florida, how to lease hunting land Florida, monetize hunting land Florida, private land hunting host Florida" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
   <meta name="author" content="LeaseWild" />
   <link rel="canonical" href="https://leasewild.com/list-your-land.html" />
+
+  <!-- Geo / Local SEO -->
+  <meta name="geo.region" content="US-FL" />
+  <meta name="geo.placename" content="Florida" />
 
   <!-- Open Graph -->
   <meta property="og:title" content="List Your Hunting Land & Earn | LeaseWild Florida" />
@@ -189,6 +193,18 @@
     .nav-links.nav-open{display:flex!important;flex-direction:column;align-items:flex-start;position:absolute;top:100%;left:0;right:0;background:var(--color-bg);border-bottom:1px solid var(--color-border);padding:var(--space-4) clamp(var(--space-4),4vw,var(--space-12));gap:var(--space-4);z-index:99}
     .nav-links.nav-open a{font-size:var(--text-base);padding:var(--space-2) 0}
   </style>
+  <!-- Schema: ListLandService -->
+  <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "List Your Hunting Land on LeaseWild",
+    "provider": {"@type": "Organization", "name": "LeaseWild", "url": "https://leasewild.com"},
+    "serviceType": "Hunting Land Listing Marketplace",
+    "areaServed": {"@type": "State", "name": "Florida"},
+    "description": "Florida landowners can list hunting and fishing properties on LeaseWild for free. No approval wait. Keep 85% of every booking. Earn from deer, hog, turkey, and fishing guests.",
+    "url": "https://leasewild.com/list-your-land.html",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free to list. No monthly fees. Landowner keeps 85% of every booking."}
+  }</script>
 </head>
 <body>
   <!-- Auth gate: redirect to portal if not logged in -->
