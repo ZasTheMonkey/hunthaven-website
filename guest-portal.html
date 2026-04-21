@@ -6,7 +6,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
   <link rel="apple-touch-icon" href="/favicon-192.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Guest Portal — LeaseWild</title>
+  <title>Hunter Portal — LeaseWild</title>
   <meta name="description" content="LeaseWild guest portal. Sign in to view your bookings and messages." />
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -159,7 +159,7 @@
       <svg width="34" height="34" viewBox="0 0 38 38" fill="none"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
       <span class="wordmark"><span style="color:var(--color-text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
     </a>
-    <h1>Guest Portal</h1>
+    <h1>Hunter Portal</h1>
     <p class="subtitle">Sign in to view your bookings and messages.</p>
 
     <!-- Email tabs -->
@@ -196,7 +196,7 @@
         <label>Password *</label>
         <input type="password" id="su-pass" placeholder="Min 8 chars + 1 special character" autocomplete="new-password" />
       </div>
-      <button class="btn-primary" onclick="signUp()" id="su-btn">Create Guest Account</button>
+      <button class="btn-primary" onclick="signUp()" id="su-btn">Create Hunter Account</button>
       <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-align:center;margin-top:.85rem;line-height:1.5">By creating an account you agree to our <a href="terms.html" style="color:var(--color-primary)">Terms</a>.</p>
     </div>
 
@@ -223,7 +223,7 @@
 
     <!-- Welcome bar -->
     <div style="padding:.75rem 0 0">
-      <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.07em;font-weight:700">Guest Account</p>
+      <p style="font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.07em;font-weight:700">Hunter Account</p>
       <div style="font-family:var(--font-display);font-weight:800;font-size:var(--text-lg)" id="dash-name">Welcome back</div>
     </div>
 
@@ -454,7 +454,7 @@
         emailRedirectTo: 'https://leasewild.com/guest-portal.html'
       }
     });
-    btn.disabled = false; btn.textContent = 'Create Guest Account';
+    btn.disabled = false; btn.textContent = 'Create Hunter Account';
     if (error) { showAuthMsg(error.message,'error'); return; }
     showAuthMsg('Account created! Check your email to confirm, then sign in.','success');
     switchTab('signin');
