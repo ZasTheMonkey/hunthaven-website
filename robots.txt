@@ -4,5 +4,6 @@ Disallow: /admin.html
 Disallow: /landowner-portal.html
 Disallow: /guest-portal.html
 Disallow: /cancel.html
+Disallow: /marketing-dashboard.html
 
 Sitemap: https://leasewild.com/sitemap.xml

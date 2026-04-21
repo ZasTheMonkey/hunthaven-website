@@ -41,6 +41,23 @@ function openListingDetail(l) {
   if (l.cleaning_fee) details.push('<span style="padding:.3rem .7rem;background:var(--color-surface-offset);border-radius:999px;font-size:.85rem">+$'+l.cleaning_fee+' cleaning</span>');
   if (l.allow_out_of_state) details.push('<span style="padding:.3rem .7rem;background:var(--color-surface-offset);border-radius:999px;font-size:.85rem">Out-of-state welcome</span>');
 
+  // Harvest limits block — displayed when allowed_zone has harvest data
+  var harvestHtml = '';
+  if (l.allowed_zone && typeof l.allowed_zone === 'object' && Object.keys(l.allowed_zone).length > 0) {
+    var limitsHtml = Object.entries(l.allowed_zone).map(function(entry) {
+      var animal = entry[0], limit = entry[1];
+      var limitStr = (limit === 0 || limit === null || limit === undefined) ? 'No limit' : limit + ' per booking';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:.35rem 0;border-bottom:1px solid var(--color-border)">' +
+        '<span style="font-size:.88rem;color:var(--color-text)">&#128290; ' + escHtml(animal) + '</span>' +
+        '<span style="font-size:.85rem;font-weight:700;color:var(--color-primary)">' + escHtml(String(limitStr)) + '</span>' +
+      '</div>';
+    }).join('');
+    harvestHtml = '<div style="margin-top:.75rem;margin-bottom:.75rem;background:var(--color-surface-offset);border-radius:12px;padding:.85rem 1rem">' +
+      '<p style="font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:.5rem">Harvest Limits</p>' +
+      limitsHtml +
+    '</div>';
+  }
+
   var launched = isLaunched();
   var days = daysUntilLaunch();
   var guestOpts = [1,2,3,4,5,6,7,8].map(function(n){ return '<option value="'+n+'">'+n+' guest'+(n>1?'s':'')+'</option>'; }).join('');
@@ -186,6 +203,7 @@ function openListingDetail(l) {
         (activities ? '<p style="font-size:.95rem;color:var(--color-text-muted);margin-bottom:.6rem">' + escHtml(activities) + '</p>' : '') +
         (details.length ? '<div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem">' + details.join('') + '</div>' : '') +
         (l.description ? '<p style="font-size:.95rem;color:var(--color-text-muted);line-height:1.65;margin-bottom:.75rem">' + escHtml(l.description) + '</p>' : '') +
+        harvestHtml +
         bookingHtml +
       '</div>' +
     '</div>';

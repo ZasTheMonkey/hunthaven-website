@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeaseWild — Marketing Dashboard</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --green:#2d5a27;--green-dk:#1e3d1b;--green-lt:#d6e8d3;
+      --amber:#c17f3a;--amber-lt:#f5e9d7;
+      --water:#1a6b7a;--water-lt:#cde9ee;
+      --bg:#f7f4f0;--surface:#fff;--surface2:#f0ede8;
+      --border:#e0dbd3;--divider:#ece8e2;
+      --text:#1a1714;--muted:#6b6656;--faint:#a09888;
+      --red:#c0392b;--red-lt:#fce4e1;
+      --font-display:'Oswald',sans-serif;
+      --font-body:'Barlow',sans-serif;
+      --r:10px;--r-lg:16px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh}
+    /* ── LOGIN GATE ── */
+    #login-gate{position:fixed;inset:0;background:var(--green-dk);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:1.5rem}
+    #login-gate .logo{display:flex;align-items:center;gap:.6rem}
+    #login-gate .logo-text{font-family:var(--font-display);font-size:1.7rem;font-weight:700;color:#fff}
+    #login-gate .logo-text span{color:var(--amber)}
+    #login-gate form{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--r-lg);padding:2rem;width:320px;display:flex;flex-direction:column;gap:1rem}
+    #login-gate h2{color:#fff;font-family:var(--font-display);font-size:1.2rem;font-weight:600;text-align:center}
+    #login-gate input{padding:.7rem 1rem;border:1.5px solid rgba(255,255,255,.2);border-radius:var(--r);background:rgba(255,255,255,.08);color:#fff;font-family:var(--font-body);font-size:.95rem;outline:none}
+    #login-gate input::placeholder{color:rgba(255,255,255,.45)}
+    #login-gate input:focus{border-color:var(--amber)}
+    #login-gate button{padding:.75rem;background:var(--amber);color:#fff;border:none;border-radius:var(--r);font-family:var(--font-display);font-size:1rem;font-weight:600;cursor:pointer;letter-spacing:.03em}
+    #login-gate button:hover{background:#a96d2e}
+    #login-error{color:#ff8a80;font-size:.85rem;text-align:center;display:none}
+    /* ── LAYOUT ── */
+    #app{display:none}
+    .topbar{background:var(--green-dk);padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .topbar-logo{display:flex;align-items:center;gap:.6rem}
+    .topbar-logo-text{font-family:var(--font-display);font-size:1.25rem;font-weight:700;color:#fff}
+    .topbar-logo-text span{color:var(--amber)}
+    .topbar-badge{font-size:.7rem;font-weight:700;background:var(--amber);color:#fff;padding:.2rem .6rem;border-radius:999px;letter-spacing:.05em}
+    .topbar-right{display:flex;align-items:center;gap:1rem}
+    .topbar-date{font-size:.8rem;color:rgba(255,255,255,.6)}
+    #logout-btn{font-size:.8rem;color:rgba(255,255,255,.7);background:none;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:.3rem .8rem;cursor:pointer;font-family:var(--font-body)}
+    #logout-btn:hover{background:rgba(255,255,255,.1)}
+    /* ── TABS ── */
+    .tabs{display:flex;gap:0;background:var(--surface);border-bottom:2px solid var(--border);overflow-x:auto;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{padding:.9rem 1.4rem;font-family:var(--font-display);font-size:.95rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:color .15s,border-color .15s;background:none;border-top:none;border-left:none;border-right:none}
+    .tab:hover{color:var(--text)}
+    .tab.active{color:var(--green);border-bottom-color:var(--green)}
+    /* ── CONTENT ── */
+    .tab-panel{display:none;padding:1.5rem;max-width:1200px;margin:0 auto}
+    .tab-panel.active{display:block}
+    /* ── KPI ROW ── */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem}
+    .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.1rem 1.2rem}
+    .kpi-label{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem}
+    .kpi-value{font-family:var(--font-display);font-size:1.9rem;font-weight:700;color:var(--text);line-height:1}
+    .kpi-sub{font-size:.75rem;color:var(--faint);margin-top:.3rem}
+    .kpi-card.green .kpi-value{color:var(--green)}
+    .kpi-card.amber .kpi-value{color:var(--amber)}
+    .kpi-card.water .kpi-value{color:var(--water)}
+    /* ── CARD ── */
+    .dash-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.25rem;margin-bottom:1.25rem}
+    .dash-card-title{font-family:var(--font-display);font-size:1rem;font-weight:600;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+    .dash-card-title .badge{font-size:.65rem;padding:.18rem .55rem;border-radius:999px;font-family:var(--font-body);font-weight:700;letter-spacing:.04em}
+    .badge-green{background:var(--green-lt);color:var(--green)}
+    .badge-amber{background:var(--amber-lt);color:var(--amber)}
+    .badge-water{background:var(--water-lt);color:var(--water)}
+    /* ── CHART WRAP ── */
+    .chart-wrap{position:relative;height:260px}
+    /* ── GRID 2 ── */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+    @media(max-width:680px){.grid-2{grid-template-columns:1fr}}
+    /* ── TABLE ── */
+    .dash-table{width:100%;border-collapse:collapse;font-size:.88rem}
+    .dash-table th{text-align:left;padding:.5rem .75rem;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1.5px solid var(--border)}
+    .dash-table td{padding:.55rem .75rem;border-bottom:1px solid var(--divider);vertical-align:middle}
+    .dash-table tr:last-child td{border-bottom:none}
+    .dash-table tr:hover td{background:var(--bg)}
+    /* ── FORM ELEMENTS ── */
+    .field-label{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.35rem}
+    .dash-input{width:100%;padding:.6rem .8rem;border:1.5px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:.9rem;outline:none}
+    .dash-input:focus{border-color:var(--green)}
+    .dash-select{width:100%;padding:.6rem .8rem;border:1.5px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:.9rem;outline:none;cursor:pointer}
+    .dash-select:focus{border-color:var(--green)}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.85rem;margin-bottom:1rem}
+    /* ── BUTTONS ── */
+    .btn{padding:.6rem 1.1rem;border:none;border-radius:var(--r);font-family:var(--font-body);font-size:.88rem;font-weight:600;cursor:pointer;transition:all .15s}
+    .btn-green{background:var(--green);color:#fff}
+    .btn-green:hover{background:var(--green-dk)}
+    .btn-amber{background:var(--amber);color:#fff}
+    .btn-amber:hover{background:#a96d2e}
+    .btn-outline{background:none;border:1.5px solid var(--border);color:var(--text)}
+    .btn-outline:hover{border-color:var(--green);color:var(--green)}
+    .btn-red{background:var(--red);color:#fff}
+    .btn-red:hover{opacity:.85}
+    .btn-sm{padding:.35rem .7rem;font-size:.78rem}
+    /* ── STATUS PILL ── */
+    .pill{padding:.2rem .6rem;border-radius:999px;font-size:.72rem;font-weight:700;display:inline-block}
+    .pill-green{background:var(--green-lt);color:var(--green)}
+    .pill-amber{background:var(--amber-lt);color:var(--amber)}
+    .pill-red{background:var(--red-lt);color:var(--red)}
+    .pill-water{background:var(--water-lt);color:var(--water)}
+    /* ── SOCIAL PLATFORM ROW ── */
+    .platform-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem}
+    .platform-title{display:flex;align-items:center;gap:.6rem;font-family:var(--font-display);font-size:1rem;font-weight:600}
+    .platform-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+    .platform-icon.tiktok{background:#010101;color:#fff}
+    .platform-icon.instagram{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff}
+    /* ── TOAST ── */
+    #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1714;color:#fff;padding:.65rem 1.3rem;border-radius:999px;font-size:.85rem;font-weight:600;transition:transform .3s ease;z-index:9999;pointer-events:none}
+    #toast.show{transform:translateX(-50%) translateY(0)}
+    /* ── ID VERIFY TABLE ── */
+    .id-status-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:700}
+    .id-verified{background:#d1fae5;color:#065f46}
+    .id-pending{background:#fef3c7;color:#92400e}
+    .id-rejected{background:var(--red-lt);color:var(--red)}
+    /* ── SECTION LABEL ── */
+    .section-label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.6rem}
+    /* ── EMPTY STATE ── */
+    .empty-state{text-align:center;padding:2.5rem 1rem;color:var(--faint)}
+    .empty-state p{font-size:.9rem;margin-top:.5rem}
+    /* ── SYNC BANNER ── */
+    #sync-banner{background:var(--green-lt);border:1px solid var(--green);border-radius:var(--r);padding:.6rem 1rem;font-size:.82rem;font-weight:600;color:var(--green);margin-bottom:1rem;display:none;align-items:center;gap:.5rem}
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar{width:6px;height:6px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LOGIN GATE
+═══════════════════════════════════════ -->
+<div id="login-gate">
+  <div class="logo">
+    <svg width="34" height="34" viewBox="0 0 38 38" fill="none">
+      <polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/>
+    </svg>
+    <div class="logo-text">Lease<span>Wild</span></div>
+  </div>
+  <form onsubmit="doLogin(event)">
+    <h2>Marketing Dashboard</h2>
+    <input type="password" id="gate-pw" placeholder="Enter dashboard password" autocomplete="current-password" />
+    <div id="login-error">Incorrect password. Try again.</div>
+    <button type="submit">Sign In</button>
+  </form>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MAIN APP
+═══════════════════════════════════════ -->
+<div id="app">
+  <!-- Top Bar -->
+  <nav class="topbar">
+    <div class="topbar-logo">
+      <svg width="26" height="26" viewBox="0 0 38 38" fill="none">
+        <polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/>
+      </svg>
+      <div class="topbar-logo-text">Lease<span>Wild</span></div>
+      <span class="topbar-badge">INTERNAL</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-date" id="topbar-date"></span>
+      <button id="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </nav>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('overview',this)">Overview</button>
+    <button class="tab" onclick="switchTab('analytics',this)">Website Analytics</button>
+    <button class="tab" onclick="switchTab('social',this)">Social Media</button>
+    <button class="tab" onclick="switchTab('waitlist',this)">Waitlist &amp; ID Verify</button>
+  </div>
+
+  <!-- Sync Banner -->
+  <div id="sync-banner">&#10003; Synced to Google Sheets</div>
+
+  <!-- ─────────────────────────────────────────
+       TAB 1: OVERVIEW
+  ───────────────────────────────────────── -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="kpi-grid" id="overview-kpis">
+      <div class="kpi-card green">
+        <div class="kpi-label">Waitlist Signups</div>
+        <div class="kpi-value" id="kpi-waitlist">—</div>
+        <div class="kpi-sub">Total guests joined</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Live Listings</div>
+        <div class="kpi-value" id="kpi-listings">—</div>
+        <div class="kpi-sub">Active land listed</div>
+      </div>
+      <div class="kpi-card water">
+        <div class="kpi-label">Website Visitors</div>
+        <div class="kpi-value" id="kpi-visitors">—</div>
+        <div class="kpi-sub">Last 30 days (manual)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">TikTok Followers</div>
+        <div class="kpi-value" id="kpi-tt-followers">—</div>
+        <div class="kpi-sub">Latest entered</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">IG Followers</div>
+        <div class="kpi-value" id="kpi-ig-followers">—</div>
+        <div class="kpi-sub">Latest entered</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Posts</div>
+        <div class="kpi-value" id="kpi-posts">—</div>
+        <div class="kpi-sub">TikTok + Instagram</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="dash-card">
+        <div class="dash-card-title">Waitlist Growth <span class="badge badge-green">30 days</span></div>
+        <div class="chart-wrap"><canvas id="chart-waitlist"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">Social Followers <span class="badge badge-amber">Trend</span></div>
+        <div class="chart-wrap"><canvas id="chart-social-overview"></canvas></div>
+      </div>
+    </div>
+
+    <div class="dash-card">
+      <div class="dash-card-title">Recent Activity</div>
+      <div id="recent-activity">
+        <div class="empty-state">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <p>Activity will appear as you add data.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+       TAB 2: WEBSITE ANALYTICS
+  ───────────────────────────────────────── -->
+  <div class="tab-panel" id="tab-analytics">
+    <div class="dash-card">
+      <div class="dash-card-title">Log Website Traffic <span class="badge badge-water">Manual Entry</span></div>
+      <p style="font-size:.83rem;color:var(--muted);margin-bottom:1rem">Copy your numbers from Google Search Console, GA4, or any source and paste them here. Save weekly or monthly.</p>
+      <div class="form-grid">
+        <div>
+          <label class="field-label">Period</label>
+          <input type="text" class="dash-input" id="an-period" placeholder="e.g. Apr 14–20, 2026" />
+        </div>
+        <div>
+          <label class="field-label">Page Views</label>
+          <input type="number" class="dash-input" id="an-pageviews" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Unique Visitors</label>
+          <input type="number" class="dash-input" id="an-visitors" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">New Users</label>
+          <input type="number" class="dash-input" id="an-newusers" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Avg. Session (sec)</label>
+          <input type="number" class="dash-input" id="an-duration" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Bounce Rate (%)</label>
+          <input type="number" class="dash-input" id="an-bounce" placeholder="0" min="0" max="100" />
+        </div>
+        <div>
+          <label class="field-label">Google Impressions</label>
+          <input type="number" class="dash-input" id="an-impressions" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Google Clicks</label>
+          <input type="number" class="dash-input" id="an-clicks" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Avg. Position</label>
+          <input type="number" class="dash-input" id="an-position" placeholder="e.g. 18.5" step="0.1" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Waitlist Conversions</label>
+          <input type="number" class="dash-input" id="an-conversions" placeholder="0" min="0" />
+        </div>
+      </div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+        <button class="btn btn-green" onclick="saveAnalytics()">Save Entry</button>
+        <button class="btn btn-outline" onclick="syncToSheets('analytics')">&#9654; Sync to Google Sheets</button>
+        <button class="btn btn-outline" onclick="exportCSV('analytics')">&#8595; Export CSV</button>
+      </div>
+    </div>
+
+    <div class="dash-card">
+      <div class="dash-card-title">Page Views Over Time</div>
+      <div class="chart-wrap"><canvas id="chart-pageviews"></canvas></div>
+    </div>
+
+    <div class="dash-card">
+      <div class="dash-card-title">Search Console Performance</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="chart-search"></canvas></div>
+    </div>
+
+    <div class="dash-card">
+      <div class="dash-card-title">Analytics Log</div>
+      <div style="overflow-x:auto">
+        <table class="dash-table" id="analytics-table">
+          <thead>
+            <tr>
+              <th>Period</th><th>Page Views</th><th>Visitors</th><th>New Users</th>
+              <th>Avg Session</th><th>Bounce%</th><th>Impressions</th>
+              <th>Clicks</th><th>Position</th><th>Conversions</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="analytics-tbody"></tbody>
+        </table>
+        <div id="analytics-empty" class="empty-state"><p>No analytics entries yet. Add your first entry above.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+       TAB 3: SOCIAL MEDIA
+  ───────────────────────────────────────── -->
+  <div class="tab-panel" id="tab-social">
+    <!-- TikTok Account Stats -->
+    <div class="dash-card">
+      <div class="platform-header">
+        <div class="platform-title">
+          <div class="platform-icon tiktok">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.27 8.27 0 004.84 1.55V6.8a4.85 4.85 0 01-1.07-.11z"/></svg>
+          </div>
+          TikTok Account Stats
+        </div>
+        <span class="badge badge-amber">Manual from TikTok Studio</span>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label class="field-label">Date</label>
+          <input type="date" class="dash-input" id="tt-date" />
+        </div>
+        <div>
+          <label class="field-label">Followers</label>
+          <input type="number" class="dash-input" id="tt-followers" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Profile Views</label>
+          <input type="number" class="dash-input" id="tt-profile-views" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Video Views (period)</label>
+          <input type="number" class="dash-input" id="tt-video-views" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Likes (period)</label>
+          <input type="number" class="dash-input" id="tt-likes" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Comments (period)</label>
+          <input type="number" class="dash-input" id="tt-comments" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Shares (period)</label>
+          <input type="number" class="dash-input" id="tt-shares" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">New Followers</label>
+          <input type="number" class="dash-input" id="tt-new-followers" placeholder="0" />
+        </div>
+      </div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+        <button class="btn btn-green" onclick="saveTTStats()">Save TikTok Stats</button>
+        <button class="btn btn-outline" onclick="syncToSheets('tiktok')">&#9654; Sync to Sheets</button>
+        <button class="btn btn-outline" onclick="exportCSV('tiktok')">&#8595; Export CSV</button>
+      </div>
+    </div>
+
+    <!-- TikTok Post Logger -->
+    <div class="dash-card">
+      <div class="dash-card-title">Log TikTok Post</div>
+      <div class="form-grid">
+        <div>
+          <label class="field-label">Post Date</label>
+          <input type="date" class="dash-input" id="tt-post-date" />
+        </div>
+        <div>
+          <label class="field-label">Caption / Title</label>
+          <input type="text" class="dash-input" id="tt-post-caption" placeholder="Post caption or description" />
+        </div>
+        <div>
+          <label class="field-label">Views</label>
+          <input type="number" class="dash-input" id="tt-post-views" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Likes</label>
+          <input type="number" class="dash-input" id="tt-post-likes" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Comments</label>
+          <input type="number" class="dash-input" id="tt-post-comments" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Shares</label>
+          <input type="number" class="dash-input" id="tt-post-shares" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Saves</label>
+          <input type="number" class="dash-input" id="tt-post-saves" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Post URL (optional)</label>
+          <input type="url" class="dash-input" id="tt-post-url" placeholder="https://tiktok.com/…" />
+        </div>
+      </div>
+      <button class="btn btn-green" onclick="saveTTPost()">Add TikTok Post</button>
+    </div>
+
+    <!-- Instagram Account Stats -->
+    <div class="dash-card">
+      <div class="platform-header">
+        <div class="platform-title">
+          <div class="platform-icon instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="white" stroke-width="2"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="white" stroke-width="2"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          Instagram Account Stats
+        </div>
+        <span class="badge badge-water">Manual from Instagram Insights</span>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label class="field-label">Date</label>
+          <input type="date" class="dash-input" id="ig-date" />
+        </div>
+        <div>
+          <label class="field-label">Followers</label>
+          <input type="number" class="dash-input" id="ig-followers" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Reach (period)</label>
+          <input type="number" class="dash-input" id="ig-reach" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Impressions (period)</label>
+          <input type="number" class="dash-input" id="ig-impressions" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Profile Visits</label>
+          <input type="number" class="dash-input" id="ig-profile-visits" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Link Clicks</label>
+          <input type="number" class="dash-input" id="ig-link-clicks" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">New Followers</label>
+          <input type="number" class="dash-input" id="ig-new-followers" placeholder="0" />
+        </div>
+        <div>
+          <label class="field-label">Total Posts</label>
+          <input type="number" class="dash-input" id="ig-total-posts" placeholder="0" min="0" />
+        </div>
+      </div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+        <button class="btn btn-green" onclick="saveIGStats()">Save Instagram Stats</button>
+        <button class="btn btn-outline" onclick="syncToSheets('instagram')">&#9654; Sync to Sheets</button>
+        <button class="btn btn-outline" onclick="exportCSV('instagram')">&#8595; Export CSV</button>
+      </div>
+    </div>
+
+    <!-- Instagram Post Logger -->
+    <div class="dash-card">
+      <div class="dash-card-title">Log Instagram Post</div>
+      <div class="form-grid">
+        <div>
+          <label class="field-label">Post Date</label>
+          <input type="date" class="dash-input" id="ig-post-date" />
+        </div>
+        <div>
+          <label class="field-label">Type</label>
+          <select class="dash-select" id="ig-post-type">
+            <option value="Reel">Reel</option>
+            <option value="Post">Post</option>
+            <option value="Story">Story</option>
+            <option value="Carousel">Carousel</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Caption / Title</label>
+          <input type="text" class="dash-input" id="ig-post-caption" placeholder="Post caption" />
+        </div>
+        <div>
+          <label class="field-label">Reach</label>
+          <input type="number" class="dash-input" id="ig-post-reach" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Impressions</label>
+          <input type="number" class="dash-input" id="ig-post-impressions" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Likes</label>
+          <input type="number" class="dash-input" id="ig-post-likes" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Comments</label>
+          <input type="number" class="dash-input" id="ig-post-comments" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Saves</label>
+          <input type="number" class="dash-input" id="ig-post-saves" placeholder="0" min="0" />
+        </div>
+        <div>
+          <label class="field-label">Post URL (optional)</label>
+          <input type="url" class="dash-input" id="ig-post-url" placeholder="https://instagram.com/…" />
+        </div>
+      </div>
+      <button class="btn btn-green" onclick="saveIGPost()">Add Instagram Post</button>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid-2">
+      <div class="dash-card">
+        <div class="dash-card-title">Followers Growth</div>
+        <div class="chart-wrap"><canvas id="chart-followers"></canvas></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">TikTok Post Performance</div>
+        <div class="chart-wrap"><canvas id="chart-tt-posts"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Post Logs Table -->
+    <div class="dash-card">
+      <div class="dash-card-title">Post Log</div>
+      <div style="overflow-x:auto">
+        <table class="dash-table" id="posts-table">
+          <thead>
+            <tr>
+              <th>Date</th><th>Platform</th><th>Type</th><th>Caption</th>
+              <th>Views/Reach</th><th>Likes</th><th>Comments</th><th>Saves/Shares</th><th>Link</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="posts-tbody"></tbody>
+        </table>
+        <div id="posts-empty" class="empty-state"><p>No posts logged yet.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+       TAB 4: WAITLIST & ID VERIFY
+  ───────────────────────────────────────── -->
+  <div class="tab-panel" id="tab-waitlist">
+    <div class="dash-card">
+      <div class="dash-card-title">Waitlist Signups <span class="badge badge-green">Live from Supabase</span></div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem">
+        <button class="btn btn-green" onclick="loadWaitlist()">&#8635; Refresh</button>
+        <button class="btn btn-outline" onclick="syncToSheets('waitlist')">&#9654; Sync to Sheets</button>
+        <button class="btn btn-outline" onclick="exportCSV('waitlist')">&#8595; Export CSV</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="dash-table" id="waitlist-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Name</th><th>Email</th><th>Phone</th>
+              <th>Location</th><th>Signed Up</th><th>ID Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="waitlist-tbody"></tbody>
+        </table>
+        <div id="waitlist-loading" style="text-align:center;padding:2rem;color:var(--faint);display:none">Loading…</div>
+        <div id="waitlist-empty" class="empty-state"><p>Click Refresh to load waitlist data from Supabase.</p></div>
+      </div>
+    </div>
+
+    <!-- ID Verification Tracker -->
+    <div class="dash-card">
+      <div class="dash-card-title">ID Verification Tracker <span class="badge badge-amber">Manual</span></div>
+      <p style="font-size:.83rem;color:var(--muted);margin-bottom:1rem">Track driver's license verification status per landowner. Update status after reviewing uploaded IDs.</p>
+      <div class="form-grid">
+        <div>
+          <label class="field-label">Email / User ID</label>
+          <input type="text" class="dash-input" id="idv-email" placeholder="landowner@email.com" />
+        </div>
+        <div>
+          <label class="field-label">Full Name</label>
+          <input type="text" class="dash-input" id="idv-name" placeholder="First Last" />
+        </div>
+        <div>
+          <label class="field-label">Listing ID (optional)</label>
+          <input type="text" class="dash-input" id="idv-listing" placeholder="UUID or short ID" />
+        </div>
+        <div>
+          <label class="field-label">Status</label>
+          <select class="dash-select" id="idv-status">
+            <option value="pending">Pending</option>
+            <option value="verified">Verified</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Notes</label>
+          <input type="text" class="dash-input" id="idv-notes" placeholder="Optional notes" />
+        </div>
+      </div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+        <button class="btn btn-green" onclick="saveIDVerify()">Save Verification</button>
+        <button class="btn btn-outline" onclick="syncToSheets('idverify')">&#9654; Sync to Sheets</button>
+        <button class="btn btn-outline" onclick="exportCSV('idverify')">&#8595; Export CSV</button>
+      </div>
+    </div>
+
+    <!-- ID Verify Table -->
+    <div class="dash-card">
+      <div class="dash-card-title">Verification Log</div>
+      <div style="overflow-x:auto">
+        <table class="dash-table" id="idverify-table">
+          <thead>
+            <tr><th>Email</th><th>Name</th><th>Listing ID</th><th>Status</th><th>Date</th><th>Notes</th><th></th></tr>
+          </thead>
+          <tbody id="idverify-tbody"></tbody>
+        </table>
+        <div id="idverify-empty" class="empty-state"><p>No ID verifications logged yet.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════
+var DASHBOARD_PASSWORD = 'leasewild2026';
+var SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxivcs1-B2GaVjf-iecUvzyDdduxxLHbD1azSqDIvikyzKBvtMeS9FZt507gkTQSUDQ/exec';
+var SB_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
+
+// ═══════════════════════════════════════════
+//  LOCAL STORAGE KEYS
+// ═══════════════════════════════════════════
+var LS = {
+  auth: 'lw_dash_auth',
+  analytics: 'lw_analytics',
+  ttStats: 'lw_tt_stats',
+  ttPosts: 'lw_tt_posts',
+  igStats: 'lw_ig_stats',
+  igPosts: 'lw_ig_posts',
+  idVerify: 'lw_id_verify',
+  waitlist: 'lw_waitlist_cache'
+};
+
+function lsGet(key){ try{ return JSON.parse(localStorage.getItem(key)||'null'); }catch(e){return null;} }
+function lsSet(key,val){ try{ localStorage.setItem(key,JSON.stringify(val)); }catch(e){} }
+
+// ═══════════════════════════════════════════
+//  LOGIN / LOGOUT
+// ═══════════════════════════════════════════
+function doLogin(e) {
+  e.preventDefault();
+  var pw = document.getElementById('gate-pw').value;
+  if (pw === DASHBOARD_PASSWORD) {
+    lsSet(LS.auth, {auth: true, ts: Date.now()});
+    showApp();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('gate-pw').value = '';
+    document.getElementById('gate-pw').focus();
+  }
+}
+function doLogout() {
+  lsSet(LS.auth, null);
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-gate').style.display = 'flex';
+}
+function showApp() {
+  document.getElementById('login-gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  init();
+}
+// Auto-login if session valid (24h)
+(function checkAuth(){
+  var a = lsGet(LS.auth);
+  if (a && a.auth && (Date.now() - a.ts) < 86400000) { showApp(); }
+})();
+
+// ═══════════════════════════════════════════
+//  DATE
+// ═══════════════════════════════════════════
+function setDate() {
+  var el = document.getElementById('topbar-date');
+  if (!el) return;
+  el.textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+}
+// Pre-fill today's date in date inputs
+function prefillDates() {
+  var today = new Date().toISOString().split('T')[0];
+  ['tt-date','ig-date','tt-post-date','ig-post-date'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el && !el.value) el.value = today;
+  });
+}
+
+// ═══════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════
+var _toastTimer;
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2800);
+}
+
+// ═══════════════════════════════════════════
+//  SYNC BANNER
+// ═══════════════════════════════════════════
+function showSyncBanner() {
+  var b = document.getElementById('sync-banner');
+  b.style.display = 'flex';
+  setTimeout(function(){ b.style.display = 'none'; }, 4000);
+}
+
+// ═══════════════════════════════════════════
+//  ANALYTICS
+// ═══════════════════════════════════════════
+function getAnalytics(){ return lsGet(LS.analytics) || []; }
+function saveAnalytics() {
+  var entry = {
+    id: Date.now(),
+    savedAt: new Date().toISOString(),
+    period:      document.getElementById('an-period').value.trim() || '—',
+    pageviews:   parseInt(document.getElementById('an-pageviews').value)||0,
+    visitors:    parseInt(document.getElementById('an-visitors').value)||0,
+    newusers:    parseInt(document.getElementById('an-newusers').value)||0,
+    duration:    parseInt(document.getElementById('an-duration').value)||0,
+    bounce:      parseFloat(document.getElementById('an-bounce').value)||0,
+    impressions: parseInt(document.getElementById('an-impressions').value)||0,
+    clicks:      parseInt(document.getElementById('an-clicks').value)||0,
+    position:    parseFloat(document.getElementById('an-position').value)||0,
+    conversions: parseInt(document.getElementById('an-conversions').value)||0
+  };
+  var list = getAnalytics();
+  list.push(entry);
+  lsSet(LS.analytics, list);
+  renderAnalyticsTable();
+  renderAnalyticsCharts();
+  updateOverviewKPIs();
+  logActivity('Website analytics saved for ' + entry.period);
+  toast('Analytics entry saved');
+  // Clear form
+  ['an-period','an-pageviews','an-visitors','an-newusers','an-duration','an-bounce','an-impressions','an-clicks','an-position','an-conversions'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+function deleteAnalytics(id) {
+  var list = getAnalytics().filter(function(r){ return r.id !== id; });
+  lsSet(LS.analytics, list);
+  renderAnalyticsTable();
+  renderAnalyticsCharts();
+  toast('Entry deleted');
+}
+function renderAnalyticsTable() {
+  var list = getAnalytics();
+  var tbody = document.getElementById('analytics-tbody');
+  var empty = document.getElementById('analytics-empty');
+  if (!list.length){ tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  tbody.innerHTML = list.slice().reverse().map(function(r){
+    return '<tr>' +
+      '<td><strong>'+escH(r.period)+'</strong></td>' +
+      '<td>'+r.pageviews.toLocaleString()+'</td>' +
+      '<td>'+r.visitors.toLocaleString()+'</td>' +
+      '<td>'+r.newusers.toLocaleString()+'</td>' +
+      '<td>'+fmtSecs(r.duration)+'</td>' +
+      '<td>'+r.bounce+'%</td>' +
+      '<td>'+r.impressions.toLocaleString()+'</td>' +
+      '<td>'+r.clicks.toLocaleString()+'</td>' +
+      '<td>'+(r.position||'—')+'</td>' +
+      '<td>'+r.conversions+'</td>' +
+      '<td><button class="btn btn-outline btn-sm btn-red" onclick="deleteAnalytics('+r.id+')">&#10005;</button></td>' +
+    '</tr>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+//  TIKTOK STATS
+// ═══════════════════════════════════════════
+function getTTStats(){ return lsGet(LS.ttStats) || []; }
+function saveTTStats() {
+  var entry = {
+    id: Date.now(),
+    date: document.getElementById('tt-date').value || new Date().toISOString().split('T')[0],
+    followers:    parseInt(document.getElementById('tt-followers').value)||0,
+    profileViews: parseInt(document.getElementById('tt-profile-views').value)||0,
+    videoViews:   parseInt(document.getElementById('tt-video-views').value)||0,
+    likes:        parseInt(document.getElementById('tt-likes').value)||0,
+    comments:     parseInt(document.getElementById('tt-comments').value)||0,
+    shares:       parseInt(document.getElementById('tt-shares').value)||0,
+    newFollowers: parseInt(document.getElementById('tt-new-followers').value)||0
+  };
+  var list = getTTStats();
+  list.push(entry);
+  lsSet(LS.ttStats, list);
+  renderSocialCharts();
+  updateOverviewKPIs();
+  logActivity('TikTok stats logged — ' + entry.followers.toLocaleString() + ' followers');
+  toast('TikTok stats saved');
+  ['tt-followers','tt-profile-views','tt-video-views','tt-likes','tt-comments','tt-shares','tt-new-followers'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+
+// ═══════════════════════════════════════════
+//  TIKTOK POSTS
+// ═══════════════════════════════════════════
+function getTTPosts(){ return lsGet(LS.ttPosts) || []; }
+function saveTTPost() {
+  var entry = {
+    id: Date.now(),
+    platform: 'TikTok',
+    type: 'Video',
+    date: document.getElementById('tt-post-date').value || new Date().toISOString().split('T')[0],
+    caption: document.getElementById('tt-post-caption').value.trim() || '—',
+    reach:    parseInt(document.getElementById('tt-post-views').value)||0,
+    likes:    parseInt(document.getElementById('tt-post-likes').value)||0,
+    comments: parseInt(document.getElementById('tt-post-comments').value)||0,
+    saves:    parseInt(document.getElementById('tt-post-saves').value)||0,
+    shares:   parseInt(document.getElementById('tt-post-shares').value)||0,
+    url:      document.getElementById('tt-post-url').value.trim() || ''
+  };
+  var list = getTTPosts();
+  list.push(entry);
+  lsSet(LS.ttPosts, list);
+  renderPostsTable();
+  renderSocialCharts();
+  updateOverviewKPIs();
+  logActivity('TikTok post logged: ' + entry.caption.substring(0,40));
+  toast('TikTok post added');
+  ['tt-post-caption','tt-post-views','tt-post-likes','tt-post-comments','tt-post-saves','tt-post-shares','tt-post-url'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+
+// ═══════════════════════════════════════════
+//  INSTAGRAM STATS
+// ═══════════════════════════════════════════
+function getIGStats(){ return lsGet(LS.igStats) || []; }
+function saveIGStats() {
+  var entry = {
+    id: Date.now(),
+    date: document.getElementById('ig-date').value || new Date().toISOString().split('T')[0],
+    followers:    parseInt(document.getElementById('ig-followers').value)||0,
+    reach:        parseInt(document.getElementById('ig-reach').value)||0,
+    impressions:  parseInt(document.getElementById('ig-impressions').value)||0,
+    profileVisits:parseInt(document.getElementById('ig-profile-visits').value)||0,
+    linkClicks:   parseInt(document.getElementById('ig-link-clicks').value)||0,
+    newFollowers: parseInt(document.getElementById('ig-new-followers').value)||0,
+    totalPosts:   parseInt(document.getElementById('ig-total-posts').value)||0
+  };
+  var list = getIGStats();
+  list.push(entry);
+  lsSet(LS.igStats, list);
+  renderSocialCharts();
+  updateOverviewKPIs();
+  logActivity('Instagram stats logged — ' + entry.followers.toLocaleString() + ' followers');
+  toast('Instagram stats saved');
+  ['ig-followers','ig-reach','ig-impressions','ig-profile-visits','ig-link-clicks','ig-new-followers','ig-total-posts'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+
+// ═══════════════════════════════════════════
+//  INSTAGRAM POSTS
+// ═══════════════════════════════════════════
+function getIGPosts(){ return lsGet(LS.igPosts) || []; }
+function saveIGPost() {
+  var entry = {
+    id: Date.now(),
+    platform: 'Instagram',
+    type: document.getElementById('ig-post-type').value,
+    date: document.getElementById('ig-post-date').value || new Date().toISOString().split('T')[0],
+    caption: document.getElementById('ig-post-caption').value.trim() || '—',
+    reach:    parseInt(document.getElementById('ig-post-reach').value)||0,
+    likes:    parseInt(document.getElementById('ig-post-likes').value)||0,
+    comments: parseInt(document.getElementById('ig-post-comments').value)||0,
+    saves:    parseInt(document.getElementById('ig-post-saves').value)||0,
+    shares:   0,
+    url:      document.getElementById('ig-post-url').value.trim() || '',
+    impressions: parseInt(document.getElementById('ig-post-impressions').value)||0
+  };
+  var list = getIGPosts();
+  list.push(entry);
+  lsSet(LS.igPosts, list);
+  renderPostsTable();
+  renderSocialCharts();
+  updateOverviewKPIs();
+  logActivity('Instagram post logged: ' + entry.caption.substring(0,40));
+  toast('Instagram post added');
+  ['ig-post-caption','ig-post-reach','ig-post-impressions','ig-post-likes','ig-post-comments','ig-post-saves','ig-post-url'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+
+// ═══════════════════════════════════════════
+//  POSTS TABLE
+// ═══════════════════════════════════════════
+function renderPostsTable() {
+  var all = [].concat(getTTPosts(), getIGPosts()).sort(function(a,b){ return b.date.localeCompare(a.date); });
+  var tbody = document.getElementById('posts-tbody');
+  var empty = document.getElementById('posts-empty');
+  if (!all.length){ tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  tbody.innerHTML = all.map(function(r){
+    var isTT = r.platform === 'TikTok';
+    var badge = isTT
+      ? '<span class="pill pill-amber">TikTok</span>'
+      : '<span class="pill pill-water">Instagram</span>';
+    var shareOrSave = isTT ? (r.shares||0) : (r.saves||0);
+    var shareLabel = isTT ? 'Shares' : 'Saves';
+    return '<tr>' +
+      '<td>'+r.date+'</td>' +
+      '<td>'+badge+'</td>' +
+      '<td><span class="pill" style="background:var(--divider);color:var(--muted)">'+escH(r.type)+'</span></td>' +
+      '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escH(r.caption)+'</td>' +
+      '<td>'+r.reach.toLocaleString()+'</td>' +
+      '<td>'+r.likes.toLocaleString()+'</td>' +
+      '<td>'+r.comments+'</td>' +
+      '<td>'+shareOrSave+'</td>' +
+      '<td>'+(r.url?'<a href="'+escH(r.url)+'" target="_blank" style="color:var(--water)">View</a>':'—')+'</td>' +
+      '<td><button class="btn btn-outline btn-sm btn-red" onclick="deletePost('+r.id+',\''+r.platform+'\')">&#10005;</button></td>' +
+    '</tr>';
+  }).join('');
+}
+function deletePost(id, platform) {
+  if (platform === 'TikTok') {
+    lsSet(LS.ttPosts, getTTPosts().filter(function(r){ return r.id !== id; }));
+  } else {
+    lsSet(LS.igPosts, getIGPosts().filter(function(r){ return r.id !== id; }));
+  }
+  renderPostsTable(); renderSocialCharts(); updateOverviewKPIs();
+  toast('Post removed');
+}
+
+// ═══════════════════════════════════════════
+//  ID VERIFICATION
+// ═══════════════════════════════════════════
+function getIDVerify(){ return lsGet(LS.idVerify) || []; }
+function saveIDVerify() {
+  var email = document.getElementById('idv-email').value.trim();
+  if (!email){ toast('Email is required'); return; }
+  var entry = {
+    id: Date.now(),
+    email: email,
+    name: document.getElementById('idv-name').value.trim() || '—',
+    listingId: document.getElementById('idv-listing').value.trim() || '—',
+    status: document.getElementById('idv-status').value,
+    notes: document.getElementById('idv-notes').value.trim() || '',
+    date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
+  };
+  var list = getIDVerify();
+  // Upsert by email
+  var idx = list.findIndex(function(r){ return r.email.toLowerCase() === email.toLowerCase(); });
+  if (idx >= 0) list[idx] = entry; else list.push(entry);
+  lsSet(LS.idVerify, list);
+  renderIDVerifyTable();
+  logActivity('ID verification updated: ' + email + ' → ' + entry.status);
+  toast('Verification saved');
+  ['idv-email','idv-name','idv-listing','idv-notes'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('idv-status').value = 'pending';
+}
+function renderIDVerifyTable() {
+  var list = getIDVerify();
+  var tbody = document.getElementById('idverify-tbody');
+  var empty = document.getElementById('idverify-empty');
+  if (!list.length){ tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  tbody.innerHTML = list.slice().reverse().map(function(r){
+    var sc = r.status === 'verified' ? 'id-verified' : r.status === 'rejected' ? 'id-rejected' : 'id-pending';
+    var label = r.status.charAt(0).toUpperCase() + r.status.slice(1);
+    return '<tr>' +
+      '<td><strong>'+escH(r.email)+'</strong></td>' +
+      '<td>'+escH(r.name)+'</td>' +
+      '<td style="font-size:.78rem;color:var(--faint)">'+escH(r.listingId)+'</td>' +
+      '<td><span class="id-status-badge '+sc+'">'+label+'</span></td>' +
+      '<td>'+escH(r.date)+'</td>' +
+      '<td style="font-size:.82rem;color:var(--muted)">'+escH(r.notes)+'</td>' +
+      '<td><button class="btn btn-outline btn-sm btn-red" onclick="deleteIDVerify('+r.id+')">&#10005;</button></td>' +
+    '</tr>';
+  }).join('');
+}
+function deleteIDVerify(id) {
+  lsSet(LS.idVerify, getIDVerify().filter(function(r){ return r.id !== id; }));
+  renderIDVerifyTable(); toast('Record removed');
+}
+
+// ═══════════════════════════════════════════
+//  WAITLIST (from Supabase bookings table)
+// ═══════════════════════════════════════════
+async function loadWaitlist() {
+  var loading = document.getElementById('waitlist-loading');
+  var empty = document.getElementById('waitlist-empty');
+  var tbody = document.getElementById('waitlist-tbody');
+  loading.style.display = 'block';
+  empty.style.display = 'none';
+  tbody.innerHTML = '';
+  try {
+    var res = await fetch(SB_URL + '/rest/v1/bookings?status=eq.pre_reserved&order=created_at.desc&limit=200', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    var data = await res.json();
+    loading.style.display = 'none';
+    if (!Array.isArray(data) || !data.length) {
+      empty.style.display = 'block';
+      empty.querySelector('p').textContent = 'No waitlist entries found.';
+      return;
+    }
+    // Cache
+    lsSet(LS.waitlist, data);
+    renderWaitlistTable(data);
+    document.getElementById('kpi-waitlist').textContent = data.length;
+    toast(data.length + ' waitlist entries loaded');
+  } catch(err) {
+    loading.style.display = 'none';
+    empty.style.display = 'block';
+    empty.querySelector('p').textContent = 'Could not load waitlist. Check connection.';
+    console.warn('Waitlist load failed:', err);
+  }
+}
+
+function renderWaitlistTable(data) {
+  var idVerifyMap = {};
+  getIDVerify().forEach(function(r){ idVerifyMap[r.email.toLowerCase()] = r.status; });
+  var tbody = document.getElementById('waitlist-tbody');
+  var empty = document.getElementById('waitlist-empty');
+  if (!data || !data.length){ empty.style.display='block'; return; }
+  empty.style.display='none';
+  tbody.innerHTML = data.map(function(r, i){
+    var email = (r.guest_email || r.email || '—').toLowerCase();
+    var idStatus = idVerifyMap[email] || '—';
+    var idBadge = idStatus === 'verified'
+      ? '<span class="id-status-badge id-verified">Verified</span>'
+      : idStatus === 'rejected'
+      ? '<span class="id-status-badge id-rejected">Rejected</span>'
+      : idStatus === 'pending'
+      ? '<span class="id-status-badge id-pending">Pending</span>'
+      : '<span style="color:var(--faint);font-size:.78rem">—</span>';
+    var ts = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+    var name = [r.first_name || r.guest_first_name, r.last_name || r.guest_last_name].filter(Boolean).join(' ') || '—';
+    return '<tr>' +
+      '<td style="color:var(--faint);font-size:.78rem">'+(i+1)+'</td>' +
+      '<td><strong>'+escH(name)+'</strong></td>' +
+      '<td>'+escH(r.guest_email||r.email||'—')+'</td>' +
+      '<td>'+escH(r.guest_phone||r.phone||'—')+'</td>' +
+      '<td>'+escH(r.location||r.county||'—')+'</td>' +
+      '<td>'+ts+'</td>' +
+      '<td>'+idBadge+'</td>' +
+      '<td>' +
+        '<button class="btn btn-outline btn-sm" onclick="prefillIDVerify(\''+escH(r.guest_email||r.email||'')+'\')" style="font-size:.72rem">Verify ID</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function prefillIDVerify(email) {
+  switchTab('waitlist', document.querySelector('.tab:last-child'));
+  document.getElementById('idv-email').value = email;
+  document.getElementById('idv-status').value = 'pending';
+  document.getElementById('idv-email').scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('idv-email').focus();
+}
+
+// ═══════════════════════════════════════════
+//  SYNC TO GOOGLE SHEETS
+// ═══════════════════════════════════════════
+async function syncToSheets(type) {
+  var data, sheetName;
+  if (type === 'analytics') { data = getAnalytics(); sheetName = 'WebAnalytics'; }
+  else if (type === 'tiktok') { data = getTTStats(); sheetName = 'TikTokStats'; }
+  else if (type === 'instagram') { data = getIGStats(); sheetName = 'InstagramStats'; }
+  else if (type === 'waitlist') {
+    data = lsGet(LS.waitlist) || [];
+    sheetName = 'Waitlist';
+    if (!data.length){ toast('Load waitlist first'); return; }
+  }
+  else if (type === 'idverify') { data = getIDVerify(); sheetName = 'IDVerify'; }
+  else return;
+
+  if (!data || !data.length){ toast('No data to sync'); return; }
+
+  toast('Syncing to Google Sheets…');
+  try {
+    var payload = { action: 'bulkAppend', sheet: sheetName, rows: data };
+    await fetch(SHEETS_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)), { method: 'GET', mode: 'no-cors' });
+    showSyncBanner();
+    toast('Synced to Sheets (' + data.length + ' rows)');
+    logActivity('Synced "' + sheetName + '" to Google Sheets');
+  } catch(err) {
+    toast('Sync failed — check console');
+    console.warn('Sheets sync error:', err);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  CSV EXPORT
+// ═══════════════════════════════════════════
+function exportCSV(type) {
+  var data, filename;
+  if (type === 'analytics') { data = getAnalytics(); filename = 'leasewild-analytics.csv'; }
+  else if (type === 'tiktok') { data = getTTStats(); filename = 'leasewild-tiktok-stats.csv'; }
+  else if (type === 'instagram') { data = getIGStats(); filename = 'leasewild-instagram-stats.csv'; }
+  else if (type === 'waitlist') { data = lsGet(LS.waitlist) || []; filename = 'leasewild-waitlist.csv'; }
+  else if (type === 'idverify') { data = getIDVerify(); filename = 'leasewild-id-verify.csv'; }
+  if (!data || !data.length){ toast('No data to export'); return; }
+  var keys = Object.keys(data[0]);
+  var csv = [keys.join(',')].concat(data.map(function(r){
+    return keys.map(function(k){
+      var v = r[k] === null || r[k] === undefined ? '' : String(r[k]);
+      return '"' + v.replace(/"/g,'""') + '"';
+    }).join(',');
+  })).join('\n');
+  var blob = new Blob([csv], {type:'text/csv'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  toast('CSV downloaded');
+}
+
+// ═══════════════════════════════════════════
+//  SUPABASE — LIVE LISTING COUNT
+// ═══════════════════════════════════════════
+async function loadListingCount() {
+  try {
+    var res = await fetch(SB_URL + '/rest/v1/listings?status=eq.active&select=id', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'count=exact' }
+    });
+    var countHeader = res.headers.get('content-range');
+    var data = await res.json();
+    var count = Array.isArray(data) ? data.length : 0;
+    document.getElementById('kpi-listings').textContent = count;
+  } catch(e) { console.warn('Listing count failed', e); }
+}
+
+// ═══════════════════════════════════════════
+//  OVERVIEW KPIs
+// ═══════════════════════════════════════════
+function updateOverviewKPIs() {
+  // TikTok followers — latest entry
+  var ttStats = getTTStats();
+  if (ttStats.length) {
+    document.getElementById('kpi-tt-followers').textContent = ttStats[ttStats.length-1].followers.toLocaleString();
+  }
+  // IG followers — latest entry
+  var igStats = getIGStats();
+  if (igStats.length) {
+    document.getElementById('kpi-ig-followers').textContent = igStats[igStats.length-1].followers.toLocaleString();
+  }
+  // Visitors — latest analytics entry
+  var an = getAnalytics();
+  if (an.length) {
+    document.getElementById('kpi-visitors').textContent = an[an.length-1].visitors.toLocaleString();
+  }
+  // Total posts
+  var totalPosts = getTTPosts().length + getIGPosts().length;
+  document.getElementById('kpi-posts').textContent = totalPosts;
+  // Waitlist from cache
+  var wl = lsGet(LS.waitlist);
+  if (wl && wl.length) document.getElementById('kpi-waitlist').textContent = wl.length;
+}
+
+// ═══════════════════════════════════════════
+//  RECENT ACTIVITY LOG
+// ═══════════════════════════════════════════
+var _activityLog = [];
+function logActivity(msg) {
+  _activityLog.unshift({ ts: new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}), msg: msg });
+  if (_activityLog.length > 20) _activityLog = _activityLog.slice(0,20);
+  renderActivity();
+}
+function renderActivity() {
+  var el = document.getElementById('recent-activity');
+  if (!el) return;
+  if (!_activityLog.length) return;
+  el.innerHTML = _activityLog.map(function(a){
+    return '<div style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--divider)">' +
+      '<span style="font-size:.75rem;color:var(--faint);white-space:nowrap">'+a.ts+'</span>' +
+      '<span style="font-size:.85rem;color:var(--text)">'+escH(a.msg)+'</span>' +
+    '</div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+//  CHARTS
+// ═══════════════════════════════════════════
+var _charts = {};
+function destroyChart(id) { if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; } }
+var GREEN = '#2d5a27', AMBER = '#c17f3a', WATER = '#1a6b7a';
+var GRID_COLOR = 'rgba(0,0,0,.06)';
+function baseOpts(title) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, labels: { font: { family: 'Barlow', size: 12 }, color: '#6b6656' } },
+      title: { display: false }
+    },
+    scales: {
+      x: { grid: { color: GRID_COLOR }, ticks: { font: { family: 'Barlow', size: 11 }, color: '#9a9888' } },
+      y: { grid: { color: GRID_COLOR }, ticks: { font: { family: 'Barlow', size: 11 }, color: '#9a9888' } }
+    }
+  };
+}
+function renderAnalyticsCharts() {
+  var list = getAnalytics();
+  var labels = list.map(function(r){ return r.period; });
+  // Page Views chart
+  destroyChart('chart-pageviews');
+  var ctx1 = document.getElementById('chart-pageviews');
+  if (ctx1) {
+    _charts['chart-pageviews'] = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'Page Views', data: list.map(function(r){return r.pageviews;}), backgroundColor: GREEN+'bb', borderColor: GREEN, borderWidth: 1.5, borderRadius: 4 },
+          { label: 'Unique Visitors', data: list.map(function(r){return r.visitors;}), backgroundColor: AMBER+'88', borderColor: AMBER, borderWidth: 1.5, borderRadius: 4 }
+        ]
+      },
+      options: baseOpts()
+    });
+  }
+  // Search Console chart
+  destroyChart('chart-search');
+  var ctx2 = document.getElementById('chart-search');
+  if (ctx2) {
+    _charts['chart-search'] = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'Impressions', data: list.map(function(r){return r.impressions;}), borderColor: WATER, backgroundColor: WATER+'22', fill: true, tension: .3, pointRadius: 4 },
+          { label: 'Clicks', data: list.map(function(r){return r.clicks;}), borderColor: AMBER, backgroundColor: AMBER+'22', fill: true, tension: .3, pointRadius: 4 }
+        ]
+      },
+      options: baseOpts()
+    });
+  }
+}
+function renderSocialCharts() {
+  // Followers growth
+  var ttStats = getTTStats().sort(function(a,b){return a.date.localeCompare(b.date);});
+  var igStats = getIGStats().sort(function(a,b){return a.date.localeCompare(b.date);});
+  var labels = [];
+  var allDates = ttStats.map(function(r){return r.date;}).concat(igStats.map(function(r){return r.date;}));
+  labels = [...new Set(allDates)].sort();
+
+  destroyChart('chart-followers');
+  var ctx1 = document.getElementById('chart-followers');
+  if (ctx1) {
+    var ttFollMap = {}; ttStats.forEach(function(r){ ttFollMap[r.date]=r.followers; });
+    var igFollMap = {}; igStats.forEach(function(r){ igFollMap[r.date]=r.followers; });
+    _charts['chart-followers'] = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'TikTok Followers', data: labels.map(function(d){ return ttFollMap[d]||null; }), borderColor: AMBER, backgroundColor: AMBER+'22', fill: true, tension: .3, pointRadius: 4, spanGaps: true },
+          { label: 'Instagram Followers', data: labels.map(function(d){ return igFollMap[d]||null; }), borderColor: WATER, backgroundColor: WATER+'22', fill: true, tension: .3, pointRadius: 4, spanGaps: true }
+        ]
+      },
+      options: baseOpts()
+    });
+  }
+
+  // TikTok post performance
+  var ttPosts = getTTPosts().sort(function(a,b){return a.date.localeCompare(b.date);}).slice(-10);
+  destroyChart('chart-tt-posts');
+  var ctx2 = document.getElementById('chart-tt-posts');
+  if (ctx2 && ttPosts.length) {
+    _charts['chart-tt-posts'] = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: ttPosts.map(function(r){ return r.caption.substring(0,20)+(r.caption.length>20?'…':''); }),
+        datasets: [
+          { label: 'Views', data: ttPosts.map(function(r){return r.reach;}), backgroundColor: AMBER+'bb', borderRadius: 4 },
+          { label: 'Likes', data: ttPosts.map(function(r){return r.likes;}), backgroundColor: GREEN+'aa', borderRadius: 4 }
+        ]
+      },
+      options: Object.assign({}, baseOpts(), { indexAxis: 'y' })
+    });
+  }
+
+  // Overview social chart
+  destroyChart('chart-social-overview');
+  var ctx3 = document.getElementById('chart-social-overview');
+  if (ctx3) {
+    _charts['chart-social-overview'] = new Chart(ctx3, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'TikTok', data: labels.map(function(d){ return ttFollMap && ttFollMap[d]||null; }), borderColor: AMBER, tension: .3, pointRadius: 4, spanGaps: true },
+          { label: 'Instagram', data: labels.map(function(d){ return igFollMap && igFollMap[d]||null; }), borderColor: WATER, tension: .3, pointRadius: 4, spanGaps: true }
+        ]
+      },
+      options: baseOpts()
+    });
+  }
+}
+function renderWaitlistChart() {
+  var wl = lsGet(LS.waitlist) || [];
+  // Group by week
+  var byDay = {};
+  wl.forEach(function(r){
+    if (!r.created_at) return;
+    var d = r.created_at.split('T')[0];
+    byDay[d] = (byDay[d]||0)+1;
+  });
+  var days = Object.keys(byDay).sort().slice(-14);
+  destroyChart('chart-waitlist');
+  var ctx = document.getElementById('chart-waitlist');
+  if (!ctx) return;
+  _charts['chart-waitlist'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: days,
+      datasets: [{ label: 'New Signups', data: days.map(function(d){return byDay[d];}), backgroundColor: GREEN+'bb', borderColor: GREEN, borderWidth: 1.5, borderRadius: 4 }]
+    },
+    options: baseOpts()
+  });
+}
+
+// ═══════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════
+function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtSecs(s){ if (!s) return '—'; var m=Math.floor(s/60),sec=s%60; return m+'m '+(sec<10?'0':'')+sec+'s'; }
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+function init() {
+  setDate();
+  prefillDates();
+  loadListingCount();
+  renderAnalyticsTable();
+  renderAnalyticsCharts();
+  renderPostsTable();
+  renderSocialCharts();
+  renderIDVerifyTable();
+  renderWaitlistChart();
+  updateOverviewKPIs();
+  // Restore cached waitlist if available
+  var wl = lsGet(LS.waitlist);
+  if (wl && wl.length) {
+    renderWaitlistTable(wl);
+    document.getElementById('waitlist-empty').style.display = 'none';
+    document.getElementById('kpi-waitlist').textContent = wl.length;
+  }
+}
+</script>
+</body>
+</html>

@@ -153,6 +153,15 @@
     .checkbox-item:hover{border-color:var(--color-accent);background:var(--color-accent-light)}
     .checkbox-item input{width:16px;height:16px;accent-color:var(--color-accent);cursor:pointer}
     .checkbox-item.checked{border-color:var(--color-accent);background:var(--color-accent-light)}
+    .act-row{display:flex;flex-direction:column;gap:0}
+    #activity-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--space-3)}
+    .harvest-limit-row{display:flex;align-items:center;gap:.5rem;padding:.45rem .9rem .55rem;background:var(--color-surface-offset,#f5f2ed);border:1px solid var(--color-border);border-top:none;border-radius:0 0 var(--radius-md) var(--radius-md);animation:hl-in .18s ease}
+    @keyframes hl-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+    .hl-label{font-size:.72rem;font-weight:700;color:var(--color-text-muted);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+    .hl-input{width:62px;padding:.3rem .4rem;border:1.5px solid var(--color-border);border-radius:6px;font-size:.85rem;font-family:inherit;color:var(--color-text);background:var(--color-bg);text-align:center;outline:none}
+    .hl-input:focus{border-color:var(--color-accent)}
+    .act-row .checkbox-item{border-radius:var(--radius-md)}
+    .act-row:has(.harvest-limit-row[style*="block"]) .checkbox-item,.act-row:has(.harvest-limit-row:not([style*="none"])) .checkbox-item{border-radius:var(--radius-md) var(--radius-md) 0 0;border-bottom-color:transparent}
     .submit-btn{width:100%;padding:1rem 1.5rem;background:var(--color-accent);color:#fff;border:none;border-radius:var(--radius-full);font-size:var(--text-base);font-weight:800;cursor:pointer;transition:all var(--transition);margin-top:var(--space-6);letter-spacing:-.01em}
     .submit-btn:hover{background:var(--color-accent-hover);transform:translateY(-1px);box-shadow:var(--shadow-md)}
     .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
@@ -464,20 +473,20 @@
           <!-- WHAT'S AVAILABLE -->
           <div class="form-section">
             <p class="form-section-label">What's Available</p>
-            <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-4)">Select everything that applies to your property.</p>
-            <div class="checkbox-grid" id="activity-grid">
-              <label class="checkbox-item"><input type="checkbox" name="activities" value="Whitetail deer" /> Whitetail deer</label>
-              <label class="checkbox-item"><input type="checkbox" name="activities" value="Wild hog" /> Wild hog</label>
-              <label class="checkbox-item"><input type="checkbox" name="activities" value="Wild turkey" /> Wild turkey</label>
-              <label class="checkbox-item"><input type="checkbox" name="activities" value="Duck / waterfowl" /> Duck / waterfowl</label>
-              <label class="checkbox-item"><input type="checkbox" name="activities" value="Dove" /> Dove</label>
-              <label class="checkbox-item"><input type="checkbox" name="activities" value="Quail" /> Quail</label>
-              <label class="checkbox-item"><input type="checkbox" name="activities" value="Bass fishing" /> Bass fishing</label>
-              <label class="checkbox-item"><input type="checkbox" name="activities" value="Trout / fly fishing" /> Trout / fly fishing</label>
-              <label class="checkbox-item"><input type="checkbox" name="activities" value="Catfish pond" /> Catfish pond</label>
-              <label class="checkbox-item"><input type="checkbox" name="activities" value="Crappie / bream" /> Crappie / bream</label>
-              <label class="checkbox-item"><input type="checkbox" name="activities" value="Guided experience" /> Guided experience</label>
-              <label class="checkbox-item"><input type="checkbox" name="activities" value="Overnight / cabin" /> Overnight / cabin</label>
+            <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-4)">Select everything that applies to your property. Optionally set a max harvest limit per booking for each animal.</p>
+            <div id="activity-grid">
+              <div class="act-row"><label class="checkbox-item"><input type="checkbox" name="activities" value="Whitetail deer" onchange="toggleHarvestRow(this)" /> Whitetail deer</label><div class="harvest-limit-row" id="hl-Whitetail deer" style="display:none"><label class="hl-label">Max harvest / booking</label><input type="number" class="hl-input" data-animal="Whitetail deer" min="0" max="99" placeholder="No limit" /></div></div>
+              <div class="act-row"><label class="checkbox-item"><input type="checkbox" name="activities" value="Wild hog" onchange="toggleHarvestRow(this)" /> Wild hog</label><div class="harvest-limit-row" id="hl-Wild hog" style="display:none"><label class="hl-label">Max harvest / booking</label><input type="number" class="hl-input" data-animal="Wild hog" min="0" max="99" placeholder="No limit" /></div></div>
+              <div class="act-row"><label class="checkbox-item"><input type="checkbox" name="activities" value="Wild turkey" onchange="toggleHarvestRow(this)" /> Wild turkey</label><div class="harvest-limit-row" id="hl-Wild turkey" style="display:none"><label class="hl-label">Max harvest / booking</label><input type="number" class="hl-input" data-animal="Wild turkey" min="0" max="99" placeholder="No limit" /></div></div>
+              <div class="act-row"><label class="checkbox-item"><input type="checkbox" name="activities" value="Duck / waterfowl" onchange="toggleHarvestRow(this)" /> Duck / waterfowl</label><div class="harvest-limit-row" id="hl-Duck / waterfowl" style="display:none"><label class="hl-label">Max harvest / booking</label><input type="number" class="hl-input" data-animal="Duck / waterfowl" min="0" max="99" placeholder="No limit" /></div></div>
+              <div class="act-row"><label class="checkbox-item"><input type="checkbox" name="activities" value="Dove" onchange="toggleHarvestRow(this)" /> Dove</label><div class="harvest-limit-row" id="hl-Dove" style="display:none"><label class="hl-label">Max harvest / booking</label><input type="number" class="hl-input" data-animal="Dove" min="0" max="99" placeholder="No limit" /></div></div>
+              <div class="act-row"><label class="checkbox-item"><input type="checkbox" name="activities" value="Quail" onchange="toggleHarvestRow(this)" /> Quail</label><div class="harvest-limit-row" id="hl-Quail" style="display:none"><label class="hl-label">Max harvest / booking</label><input type="number" class="hl-input" data-animal="Quail" min="0" max="99" placeholder="No limit" /></div></div>
+              <div class="act-row"><label class="checkbox-item"><input type="checkbox" name="activities" value="Bass fishing" onchange="toggleHarvestRow(this)" /> Bass fishing</label><div class="harvest-limit-row" id="hl-Bass fishing" style="display:none"><label class="hl-label">Max harvest / booking</label><input type="number" class="hl-input" data-animal="Bass fishing" min="0" max="99" placeholder="No limit" /></div></div>
+              <div class="act-row"><label class="checkbox-item"><input type="checkbox" name="activities" value="Trout / fly fishing" onchange="toggleHarvestRow(this)" /> Trout / fly fishing</label><div class="harvest-limit-row" id="hl-Trout / fly fishing" style="display:none"><label class="hl-label">Max harvest / booking</label><input type="number" class="hl-input" data-animal="Trout / fly fishing" min="0" max="99" placeholder="No limit" /></div></div>
+              <div class="act-row"><label class="checkbox-item"><input type="checkbox" name="activities" value="Catfish pond" onchange="toggleHarvestRow(this)" /> Catfish pond</label><div class="harvest-limit-row" id="hl-Catfish pond" style="display:none"><label class="hl-label">Max harvest / booking</label><input type="number" class="hl-input" data-animal="Catfish pond" min="0" max="99" placeholder="No limit" /></div></div>
+              <div class="act-row"><label class="checkbox-item"><input type="checkbox" name="activities" value="Crappie / bream" onchange="toggleHarvestRow(this)" /> Crappie / bream</label><div class="harvest-limit-row" id="hl-Crappie / bream" style="display:none"><label class="hl-label">Max harvest / booking</label><input type="number" class="hl-input" data-animal="Crappie / bream" min="0" max="99" placeholder="No limit" /></div></div>
+              <div class="act-row"><label class="checkbox-item"><input type="checkbox" name="activities" value="Guided experience" onchange="toggleHarvestRow(this)" /> Guided experience</label></div>
+              <div class="act-row"><label class="checkbox-item"><input type="checkbox" name="activities" value="Overnight / cabin" onchange="toggleHarvestRow(this)" /> Overnight / cabin</label></div>
             </div>
 
             <!-- CUSTOM ANIMALS -->
@@ -791,6 +800,19 @@
     });
   });
 
+  // Harvest limit toggle — show/hide the limit input when an activity is checked
+  function toggleHarvestRow(cb) {
+    var animal = cb.value;
+    var rowId  = 'hl-' + animal;
+    var row    = document.getElementById(rowId);
+    if (!row) return; // activities without harvest tracking (e.g. Guided experience)
+    row.style.display = cb.checked ? 'flex' : 'none';
+    if (!cb.checked) {
+      var inp = row.querySelector('.hl-input');
+      if (inp) inp.value = '';
+    }
+  }
+
   // Earnings calculator
   var rateSlider=document.getElementById('rate-slider');
   var bookingsSlider=document.getElementById('bookings-slider');
@@ -972,6 +994,17 @@
       });
     }
 
+    // Collect harvest limits — only for checked activities that have a limit set
+    var harvestLimits = {};
+    document.querySelectorAll('.hl-input').forEach(function(inp) {
+      var animal = inp.dataset.animal;
+      var val = inp.value.trim();
+      if (animal && val !== '' && activities.includes(animal)) {
+        harvestLimits[animal] = parseInt(val) || 0;
+      }
+    });
+    var harvestLimitsJson = Object.keys(harvestLimits).length > 0 ? harvestLimits : null;
+
     // Upload photos to Supabase Storage
     btn.textContent = 'Uploading photos…';
     var photoUrls = [];
@@ -1052,6 +1085,7 @@
       trail_cam_date:  (document.querySelector('[name="trail_cam_date"]') || {}).value || null,
       harvest_history: (document.querySelector('[name="harvest_history"]') || {}).value || null,
       hogs_active:     hogsOn,
+      allowed_zone:  harvestLimitsJson,
       status:        'active'
     });
     var { error } = await Promise.race([
