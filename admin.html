@@ -1081,8 +1081,7 @@
             ${b.guest_email ? `<div style="grid-column:1/-1"><strong style="color:var(--color-text)">Email</strong><br><a href="mailto:${b.guest_email}" style="color:var(--color-accent)">${b.guest_email}</a></div>` : ''}
             ${b.guest_phone ? `<div style="grid-column:1/-1"><strong style="color:var(--color-text)">Phone</strong><br>${b.guest_phone}</div>` : ''}
             ${b.cancelled_by ? `<div style="grid-column:1/-1"><strong style="color:var(--color-text)">Cancelled by</strong><br>${b.cancelled_by} on ${b.cancelled_at ? new Date(b.cancelled_at).toLocaleDateString() : '—'}</div>` : ''}
-            ${b.license_type ? `<div style="grid-column:1/-1"><strong style="color:var(--color-text)">License type</strong><br><span style="text-transform:capitalize">${b.license_type}</span></div>` : ''}
-            ${b.license_url ? `<div style="grid-column:1/-1"><strong style="color:var(--color-text)">License file</strong><br><a href="${b.license_url}" target="_blank" rel="noopener" style="color:var(--color-accent);font-size:.8rem;word-break:break-all">View uploaded license ↗</a></div>` : ''}
+
           </div>
           ${st !== 'cancelled' ? `<div style="display:flex;align-items:center;justify-content:space-between;padding-top:.65rem;border-top:1px solid var(--color-border);flex-wrap:wrap;gap:.5rem">
             <p style="font-size:.72rem;color:var(--color-text-muted)">${refundEligible ? '✓ Refund eligible (48+ hrs)' : '✗ Within 48 hrs — no refund'}</p>
