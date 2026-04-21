@@ -83,8 +83,8 @@ function openListingDetail(l) {
     var noteHtml = '';
     var nameEmailHtml = '';
 
-    var btnLabel = 'Book Now &rarr;';
-    var btnAction = 'submitBookingStripe()';
+    var btnLabel = launched ? 'Book Now &rarr;' : 'Join waitlist &rarr;';
+    var btnAction = launched ? 'submitBookingStripe()' : 'openWaitlist()';
 
     bookingHtml =
       '<div style="margin-top:1.25rem;border:1.5px solid var(--color-border);border-radius:16px;overflow:hidden">' +
