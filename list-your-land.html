@@ -950,6 +950,22 @@
       } catch(vErr) { console.warn('Video upload skipped:', vErr); }
     }
 
+    // Geocode address before inserting
+    btn.textContent = 'Locating property…';
+    var streetAddrVal = (document.getElementById('street_address') ? document.getElementById('street_address').value || null : null);
+    var geoCoords = null;
+    if (streetAddrVal) {
+      try {
+        var geoUrl = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(streetAddrVal)
+          + '&viewbox=-87.6,24.4,-79.9,31.0&bounded=1&limit=1';
+        var geoRes = await fetch(geoUrl, { headers: { 'User-Agent': 'LeaseWild/1.0' } });
+        var geoData = await geoRes.json();
+        if (geoData && geoData.length) {
+          geoCoords = { lat: parseFloat(geoData[0].lat), lng: parseFloat(geoData[0].lon) };
+        }
+      } catch(geoErr) { console.warn('Geocoding skipped:', geoErr); }
+    }
+
     // Insert listing row
     btn.textContent = 'Saving listing…';
     try {
@@ -973,8 +989,8 @@
       hear_about:    hearAbout,
       photo_urls:    photoUrls,
       allow_out_of_state: document.getElementById('allow_out_of_state')?.checked ?? true,
-      street_address: (document.getElementById('street_address') ? document.getElementById('street_address').value || null : null),
-      parcel_boundary: null,
+      street_address: streetAddrVal,
+      parcel_boundary: geoCoords,
       video_url:     videoUrl,
       deer_activity:   (document.querySelector('[name="deer_activity"]') || {}).value || null,
       trail_cam_date:  (document.querySelector('[name="trail_cam_date"]') || {}).value || null,

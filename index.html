@@ -2196,51 +2196,101 @@
     if (box) box.style.display = 'none';
   }
 
+  /* ─ Florida county centroids fallback (used when address geocoding fails) ─ */
+  var _countyCoords = {
+    'Alachua':[29.67,-82.35],'Baker':[30.33,-82.27],'Bay':[30.19,-85.62],
+    'Bradford':[29.95,-82.17],'Brevard':[28.25,-80.73],'Broward':[26.12,-80.37],
+    'Calhoun':[30.41,-85.17],'Charlotte':[26.98,-81.98],'Citrus':[28.84,-82.47],
+    'Clay':[30.00,-81.88],'Collier':[26.11,-81.42],'Columbia':[30.22,-82.62],
+    'DeSoto':[27.19,-81.82],'Dixie':[29.58,-83.18],'Duval':[30.34,-81.66],
+    'Escambia':[30.68,-87.34],'Flagler':[29.47,-81.26],'Franklin':[29.82,-84.77],
+    'Gadsden':[30.57,-84.62],'Gilchrist':[29.72,-82.78],'Glades':[26.94,-81.19],
+    'Gulf':[29.92,-85.24],'Hamilton':[30.49,-82.94],'Hardee':[27.49,-81.82],
+    'Hendry':[26.60,-81.28],'Hernando':[28.55,-82.47],'Highlands':[27.34,-81.34],
+    'Hillsborough':[27.90,-82.35],'Holmes':[30.87,-85.82],'Indian River':[27.69,-80.57],
+    'Jackson':[30.78,-85.21],'Jefferson':[30.42,-83.89],'Lafayette':[29.99,-83.19],
+    'Lake':[28.75,-81.72],'Lee':[26.54,-81.76],'Leon':[30.44,-84.28],
+    'Levy':[29.32,-82.77],'Liberty':[30.24,-84.88],'Madison':[30.47,-83.47],
+    'Manatee':[27.48,-82.37],'Marion':[29.21,-82.12],'Martin':[27.08,-80.38],
+    'Miami-Dade':[25.55,-80.63],'Monroe':[24.55,-81.39],'Nassau':[30.62,-81.77],
+    'Okaloosa':[30.70,-86.55],'Okeechobee':[27.36,-80.86],'Orange':[28.54,-81.38],
+    'Osceola':[28.06,-81.14],'Palm Beach':[26.65,-80.45],'Pasco':[28.31,-82.43],
+    'Pinellas':[27.90,-82.75],'Polk':[27.93,-81.70],'Putnam':[29.62,-81.74],
+    'Santa Rosa':[30.69,-87.01],'Sarasota':[27.18,-82.35],'Seminole':[28.72,-81.21],
+    'St. Johns':[29.92,-81.41],'St. Lucie':[27.38,-80.43],'Sumter':[28.70,-82.07],
+    'Suwannee':[30.19,-83.01],'Taylor':[30.05,-83.64],'Union':[30.06,-82.46],
+    'Volusia':[29.05,-81.08],'Wakulla':[30.15,-84.36],'Walton':[30.62,-86.18],
+    'Washington':[30.61,-85.66]
+  };
+
+  /* ─ Geocode cache so we don't re-fetch same address ─ */
+  var _geocodeCache = {};
+
+  /* ─ Geocode a single listing address via Nominatim, then call cb(lat, lng) ─ */
+  function geocodeListingAddress(l, cb) {
+    // 1. Use stored parcel_boundary coords if available (saved on submit)
+    if (l.parcel_boundary && l.parcel_boundary.lat && l.parcel_boundary.lng) {
+      return cb(l.parcel_boundary.lat, l.parcel_boundary.lng);
+    }
+    var addr = l.street_address;
+    if (!addr) {
+      // Fall back to county centroid
+      var c = l.county ? (_countyCoords[l.county] || [29.0, -81.5]) : [29.0, -81.5];
+      return cb(c[0] + (Math.random()-0.5)*0.02, c[1] + (Math.random()-0.5)*0.02);
+    }
+    if (_geocodeCache[addr]) {
+      return cb(_geocodeCache[addr][0], _geocodeCache[addr][1]);
+    }
+    var q = encodeURIComponent(addr);
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + q
+      + '&viewbox=-87.6,24.4,-79.9,31.0&bounded=1&limit=1';
+    fetch(url, { headers: { 'User-Agent': 'LeaseWild/1.0' } })
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if (res && res.length) {
+          var lat = parseFloat(res[0].lat);
+          var lng = parseFloat(res[0].lon);
+          _geocodeCache[addr] = [lat, lng];
+          cb(lat, lng);
+        } else {
+          // Geocode failed — fall back to county centroid
+          var c = l.county ? (_countyCoords[l.county] || [29.0, -81.5]) : [29.0, -81.5];
+          cb(c[0] + (Math.random()-0.5)*0.02, c[1] + (Math.random()-0.5)*0.02);
+        }
+      })
+      .catch(function(){
+        var c = l.county ? (_countyCoords[l.county] || [29.0, -81.5]) : [29.0, -81.5];
+        cb(c[0] + (Math.random()-0.5)*0.02, c[1] + (Math.random()-0.5)*0.02);
+      });
+  }
+
   /* ─ Update map when live Supabase listings are loaded ─ */
   function updateMapWithLiveListings(listings){
     if (!listings || !listings.length) return;
-    // Only map listings with at least a county
-    var mapListings = listings.filter(function(l){ return l.county || l.street_address; }).map(function(l){
-      // Florida county centroids fallback lookup
-      var countyCoords = {
-        'Alachua':[29.67,-82.35],'Baker':[30.33,-82.27],'Bay':[30.19,-85.62],
-        'Bradford':[29.95,-82.17],'Brevard':[28.25,-80.73],'Broward':[26.12,-80.37],
-        'Calhoun':[30.41,-85.17],'Charlotte':[26.98,-81.98],'Citrus':[28.84,-82.47],
-        'Clay':[30.00,-81.88],'Collier':[26.11,-81.42],'Columbia':[30.22,-82.62],
-        'DeSoto':[27.19,-81.82],'Dixie':[29.58,-83.18],'Duval':[30.34,-81.66],
-        'Escambia':[30.68,-87.34],'Flagler':[29.47,-81.26],'Franklin':[29.82,-84.77],
-        'Gadsden':[30.57,-84.62],'Gilchrist':[29.72,-82.78],'Glades':[26.94,-81.19],
-        'Gulf':[29.92,-85.24],'Hamilton':[30.49,-82.94],'Hardee':[27.49,-81.82],
-        'Hendry':[26.60,-81.28],'Hernando':[28.55,-82.47],'Highlands':[27.34,-81.34],
-        'Hillsborough':[27.90,-82.35],'Holmes':[30.87,-85.82],'Indian River':[27.69,-80.57],
-        'Jackson':[30.78,-85.21],'Jefferson':[30.42,-83.89],'Lafayette':[29.99,-83.19],
-        'Lake':[28.75,-81.72],'Lee':[26.54,-81.76],'Leon':[30.44,-84.28],
-        'Levy':[29.32,-82.77],'Liberty':[30.24,-84.88],'Madison':[30.47,-83.47],
-        'Manatee':[27.48,-82.37],'Marion':[29.21,-82.12],'Martin':[27.08,-80.38],
-        'Miami-Dade':[25.55,-80.63],'Monroe':[24.55,-81.39],'Nassau':[30.62,-81.77],
-        'Okaloosa':[30.70,-86.55],'Okeechobee':[27.36,-80.86],'Orange':[28.54,-81.38],
-        'Osceola':[28.06,-81.14],'Palm Beach':[26.65,-80.45],'Pasco':[28.31,-82.43],
-        'Pinellas':[27.90,-82.75],'Polk':[27.93,-81.70],'Putnam':[29.62,-81.74],
-        'Santa Rosa':[30.69,-87.01],'Sarasota':[27.18,-82.35],'Seminole':[28.72,-81.21],
-        'St. Johns':[29.92,-81.41],'St. Lucie':[27.38,-80.43],'Sumter':[28.70,-82.07],
-        'Suwannee':[30.19,-83.01],'Taylor':[30.05,-83.64],'Union':[30.06,-82.46],
-        'Volusia':[29.05,-81.08],'Wakulla':[30.15,-84.36],'Walton':[30.62,-86.18],
-        'Washington':[30.61,-85.66]
-      };
-      var coords = l.county ? countyCoords[l.county] : null;
-      if (!coords) coords = [29.0, -81.5]; // FL center fallback
-      // Add slight jitter so overlapping pins don't stack exactly
-      var jitterLat = (Math.random() - 0.5) * 0.08;
-      var jitterLng = (Math.random() - 0.5) * 0.08;
-      return Object.assign({}, l, {
-        lat: coords[0] + jitterLat,
-        lng: coords[1] + jitterLng,
-        type: getType(l)
+    // Filter to listings that have at least a county or street address
+    var validListings = listings.filter(function(l){ return l.county || l.street_address; });
+    if (!validListings.length) return;
+
+    var total = validListings.length;
+    var resolved = 0;
+    var mapListings = [];
+
+    validListings.forEach(function(l) {
+      geocodeListingAddress(l, function(lat, lng) {
+        mapListings.push(Object.assign({}, l, {
+          lat: lat,
+          lng: lng,
+          type: getType(l)
+        }));
+        resolved++;
+        // Once all listings have been geocoded, render the map
+        if (resolved === total) {
+          _currentMapData = mapListings;
+          if (huntMap) plotMap(mapListings);
+          if (modalMap) plotModalMap(mapListings);
+        }
       });
     });
-    _currentMapData = mapListings;
-    if (huntMap) plotMap(mapListings);
-    if (modalMap) plotModalMap(mapListings);
   }
 
   // lazy-init desktop sticky map when column scrolls into view
