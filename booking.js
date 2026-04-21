@@ -231,6 +231,7 @@ function openListingDetail(l) {
         (activities ? '<p style="font-size:.95rem;color:var(--color-text-muted);margin-bottom:.6rem">' + escHtml(activities) + '</p>' : '') +
         (details.length ? '<div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem">' + details.join('') + '</div>' : '') +
         (l.description ? '<p style="font-size:.95rem;color:var(--color-text-muted);line-height:1.65;margin-bottom:.75rem">' + escHtml(l.description) + '</p>' : '') +
+        (typeof getFLRegulationsHtml === 'function' ? getFLRegulationsHtml(l) : '') +
         harvestHtml +
         bookingHtml +
       '</div>' +
