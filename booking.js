@@ -393,7 +393,7 @@ async function submitPreReservation() {
     msg.style.fontSize = '1rem';
     msg.innerHTML = 'Pre-reservation saved! We\'ll email <strong>' + email + '</strong> when bookings open July 1.<br><a href="cancel.html?id=' + result.data[0].id + '" style="color:#ef4444;font-size:.8rem">Need to cancel? Click here.</a>';
   } catch(e) {
-    btn.disabled = false; btn.textContent = 'Pre-reserve my dates - free';
+    btn.disabled = false; btn.textContent = 'Saving…';
     msg.style.display = 'block'; msg.style.color = '#c0392b';
     msg.textContent = 'Error: ' + (e.message || 'Please try again.');
   }
@@ -445,7 +445,7 @@ async function submitBookingStripe() {
     btn.disabled = false; btn.innerHTML = 'Book Now &rarr;';
     msg.style.display = 'block'; msg.style.color = 'var(--color-accent)';
     msg.style.fontWeight = '600';
-    msg.innerHTML = 'Online booking opens July 1, 2026. <br>Want to reserve these dates? <button onclick="switchToPreReservation()" style="background:none;border:none;color:var(--color-primary);font-weight:700;cursor:pointer;font-family:inherit;font-size:inherit;text-decoration:underline;padding:0">Pre-reserve for free &rarr;</button>';
+    msg.innerHTML = 'Online booking opens July 1, 2026. <br><button onclick="openWaitlist()" style="margin-top:.5rem;padding:.6rem 1.2rem;background:var(--color-primary);color:#fff;border:none;border-radius:999px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.9rem">Join waitlist &rarr;</button>';
     return;
   }
 
@@ -519,26 +519,7 @@ async function submitBookingStripe() {
 }
 
 function switchToPreReservation() {
-  // Swap the button/form to show the pre-reservation fields
-  var l = _currentListing;
-  if (!l) return;
-  // Re-render the booking area with pre-reservation mode
-  var msg = document.getElementById('bk-msg');
-  if (msg) { msg.style.display = 'none'; }
-  var btnEl = document.getElementById('bk-btn');
-  if (!btnEl) return;
-  var inputStyle = 'width:100%;padding:.65rem .75rem;border:1.5px solid var(--color-border);border-radius:8px;background:var(--color-bg);color:var(--color-text);font-size:1rem;font-family:inherit;outline:none;box-sizing:border-box';
-  // Insert name/email/phone fields above the button
-  var noteDiv = document.createElement('div');
-  noteDiv.style.cssText = 'margin-bottom:.75rem';
-  noteDiv.innerHTML =
-    '<p style="font-size:.85rem;color:var(--color-text-muted);margin-bottom:.75rem;line-height:1.6">Pre-reserve your dates — no payment until bookings open July 1, 2026. We\'ll confirm by email.</p>' +
-    '<input id="bk-name" type="text" placeholder="Your full name" style="' + inputStyle + ';margin-bottom:.6rem" />' +
-    '<input id="bk-email" type="email" placeholder="Email address" style="' + inputStyle + ';margin-bottom:.6rem" />' +
-    '<input id="bk-phone" type="tel" placeholder="Phone (optional)" style="' + inputStyle + ';margin-bottom:.6rem" />';
-  btnEl.parentNode.insertBefore(noteDiv, btnEl);
-  btnEl.innerHTML = 'Pre-reserve my dates — free';
-  btnEl.onclick = submitPreReservation;
+  openWaitlist();
 }
 
 async function launchStripeCheckout(totalCents, bookingId, description, cin, cout, nights, listing) {
