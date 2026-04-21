@@ -2171,9 +2171,9 @@
     var price = l.price || l.price_per_day;
     var priceStr = price ? '$' + parseInt(price) : 'Contact';
     var actLabel = isHunt ? 'Hunting' : 'Fishing';
-    // Click action: open listing detail if real listing, else open waitlist
-    var onclickAttr = l.id && allListings.length > 0 && allListings.find(function(x){return x.id==l.id;})
-      ? 'openListingById('+l.id+')'
+    // Click action: open listing detail if real listing (has an id), else open waitlist
+    var onclickAttr = l.id
+      ? 'openListingById('+JSON.stringify(l.id)+')'
       : 'openWaitlist()';
     return '<div style="padding:14px 16px;min-width:210px;font-family:Barlow,sans-serif">'
       +'<span style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:'+col+';background:'+bg+';padding:2px 8px;border-radius:999px;display:inline-block;margin-bottom:8px">'+actLabel+'</span>'

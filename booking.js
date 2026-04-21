@@ -6,7 +6,10 @@ function isLaunched() { return new Date() >= LAUNCH_DATE; }
 function daysUntilLaunch() { return Math.ceil((LAUNCH_DATE - new Date()) / (1000*60*60*24)); }
 
 function openListingById(id) {
-  var l = allListings.find(function(x){ return String(x.id) === String(id); });
+  var sid = String(id);
+  // Search allListings first, then fall back to map data (_currentMapData)
+  var l = allListings.find(function(x){ return String(x.id) === sid; })
+       || (typeof _currentMapData !== 'undefined' && _currentMapData.find(function(x){ return String(x.id) === sid; }));
   if (l) openListingDetail(l);
 }
 
