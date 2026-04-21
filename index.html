@@ -1525,28 +1525,107 @@
   <!-- ══════════════════════════════════════════
        SPLIT CTA (List / Fish)
   ══════════════════════════════════════════ -->
+
+  <!-- ══════════════════════════════════════════
+       LANDOWNER TRUST SYSTEM (3-STEP)
+  ══════════════════════════════════════════ -->
+  <style>
+    .lts-wrap{background:var(--surface);border-top:3px solid var(--green);border-bottom:1px solid var(--border);padding:56px 0}
+    .lts-inner{max-width:1060px;margin:0 auto;padding:0 24px}
+    .lts-header{text-align:center;margin-bottom:44px}
+    .lts-title{font-family:var(--font-display);font-size:clamp(1.4rem,2.2vw,1.9rem);font-weight:700;letter-spacing:.02em;color:var(--text);margin-bottom:10px}
+    .lts-sub{font-size:.93rem;color:var(--muted);max-width:50ch;margin:0 auto}
+    .lts-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
+    .lts-steps::before{content:'';position:absolute;top:30px;left:calc(16.67% + 8px);right:calc(16.67% + 8px);height:2px;background:linear-gradient(90deg,var(--green) 0%,var(--amber) 50%,#1a6b7a 100%);z-index:0}
+    .lts-step{position:relative;z-index:1;padding:0 20px 0;text-align:center}
+    .lts-step-num{width:44px;height:44px;border-radius:50%;color:#fff;font-family:var(--font-display);font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 0 0 4px var(--surface)}
+    .lts-step:nth-child(1) .lts-step-num{background:var(--green)}
+    .lts-step:nth-child(2) .lts-step-num{background:var(--amber)}
+    .lts-step:nth-child(3) .lts-step-num{background:#1a6b7a}
+    .lts-step-icon{margin-bottom:10px;height:28px;display:flex;align-items:center;justify-content:center}
+    .lts-step:nth-child(1) .lts-step-icon{color:var(--green)}
+    .lts-step:nth-child(2) .lts-step-icon{color:var(--amber)}
+    .lts-step:nth-child(3) .lts-step-icon{color:#1a6b7a}
+    .lts-step-label{font-family:var(--font-display);font-size:.88rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text);margin-bottom:8px}
+    .lts-step-desc{font-size:.84rem;color:var(--muted);line-height:1.65;max-width:24ch;margin:0 auto}
+    .lts-footer{display:flex;justify-content:center;margin-top:32px;gap:24px;flex-wrap:wrap}
+    .lts-footer a{font-size:.82rem;font-weight:700;color:var(--green);text-decoration:none;border-bottom:1.5px solid var(--green);padding-bottom:1px}
+    .lts-footer a:hover{color:var(--amber);border-color:var(--amber)}
+    @media(max-width:640px){
+      .lts-steps{grid-template-columns:1fr;gap:24px}
+      .lts-steps::before{display:none}
+      .lts-step{padding:20px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+    }
+  </style>
+  <div class="lts-wrap">
+    <div class="lts-inner">
+      <div class="lts-header">
+        <p class="section-eyebrow" style="margin-bottom:10px">Landowner Protection System</p>
+        <h2 class="lts-title">Every booking comes with three layers of protection</h2>
+        <p class="lts-sub">Built to remove every landowner objection. No strangers. No surprises. No liability.</p>
+      </div>
+      <div class="lts-steps">
+        <div class="lts-step fade-up">
+          <div class="lts-step-num">1</div>
+          <div class="lts-step-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          </div>
+          <div class="lts-step-label">Verified Guest</div>
+          <p class="lts-step-desc">Every booker passes ID verification and uploads a valid hunting or fishing license before they can ever contact you.</p>
+        </div>
+        <div class="lts-step fade-up">
+          <div class="lts-step-num">2</div>
+          <div class="lts-step-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <div class="lts-step-label">Protected Booking</div>
+          <p class="lts-step-desc">Digital liability waiver signed at checkout. $1M trip protection included. Guest agrees to your exact property rules.</p>
+        </div>
+        <div class="lts-step fade-up">
+          <div class="lts-step-num">3</div>
+          <div class="lts-step-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg>
+          </div>
+          <div class="lts-step-label">Guaranteed Payout</div>
+          <p class="lts-step-desc">Payment held securely at booking and deposited directly to your bank within 3–5 days of check-in. Zero risk of non-payment.</p>
+        </div>
+      </div>
+      <div class="lts-footer">
+        <a href="landowner-protection.html">See every protection detail →</a>
+        <a href="list-your-land.html">List your land free →</a>
+      </div>
+    </div>
+  </div>
+
   <div style="padding:64px 0 0">
     <div class="split-cta">
       <div class="split-panel green-panel">
-        <p style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:12px">For landowners</p>
-        <h2>Your land is sitting idle. Start earning.</h2>
-        <p>List your hunting land or fishing water in minutes — no approval needed. Keep 85% of every booking. We handle payments, waivers, and insurance.</p>
-        <a href="list-your-land.html" class="split-btn green-btn">
-          List your land
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
-        </a>
+        <p style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:6px">For landowners</p>
+        <h2>Earn passive income from your land — without the risk.</h2>
+        <p>Verified guests only. Digital waivers. $1M coverage. You control the calendar, set your rules, and keep 85%. We handle everything else.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px">
+          <span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600">✓ ID-Verified guests</span>
+          <span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600">✓ Digital waiver signed</span>
+          <span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600">✓ Location stays private</span>
+        </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+          <a href="list-your-land.html" class="split-btn green-btn" style="margin:0">
+            Start earning free
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <a href="landowner-protection.html" style="color:rgba(255,255,255,.8);font-family:var(--font-body);font-size:.85rem;font-weight:600;text-decoration:none">How we protect you →</a>
+        </div>
       </div>
       <div class="split-panel water-panel">
         <p style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:12px">For anglers</p>
-        <h2>Private fishing water you can't find anywhere else.</h2>
-        <p>Skip the crowded public access. Book exclusive bass ponds, spring creeks, and freshwater lakes — no license required on fully private water.</p>
+        <h2>Access verified private land with trusted landowners.</h2>
+        <p>Skip the crowded public access. Book exclusive bass ponds, spring creeks, and freshwater lakes — direct from verified Florida landowners.</p>
         <a href="fishing.html" class="split-btn water-btn">
           Explore fishing
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
         </a>
       </div>
     </div>
-  </div>
 
   <!-- ══════════════════════════════════════════
        TESTIMONIALS
@@ -1694,6 +1773,7 @@
           <li><a href="about.html">About LeaseWild</a></li>
           <li><a href="pricing.html">How pricing works</a></li>
           <li><a href="howitworks.html">How it works</a></li>
+          <li><a href="landowner-protection.html">Landowner protection</a></li>
           <li><a href="list-your-land.html">List your land</a></li>
           <li><a href="landowner-portal.html">Landowner login</a></li>
         </ul>
