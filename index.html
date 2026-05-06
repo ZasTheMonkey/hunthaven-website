@@ -1012,7 +1012,7 @@
   <!-- ══════════════════════════════════════════
        NAV
   ══════════════════════════════════════════ -->
-  <nav class="nav" id="main-nav">
+  <nav class="nav" style="position:relative" id="main-nav">
     <div class="nav-inner">
       <!-- Logo -->
       <a href="index.html" class="logo">
@@ -1064,10 +1064,30 @@
             <button onclick="navSignOut()" style="width:100%;text-align:left;padding:.55rem 1rem;font-size:.9rem;font-weight:600;color:var(--color-danger,#c0392b);background:none;border:none;cursor:pointer;font-family:inherit" onmouseover="this.style.background='var(--divider)'" onmouseout="this.style.background=''">Sign out</button>
           </div>
         </div>
-        <!-- mobile ham -->
+        <!-- mobile search -->
         <button class="nav-ham" onclick="openSearchSheet()" aria-label="Search">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         </button>
+        <!-- mobile hamburger menu -->
+        <button class="nav-ham" id="mob-menu-btn" onclick="toggleMobMenu()" aria-label="Menu" style="background:none;border:1.5px solid var(--border)">
+          <svg id="mob-ham-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          <svg id="mob-close-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile slide-down menu -->
+    <div id="mob-menu-drawer" style="display:none;background:var(--surface2);border-top:1px solid var(--border);padding:1rem 1.25rem 1.5rem;position:absolute;top:100%;left:0;right:0;z-index:299;box-shadow:0 8px 24px rgba(0,0,0,.12)">
+      <nav style="display:flex;flex-direction:column;gap:.15rem">
+        <a href="list-your-land.html" onclick="closeMobMenu()" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--divider)">List your land</a>
+        <a href="guest-portal.html" onclick="closeMobMenu()" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--divider)">Hunter Login</a>
+        <a href="outfitter-portal.html" onclick="closeMobMenu()" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:#1a6b7a;text-decoration:none;border-bottom:1px solid var(--divider)">Outfitter Login</a>
+        <a href="landowner-portal.html" onclick="closeMobMenu()" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--divider)">Landowner Login</a>
+        <a href="about.html" onclick="closeMobMenu()" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--divider)">About</a>
+        <a href="outfitters.html" onclick="closeMobMenu()" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:var(--text);text-decoration:none">Outfitters</a>
+      </nav>
+      <div style="margin-top:1.25rem">
+        <button onclick="closeMobMenu();openWaitlist()" style="width:100%;padding:.85rem;background:var(--color-primary,#2d5a27);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer">Join waitlist</button>
       </div>
     </div>
   </nav>
@@ -2689,6 +2709,25 @@
       if (waitlistBtn) waitlistBtn.style.display = 'flex';
       if (profileWrap) profileWrap.style.display = 'none';
     }
+  }
+
+  // ── MOBILE HAMBURGER MENU ────────────────────────────────
+  function toggleMobMenu() {
+    var drawer = document.getElementById('mob-menu-drawer');
+    var hamIcon = document.getElementById('mob-ham-icon');
+    var closeIcon = document.getElementById('mob-close-icon');
+    var open = drawer.style.display === 'none' || drawer.style.display === '';
+    drawer.style.display = open ? 'block' : 'none';
+    if (hamIcon) hamIcon.style.display = open ? 'none' : '';
+    if (closeIcon) closeIcon.style.display = open ? '' : 'none';
+  }
+  function closeMobMenu() {
+    var drawer = document.getElementById('mob-menu-drawer');
+    var hamIcon = document.getElementById('mob-ham-icon');
+    var closeIcon = document.getElementById('mob-close-icon');
+    if (drawer) drawer.style.display = 'none';
+    if (hamIcon) hamIcon.style.display = '';
+    if (closeIcon) closeIcon.style.display = 'none';
   }
 
   function toggleProfileMenu() {
