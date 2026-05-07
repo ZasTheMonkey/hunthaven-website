@@ -438,6 +438,7 @@
     }
     .chip-hunt{background:rgba(45,90,39,.85);color:#b8dfc0}
     .chip-fish{background:rgba(26,107,122,.85);color:#b0e0f0}
+    .chip-camp{background:rgba(120,75,30,.85);color:#f5d9b0}
 
     /* rating badge top-left */
     .card-rating-badge{
@@ -1211,6 +1212,10 @@
         <span style="font-size:1.3rem;line-height:1">&#127968;</span>
         Cabin Stays
       </button>
+      <button class="cat-pill" data-filter="camp" onclick="setCat(this,'camp')">
+        <span style="font-size:1.3rem;line-height:1">&#9981;</span>
+        Camping
+      </button>
     </div>
   </div>
 
@@ -1450,6 +1455,36 @@
         </article>
 
         <!-- Card 8 -->
+        <!-- Camping placeholder card -->
+        <article class="card fade-up" data-type="camp" data-acres="120" data-species="camping primitive" onclick="openWaitlist()">
+          <div class="card-img" style="background:linear-gradient(160deg,#3d2a10,#6b4820)">
+            <div class="card-rating-badge">★ 4.8</div>
+            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-camp">Camping</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">Osceola Flatwoods Campsite</div>
+              <div class="card-price-inline">$55<span>/night</span></div>
+            </div>
+            <div class="card-location">Kissimmee, FL · 120 acres</div>
+            <div class="card-tags">
+              <span class="card-tag">Primitive camping</span>
+              <span class="card-tag">Fire pit</span>
+              <span class="card-tag">Creek access</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified host
+              </span>
+              <span class="card-acreage">No hunting required</span>
+            </div>
+          </div>
+        </article>
+
         <article class="card fade-up" data-type="hunt" data-acres="700" data-species="quail turkey" onclick="openWaitlist()">
           <div class="card-img bg-hunt-3">
             <div class="card-img-scene card-img-scene-hunt"></div>
@@ -2079,7 +2114,8 @@
         ? 'background:url(' + escHtml(firstPhoto) + ') center/cover no-repeat;'
         : isHunt ? 'background:linear-gradient(160deg,#2a4a30,#4a7040);'
                  : 'background:linear-gradient(160deg,#0d2840,#2a90b0);';
-      var dataType = isHunt ? 'hunt' : 'fish';
+      var isCamp = (l.activities || []).some(function(a){ return /camp/i.test(a); });
+      var dataType = isCamp ? 'camp' : isHunt ? 'hunt' : 'fish';
       var slug = l.county ? l.county.toLowerCase().replace(/\s+/g,'-') : 'fl';
       var article = document.createElement('article');
       article.className = 'card';
