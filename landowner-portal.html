@@ -392,6 +392,20 @@
       btn.disabled=false; btn.textContent='Create Account';
       showMsg('Account created! Check your email to confirm, then sign in below.','success');
       document.getElementById('si-email').value = email;
+
+      // Log to Google Sheets ID Verification tab
+      try {
+        var idParams = new URLSearchParams({
+          action: 'idverification',
+          fullName: name,
+          email: email,
+          phone: phone,
+          timestamp: new Date().toLocaleString('en-US',{timeZone:'America/New_York'}),
+          status: 'Pending Review'
+        });
+        await fetch('https://script.google.com/macros/s/AKfycbwjQbTV9Ef1u659MVKhX8AgzPbgBWGjA6PkuZlGCs6Ls_rosmCkwg3rNss6Dxxi4Zs/exec?' + idParams, {method:'GET', mode:'no-cors'});
+      } catch(e) { console.warn('ID sheet log failed', e); }
+
       setTimeout(() => switchTab('signin'), 3000);
 
     } catch(e) {
