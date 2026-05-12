@@ -257,6 +257,17 @@
       </div>
     </div>
 
+    <!-- Promo Codes Section -->
+    <div id="promo-section" style="margin-top:2rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <h3 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-lg);letter-spacing:.01em">Promo Codes</h3>
+        <button onclick="openPromoModal()" style="background:var(--color-primary);color:#fff;border:none;border-radius:8px;padding:.5rem 1rem;font-weight:700;font-size:var(--text-sm);cursor:pointer">+ New Code</button>
+      </div>
+      <div id="promo-list-lo">
+        <p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">No promo codes yet. Create one to offer discounts on your listings.</p>
+      </div>
+    </div>
+
     <!-- Messages Section -->
     <div id="messages-section" style="margin-top:2rem">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
@@ -1220,6 +1231,212 @@
       </a>
     </div>
   </nav>
+
+  <!-- Promo Code Modal -->
+  <div id="promo-modal" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem" onclick="if(event.target===this)closePromoModal()">
+    <div style="background:var(--color-surface);border-radius:16px;padding:1.5rem;width:100%;max-width:440px;max-height:90vh;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+        <h3 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-lg);margin:0">Create Promo Code</h3>
+        <button onclick="closePromoModal()" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:1.3rem">✕</button>
+      </div>
+
+      <div style="margin-bottom:1rem">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:.35rem">Code <span style="color:#999;font-weight:400">(guests enter this at checkout)</span></label>
+        <div style="display:flex;gap:.5rem">
+          <input id="promo-code-input" type="text" placeholder="e.g. SUMMER20" maxlength="20"
+            style="flex:1;padding:.6rem .75rem;border:1.5px solid var(--color-border);border-radius:8px;font-size:var(--text-sm);text-transform:uppercase;font-weight:700"
+            oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+          <button onclick="generatePromoCode()" style="background:var(--color-surface-muted,#f4f4f4);border:1.5px solid var(--color-border);border-radius:8px;padding:.6rem .9rem;font-size:var(--text-sm);cursor:pointer;font-weight:600;white-space:nowrap">Generate</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1rem">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:.35rem">Discount Type</label>
+        <div style="display:flex;gap:.5rem">
+          <button id="promo-type-pct" onclick="setPromoType('percent')" style="flex:1;padding:.55rem;border-radius:8px;border:2px solid var(--color-primary);background:var(--color-primary);color:#fff;font-weight:700;font-size:var(--text-sm);cursor:pointer">% Off</button>
+          <button id="promo-type-fixed" onclick="setPromoType('fixed')" style="flex:1;padding:.55rem;border-radius:8px;border:2px solid var(--color-border);background:transparent;color:var(--color-text);font-weight:700;font-size:var(--text-sm);cursor:pointer">$ Off</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1rem">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:.35rem" id="promo-amount-label">Discount Amount (%)</label>
+        <input id="promo-amount-input" type="number" min="1" placeholder="10" style="width:100%;padding:.6rem .75rem;border:1.5px solid var(--color-border);border-radius:8px;font-size:var(--text-sm);box-sizing:border-box">
+      </div>
+
+      <div style="margin-bottom:1rem">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:.35rem">Apply To <span style="color:#999;font-weight:400">(select your listings)</span></label>
+        <div id="promo-listings-checkboxes" style="display:flex;flex-direction:column;gap:.5rem;max-height:160px;overflow-y:auto;border:1.5px solid var(--color-border);border-radius:8px;padding:.75rem">
+          <p style="color:var(--color-text-muted);font-size:var(--text-sm)">Loading listings…</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1rem">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:.35rem">Max Uses <span style="color:#999;font-weight:400">(leave blank for unlimited)</span></label>
+        <input id="promo-uses-input" type="number" min="1" placeholder="Unlimited" style="width:100%;padding:.6rem .75rem;border:1.5px solid var(--color-border);border-radius:8px;font-size:var(--text-sm);box-sizing:border-box">
+      </div>
+
+      <div style="margin-bottom:1.5rem">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:.35rem">Expiry Date <span style="color:#999;font-weight:400">(optional)</span></label>
+        <input id="promo-expires-input" type="date" style="width:100%;padding:.6rem .75rem;border:1.5px solid var(--color-border);border-radius:8px;font-size:var(--text-sm);box-sizing:border-box">
+      </div>
+
+      <div id="promo-modal-msg" style="display:none;text-align:center;font-size:var(--text-sm);margin-bottom:.75rem"></div>
+      <button onclick="savePromoCode()" style="width:100%;background:var(--color-primary);color:#fff;border:none;border-radius:10px;padding:.85rem;font-weight:700;font-size:var(--text-base);cursor:pointer">Create Promo Code</button>
+    </div>
+  </div>
+
+  <script>
+  var _promoType = 'percent';
+  var _promoListings = [];
+
+  function openPromoModal() {
+    var u = supabase.auth.getUser ? null : null;
+    document.getElementById('promo-modal').style.display = 'flex';
+    document.getElementById('promo-code-input').value = '';
+    document.getElementById('promo-amount-input').value = '';
+    document.getElementById('promo-uses-input').value = '';
+    document.getElementById('promo-expires-input').value = '';
+    document.getElementById('promo-modal-msg').style.display = 'none';
+    setPromoType('percent');
+    loadPromoListingOptions();
+  }
+
+  function closePromoModal() {
+    document.getElementById('promo-modal').style.display = 'none';
+  }
+
+  function setPromoType(type) {
+    _promoType = type;
+    var pctBtn = document.getElementById('promo-type-pct');
+    var fixBtn = document.getElementById('promo-type-fixed');
+    var lbl = document.getElementById('promo-amount-label');
+    if (type === 'percent') {
+      pctBtn.style.background = 'var(--color-primary)'; pctBtn.style.color = '#fff'; pctBtn.style.borderColor = 'var(--color-primary)';
+      fixBtn.style.background = 'transparent'; fixBtn.style.color = 'var(--color-text)'; fixBtn.style.borderColor = 'var(--color-border)';
+      lbl.textContent = 'Discount Amount (%)';
+      document.getElementById('promo-amount-input').placeholder = '10';
+    } else {
+      fixBtn.style.background = 'var(--color-primary)'; fixBtn.style.color = '#fff'; fixBtn.style.borderColor = 'var(--color-primary)';
+      pctBtn.style.background = 'transparent'; pctBtn.style.color = 'var(--color-text)'; pctBtn.style.borderColor = 'var(--color-border)';
+      lbl.textContent = 'Discount Amount ($)';
+      document.getElementById('promo-amount-input').placeholder = '20';
+    }
+  }
+
+  function generatePromoCode() {
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var code = '';
+    for (var i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    document.getElementById('promo-code-input').value = code;
+  }
+
+  async function loadPromoListingOptions() {
+    var box = document.getElementById('promo-listings-checkboxes');
+    var session = await _supabase.auth.getSession();
+    var email = session.data.session ? session.data.session.user.email : null;
+    if (!email) { box.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm)">Sign in to see your listings.</p>'; return; }
+    var res = await fetch(SB + '/rest/v1/listings?email=eq.' + encodeURIComponent(email) + '&select=id,street_address,county,state', {
+      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON }
+    });
+    _promoListings = await res.json();
+    if (!_promoListings.length) { box.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm)">No listings found. Add a listing first.</p>'; return; }
+    box.innerHTML = _promoListings.map(function(l) {
+      var label = (l.street_address || (l.county + ', ' + l.state) || l.id);
+      return '<label style="display:flex;align-items:center;gap:.6rem;font-size:var(--text-sm);cursor:pointer"><input type="checkbox" value="' + l.id + '" style="accent-color:var(--color-primary);width:16px;height:16px"> ' + label + '</label>';
+    }).join('');
+  }
+
+  async function savePromoCode() {
+    var code = document.getElementById('promo-code-input').value.trim();
+    var amount = parseFloat(document.getElementById('promo-amount-input').value);
+    var maxUses = parseInt(document.getElementById('promo-uses-input').value) || null;
+    var expires = document.getElementById('promo-expires-input').value || null;
+    var msg = document.getElementById('promo-modal-msg');
+
+    var checked = Array.from(document.querySelectorAll('#promo-listings-checkboxes input:checked')).map(function(c){return c.value;});
+
+    if (!code) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Please enter a promo code.'; return; }
+    if (!amount || amount <= 0) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Please enter a valid discount amount.'; return; }
+    if (_promoType === 'percent' && amount > 100) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Percentage cannot exceed 100%.'; return; }
+    if (!checked.length) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Please select at least one listing.'; return; }
+
+    var session = await _supabase.auth.getSession();
+    var email = session.data.session ? session.data.session.user.email : '';
+
+    var payload = {
+      code: code,
+      discount_type: _promoType,
+      discount_amount: amount,
+      discount_pct: _promoType === 'percent' ? amount : 0,
+      listing_ids: checked,
+      owner_email: email,
+      owner_role: 'landowner',
+      max_uses: maxUses,
+      uses: 0,
+      active: true,
+      expires_at: expires
+    };
+
+    msg.style.display='block'; msg.style.color='var(--color-text-muted)'; msg.textContent='Saving…';
+
+    var r = await fetch(SB + '/rest/v1/promo_codes', {
+      method: 'POST',
+      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify(payload)
+    });
+
+    if (r.ok) {
+      msg.style.color = '#27ae60'; msg.textContent = 'Promo code created!';
+      setTimeout(function() { closePromoModal(); loadPromoCodes('lo'); }, 1200);
+    } else {
+      var err = await r.text();
+      msg.style.color = '#c0392b';
+      msg.textContent = err.includes('unique') ? 'That code already exists. Try a different one.' : 'Error saving code. Try again.';
+    }
+  }
+
+  async function loadPromoCodes(role) {
+    var listId = role === 'lo' ? 'promo-list-lo' : 'promo-list-out';
+    var container = document.getElementById(listId);
+    if (!container) return;
+    var session = await _supabase.auth.getSession();
+    var email = session.data.session ? session.data.session.user.email : null;
+    if (!email) return;
+    var res = await fetch(SB + '/rest/v1/promo_codes?owner_email=eq.' + encodeURIComponent(email) + '&order=created_at.desc', {
+      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON }
+    });
+    var codes = await res.json();
+    if (!codes.length) {
+      container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">No promo codes yet. Create one to offer discounts on your listings.</p>';
+      return;
+    }
+    container.innerHTML = codes.map(function(c) {
+      var badge = c.active ? '<span style="background:#e8f5e9;color:#2d7a3a;font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:99px">ACTIVE</span>' : '<span style="background:#f5e8e8;color:#c0392b;font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:99px">INACTIVE</span>';
+      var discountStr = c.discount_type === 'fixed' ? '$' + parseFloat(c.discount_amount).toFixed(0) + ' off' : parseFloat(c.discount_amount || c.discount_pct).toFixed(0) + '% off';
+      var usesStr = c.max_uses ? (c.uses || 0) + ' / ' + c.max_uses + ' uses' : (c.uses || 0) + ' uses';
+      var expStr = c.expires_at ? ' · Expires ' + c.expires_at : '';
+      return '<div style="border:1.5px solid var(--color-border);border-radius:10px;padding:.9rem 1rem;margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap">'
+        + '<div><div style="font-weight:800;font-family:var(--font-display);letter-spacing:.05em;font-size:var(--text-base)">' + c.code + ' ' + badge + '</div>'
+        + '<div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:.2rem">' + discountStr + ' · ' + usesStr + expStr + '</div></div>'
+        + '<button onclick="togglePromoActive(\'' + c.id + '\', ' + c.active + ', \'' + role + '\')" style="background:none;border:1.5px solid var(--color-border);border-radius:7px;padding:.35rem .75rem;font-size:.75rem;font-weight:600;cursor:pointer">'
+        + (c.active ? 'Deactivate' : 'Activate') + '</button></div>';
+    }).join('');
+  }
+
+  async function togglePromoActive(id, currentActive, role) {
+    await fetch(SB + '/rest/v1/promo_codes?id=eq.' + id, {
+      method: 'PATCH',
+      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ active: !currentActive })
+    });
+    loadPromoCodes(role);
+  }
+
+  // Load promo codes when dashboard loads
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() { loadPromoCodes('lo'); }, 2000);
+  });
+  </script>
 
 </body>
 </html>

@@ -277,6 +277,7 @@
       <button class="dash-tab" id="dtab-messages" onclick="switchDashTab('messages')">
         Messages <span id="msg-badge" style="display:none;background:var(--color-accent);color:#fff;border-radius:var(--radius-full);font-size:.65rem;padding:.1rem .45rem;font-weight:700;margin-left:.3rem">!</span>
       </button>
+      <button class="dash-tab" id="dtab-promo" onclick="switchDashTab('promo')">Promo Codes</button>
       <button class="dash-tab" id="dtab-profile" onclick="switchDashTab('profile')">Profile</button>
       <button class="dash-tab" id="dtab-settings" onclick="switchDashTab('settings')">Settings</button>
     </div>
@@ -354,6 +355,20 @@
         <div class="field-inline"><label>Florida FWC License #</label><input type="text" id="p-license" placeholder="License number" /></div>
         <button class="btn-save" onclick="saveProfile()" id="save-profile-btn">Save changes</button>
         <div id="profile-msg" class="msg-box" style="margin-top:.75rem;margin-bottom:0"></div>
+      </div>
+    </div>
+
+    <!-- PROMO CODES -->
+    <div class="dash-panel" id="dpanel-promo">
+      <div class="profile-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+          <h3 style="margin:0">Promo Codes</h3>
+          <button onclick="openOutPromoModal()" style="background:var(--color-water);color:#fff;border:none;border-radius:8px;padding:.5rem 1rem;font-weight:700;font-size:var(--text-sm);cursor:pointer">+ New Code</button>
+        </div>
+        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:1.25rem">Create discount codes guests can apply when booking your outfitter services.</p>
+        <div id="promo-list-out">
+          <p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">No promo codes yet.</p>
+        </div>
       </div>
     </div>
 
@@ -531,11 +546,12 @@
     }
 
     function switchDashTab(t) {
-      ['listing','messages','profile','settings'].forEach(function(x) {
+      ['listing','messages','promo','profile','settings'].forEach(function(x) {
         document.getElementById('dtab-'+x).classList.toggle('active', x===t);
         document.getElementById('dpanel-'+x).classList.toggle('active', x===t);
       });
       if (t === 'messages') loadThreads();
+      if (t === 'promo') loadPromoCodes('out');
     }
 
     function highlightMobTab(btn) {
@@ -696,5 +712,168 @@
       }
     })();
   </script>
+
+  <!-- Outfitter Promo Modal -->
+  <div id="out-promo-modal" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem" onclick="if(event.target===this)closeOutPromoModal()">
+    <div style="background:var(--color-surface);border-radius:16px;padding:1.5rem;width:100%;max-width:440px;max-height:90vh;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+        <h3 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-lg);margin:0">Create Promo Code</h3>
+        <button onclick="closeOutPromoModal()" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:1.3rem">✕</button>
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:.35rem">Code</label>
+        <div style="display:flex;gap:.5rem">
+          <input id="out-promo-code" type="text" placeholder="e.g. HUNT20" maxlength="20"
+            style="flex:1;padding:.6rem .75rem;border:1.5px solid var(--color-border);border-radius:8px;font-size:var(--text-sm);text-transform:uppercase;font-weight:700"
+            oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+          <button onclick="genOutCode()" style="background:var(--color-surface-muted,#f4f4f4);border:1.5px solid var(--color-border);border-radius:8px;padding:.6rem .9rem;font-size:var(--text-sm);cursor:pointer;font-weight:600;white-space:nowrap">Generate</button>
+        </div>
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:.35rem">Discount Type</label>
+        <div style="display:flex;gap:.5rem">
+          <button id="out-promo-type-pct" onclick="setOutPromoType('percent')" style="flex:1;padding:.55rem;border-radius:8px;border:2px solid var(--color-water);background:var(--color-water);color:#fff;font-weight:700;font-size:var(--text-sm);cursor:pointer">% Off</button>
+          <button id="out-promo-type-fixed" onclick="setOutPromoType('fixed')" style="flex:1;padding:.55rem;border-radius:8px;border:2px solid var(--color-border);background:transparent;color:var(--color-text);font-weight:700;font-size:var(--text-sm);cursor:pointer">$ Off</button>
+        </div>
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:.35rem" id="out-promo-amount-label">Discount Amount (%)</label>
+        <input id="out-promo-amount" type="number" min="1" placeholder="10" style="width:100%;padding:.6rem .75rem;border:1.5px solid var(--color-border);border-radius:8px;font-size:var(--text-sm);box-sizing:border-box">
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:.35rem">Max Uses <span style="color:#999;font-weight:400">(leave blank for unlimited)</span></label>
+        <input id="out-promo-uses" type="number" min="1" placeholder="Unlimited" style="width:100%;padding:.6rem .75rem;border:1.5px solid var(--color-border);border-radius:8px;font-size:var(--text-sm);box-sizing:border-box">
+      </div>
+      <div style="margin-bottom:1.5rem">
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:.35rem">Expiry Date <span style="color:#999;font-weight:400">(optional)</span></label>
+        <input id="out-promo-expires" type="date" style="width:100%;padding:.6rem .75rem;border:1.5px solid var(--color-border);border-radius:8px;font-size:var(--text-sm);box-sizing:border-box">
+      </div>
+      <div id="out-promo-msg" style="display:none;text-align:center;font-size:var(--text-sm);margin-bottom:.75rem"></div>
+      <button onclick="saveOutPromoCode()" style="width:100%;background:var(--color-water);color:#fff;border:none;border-radius:10px;padding:.85rem;font-weight:700;font-size:var(--text-base);cursor:pointer">Create Promo Code</button>
+    </div>
+  </div>
+
+  <script>
+  var _outPromoType = 'percent';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
+
+  function openOutPromoModal() {
+    document.getElementById('out-promo-modal').style.display = 'flex';
+    document.getElementById('out-promo-code').value = '';
+    document.getElementById('out-promo-amount').value = '';
+    document.getElementById('out-promo-uses').value = '';
+    document.getElementById('out-promo-expires').value = '';
+    document.getElementById('out-promo-msg').style.display = 'none';
+    setOutPromoType('percent');
+  }
+  function closeOutPromoModal() { document.getElementById('out-promo-modal').style.display = 'none'; }
+
+  function genOutCode() {
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var code = '';
+    for (var i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    document.getElementById('out-promo-code').value = code;
+  }
+
+  function setOutPromoType(type) {
+    _outPromoType = type;
+    var pctBtn = document.getElementById('out-promo-type-pct');
+    var fixBtn = document.getElementById('out-promo-type-fixed');
+    var lbl = document.getElementById('out-promo-amount-label');
+    var inp = document.getElementById('out-promo-amount');
+    if (type === 'percent') {
+      pctBtn.style.background = 'var(--color-water)'; pctBtn.style.color = '#fff'; pctBtn.style.borderColor = 'var(--color-water)';
+      fixBtn.style.background = 'transparent'; fixBtn.style.color = 'var(--color-text)'; fixBtn.style.borderColor = 'var(--color-border)';
+      lbl.textContent = 'Discount Amount (%)'; inp.placeholder = '10';
+    } else {
+      fixBtn.style.background = 'var(--color-water)'; fixBtn.style.color = '#fff'; fixBtn.style.borderColor = 'var(--color-water)';
+      pctBtn.style.background = 'transparent'; pctBtn.style.color = 'var(--color-text)'; pctBtn.style.borderColor = 'var(--color-border)';
+      lbl.textContent = 'Discount Amount ($)'; inp.placeholder = '20';
+    }
+  }
+
+  async function saveOutPromoCode() {
+    var code = document.getElementById('out-promo-code').value.trim();
+    var amount = parseFloat(document.getElementById('out-promo-amount').value);
+    var maxUses = parseInt(document.getElementById('out-promo-uses').value) || null;
+    var expires = document.getElementById('out-promo-expires').value || null;
+    var msg = document.getElementById('out-promo-msg');
+
+    if (!code) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Please enter a promo code.'; return; }
+    if (!amount || amount <= 0) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Please enter a valid discount amount.'; return; }
+    if (_outPromoType === 'percent' && amount > 100) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Percentage cannot exceed 100%.'; return; }
+
+    var session = await sb.auth.getSession();
+    var email = session.data.session ? session.data.session.user.email : '';
+
+    var payload = {
+      code: code,
+      discount_type: _outPromoType,
+      discount_amount: amount,
+      discount_pct: _outPromoType === 'percent' ? amount : 0,
+      listing_ids: [],
+      owner_email: email,
+      owner_role: 'outfitter',
+      max_uses: maxUses,
+      uses: 0,
+      active: true,
+      expires_at: expires
+    };
+
+    msg.style.display='block'; msg.style.color='var(--color-text-muted)'; msg.textContent='Saving…';
+
+    var r = await fetch(SUPABASE_URL + '/rest/v1/promo_codes', {
+      method: 'POST',
+      headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify(payload)
+    });
+
+    if (r.ok) {
+      msg.style.color = '#27ae60'; msg.textContent = 'Promo code created!';
+      setTimeout(function() { closeOutPromoModal(); loadPromoCodes('out'); }, 1200);
+    } else {
+      var err = await r.text();
+      msg.style.color = '#c0392b';
+      msg.textContent = err.includes('unique') ? 'That code already exists. Try a different one.' : 'Error saving code. Try again.';
+    }
+  }
+
+  async function loadPromoCodes(role) {
+    var container = document.getElementById('promo-list-out');
+    if (!container) return;
+    var session = await sb.auth.getSession();
+    var email = session.data.session ? session.data.session.user.email : null;
+    if (!email) return;
+    var res = await fetch(SUPABASE_URL + '/rest/v1/promo_codes?owner_email=eq.' + encodeURIComponent(email) + '&order=created_at.desc', {
+      headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON }
+    });
+    var codes = await res.json();
+    if (!codes.length) {
+      container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">No promo codes yet.</p>';
+      return;
+    }
+    container.innerHTML = codes.map(function(c) {
+      var badge = c.active ? '<span style="background:#e8f5e9;color:#2d7a3a;font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:99px">ACTIVE</span>' : '<span style="background:#f5e8e8;color:#c0392b;font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:99px">INACTIVE</span>';
+      var discountStr = c.discount_type === 'fixed' ? '$' + parseFloat(c.discount_amount).toFixed(0) + ' off' : parseFloat(c.discount_amount || c.discount_pct).toFixed(0) + '% off';
+      var usesStr = c.max_uses ? (c.uses || 0) + ' / ' + c.max_uses + ' uses' : (c.uses || 0) + ' uses';
+      var expStr = c.expires_at ? ' · Expires ' + c.expires_at : '';
+      return '<div style="border:1.5px solid var(--color-border);border-radius:10px;padding:.9rem 1rem;margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap">'
+        + '<div><div style="font-weight:800;letter-spacing:.05em;font-size:var(--text-base)">' + c.code + ' ' + badge + '</div>'
+        + '<div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:.2rem">' + discountStr + ' · ' + usesStr + expStr + '</div></div>'
+        + '<button onclick="toggleOutPromoActive(\'' + c.id + '\', ' + c.active + ')" style="background:none;border:1.5px solid var(--color-border);border-radius:7px;padding:.35rem .75rem;font-size:.75rem;font-weight:600;cursor:pointer">'
+        + (c.active ? 'Deactivate' : 'Activate') + '</button></div>';
+    }).join('');
+  }
+
+  async function toggleOutPromoActive(id, currentActive) {
+    await fetch(SUPABASE_URL + '/rest/v1/promo_codes?id=eq.' + id, {
+      method: 'PATCH',
+      headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ active: !currentActive })
+    });
+    loadPromoCodes('out');
+  }
+  </script>
+
 </body>
 </html>

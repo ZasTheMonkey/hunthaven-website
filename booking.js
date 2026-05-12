@@ -258,11 +258,28 @@ async function applyCode() {
     var p = promos[0];
     if (p.max_uses && p.uses >= p.max_uses) {
       showCodeMsg('This code has reached its usage limit.', false);
-    } else {
-      _appliedCode = { type: 'promo', code: p.code, discount_pct: p.discount_pct, id: p.id };
-      showCodeMsg('✓ ' + p.discount_pct + '% discount applied!', true);
-      updateBookingPrice();
+      btn.disabled = false; btn.textContent = 'Apply';
+      return;
     }
+    // Check listing-specific scope
+    var listingId = window._currentListingId || null;
+    if (p.listing_ids && p.listing_ids.length > 0 && listingId && !p.listing_ids.includes(String(listingId))) {
+      showCodeMsg('This code is not valid for this listing.', false);
+      btn.disabled = false; btn.textContent = 'Apply';
+      return;
+    }
+    // Check expiry
+    if (p.expires_at && new Date(p.expires_at) < new Date()) {
+      showCodeMsg('This promo code has expired.', false);
+      btn.disabled = false; btn.textContent = 'Apply';
+      return;
+    }
+    var discType = p.discount_type || 'percent';
+    var discAmt = discType === 'fixed' ? parseFloat(p.discount_amount || 0) : parseFloat(p.discount_pct || 0);
+    _appliedCode = { type: 'promo', code: p.code, discount_type: discType, discount_pct: discType === 'percent' ? discAmt : 0, discount_fixed: discType === 'fixed' ? discAmt : 0, id: p.id };
+    var discLabel = discType === 'fixed' ? '$' + discAmt.toFixed(0) + ' off' : discAmt + '% off';
+    showCodeMsg('✓ ' + discLabel + ' applied!', true);
+    updateBookingPrice();
     btn.disabled = false; btn.textContent = 'Apply';
     return;
   }
@@ -312,10 +329,14 @@ function updateBookingPrice() {
   var subtotal = rate * nights + cleaning;
   var svcFee = +(subtotal * 0.15).toFixed(2);
   var discountAmt = 0;
-  var discountPct = _appliedCode ? _appliedCode.discount_pct : 0;
-  if (discountPct > 0) {
+  var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
+  var discountFixed = _appliedCode ? (_appliedCode.discount_fixed || 0) : 0;
+  if (discountFixed > 0) {
+    discountAmt = Math.min(discountFixed, subtotal + svcFee);
+  } else if (discountPct > 0) {
     discountAmt = +((subtotal + svcFee) * (discountPct / 100)).toFixed(2);
   }
+  var discountLabel = discountFixed > 0 ? '$' + discountFixed.toFixed(0) + ' off' : discountPct + '% off';
   var total = +(subtotal + svcFee + 18 - discountAmt).toFixed(2);
   var bd = document.getElementById('bk-price-breakdown');
   if (!bd) return;
@@ -325,7 +346,7 @@ function updateBookingPrice() {
     (cleaning ? '<div style="display:flex;justify-content:space-between"><span>Cleaning fee</span><span>$'+cleaning.toFixed(2)+'</span></div>' : '') +
     '<div style="display:flex;justify-content:space-between"><span>Service fee (15%)</span><span>$'+svcFee.toFixed(2)+'</span></div>' +
     '<div style="display:flex;justify-content:space-between"><span>Trip protection</span><span>$18.00</span></div>' +
-    (discountAmt > 0 ? '<div style="display:flex;justify-content:space-between;color:var(--color-primary);font-weight:600"><span>Discount ('+discountPct+'% off)</span><span>−$'+discountAmt.toFixed(2)+'</span></div>' : '') +
+    (discountAmt > 0 ? '<div style="display:flex;justify-content:space-between;color:var(--color-primary);font-weight:600"><span>Discount ('+discountLabel+')</span><span>−$'+discountAmt.toFixed(2)+'</span></div>' : '') +
     '<div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid var(--color-border);padding-top:.4rem;margin-top:.25rem"><span>Total</span><span>$'+total.toFixed(2)+'</span></div>';
 }
 
@@ -351,7 +372,8 @@ async function submitPreReservation() {
   var subtotal = rate * nights + cleaning;
   var svcFee = +(subtotal * 0.15).toFixed(2);
   var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
-  var discountAmt = discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0;
+  var discountFixed2 = _appliedCode ? (_appliedCode.discount_fixed || 0) : 0;
+  var discountAmt = discountFixed2 > 0 ? Math.min(discountFixed2, subtotal + svcFee) : (discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0);
   var total = +(subtotal + svcFee + 18 - discountAmt).toFixed(2);
   btn.disabled = true; btn.textContent = 'Saving...'
   try {
