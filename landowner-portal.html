@@ -1290,7 +1290,6 @@
   var _promoListings = [];
 
   function openPromoModal() {
-    var u = supabase.auth.getUser ? null : null;
     document.getElementById('promo-modal').style.display = 'flex';
     document.getElementById('promo-code-input').value = '';
     document.getElementById('promo-amount-input').value = '';
@@ -1332,11 +1331,11 @@
 
   async function loadPromoListingOptions() {
     var box = document.getElementById('promo-listings-checkboxes');
-    var session = await _supabase.auth.getSession();
+    var session = await sb.auth.getSession();
     var email = session.data.session ? session.data.session.user.email : null;
     if (!email) { box.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm)">Sign in to see your listings.</p>'; return; }
-    var res = await fetch(SB + '/rest/v1/listings?email=eq.' + encodeURIComponent(email) + '&select=id,street_address,county,state', {
-      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON }
+    var res = await fetch(SB_URL + '/rest/v1/listings?email=eq.' + encodeURIComponent(email) + '&select=id,street_address,county,state', {
+      headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }
     });
     _promoListings = await res.json();
     if (!_promoListings.length) { box.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm)">No listings found. Add a listing first.</p>'; return; }
@@ -1360,7 +1359,7 @@
     if (_promoType === 'percent' && amount > 100) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Percentage cannot exceed 100%.'; return; }
     if (!checked.length) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Please select at least one listing.'; return; }
 
-    var session = await _supabase.auth.getSession();
+    var session = await sb.auth.getSession();
     var email = session.data.session ? session.data.session.user.email : '';
 
     var payload = {
@@ -1379,9 +1378,9 @@
 
     msg.style.display='block'; msg.style.color='var(--color-text-muted)'; msg.textContent='Saving…';
 
-    var r = await fetch(SB + '/rest/v1/promo_codes', {
+    var r = await fetch(SB_URL + '/rest/v1/promo_codes', {
       method: 'POST',
-      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
       body: JSON.stringify(payload)
     });
 
@@ -1399,11 +1398,11 @@
     var listId = role === 'lo' ? 'promo-list-lo' : 'promo-list-out';
     var container = document.getElementById(listId);
     if (!container) return;
-    var session = await _supabase.auth.getSession();
+    var session = await sb.auth.getSession();
     var email = session.data.session ? session.data.session.user.email : null;
     if (!email) return;
-    var res = await fetch(SB + '/rest/v1/promo_codes?owner_email=eq.' + encodeURIComponent(email) + '&order=created_at.desc', {
-      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON }
+    var res = await fetch(SB_URL + '/rest/v1/promo_codes?owner_email=eq.' + encodeURIComponent(email) + '&order=created_at.desc', {
+      headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }
     });
     var codes = await res.json();
     if (!codes.length) {
@@ -1424,9 +1423,9 @@
   }
 
   async function togglePromoActive(id, currentActive, role) {
-    await fetch(SB + '/rest/v1/promo_codes?id=eq.' + id, {
+    await fetch(SB_URL + '/rest/v1/promo_codes?id=eq.' + id, {
       method: 'PATCH',
-      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
       body: JSON.stringify({ active: !currentActive })
     });
     loadPromoCodes(role);
