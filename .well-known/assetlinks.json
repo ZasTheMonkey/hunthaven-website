@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.leasewild.app",
+    "sha256_cert_fingerprints": [
+      "82:C0:71:72:B6:D4:61:34:D8:2A:66:8E:80:F5:CF:13:2E:BF:E6:6C:41:61:24:D7:FF:DC:DD:BD:D1:04:9D:DA"
+    ]
+  }
+}]
