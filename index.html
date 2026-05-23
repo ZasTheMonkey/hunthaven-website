@@ -202,7 +202,7 @@
     .ns-btn:hover{background:var(--green-dk)}
 
     /* nav right */
-    .nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+    .nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0;overflow:visible;padding-right:4px}
     .nav-link{padding:10px 14px;border-radius:var(--r-full);font-size:.875rem;font-weight:600;color:var(--muted);white-space:nowrap;transition:background .15s,color .15s}
     .nav-link:hover{background:var(--divider);color:var(--text)}
     .nav-link.amber{color:var(--amber)}
@@ -774,7 +774,8 @@
         display:grid;place-items:center;
         width:40px;height:40px;border-radius:50%;
         border:1.5px solid var(--border);color:var(--muted);
-        cursor:pointer;
+        cursor:pointer;flex-shrink:0;background:none;
+        overflow:visible;
       }
       .nav-inner{padding:0 16px}
 
