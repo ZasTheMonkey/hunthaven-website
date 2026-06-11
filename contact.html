@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+  <link rel="apple-touch-icon" href="/favicon-192.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — LeaseWild</title>
+  <meta name="description" content="Get in touch with the LeaseWild team. Questions about listing your land, booking a property, or anything else — we're here to help." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://leasewild.com/contact.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─────────────────────────────────────────────
+       TOKENS
+    ───────────────────────────────────────────── */
+    :root {
+      --green:#2d5a27;
+      --green-dk:#1e3d1a;
+      --green-lt:#d6e8d3;
+      --amber:#c17f3a;
+      --amber-dk:#a06828;
+      --water:#1a6b7a;
+      --water-lt:#cde9ee;
+      --bg:#f7f4ee;
+      --surface:#ffffff;
+      --surface2:#faf7f2;
+      --border:#e2ddd4;
+      --divider:#ede9e1;
+      --text:#222218;
+      --muted:#6b6656;
+      --faint:#a09b8c;
+      --danger:#c0392b;
+      --r-sm:8px;
+      --r-md:12px;
+      --r-lg:16px;
+      --r-xl:24px;
+      --r-full:9999px;
+      --shadow-sm:0 1px 4px rgba(0,0,0,.07);
+      --shadow-md:0 4px 20px rgba(0,0,0,.10);
+      --shadow-lg:0 12px 48px rgba(0,0,0,.14);
+      --font-display:'Oswald',system-ui,sans-serif;
+      --font-body:'Barlow',system-ui,sans-serif;
+      --nav-h:72px;
+    }
+
+    /* ─────────────────────────────────────────────
+       RESET
+    ───────────────────────────────────────────── */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    body{font-family:var(--font-body);font-size:16px;color:var(--text);background:var(--bg);overflow-x:hidden;min-height:100dvh}
+    a{color:inherit;text-decoration:none}
+    button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
+    img,svg{display:block;max-width:100%}
+    h1,h2,h3,h4{font-family:var(--font-display);line-height:1.1;text-wrap:balance}
+
+    /* ─────────────────────────────────────────────
+       NAV — DESKTOP
+    ───────────────────────────────────────────── */
+    .nav{
+      position:sticky;top:0;z-index:200;
+      height:var(--nav-h);
+      background:rgba(247,244,238,.92);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+      transition:box-shadow .2s;
+    }
+    .nav.scrolled{box-shadow:var(--shadow-md)}
+    .nav-inner{
+      max-width:1280px;margin:0 auto;height:100%;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 24px;gap:16px;
+    }
+
+    /* logo */
+    .logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .wordmark{font-family:var(--font-display);font-weight:800;font-size:1.45rem;letter-spacing:.01em;line-height:1}
+
+    /* nav right */
+    .nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0;overflow:visible;padding-right:4px}
+    .nav-link{padding:10px 14px;border-radius:var(--r-full);font-size:.875rem;font-weight:600;color:var(--muted);white-space:nowrap;transition:background .15s,color .15s}
+    .nav-link:hover{background:var(--divider);color:var(--text)}
+    .nav-cta{
+      display:flex;align-items:center;gap:8px;
+      padding:8px 10px 8px 16px;
+      border:1.5px solid var(--border);border-radius:var(--r-full);
+      background:var(--surface);font-size:.875rem;font-weight:600;
+      box-shadow:var(--shadow-sm);transition:box-shadow .15s;
+    }
+    .nav-cta:hover{box-shadow:var(--shadow-md)}
+
+    /* ─────────────────────────────────────────────
+       HERO
+    ───────────────────────────────────────────── */
+    .contact-hero {
+      position: relative;
+      background: linear-gradient(135deg, #1a2e1a 0%, #2d4a1e 40%, #3d5e28 70%, #4a3810 100%);
+      padding: 80px 24px 72px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .contact-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 80% 50%, rgba(193,127,58,.15), transparent),
+        radial-gradient(ellipse 40% 60% at 10% 90%, rgba(26,107,122,.12), transparent);
+    }
+    /* tree silhouette at bottom */
+    .contact-hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 80px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 80' preserveAspectRatio='none'%3E%3Cpath d='M0,80 L0,50 Q20,30 40,45 Q55,20 70,35 Q85,10 100,28 Q115,0 130,20 Q145,5 160,25 Q175,10 190,30 Q210,15 230,35 Q250,0 270,22 Q285,7 300,28 Q315,2 330,25 Q345,10 360,30 Q380,5 400,28 Q420,0 440,22 Q460,10 480,32 Q495,15 510,35 Q525,2 540,25 Q560,12 580,32 Q600,5 620,28 Q645,0 665,24 Q685,7 705,30 Q725,2 745,26 Q765,10 785,32 Q805,0 825,25 Q845,12 865,35 Q885,5 905,28 Q925,0 945,24 Q965,10 985,32 Q1005,2 1025,28 Q1050,7 1075,30 Q1100,0 1125,25 Q1145,10 1165,32 Q1185,5 1205,28 Q1225,0 1250,24 Q1270,10 1295,32 Q1315,0 1340,25 Q1360,10 1380,30 Q1400,5 1420,28 L1440,30 L1440,80 Z' fill='%23f7f4ee'/%3E%3C/svg%3E");
+      background-size: 100% 100%;
+      pointer-events: none;
+    }
+    .contact-hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 14px;
+      border-radius: var(--r-full);
+      background: rgba(193,127,58,.25);
+      border: 1px solid rgba(193,127,58,.4);
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #f0c878;
+      margin-bottom: 20px;
+    }
+    .contact-hero h1 {
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: .01em;
+      margin-bottom: 16px;
+    }
+    .contact-hero p {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,.75);
+      line-height: 1.65;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* ─────────────────────────────────────────────
+       MAIN CONTENT
+    ───────────────────────────────────────────── */
+    .contact-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 64px 24px 80px;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    /* ─────────────────────────────────────────────
+       CONTACT INFO CARD
+    ───────────────────────────────────────────── */
+    .contact-info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      box-shadow: var(--shadow-sm);
+      padding: 36px 32px;
+    }
+    .contact-info-card h2 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .contact-info-card > p {
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .contact-detail {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--divider);
+    }
+    .contact-detail:last-of-type {
+      border-bottom: none;
+    }
+    .contact-detail-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--r-sm);
+      background: var(--green-lt);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      color: var(--green);
+    }
+    .contact-detail-text {
+      flex: 1;
+    }
+    .contact-detail-label {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--faint);
+      margin-bottom: 4px;
+    }
+    .contact-detail-value {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .contact-detail-value a {
+      color: var(--green);
+      transition: color .15s;
+    }
+    .contact-detail-value a:hover {
+      color: var(--green-dk);
+    }
+    .contact-detail-sub {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .response-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 28px;
+      padding: 8px 14px;
+      border-radius: var(--r-full);
+      background: rgba(45,90,39,.08);
+      border: 1px solid rgba(45,90,39,.15);
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--green);
+    }
+    .response-badge::before {
+      content: '';
+      display: block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    /* ─────────────────────────────────────────────
+       CONTACT FORM CARD
+    ───────────────────────────────────────────── */
+    .contact-form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      box-shadow: var(--shadow-sm);
+      padding: 40px 40px;
+    }
+    .contact-form-card h2 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .contact-form-card > p {
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    .form-group:last-of-type {
+      margin-bottom: 0;
+    }
+    .form-group label {
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      font-family: var(--font-body);
+      font-size: .95rem;
+      color: var(--text);
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 11px 14px;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+      width: 100%;
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: var(--faint);
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(45,90,39,.1);
+      background: var(--surface);
+    }
+    .form-group select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a09b8c' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 140px;
+      line-height: 1.6;
+    }
+
+    .submit-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px 24px;
+      border-radius: var(--r-sm);
+      background: var(--green);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      border: none;
+      cursor: pointer;
+      transition: background .15s, box-shadow .15s, transform .1s;
+      margin-top: 24px;
+    }
+    .submit-btn:hover {
+      background: var(--green-dk);
+      box-shadow: var(--shadow-md);
+    }
+    .submit-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* ─────────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────────── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 48px 24px 24px;
+    }
+    .footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.6fr repeat(3, 1fr);
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    .footer-brand p {
+      font-size: .85rem;
+      color: var(--muted);
+      margin-top: 12px;
+      line-height: 1.65;
+      max-width: 26ch;
+    }
+    .footer-socials {
+      display: flex;
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .footer-socials a {
+      color: var(--faint);
+      transition: color .15s;
+    }
+    .footer-socials a:hover {
+      color: var(--text);
+    }
+    .footer-col h4 {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--faint);
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .footer-col ul {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+    .footer-col a {
+      font-size: .875rem;
+      color: var(--muted);
+      transition: color .15s;
+    }
+    .footer-col a:hover {
+      color: var(--text);
+    }
+    .footer-bottom {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding-top: 20px;
+      border-top: 1px solid var(--divider);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: .8rem;
+      color: var(--faint);
+    }
+    .footer-bottom-links {
+      display: flex;
+      gap: 20px;
+    }
+    .footer-bottom-links a {
+      color: var(--faint);
+      transition: color .15s;
+    }
+    .footer-bottom-links a:hover {
+      color: var(--text);
+    }
+
+    /* ─────────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-inner {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .contact-form-card {
+        padding: 28px 20px;
+      }
+      .contact-info-card {
+        padding: 28px 20px;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .footer-inner {
+        grid-template-columns: 1fr;
+      }
+      .nav-right .nav-link {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════
+       NAV
+  ══════════════════════════════════════════ -->
+  <nav class="nav" style="position:relative" id="main-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <svg width="36" height="36" viewBox="0 0 38 38" fill="none">
+          <polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/>
+        </svg>
+        <span class="wordmark"><span style="color:#1a1a1a">Lease</span><span style="color:#c17f3a">Wild</span></span>
+      </a>
+      <div class="nav-right">
+        <a href="list-your-land.html" class="nav-link">List your land</a>
+        <a href="guest-portal.html" class="nav-link">Hunter Login</a>
+        <a href="landowner-portal.html" class="nav-link">Landowner Login</a>
+        <a href="index.html" class="nav-cta">Join waitlist</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════ -->
+  <section class="contact-hero">
+    <div class="contact-hero-content">
+      <div class="hero-eyebrow">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Contact Us
+      </div>
+      <h1>Get in Touch</h1>
+      <p>Questions about listing your land, booking a property, or anything else — we're here to help.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       CONTACT CONTENT
+  ══════════════════════════════════════════ -->
+  <section class="contact-section">
+    <div class="contact-grid">
+
+      <!-- LEFT: Contact Info -->
+      <div class="contact-info-card">
+        <h2>Contact Information</h2>
+        <p>Reach out directly or use the form and we'll get back to you quickly.</p>
+
+        <div class="contact-detail">
+          <div class="contact-detail-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div class="contact-detail-text">
+            <div class="contact-detail-label">Email</div>
+            <div class="contact-detail-value">
+              <a href="mailto:zach.schmitt@leasewild.com">zach.schmitt@leasewild.com</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-detail">
+          <div class="contact-detail-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.82h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 10.9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 17.18v-.26z"/></svg>
+          </div>
+          <div class="contact-detail-text">
+            <div class="contact-detail-label">Phone</div>
+            <div class="contact-detail-value">
+              <a href="tel:3862935515">386.293.5515</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-detail">
+          <div class="contact-detail-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="contact-detail-text">
+            <div class="contact-detail-label">Location</div>
+            <div class="contact-detail-value">New Smyrna Beach, FL</div>
+            <div class="contact-detail-sub">Serving all of Florida</div>
+          </div>
+        </div>
+
+        <div class="response-badge">
+          We typically respond within 24 hours
+        </div>
+      </div>
+
+      <!-- RIGHT: Contact Form -->
+      <div class="contact-form-card">
+        <h2>Send a Message</h2>
+        <p>Fill out the form below and we'll be in touch as soon as possible.</p>
+
+        <form action="mailto:zach.schmitt@leasewild.com" method="POST" enctype="text/plain">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contact-name">Name <span style="color:var(--danger)">*</span></label>
+              <input
+                type="text"
+                id="contact-name"
+                name="Name"
+                placeholder="Your full name"
+                required
+                autocomplete="name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="contact-email">Email <span style="color:var(--danger)">*</span></label>
+              <input
+                type="email"
+                id="contact-email"
+                name="Email"
+                placeholder="you@example.com"
+                required
+                autocomplete="email"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="contact-subject">Subject</label>
+            <select id="contact-subject" name="Subject">
+              <option value="General Question">General Question</option>
+              <option value="List My Land">List My Land</option>
+              <option value="Booking Help">Booking Help</option>
+              <option value="Partnership">Partnership</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="contact-message">Message <span style="color:var(--danger)">*</span></label>
+            <textarea
+              id="contact-message"
+              name="Message"
+              placeholder="Tell us how we can help…"
+              required
+            ></textarea>
+          </div>
+
+          <button type="submit" class="submit-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send Message
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <svg width="34" height="34" viewBox="0 0 38 38" fill="none"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
+          <span class="wordmark"><span style="color:var(--text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
+        </a>
+        <p>Private hunting land and fishing water access — land that was never available before.</p>
+        <div class="footer-socials">
+          <a href="https://www.instagram.com/leasewild?igsh=Z2J6NG4zNmUxOGp0" target="_blank" aria-label="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" aria-label="Facebook">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="#" aria-label="TikTok">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.28 6.28 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>
+          </a>
+          <a href="#" aria-label="YouTube">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Hunting</h4>
+        <ul>
+          <li><a href="listings.html">Browse hunting land</a></li>
+          <li><a href="listings.html">Guided stays</a></li>
+          <li><a href="listings.html">Cabin + land access</a></li>
+          <li><a href="listings.html">Night hog access</a></li>
+          <li><a href="listings.html">Turkey season</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Fishing</h4>
+        <ul>
+          <li><a href="fishing.html">Private ponds</a></li>
+          <li><a href="fishing.html">Spring creeks</a></li>
+          <li><a href="fishing.html">Lake frontage</a></li>
+          <li><a href="fishing.html">Guided fishing</a></li>
+          <li><a href="fishing.html">License guide</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About LeaseWild</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="landowner-protection.html">Landowner protection</a></li>
+          <li><a href="list-your-land.html">List your land</a></li>
+          <li><a href="landowner-portal.html">Landowner login</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 LeaseWild. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="terms.html">Terms</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="#">Landowner Agreement</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Nav scroll shadow
+    const nav = document.getElementById('main-nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    }, {passive: true});
+  </script>
+
+</body>
+</html>
