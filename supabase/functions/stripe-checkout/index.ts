@@ -5,8 +5,8 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
   apiVersion: '2023-10-16',
 });
 
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
-const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+const SUPABASE_URL = Deno.env.get('SB_URL') ?? '';
+const SUPABASE_SERVICE_KEY = Deno.env.get('SB_SERVICE_KEY') ?? '';
 const PLATFORM_FEE_PCT = 0.20; // LeaseWild takes 20% from landowner payout
 
 const corsHeaders = {
