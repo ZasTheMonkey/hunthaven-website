@@ -102,6 +102,10 @@ function openListingDetail(l) {
           '<div style="margin-bottom:.75rem"><label style="'+labelStyle+'">Guests</label>' +
           '<select id="bk-guests" style="'+inputStyle+'">'+guestOpts+'</select></div>' +
           '<div id="bk-price-breakdown" style="display:none;background:var(--color-surface-offset);border-radius:8px;padding:.85rem;margin-bottom:.75rem;font-size:.85rem;flex-direction:column;gap:.4rem"></div>' +
+          '<div id="bk-trip-protection-row" style="display:none;align-items:center;gap:.6rem;margin-bottom:.75rem;background:var(--color-surface-offset);border-radius:8px;padding:.7rem .85rem;font-size:.85rem">' +
+            '<input type="checkbox" id="bk-trip-protection" onchange="updatePriceBreakdown()" style="width:16px;height:16px;accent-color:var(--color-primary);cursor:pointer" />' +
+            '<label for="bk-trip-protection" style="cursor:pointer;flex:1">Add trip protection <span style="color:var(--color-text-muted)">+$18.00</span></label>' +
+          '</div>' +
           '<div style="margin-bottom:.75rem">' +
             '<label style="'+labelStyle+'">Promo / Affiliate Code</label>' +
             '<div style="display:flex;gap:.5rem">' +
@@ -337,14 +341,19 @@ function updateBookingPrice() {
     discountAmt = +((subtotal + svcFee) * (discountPct / 100)).toFixed(2);
   }
   var discountLabel = discountFixed > 0 ? '$' + discountFixed.toFixed(0) + ' off' : discountPct + '% off';
-  var total = +(subtotal + svcFee + 18 - discountAmt).toFixed(2);
   var bd = document.getElementById('bk-price-breakdown');
   if (!bd) return;
+  // Show trip protection toggle row
+  var tpRow = document.getElementById('bk-trip-protection-row');
+  if (tpRow) tpRow.style.display = 'flex';
+  var tpChecked = document.getElementById('bk-trip-protection');
+  var tripProtection = (tpChecked && tpChecked.checked) ? 18 : 0;
+  var total = +(subtotal + svcFee + tripProtection - discountAmt).toFixed(2);
   bd.style.display = 'flex';
   bd.innerHTML =
     '<div style="display:flex;justify-content:space-between"><span>$'+rate+' x '+nights+' night'+(nights>1?'s':'')+'</span><span>$'+(rate*nights).toFixed(2)+'</span></div>' +
     (cleaning ? '<div style="display:flex;justify-content:space-between"><span>Cleaning fee</span><span>$'+cleaning.toFixed(2)+'</span></div>' : '') +
-    '<div style="display:flex;justify-content:space-between"><span>Trip protection (optional)</span><span>$18.00</span></div>' +
+    (tripProtection > 0 ? '<div style="display:flex;justify-content:space-between"><span>Trip protection</span><span>$18.00</span></div>' : '') +
     (discountAmt > 0 ? '<div style="display:flex;justify-content:space-between;color:var(--color-primary);font-weight:600"><span>Discount ('+discountLabel+')</span><span>−$'+discountAmt.toFixed(2)+'</span></div>' : '') +
     '<div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid var(--color-border);padding-top:.4rem;margin-top:.25rem"><span>Total</span><span>$'+total.toFixed(2)+'</span></div>';
 }
@@ -373,7 +382,9 @@ async function submitPreReservation() {
   var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
   var discountFixed2 = _appliedCode ? (_appliedCode.discount_fixed || 0) : 0;
   var discountAmt = discountFixed2 > 0 ? Math.min(discountFixed2, subtotal + svcFee) : (discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0);
-  var total = +(subtotal + svcFee + 18 - discountAmt).toFixed(2);
+  var tpBox = document.getElementById('bk-trip-protection');
+  var tripProtectionAmt = (tpBox && tpBox.checked) ? 18 : 0;
+  var total = +(subtotal + svcFee + tripProtectionAmt - discountAmt).toFixed(2);
   btn.disabled = true; btn.textContent = 'Saving...'
   try {
     var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -389,7 +400,7 @@ async function submitPreReservation() {
       rate_per_night: rate,
       cleaning_fee: cleaning,
       service_fee: svcFee,
-      trip_protection: 18,
+      trip_protection: tripProtectionAmt,
       discount_code: _appliedCode ? _appliedCode.code : null,
       discount_pct: discountPct || null,
       discount_amt: discountAmt || null,
@@ -480,7 +491,8 @@ async function submitBookingStripe() {
   var svcFee = 0; // LeaseWild takes 20% from landowner payout — not charged to guest
   var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
   var discountAmt = discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0;
-  var tripProtection = 18;
+  var tpBoxStripe = document.getElementById('bk-trip-protection');
+  var tripProtection = (tpBoxStripe && tpBoxStripe.checked) ? 18 : 0;
   // Stripe fee passed to guest: 2.9% + $0.30 on top of everything
   var preStripe = subtotal + svcFee + tripProtection - discountAmt;
   var stripeFee = +((preStripe * 0.029) + 0.30).toFixed(2);
@@ -502,7 +514,7 @@ async function submitBookingStripe() {
       rate_per_night: rate,
       cleaning_fee: cleaning,
       service_fee: svcFee,
-      trip_protection: tripProtection,
+      trip_protection: tripProtection, // 0 or 18 based on checkbox
       stripe_fee: stripeFee,
       discount_code: _appliedCode ? _appliedCode.code : null,
       discount_pct: discountPct || null,
