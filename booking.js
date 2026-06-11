@@ -327,7 +327,7 @@ function updateBookingPrice() {
   var rate = parseFloat(l.price_per_day) || 0;
   var cleaning = parseFloat(l.cleaning_fee) || 0;
   var subtotal = rate * nights + cleaning;
-  var svcFee = +(subtotal * 0.15).toFixed(2);
+  var svcFee = 0; // LeaseWild takes 20% from landowner payout — not charged to guest
   var discountAmt = 0;
   var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
   var discountFixed = _appliedCode ? (_appliedCode.discount_fixed || 0) : 0;
@@ -344,8 +344,7 @@ function updateBookingPrice() {
   bd.innerHTML =
     '<div style="display:flex;justify-content:space-between"><span>$'+rate+' x '+nights+' night'+(nights>1?'s':'')+'</span><span>$'+(rate*nights).toFixed(2)+'</span></div>' +
     (cleaning ? '<div style="display:flex;justify-content:space-between"><span>Cleaning fee</span><span>$'+cleaning.toFixed(2)+'</span></div>' : '') +
-    '<div style="display:flex;justify-content:space-between"><span>Service fee (15%)</span><span>$'+svcFee.toFixed(2)+'</span></div>' +
-    '<div style="display:flex;justify-content:space-between"><span>Trip protection</span><span>$18.00</span></div>' +
+    '<div style="display:flex;justify-content:space-between"><span>Trip protection (optional)</span><span>$18.00</span></div>' +
     (discountAmt > 0 ? '<div style="display:flex;justify-content:space-between;color:var(--color-primary);font-weight:600"><span>Discount ('+discountLabel+')</span><span>−$'+discountAmt.toFixed(2)+'</span></div>' : '') +
     '<div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid var(--color-border);padding-top:.4rem;margin-top:.25rem"><span>Total</span><span>$'+total.toFixed(2)+'</span></div>';
 }
@@ -370,7 +369,7 @@ async function submitPreReservation() {
   var rate = parseFloat(l.price_per_day) || 0;
   var cleaning = parseFloat(l.cleaning_fee) || 0;
   var subtotal = rate * nights + cleaning;
-  var svcFee = +(subtotal * 0.15).toFixed(2);
+  var svcFee = 0; // LeaseWild takes 20% from landowner payout — not charged to guest
   var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
   var discountFixed2 = _appliedCode ? (_appliedCode.discount_fixed || 0) : 0;
   var discountAmt = discountFixed2 > 0 ? Math.min(discountFixed2, subtotal + svcFee) : (discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0);
@@ -478,7 +477,7 @@ async function submitBookingStripe() {
   var rate = parseFloat(l.price_per_day) || 0;
   var cleaning = parseFloat(l.cleaning_fee) || 0;
   var subtotal = rate * nights + cleaning;
-  var svcFee = +(subtotal * 0.15).toFixed(2);
+  var svcFee = 0; // LeaseWild takes 20% from landowner payout — not charged to guest
   var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
   var discountAmt = discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0;
   var tripProtection = 18;

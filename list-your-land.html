@@ -215,7 +215,7 @@
     "areaServed": {"@type": "State", "name": "Florida"},
     "description": "Florida landowners can list hunting and fishing properties on LeaseWild for free. No approval wait. Keep 85% of every booking. Earn from deer, hog, turkey, and fishing guests.",
     "url": "https://leasewild.com/list-your-land.html",
-    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free to list. No monthly fees. Landowner keeps 85% of every booking."}
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Free to list. No monthly fees. Landowner keeps 80% of every booking."}
   }</script>
 </head>
 <body>
@@ -275,7 +275,7 @@
         Founding Landowner Program — Free to Join
       </div>
       <h1>Earn passive income from your land<br><span style="color:#c17f3a">without the risk</span></h1>
-      <p>Verified guests only. Signed waivers. $1M coverage. Your location stays private until after booking. You set the rules, approve the guests, and keep 85%. We handle everything else.</p>
+      <p>Verified guests only. Signed waivers. $1M coverage. Your location stays private until after booking. You set the rules, approve the guests, and keep 80%. We handle everything else.</p>
     </div>
   </div>
 
@@ -296,7 +296,7 @@
       </div>
       <div>
         <p style="font-weight:700;font-size:var(--text-sm)">Fast deposit</p>
-        <p style="font-size:var(--text-xs);color:var(--color-text-muted)">85% deposited within 3–5 days</p>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted)">80% deposited within 3–5 days</p>
       </div>
     </div>
     <div class="perk">
@@ -830,7 +830,7 @@
     var combinedGross = rateSubtotal + cleanTotal;
     var fee = Math.round(combinedGross * 0.15);
     // Landowner gets: 85% of rate subtotal + 100% of cleaning fee
-    var ratePayout = Math.round(rateSubtotal * 0.85);
+    var ratePayout = Math.round(rateSubtotal * 0.80);
     var payout = ratePayout + cleanTotal;
     var annual = payout * 12;
     var rateLabel = mode === 'per_person' ? '$'+rate+'/person/day' : '$'+rate+'/day';

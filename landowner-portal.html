@@ -189,7 +189,7 @@
         <span id="calc-arrow" style="color:var(--color-text-muted);font-size:.8rem;transition:transform .2s">▼</span>
       </div>
       <div id="calc-body" style="padding:1.25rem;display:none">
-        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:1rem">Estimate your monthly income based on nightly rate and bookings. You keep 85% of every booking.</p>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:1rem">Estimate your monthly income based on nightly rate and bookings. You keep 80% of every booking.</p>
 
         <div style="display:grid;gap:.75rem;margin-bottom:1rem">
           <div>
@@ -232,7 +232,7 @@
       <div id="stripe-not-connected" style="padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
         <div>
           <p style="font-weight:700;font-size:var(--text-sm);margin-bottom:.2rem">Set up payouts</p>
-          <p style="font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.5">Connect your Stripe account to receive your 85% when guests book.</p>
+          <p style="font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.5">Connect your Stripe account to receive your 80% when guests book.</p>
         </div>
         <button onclick="connectStripe()" id="stripe-connect-btn" style="padding:.6rem 1.1rem;background:#635BFF;color:#fff;border:none;border-radius:var(--radius-full);font-weight:700;font-size:var(--text-xs);font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0">Connect Stripe &rarr;</button>
       </div>
@@ -240,7 +240,7 @@
         <span style="font-size:1.2rem">&#10003;</span>
         <div>
           <p style="font-weight:700;font-size:var(--text-sm);color:var(--color-primary)">Stripe connected</p>
-          <p style="font-size:var(--text-xs);color:var(--color-text-muted)">You&rsquo;ll receive 85% of each booking automatically.</p>
+          <p style="font-size:var(--text-xs);color:var(--color-text-muted)">You&rsquo;ll receive 80% of each booking automatically.</p>
         </div>
       </div>
     </div>
@@ -513,7 +513,7 @@
     var weekendNights = Math.round(nights * (2/7));
     var weekdayNights = nights - weekendNights;
     var gross = (weekdayNights * weekday) + (weekendNights * weekend);
-    var takeHome = gross * 0.85;
+    var takeHome = gross * 0.80;
 
     document.getElementById('calc-result').textContent = '$' + Math.round(takeHome).toLocaleString();
     document.getElementById('calc-breakdown').textContent =
@@ -870,7 +870,7 @@
       var st = b.status || 'pre_reserved';
       var color = statusColor[st] || '#888';
       var label = statusLabel[st] || st;
-      var landEarnings = b.rate_per_night && b.nights ? '$' + (b.rate_per_night * b.nights * 0.85 + (b.cleaning_fee || 0)).toFixed(2) : '—';
+      var landEarnings = b.rate_per_night && b.nights ? '$' + (b.rate_per_night * b.nights * 0.80 + (b.cleaning_fee || 0)).toFixed(2) : '—';
       return `
       <div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:.85rem">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem">

@@ -1266,7 +1266,7 @@
       <div class="calc-result">
         <p class="calc-result-label">Est. monthly earnings</p>
         <p class="calc-result-amount" id="calc-output">$578</p>
-        <p class="calc-result-sub">Landowners keep 85% of every booking.<br>LeaseWild earns 15%.</p>
+        <p class="calc-result-sub">Landowners keep 80% of every booking.<br>LeaseWild earns 20%.</p>
         <a href="list-your-land.html" class="btn-amber">Start earning — list your land free →</a>
       </div>
     </div>
@@ -1417,7 +1417,7 @@
     document.getElementById('acres-val').textContent = acres.toLocaleString() + ' acres';
     document.getElementById('days-val').textContent = days + (days === 1 ? ' day' : ' days');
 
-    const monthly = Math.round(priceDay * days * 0.85);
+    const monthly = Math.round(priceDay * days * 0.80);
     document.getElementById('calc-output').textContent = '$' + monthly.toLocaleString();
   }
 
