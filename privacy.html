@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+  <link rel="apple-touch-icon" href="/favicon-192.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — LeaseWild</title>
+  <meta name="description" content="LeaseWild Privacy Policy — how we collect, use, and protect your personal information on the LeaseWild marketplace." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://leasewild.com/privacy.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --green: #2d5a27;
+      --green-dk: #1e3d1a;
+      --green-lt: #d6e8d3;
+      --amber: #c17f3a;
+      --amber-dk: #a06828;
+      --bg: #f9f7f4;
+      --surface: #ffffff;
+      --surface2: #f3f0ea;
+      --border: #e2ddd4;
+      --divider: #ede9e1;
+      --text: #1a1a1a;
+      --muted: #6b6656;
+      --faint: #a09b8c;
+      --r-sm: 6px;
+      --r-md: 10px;
+      --r-lg: 16px;
+      --r-full: 9999px;
+      --shadow-sm: 0 1px 4px rgba(0,0,0,.07);
+      --shadow-md: 0 4px 20px rgba(0,0,0,.10);
+      --font-display: 'Oswald', system-ui, sans-serif;
+      --font-body: 'Barlow', system-ui, sans-serif;
+      --nav-h: 72px;
+      --transition: 160ms cubic-bezier(.16,1,.3,1);
+    }
+
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 24px); -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font-body); font-size: 16px; color: var(--text); background: var(--bg); line-height: 1.75; }
+    a { color: inherit; text-decoration: none; }
+    img, svg { display: block; max-width: 100%; }
+    h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; }
+
+    /* ── NAV ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      background: rgba(249,247,244,0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 clamp(16px, 4vw, 48px);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .wordmark {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: .01em;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-link {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--r-full);
+      border: 1px solid transparent;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .nav-link:hover {
+      color: var(--text);
+      background: var(--surface2);
+      border-color: var(--border);
+    }
+
+    /* ── PAGE HERO ── */
+    .page-hero {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: clamp(48px, 7vw, 80px) clamp(16px, 4vw, 48px);
+    }
+    .page-hero-inner {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .effective-date {
+      display: inline-block;
+      font-size: 0.82rem;
+      color: var(--faint);
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .page-hero h1 {
+      font-size: clamp(2rem, 4vw + 1rem, 3rem);
+      font-weight: 800;
+      letter-spacing: .01em;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    .page-hero p {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 60ch;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    /* ── JUMP NAV ── */
+    .jump-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .jump-nav a {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--r-full);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: all var(--transition);
+    }
+    .jump-nav a:hover {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+
+    /* ── CONTENT ── */
+    .page-wrap {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: clamp(40px, 5vw, 64px) clamp(16px, 4vw, 32px);
+    }
+
+    .policy-section {
+      padding: clamp(36px, 5vw, 56px) 0;
+      border-bottom: 1px solid var(--divider);
+    }
+    .policy-section:last-child {
+      border-bottom: none;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green);
+      background: var(--green-lt);
+      padding: 0.3rem 0.8rem;
+      border-radius: var(--r-full);
+      margin-bottom: 16px;
+    }
+
+    .policy-section h2 {
+      font-size: clamp(1.3rem, 2vw + .5rem, 1.75rem);
+      font-weight: 800;
+      letter-spacing: .01em;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .policy-section p {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 16px;
+      max-width: 70ch;
+    }
+    .policy-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .policy-section ul,
+    .policy-section ol {
+      color: var(--muted);
+      padding-left: 1.4rem;
+      margin-bottom: 16px;
+      line-height: 1.8;
+    }
+    .policy-section li {
+      margin-bottom: 8px;
+    }
+    .policy-section li:last-child {
+      margin-bottom: 0;
+    }
+
+    .policy-section strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .policy-section a {
+      color: var(--green);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .policy-section a:hover {
+      color: var(--green-dk);
+    }
+
+    /* ── INFO CARD ── */
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+    .info-card p {
+      margin: 0;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .info-card.highlight {
+      background: #f0f6ed;
+      border-color: #b8d9b0;
+    }
+
+    /* ── CONTACT BLOCK ── */
+    .contact-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 24px 28px;
+      margin-top: 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .contact-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--green-lt);
+      border-radius: var(--r-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--green);
+    }
+    .contact-block p {
+      margin: 0;
+      color: var(--muted);
+    }
+    .contact-block strong {
+      display: block;
+      color: var(--text);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: clamp(28px, 4vw, 44px) clamp(16px, 4vw, 48px);
+    }
+    .footer-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .footer-logo .wordmark {
+      font-size: 1.15rem;
+    }
+    .footer-copy {
+      font-size: 0.85rem;
+      color: var(--faint);
+    }
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .footer-links a {
+      font-size: 0.85rem;
+      color: var(--faint);
+      transition: color var(--transition);
+    }
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 600px) {
+      .nav-link { display: none; }
+      .nav-link.show-mobile { display: inline-flex; }
+      .footer-inner { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .footer-links { flex-wrap: wrap; gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="main-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <svg width="36" height="36" viewBox="0 0 38 38" fill="none">
+        <polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/>
+      </svg>
+      <span class="wordmark"><span style="color:#1a1a1a">Lease</span><span style="color:#c17f3a">Wild</span></span>
+    </a>
+    <div class="nav-right">
+      <a href="list-your-land.html" class="nav-link">List your land</a>
+      <a href="landowner-portal.html" class="nav-link">Landowner Login</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <span class="effective-date">Effective June 11, 2026</span>
+    <h1>Privacy Policy</h1>
+    <p>We believe you deserve to know exactly what we do with your data. This policy explains what information LeaseWild collects, how we use it, and what rights you have — in plain language.</p>
+    <nav class="jump-nav" aria-label="Jump to section">
+      <a href="#collect">What we collect</a>
+      <a href="#use">How we use it</a>
+      <a href="#share">How we share it</a>
+      <a href="#retention">Data retention</a>
+      <a href="#rights">Your rights</a>
+      <a href="#cookies">Cookies</a>
+      <a href="#children">Children's privacy</a>
+      <a href="#changes">Policy changes</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="page-wrap">
+
+  <!-- 1. WHAT WE COLLECT -->
+  <section class="policy-section" id="collect">
+    <span class="section-label">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Section 1
+    </span>
+    <h2>What Information We Collect</h2>
+    <p>We only collect information that helps us run the marketplace and serve you better.</p>
+
+    <p><strong>Information you give us directly:</strong></p>
+    <ul>
+      <li><strong>Account details</strong> — your name, email address, and password when you create an account.</li>
+      <li><strong>Payment information</strong> — billing details processed securely through <strong>Stripe</strong>. LeaseWild never stores your full card number, CVV, or bank account number — that data goes directly to Stripe and is governed by their privacy policy.</li>
+      <li><strong>Booking details</strong> — trip dates, party size, species or activity, and any notes you add at checkout.</li>
+      <li><strong>Property listing info</strong> — if you list land, we collect your property address, acreage, photos, descriptions, availability, and pricing.</li>
+      <li><strong>Communications</strong> — messages you send to our support team or through in-platform messaging.</li>
+    </ul>
+
+    <p><strong>Information collected automatically:</strong></p>
+    <ul>
+      <li><strong>Device and browser data</strong> — IP address, browser type, operating system, and device identifiers (including on our iOS and Android apps).</li>
+      <li><strong>Usage data</strong> — pages you view, features you use, search queries, time spent, and referring URLs.</li>
+      <li><strong>Cookies and similar technologies</strong> — see Section 6 for details.</li>
+    </ul>
+  </section>
+
+  <!-- 2. HOW WE USE IT -->
+  <section class="policy-section" id="use">
+    <span class="section-label">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Section 2
+    </span>
+    <h2>How We Use Your Information</h2>
+    <p>Your data is used to run the platform — not to sell ads, not to profile you for third parties.</p>
+    <ul>
+      <li><strong>Process bookings</strong> — confirm reservations, charge your card, and route payouts to landowners via Stripe Connect.</li>
+      <li><strong>Run your account</strong> — authenticate logins, store your preferences, and keep your booking history accessible.</li>
+      <li><strong>Send transactional messages</strong> — booking confirmations, receipts, cancellation notices, and security alerts. These are required and cannot be opted out of.</li>
+      <li><strong>Send marketing communications</strong> — newsletters, new listings, and seasonal promotions. You can unsubscribe at any time from any marketing email.</li>
+      <li><strong>Improve the platform</strong> — analyze how the site and apps are used, fix bugs, and build new features.</li>
+      <li><strong>Prevent fraud and abuse</strong> — detect suspicious activity, enforce our Terms of Service, and protect landowners and guests.</li>
+      <li><strong>Meet legal obligations</strong> — respond to lawful requests, tax reporting, and record-keeping required by law.</li>
+    </ul>
+  </section>
+
+  <!-- 3. HOW WE SHARE IT -->
+  <section class="policy-section" id="share">
+    <span class="section-label">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+      Section 3
+    </span>
+    <h2>How We Share Your Information</h2>
+
+    <div class="info-card highlight">
+      <p>We do not sell, rent, or trade your personal information to third parties. Ever.</p>
+    </div>
+
+    <p>We share data only in these specific circumstances:</p>
+    <ul>
+      <li><strong>Stripe</strong> — for payment processing. When you pay for a booking or receive a payout, Stripe handles the transaction. Their use of your data is governed by the <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer">Stripe Privacy Policy</a>.</li>
+      <li><strong>Supabase</strong> — our database and backend infrastructure provider. Your account data, bookings, and property listings are stored securely in Supabase's infrastructure. They do not use your data for their own purposes.</li>
+      <li><strong>Between landowners and guests</strong> — when a booking is confirmed, we share limited contact details (name and contact method) between the parties so they can coordinate the trip.</li>
+      <li><strong>Legal requirements</strong> — if we receive a valid subpoena, court order, or legal process, we may be required to disclose certain data. We will notify you when legally permitted to do so.</li>
+      <li><strong>Business transfers</strong> — if LeaseWild is acquired, merged, or sells assets, user data may transfer as part of that transaction. We will notify affected users in advance.</li>
+      <li><strong>Safety and enforcement</strong> — to protect the rights, property, or safety of LeaseWild, our users, or the public, when disclosure is necessary.</li>
+    </ul>
+  </section>
+
+  <!-- 4. DATA RETENTION -->
+  <section class="policy-section" id="retention">
+    <span class="section-label">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Section 4
+    </span>
+    <h2>Data Retention</h2>
+    <p>We keep your personal data for as long as your account is active. If you close your account, we retain the minimum data needed for legal compliance (such as transaction records for tax purposes) and then delete the rest within a reasonable timeframe — typically 90 days after account closure.</p>
+    <p>Booking records may be retained longer to resolve disputes or comply with Florida state law requirements. We do not keep data longer than necessary.</p>
+    <p>You can request deletion of your account and associated data at any time — see Section 5 for how.</p>
+  </section>
+
+  <!-- 5. YOUR RIGHTS -->
+  <section class="policy-section" id="rights">
+    <span class="section-label">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Section 5
+    </span>
+    <h2>Your Rights</h2>
+    <p>You have meaningful control over your data. At any time, you can:</p>
+    <ul>
+      <li><strong>Access</strong> — request a copy of the personal information we hold about you.</li>
+      <li><strong>Correction</strong> — ask us to fix inaccurate or incomplete data in your account.</li>
+      <li><strong>Deletion</strong> — request that we delete your account and associated personal data. We will honor this within 30 days, subject to any legal hold requirements.</li>
+      <li><strong>Opt-out of marketing</strong> — unsubscribe from promotional emails using the link in any email, or by contacting us directly. Transactional messages (booking receipts, security notices) will continue.</li>
+      <li><strong>Data portability</strong> — request your data in a common, machine-readable format.</li>
+    </ul>
+    <p>To exercise any of these rights, email <a href="mailto:zach.schmitt@leasewild.com">zach.schmitt@leasewild.com</a> with "Privacy Request" in the subject line. We respond within 30 days.</p>
+  </section>
+
+  <!-- 6. COOKIES -->
+  <section class="policy-section" id="cookies">
+    <span class="section-label">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      Section 6
+    </span>
+    <h2>Cookies and Tracking</h2>
+    <p>We use cookies and similar technologies (like local storage and session tokens) to make the platform work and to understand how it's being used.</p>
+    <ul>
+      <li><strong>Essential cookies</strong> — keep you logged in, maintain your session, and make bookings function correctly. These cannot be disabled without breaking core features.</li>
+      <li><strong>Analytics</strong> — help us understand which pages are most useful, where users get stuck, and how to improve the experience. This data is aggregated and not tied to individual identities.</li>
+      <li><strong>Preference cookies</strong> — remember settings like your preferred filters or view options.</li>
+    </ul>
+    <p>You can control or delete cookies through your browser settings. Blocking essential cookies will prevent login and booking features from working. Our iOS and Android apps use similar device identifiers for session management and analytics.</p>
+    <p>We do not use cookies to serve third-party advertising.</p>
+  </section>
+
+  <!-- 7. CHILDREN'S PRIVACY -->
+  <section class="policy-section" id="children">
+    <span class="section-label">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Section 7
+    </span>
+    <h2>Children's Privacy</h2>
+    <p>LeaseWild is not intended for anyone under the age of 13, and we do not knowingly collect personal information from children under 13.</p>
+    <p>If you believe a child under 13 has created an account or provided us with personal information, please contact us immediately at <a href="mailto:zach.schmitt@leasewild.com">zach.schmitt@leasewild.com</a>. We will delete that information as quickly as possible.</p>
+    <p>Users must be at least 18 years old to book or list property on LeaseWild, in accordance with our Terms of Service.</p>
+  </section>
+
+  <!-- 8. CHANGES -->
+  <section class="policy-section" id="changes">
+    <span class="section-label">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Section 8
+    </span>
+    <h2>Changes to This Policy</h2>
+    <p>We may update this Privacy Policy as the platform evolves or as laws change. When we make material changes, we will:</p>
+    <ul>
+      <li>Update the effective date at the top of this page</li>
+      <li>Send an email notification to registered users when the changes are significant</li>
+      <li>Post a notice on the platform</li>
+    </ul>
+    <p>Your continued use of LeaseWild after a policy update means you accept the revised terms. If you disagree with a change, you can close your account and request deletion of your data.</p>
+  </section>
+
+  <!-- 9. CONTACT -->
+  <section class="policy-section" id="contact">
+    <span class="section-label">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Section 9
+    </span>
+    <h2>Contact Us</h2>
+    <p>Have a question about this policy or want to submit a privacy request? Reach out directly — we're a small team and we take these requests seriously.</p>
+
+    <div class="contact-block">
+      <div class="contact-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <div>
+        <strong>Zach Schmitt — LeaseWild</strong>
+        <p><a href="mailto:zach.schmitt@leasewild.com" style="color:var(--green);font-weight:600;text-decoration:underline;text-underline-offset:3px;">zach.schmitt@leasewild.com</a></p>
+        <p style="margin-top:6px;font-size:0.9rem;">New Smyrna Beach, FL</p>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /page-wrap -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <a href="index.html" class="footer-logo">
+      <svg width="30" height="30" viewBox="0 0 38 38" fill="none">
+        <polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/>
+      </svg>
+      <span class="wordmark"><span style="color:#1a1a1a">Lease</span><span style="color:#c17f3a">Wild</span></span>
+    </a>
+    <span class="footer-copy">© 2026 LeaseWild. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html" style="color:var(--text);font-weight:600;">Privacy</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
