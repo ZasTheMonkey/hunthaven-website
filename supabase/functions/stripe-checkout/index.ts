@@ -53,15 +53,26 @@ Deno.serve(async (req) => {
       throw new Error('Booking not found: ' + (bookingErr?.message ?? ''));
     }
 
-    // Get listing to find landowner's stripe account
+    // Get listing to find landowner's email
     const { data: listing, error: listingErr } = await sb
       .from('listings')
-      .select('id, stripe_account_id, email')
+      .select('id, email')
       .eq('id', booking.listing_id)
       .single();
 
     if (listingErr || !listing) {
       throw new Error('Listing not found: ' + (listingErr?.message ?? ''));
+    }
+
+    // Look up landowner's connected Stripe account via landowner_profiles
+    let stripe_account_id: string | null = null;
+    if (listing.email) {
+      const { data: profile } = await sb
+        .from('landowner_profiles')
+        .select('stripe_account_id')
+        .eq('email', listing.email)
+        .single();
+      stripe_account_id = profile?.stripe_account_id ?? null;
     }
 
     // Calculate platform fee (20% of booking subtotal, not including trip protection)
@@ -99,11 +110,11 @@ Deno.serve(async (req) => {
     };
 
     // If landowner has a connected Stripe account, use destination charge
-    if (listing.stripe_account_id) {
+    if (stripe_account_id) {
       sessionParams.payment_intent_data = {
         application_fee_amount: platformFeeCents,
         transfer_data: {
-          destination: listing.stripe_account_id,
+          destination: stripe_account_id,
         },
       };
     }
