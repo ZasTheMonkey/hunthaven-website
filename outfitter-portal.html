@@ -244,6 +244,7 @@
         <label for="su-agree-terms">I agree to LeaseWild's <a href="terms.html" target="_blank">Terms of Service</a> and <a href="terms.html#privacy" target="_blank">Privacy Policy</a>, and confirm I hold a valid Florida FWC license or will obtain one before my listing goes live.</label>
       </div>
 
+      <div id="auth-msg-signup" class="msg-box" style="margin-bottom:.75rem"></div>
       <button class="btn-primary" onclick="signUp()" id="su-btn">Create Outfitter Account</button>
     </div>
 
@@ -472,15 +473,22 @@
       var agreeP   = document.getElementById('su-agree-platform').checked;
       var agreeT   = document.getElementById('su-agree-terms').checked;
 
+      function showSignupMsg(txt, type) {
+        var el = document.getElementById('auth-msg-signup');
+        el.textContent = txt;
+        el.className = 'msg-box msg-' + type;
+        el.style.display = 'block';
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       if (!first || !last || !phone || !email || !pass || !business || !type || !city) {
-        showAuthMsg('Please fill in all required fields.','error'); return;
+        showSignupMsg('Please fill in all required fields.','error'); return;
       }
       if (!agreeP || !agreeT) {
-        showAuthMsg('You must agree to both the Platform Rules and Terms of Service to create an account.','error'); return;
+        showSignupMsg('You must agree to both the Platform Rules and Terms of Service to create an account.','error'); return;
       }
       var passRe = /^(?=.*[!@#$%^&*()_\-+=\[\]{}|;:,.<>?]).{8,}$/;
       if (!passRe.test(pass)) {
-        showAuthMsg('Password must be at least 8 characters and include at least 1 special character.','error'); return;
+        showSignupMsg('Password must be at least 8 characters and include at least 1 special character.','error'); return;
       }
       var btn = document.getElementById('su-btn'); btn.disabled = true; btn.textContent = 'Creating account…';
       var { data, error } = await sb.auth.signUp({
@@ -491,8 +499,8 @@
         }
       });
       btn.disabled = false; btn.textContent = 'Create Outfitter Account';
-      if (error) { showAuthMsg(error.message,'error'); return; }
-      showAuthMsg('Account created! Check your email to confirm, then sign in.','success');
+      if (error) { showSignupMsg(error.message,'error'); return; }
+      showSignupMsg('Account created! Check your email to confirm, then sign in.','success');
       switchTab('signin');
     }
 
