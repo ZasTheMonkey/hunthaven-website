@@ -460,6 +460,14 @@
       loadDashboard(data.user);
     }
 
+    function showSignupMsg(txt, type) {
+      var el = document.getElementById('auth-msg-signup');
+      el.textContent = txt;
+      el.className = 'msg-box msg-' + type;
+      el.style.display = 'block';
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     async function signUp() {
       var first    = document.getElementById('su-first').value.trim();
       var last     = document.getElementById('su-last').value.trim();
@@ -473,13 +481,6 @@
       var agreeP   = document.getElementById('su-agree-platform').checked;
       var agreeT   = document.getElementById('su-agree-terms').checked;
 
-      function showSignupMsg(txt, type) {
-        var el = document.getElementById('auth-msg-signup');
-        el.textContent = txt;
-        el.className = 'msg-box msg-' + type;
-        el.style.display = 'block';
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
       if (!first || !last || !phone || !email || !pass || !business || !type || !city) {
         showSignupMsg('Please fill in all required fields.','error'); return;
       }
