@@ -165,8 +165,8 @@
 
     <!-- Tabs -->
     <div class="tabs">
-      <div class="tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</div>
-      <div class="tab" id="tab-signup" onclick="switchTab('signup')">Create Account</div>
+      <div class="tab active" id="tab-signin" onclick="switchTab('signin')" style="cursor:pointer">Sign In</div>
+      <div class="tab" id="tab-signup" onclick="(function(){['signin','signup'].forEach(function(x){var t=document.getElementById('tab-'+x),p=document.getElementById('panel-'+x);if(x==='signup'){t.classList.add('active');p.style.display='block';}else{t.classList.remove('active');p.style.display='none';}});})()" style="cursor:pointer">Create Account</div>
     </div>
 
     <div id="auth-msg" class="msg-box"></div>
