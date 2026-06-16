@@ -165,8 +165,8 @@
 
     <!-- Tabs -->
     <div class="tabs">
-      <div class="tab active" id="tab-signin" onclick="switchTab('signin')" style="cursor:pointer">Sign In</div>
-      <div class="tab" id="tab-signup" onclick="(function(){['signin','signup'].forEach(function(x){var t=document.getElementById('tab-'+x),p=document.getElementById('panel-'+x);if(x==='signup'){t.classList.add('active');p.style.display='block';}else{t.classList.remove('active');p.style.display='none';}});})()" style="cursor:pointer">Create Account</div>
+      <div class="tab active" id="tab-signin" onclick="doSwitchTab('signin')" style="cursor:pointer">Sign In</div>
+      <div class="tab" id="tab-signup" onclick="doSwitchTab('signup')" style="cursor:pointer">Create Account</div>
     </div>
 
     <div id="auth-msg" class="msg-box"></div>
@@ -484,6 +484,23 @@
 
   <script src="supabase-config.js"></script>
   <script>
+    function doSwitchTab(t) {
+      ['signin','signup'].forEach(function(x) {
+        var tab = document.getElementById('tab-'+x);
+        var panel = document.getElementById('panel-'+x);
+        if (x === t) {
+          tab.classList.add('active');
+          panel.classList.add('active');
+          panel.style.display = 'block';
+        } else {
+          tab.classList.remove('active');
+          panel.classList.remove('active');
+          panel.style.display = 'none';
+        }
+      });
+      var msg = document.getElementById('auth-msg');
+      if (msg) msg.style.display = 'none';
+    }
     var sb = supabase.createClient('https://teohfzegpoxzimfsmviy.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw');
     var currentUser = null;
     var currentConvId = null;
@@ -561,7 +578,7 @@
       btn.disabled = false; btn.textContent = 'Create Outfitter Account';
       if (error) { showSignupMsg(error.message,'error'); return; }
       showSignupMsg('Account created! Check your email to confirm, then sign in.','success');
-      switchTab('signin');
+      doSwitchTab('signin');
     }
 
     async function resetPassword() {
