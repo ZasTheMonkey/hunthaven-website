@@ -285,20 +285,81 @@
 
     <!-- MY LISTING -->
     <div class="dash-panel active" id="dpanel-listing">
+      <!-- Listing status bar -->
+      <div id="listing-status-bar" style="margin-bottom:.75rem"></div>
+
+      <!-- Listing editor form -->
       <div class="profile-section">
         <h3>Your Outfitter Listing</h3>
-        <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:1.25rem">Your listing is managed by LeaseWild staff. To update your listing details, photos, or pricing, contact us at <a href="mailto:hello@leasewild.com" style="color:var(--color-water);font-weight:600">hello@leasewild.com</a>.</p>
-        <a href="outfitters.html" class="btn-accent" style="display:inline-block;margin-bottom:.5rem">View outfitter directory →</a>
+
+        <!-- Section 1: About -->
+        <div class="field-inline"><label>Listing Title *</label><input type="text" id="lst-title" placeholder="e.g. Central Florida Hog &amp; Deer Hunts" /></div>
+        <div class="field-inline"><label>Bio / Description *</label><textarea id="lst-bio" rows="5" placeholder="Describe your services, experience, species, access areas..."></textarea></div>
+
+        <!-- Section 2: Services & Pricing -->
+        <h4 style="margin:1.25rem 0 .5rem;font-family:var(--font-display);font-size:var(--text-sm);letter-spacing:.03em">Services &amp; Pricing</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+          <div class="field-inline"><label>Starting Price ($/day or $/trip)</label><input type="number" id="lst-price" placeholder="250" min="0" /></div>
+          <div class="field-inline"><label>Price Label</label>
+            <div style="position:relative">
+              <select id="lst-price-label">
+                <option value="per day">per day</option>
+                <option value="per trip">per trip</option>
+                <option value="per person">per person</option>
+                <option value="half day">half day</option>
+              </select>
+              <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--color-text-muted)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Species -->
+        <h4 style="margin:1.25rem 0 .5rem;font-family:var(--font-display);font-size:var(--text-sm);letter-spacing:.03em">Species / Activities</h4>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:.6rem">Check all that apply</p>
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem" id="species-checkboxes"></div>
+
+        <!-- Section 4: Details -->
+        <h4 style="margin:1.25rem 0 .5rem;font-family:var(--font-display);font-size:var(--text-sm);letter-spacing:.03em">Details</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+          <div class="field-inline"><label>Max Group Size</label><input type="number" id="lst-group-size" placeholder="4" min="1" max="20" /></div>
+          <div class="field-inline"><label>Min Booking (days)</label><input type="number" id="lst-min-days" placeholder="1" min="1" /></div>
+        </div>
+        <div class="field-inline"><label>Operating Counties in Florida</label><input type="text" id="lst-counties" placeholder="e.g. Marion, Alachua, Levy" /></div>
+
+        <!-- Section 5: Links -->
+        <h4 style="margin:1.25rem 0 .5rem;font-family:var(--font-display);font-size:var(--text-sm);letter-spacing:.03em">Links (optional)</h4>
+        <div class="field-inline"><label>Website</label><input type="url" id="lst-website" placeholder="https://yoursite.com" /></div>
+        <div class="field-inline"><label>Instagram (handle only)</label><input type="text" id="lst-instagram" placeholder="@yourhandle" /></div>
+
+        <!-- Section 6: Photos -->
+        <h4 style="margin:1.25rem 0 .5rem;font-family:var(--font-display);font-size:var(--text-sm);letter-spacing:.03em">Photos</h4>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:.6rem">Upload up to 6 photos. First photo is your cover image.</p>
+        <div id="photo-upload-area" style="border:2px dashed var(--color-border);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;margin-bottom:.75rem" onclick="document.getElementById('photo-file-input').click()">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--color-text-muted);margin-bottom:.5rem"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin:0">Click to upload photos</p>
+          <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin:.25rem 0 0">JPG, PNG up to 5MB each</p>
+        </div>
+        <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(event)" />
+        <div id="photo-preview-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1rem"></div>
+
+        <!-- Save button -->
+        <div id="listing-msg" class="msg-box" style="margin-bottom:.75rem"></div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+          <button class="btn-save" onclick="saveListing()" id="save-listing-btn">Save listing</button>
+          <a href="outfitters.html" class="btn-ghost" style="padding:.6rem 1.1rem;font-size:var(--text-sm)">View directory →</a>
+        </div>
       </div>
+
+      <!-- Platform Rules reminder -->
       <div class="profile-section">
         <h3>Platform Rules Reminder</h3>
         <div class="disclaimer-box" style="margin-bottom:0">
           <ul>
-            <li>Your listing is <strong>entirely separate</strong> from private land leases on LeaseWild — do not imply otherwise to guests.</li>
-            <li>Social media handles may not be the primary call-to-action in your listing.</li>
-            <li>You may not republish or copy LeaseWild listing content to other platforms.</li>
-            <li>Your Florida FWC license must remain current. LeaseWild may request proof at any time.</li>
-            <li>Violations may result in immediate listing removal. <a href="outfitter-terms.html" style="color:var(--color-water);font-weight:600">Full terms →</a></li>
+            <li>Your listing is <strong>entirely separate</strong> from private land leases — do not imply otherwise.</li>
+            <li>Social media handles may not be the primary call-to-action.</li>
+            <li>You may not republish LeaseWild content to other platforms.</li>
+            <li>Your Florida FWC license must remain current.</li>
+            <li>Violations may result in listing removal. <a href="outfitter-terms.html" style="color:var(--color-water);font-weight:600">Full terms →</a></li>
           </ul>
         </div>
       </div>
@@ -550,6 +611,8 @@
       }
       loadThreads();
       msgPollTimer = setInterval(checkUnread, 30000);
+      buildSpeciesCheckboxes();
+      loadOutfitterListing(user.id);
     }
 
     function switchDashTab(t) {
@@ -703,6 +766,143 @@
 
     function escHtml(str) {
       return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── LISTING EDITOR ───────────────────────────────────────
+    var SPECIES_LIST = ['Whitetail Deer','Wild Hog','Turkey','Duck','Dove','Quail','Bass Fishing','Crappie/Bream','Catfish','Saltwater','Alligator','Exotics'];
+    function buildSpeciesCheckboxes() {
+      var container = document.getElementById('species-checkboxes');
+      if (!container) return;
+      SPECIES_LIST.forEach(function(s) {
+        var label = document.createElement('label');
+        label.style.cssText = 'display:flex;align-items:center;gap:.35rem;font-size:var(--text-sm);background:var(--color-surface);border:1.5px solid var(--color-border);border-radius:20px;padding:.3rem .75rem;cursor:pointer;user-select:none';
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = s;
+        cb.id = 'sp-' + s.replace(/\W/g,'');
+        cb.style.accentColor = 'var(--color-water)';
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(s));
+        container.appendChild(label);
+      });
+    }
+
+    async function loadOutfitterListing(userId) {
+      var { data, error } = await sb
+        .from('outfitter_listings')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (data) {
+        document.getElementById('lst-title').value = data.title || '';
+        document.getElementById('lst-bio').value = data.bio || '';
+        document.getElementById('lst-price').value = data.price || '';
+        document.getElementById('lst-price-label').value = data.price_label || 'per day';
+        document.getElementById('lst-group-size').value = data.max_group_size || '';
+        document.getElementById('lst-min-days').value = data.min_days || '';
+        document.getElementById('lst-counties').value = data.counties || '';
+        document.getElementById('lst-website').value = data.website || '';
+        document.getElementById('lst-instagram').value = data.instagram || '';
+        // Load species checkboxes
+        if (data.species && Array.isArray(data.species)) {
+          data.species.forEach(function(s) {
+            var cb = document.getElementById('sp-' + s.replace(/\W/g,''));
+            if (cb) cb.checked = true;
+          });
+        }
+        // Load photo previews
+        if (data.photos && Array.isArray(data.photos)) {
+          data.photos.forEach(function(url) { addPhotoPreview(url); });
+        }
+        // Show status
+        var bar = document.getElementById('listing-status-bar');
+        if (bar) {
+          var status = data.status || 'pending';
+          var colors = {active:'#e8f5e9|#2d7a3a', pending:'#fff8e1|#b8860b', inactive:'#f5e8e8|#c0392b'};
+          var c = (colors[status]||colors.pending).split('|');
+          bar.innerHTML = '<span style="background:'+c[0]+';color:'+c[1]+';border-radius:99px;font-size:.72rem;font-weight:700;padding:.25rem .75rem;letter-spacing:.05em;text-transform:uppercase">'+status.toUpperCase()+'</span>';
+        }
+      }
+    }
+
+    async function saveListing() {
+      var btn = document.getElementById('save-listing-btn');
+      var title = document.getElementById('lst-title').value.trim();
+      var bio = document.getElementById('lst-bio').value.trim();
+      if (!title || !bio) {
+        showListingMsg('Title and description are required.', 'error'); return;
+      }
+      btn.disabled = true; btn.textContent = 'Saving…';
+      var species = [];
+      SPECIES_LIST.forEach(function(s) {
+        var cb = document.getElementById('sp-' + s.replace(/\W/g,''));
+        if (cb && cb.checked) species.push(s);
+      });
+      var payload = {
+        user_id: currentUser.id,
+        title: title,
+        bio: bio,
+        price: parseFloat(document.getElementById('lst-price').value) || null,
+        price_label: document.getElementById('lst-price-label').value,
+        max_group_size: parseInt(document.getElementById('lst-group-size').value) || null,
+        min_days: parseInt(document.getElementById('lst-min-days').value) || 1,
+        counties: document.getElementById('lst-counties').value.trim(),
+        website: document.getElementById('lst-website').value.trim(),
+        instagram: document.getElementById('lst-instagram').value.trim(),
+        species: species,
+        photos: currentListingPhotos || [],
+        updated_at: new Date().toISOString()
+      };
+      var { error } = await sb.from('outfitter_listings').upsert(payload, { onConflict: 'user_id' });
+      btn.disabled = false; btn.textContent = 'Save listing';
+      if (error) { showListingMsg(error.message, 'error'); return; }
+      showListingMsg('Listing saved!', 'success');
+    }
+
+    function showListingMsg(txt, type) {
+      var el = document.getElementById('listing-msg');
+      el.textContent = txt;
+      el.className = 'msg-box msg-' + type;
+      el.style.display = 'block';
+    }
+
+    var currentListingPhotos = [];
+
+    function addPhotoPreview(url) {
+      var grid = document.getElementById('photo-preview-grid');
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#eee';
+      var img = document.createElement('img');
+      img.src = url; img.style.cssText = 'width:100%;height:100%;object-fit:cover';
+      var del = document.createElement('button');
+      del.innerHTML = '×';
+      del.style.cssText = 'position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;line-height:1;padding:0';
+      del.onclick = function() {
+        var idx = currentListingPhotos.indexOf(url);
+        if (idx > -1) currentListingPhotos.splice(idx, 1);
+        wrap.remove();
+      };
+      wrap.appendChild(img); wrap.appendChild(del);
+      grid.appendChild(wrap);
+    }
+
+    async function handlePhotoUpload(event) {
+      var files = Array.from(event.target.files);
+      if (currentListingPhotos.length + files.length > 6) {
+        showListingMsg('Maximum 6 photos allowed.', 'error'); return;
+      }
+      for (var f of files) {
+        if (f.size > 5 * 1024 * 1024) { showListingMsg('Each photo must be under 5MB.', 'error'); continue; }
+        var ext = f.name.split('.').pop();
+        var path = 'outfitter-photos/' + currentUser.id + '/' + Date.now() + '.' + ext;
+        var { data, error } = await sb.storage.from('listings').upload(path, f, { upsert: true });
+        if (error) { showListingMsg('Upload failed: ' + error.message, 'error'); continue; }
+        var { data: urlData } = sb.storage.from('listings').getPublicUrl(path);
+        currentListingPhotos.push(urlData.publicUrl);
+        addPhotoPreview(urlData.publicUrl);
+      }
+      event.target.value = '';
     }
 
     // ── INIT ─────────────────────────────────────────────────
