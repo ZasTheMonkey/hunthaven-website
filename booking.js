@@ -578,7 +578,7 @@ async function launchStripeCheckout(totalCents, bookingId, description, cin, cou
   try {
     var res = await fetch('https://teohfzegpoxzimfsmviy.supabase.co/functions/v1/stripe-checkout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
       body: JSON.stringify({
         booking_id: bookingId,
         amount_cents: totalCents,
