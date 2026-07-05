@@ -596,7 +596,7 @@ async function launchStripeCheckout(totalCents, bookingId, description, cin, cou
       window.location.href = data.url;
       return;
     }
-    throw new Error(data.error || 'No checkout URL returned');
+    throw new Error(data.error || data.message || 'No checkout URL returned');
   } catch(e) {
     if (btn) { btn.disabled = false; btn.innerHTML = 'Book Now &rarr;'; }
     if (msg) {
