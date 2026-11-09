@@ -477,7 +477,7 @@ async function submitBookingStripe() {
     btn.disabled = false; btn.innerHTML = 'Book Now &rarr;';
     msg.style.display = 'block'; msg.style.color = 'var(--color-accent)';
     msg.style.fontWeight = '600';
-    msg.innerHTML = 'Online booking opens July 1, 2026. <br><button onclick="openWaitlist()" style="margin-top:.5rem;padding:.6rem 1.2rem;background:var(--color-primary);color:#fff;border:none;border-radius:999px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.9rem">Join waitlist &rarr;</button>';
+    msg.textContent = 'Sandbox checkout is not enabled yet. No payment has been taken. Test payment integration is still being configured.';
     return;
   }
 
