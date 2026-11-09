@@ -97,7 +97,7 @@ function openListingDetail(l) {
           '</div>' +
           '<div id="bk-calendar-legend" style="display:flex;gap:1rem;font-size:.75rem;color:var(--color-text-muted);margin-bottom:.75rem;align-items:center">' +
             '<span style="display:flex;align-items:center;gap:.3rem"><span style="width:14px;height:14px;border-radius:3px;background:#22c55e;display:inline-block"></span>Available</span>' +
-            '<span style="display:flex;align-items:center;gap:.3rem"><span style="width:14px;height:14px;border-radius:3px;background:#ef4444;display:inline-block"></span>Booked</span>' +
+            '<span style="display:flex;align-items:center;gap:.3rem"><span style="width:14px;height:14px;border-radius:3px;background:#ef4444;display:inline-block"></span>Unavailable (booked or pending)</span>' +
           '</div>' +
           '<div style="margin-bottom:.75rem"><label style="'+labelStyle+'">Guests</label>' +
           '<select id="bk-guests" style="'+inputStyle+'">'+guestOpts+'</select></div>' +
@@ -125,32 +125,38 @@ function openListingDetail(l) {
 
   // ── Load booked dates and init Flatpickr calendars ────────
   async function initDatePickers() {
-    // Fetch confirmed/pre_reserved bookings for this listing
-    var bookedDates = [];
+    // Sandbox-only availability: never query the live database.
+    var bookedDates = [], pendingDates = [], unavailable = new Set(), loadFailed = false;
     try {
-      var SB_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
-      var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
-      var res = await fetch(SB_URL + "/rest/v1/bookings?listing_id=eq." + encodeURIComponent(l.id) + "&status=in.(pre_reserved,confirmed)&select=check_in,check_out", {
-        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+      var res = await fetch(SUPABASE_URL + '/functions/v1/sandbox-listing-availability?listing_id=' + encodeURIComponent(l.id), {
+        headers: { 'apikey': SUPABASE_ANON_KEY }, cache:'no-store'
       });
-      var bookings = await res.json();
-      // Expand each booking into individual dates
-      bookings.forEach(function(b) {
-        var cur = new Date(b.check_in);
-        var end = new Date(b.check_out);
+      if (!res.ok) throw new Error('Availability service unavailable');
+      var payload = await res.json();
+      if (!Array.isArray(payload.ranges)) throw new Error('Invalid availability response');
+      payload.ranges.forEach(function(range) {
+        var cur = new Date(range.start + 'T00:00:00Z'), end = new Date(range.end + 'T00:00:00Z');
         while (cur < end) {
-          bookedDates.push(cur.toISOString().split('T')[0]);
-          cur.setDate(cur.getDate() + 1);
+          var day = cur.toISOString().slice(0,10);
+          unavailable.add(day);
+          (range.type === 'pending' ? pendingDates : bookedDates).push(day);
+          cur.setUTCDate(cur.getUTCDate()+1);
         }
       });
-    } catch(e) { console.warn('Could not load booked dates', e); }
-
+    } catch(e) {
+      loadFailed = true;
+      console.warn('Sandbox availability unavailable',e);
+      var warning=document.getElementById('bk-msg');
+      if(warning){warning.style.display='block';warning.textContent='Availability is temporarily unavailable. Please try again later.';}
+      var requestButton=document.getElementById('bk-btn');
+      if(requestButton)requestButton.disabled=true;
+    }
     var fpConfig = {
-      minDate: '2026-07-01',
+      minDate: 'today',
       disableMobile: true,
       allowInput: false,
       dateFormat: 'Y-m-d',
-      disable: bookedDates,
+      disable: loadFailed ? [function(){return true;}] : Array.from(unavailable),
       onDayCreate: function(dObj, dStr, fp, dayElem) {
         var dateStr = dayElem.dateObj ? dayElem.dateObj.toISOString().split('T')[0] : null;
         if (!dateStr) return;
@@ -160,11 +166,11 @@ function openListingDetail(l) {
           dayElem.style.background = '';
           return;
         }
-        if (bookedDates.includes(dateStr)) {
+        if (unavailable.has(dateStr)) {
           dayElem.style.background = '#fef2f2';
           dayElem.style.color = '#ef4444';
           dayElem.style.borderRadius = '4px';
-          dayElem.title = 'Already booked';
+          dayElem.title = pendingDates.includes(dateStr) ? 'Pending landowner approval' : 'Confirmed booking';
         } else {
           dayElem.style.background = '#f0fdf4';
           dayElem.style.color = '#166534';
@@ -450,6 +456,12 @@ async function submitBookingStripe() {
   }
   btn.disabled = true; btn.textContent = 'Opening secure test authorization…';
   try {
+  // Re-check the entire stay, not just the check-in and check-out dates.
+  const availabilityResponse = await fetch(SUPABASE_URL + '/functions/v1/sandbox-listing-availability?listing_id=' + encodeURIComponent(l.id),{headers:{apikey:SUPABASE_ANON_KEY},cache:'no-store'});
+  if(!availabilityResponse.ok)throw new Error('Availability could not be verified. Try again.');
+  const availability = await availabilityResponse.json();
+  if(!Array.isArray(availability.ranges))throw new Error('Availability could not be verified.');
+  if(availability.ranges.some(r=>r.start < check_out && r.end > check_in))throw new Error('These dates are booked or awaiting approval. Please choose other dates.');
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const { data: { session } } = await client.auth.getSession();
     if (!session) throw new Error('Sign in to your sandbox hunter account before booking.');
