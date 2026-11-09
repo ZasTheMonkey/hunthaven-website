@@ -117,7 +117,7 @@ function openListingDetail(l) {
           nameEmailHtml +
           '<button onclick="'+btnAction+'" id="bk-btn" style="width:100%;padding:.9rem;background:var(--color-primary);color:#fff;border:none;border-radius:999px;font-family:var(--font-display);font-weight:800;font-size:1.1rem;cursor:pointer">'+btnLabel+'</button>' +
           '<p id="bk-msg" style="font-size:.85rem;text-align:center;margin-top:.5rem;display:none"></p>' +
-          '<p style="font-size:.78rem;color:var(--color-text-faint);text-align:center;margin-top:.4rem">Secure checkout powered by Stripe.</p>' +
+          '<p style="font-size:.78rem;color:var(--color-text-faint);text-align:center;margin-top:.4rem">Test card only · Your card is authorized now and charged only if the landowner accepts within 24 hours. Declined or expired requests release the hold; banks may take extra time to show it.</p>' +
         '</div>' +
       '</div>';
   }
@@ -448,7 +448,7 @@ async function submitBookingStripe() {
   if (!check_in || !check_out) {
     msg.style.display = 'block'; msg.textContent = 'Choose your dates first.'; return;
   }
-  btn.disabled = true; btn.textContent = 'Sending booking request…';
+  btn.disabled = true; btn.textContent = 'Opening secure test authorization…';
   try {
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const { data: { session } } = await client.auth.getSession();
@@ -465,7 +465,7 @@ async function submitBookingStripe() {
     msg.style.display = 'block'; msg.style.color = '#c0392b';
     msg.textContent = e.message || 'Sandbox checkout failed.';
   } finally {
-    btn.disabled = false; btn.innerHTML = 'Request Booking &rarr;';
+    btn.disabled = false; btn.innerHTML = 'Request Booking — No Charge Yet &rarr;';
   }
 }
 
