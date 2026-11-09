@@ -1,4 +1,2013 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>LeaseWild | Sandbox</title><style>
-:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0d1711;color:#f2f5ee;font:16px system-ui,-apple-system,sans-serif}header,main,footer{max-width:850px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #304236}.brand{font-size:24px;font-weight:800}.tag{border:1px solid #c3a76d;color:#e9ca8a;padding:6px 12px;border-radius:100px;font-size:12px}h1{font-size:clamp(32px,6vw,56px);line-height:1.08;margin:35px 0 16px}p{color:#bdc9bd;line-height:1.6}.notice{background:#283222;border:1px solid #69714a;padding:16px;border-radius:12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:26px 0}.card{background:#18271d;border:1px solid #344839;border-radius:14px;padding:20px}.card h2{font-size:18px;margin:0 0 8px}.card p{font-size:14px;margin:0}footer{font-size:13px;color:#aeb9ac;border-top:1px solid #304236}
-</style></head><body><header><div class="brand">LeaseWild</div><span class="tag">SANDBOX · TEST ONLY</span></header><main><h1>Build boldly.<br>Test safely.</h1><p>This is the isolated LeaseWild staging entry page. Booking, payments, property verification and geofencing must be validated here before release.</p><div class="notice"><strong>Testing environment — no real bookings or payments.</strong><p>Do not enter real customer information. Only Stripe sandbox transactions and synthetic test listings should be used.</p></div><section class="grid"><div class="card"><h2>Property geofencing</h2><p>Boundary and check-in validation: pending integration.</p></div><div class="card"><h2>Booking checkout</h2><p>Check-in/out and hunting permissions: pending integration.</p></div><div class="card"><h2>Stripe sandbox</h2><p>Webhook and payment tests: pending verification.</p></div><div class="card"><h2>Cleaning fee</h2><p>48-hour review and release workflow: pending integration.</p></div></section></main><footer>LeaseWild sandbox. This page deliberately does not load production Supabase credentials or execute payments.</footer></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png" />
+  <link rel="apple-touch-icon" href="favicon-192.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeaseWild — Book Private Hunting Land & Fishing Water in Florida</title>
+  <meta name="description" content="Book private hunting land and fishing water in Florida by the day, weekend, or season. Deer, hog, turkey, bass — verified listings, GPS-accurate maps. Bookings open July 1, 2026. Join the waitlist free." />
+  <meta name="keywords" content="private hunting land Florida, book hunting land Florida, hunting lease Florida, rent hunting land Florida, day hunting lease Florida, hunting land rental Florida, Florida deer hunting lease, hog hunting Florida private land, bass fishing pond rental Florida, turkey hunting Florida, private fishing water Florida, hunting land by owner Florida, hunting access Florida, short term hunting lease Florida" />
+  
+  <meta name="author" content="LeaseWild" />
+  
+
+  <!-- Geo / Local SEO -->
+  <meta name="geo.region" content="US-FL" />
+  <meta name="geo.placename" content="Florida" />
+  <meta name="geo.position" content="27.9944024;-81.7602544" />
+  <meta name="ICBM" content="27.9944024, -81.7602544" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="LeaseWild — Book Private Hunting Land & Fishing Water in Florida" />
+  <meta property="og:description" content="Book private hunting and fishing land in Florida by the day or season. Deer, hog, turkey, bass — GPS-accurate listings from verified landowners. Bookings open July 1, 2026." />
+  <meta property="og:type" content="website" />
+  
+  <meta property="og:image" content="https://leasewild-sandbox.pages.dev/wildbook-logo.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="LeaseWild — Private Hunting & Fishing Land in Florida" />
+  <meta property="og:site_name" content="LeaseWild" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@leasewild" />
+  <meta name="twitter:title" content="LeaseWild — Book Private Hunting & Fishing Land in Florida" />
+  <meta name="twitter:description" content="Book private hunting and fishing land in Florida by the day or season. GPS-accurate listings. Bookings open July 1, 2026." />
+  <meta name="twitter:image" content="https://leasewild-sandbox.pages.dev/wildbook-logo.png" />
+
+  <!-- Schema: LocalBusiness -->
+  
+
+  <!-- Schema: WebSite with SearchAction -->
+  
+
+  <!-- Schema: FAQ (boosts featured snippet eligibility) -->
+  
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─────────────────────────────────────────────
+       TOKENS
+    ───────────────────────────────────────────── */
+    :root {
+      --green:#2d5a27;
+      --green-dk:#1e3d1a;
+      --green-lt:#d6e8d3;
+      --amber:#c17f3a;
+      --amber-dk:#a06828;
+      --water:#1a6b7a;
+      --water-lt:#cde9ee;
+      --bg:#f7f4ee;
+      --surface:#ffffff;
+      --surface2:#faf7f2;
+      --border:#e2ddd4;
+      --divider:#ede9e1;
+      --text:#222218;
+      --muted:#6b6656;
+      --faint:#a09b8c;
+      --danger:#c0392b;
+      --r-sm:8px;
+      --r-md:12px;
+      --r-lg:16px;
+      --r-xl:24px;
+      --r-full:9999px;
+      --shadow-sm:0 1px 4px rgba(0,0,0,.07);
+      --shadow-md:0 4px 20px rgba(0,0,0,.10);
+      --shadow-lg:0 12px 48px rgba(0,0,0,.14);
+      --font-display:'Oswald',system-ui,sans-serif;
+      --font-body:'Barlow',system-ui,sans-serif;
+      --nav-h:72px;
+      --mob-bar:64px;
+    }
+
+    /* ─────────────────────────────────────────────
+       RESET
+    ───────────────────────────────────────────── */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    body{font-family:var(--font-body);font-size:16px;color:var(--text);background:var(--bg);overflow-x:hidden;min-height:100dvh}
+    a{color:inherit;text-decoration:none}
+    button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
+    img,svg{display:block;max-width:100%}
+    h1,h2,h3,h4{font-family:var(--font-display);line-height:1.1;text-wrap:balance}
+
+    /* ─────────────────────────────────────────────
+       NAV — DESKTOP
+    ───────────────────────────────────────────── */
+    .nav{
+      position:sticky;top:0;z-index:200;
+      height:var(--nav-h);
+      background:rgba(247,244,238,.92);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+      transition:box-shadow .2s;
+    }
+    .nav.scrolled{box-shadow:var(--shadow-md)}
+    .nav-inner{
+      max-width:1280px;margin:0 auto;height:100%;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 24px;gap:16px;
+    }
+
+    /* logo */
+    .logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .wordmark{font-family:var(--font-display);font-weight:800;font-size:1.45rem;letter-spacing:.01em;line-height:1}
+
+    /* search pill — center of nav like Airbnb */
+    .nav-search{
+      flex:1;max-width:480px;
+      display:flex;align-items:center;
+      border:1.5px solid var(--border);border-radius:var(--r-full);
+      background:var(--surface);
+      box-shadow:var(--shadow-sm);
+      overflow:hidden;
+      cursor:pointer;
+      transition:box-shadow .2s,border-color .2s;
+    }
+    .nav-search:hover{box-shadow:var(--shadow-md);border-color:#ccc}
+    .ns-pill{
+      flex:1;padding:10px 18px;
+      font-size:.875rem;font-weight:600;color:var(--text);
+      border-right:1.5px solid var(--border);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .ns-pill:last-of-type{border-right:none}
+    .ns-pill span{display:block;font-size:.7rem;color:var(--muted);font-weight:400}
+    .ns-btn{
+      width:40px;height:40px;margin:5px;border-radius:var(--r-full);
+      background:var(--green);color:#fff;
+      display:grid;place-items:center;flex-shrink:0;
+      transition:background .15s;
+    }
+    .ns-btn:hover{background:var(--green-dk)}
+
+    /* nav right */
+    .nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0;overflow:visible;padding-right:4px}
+    .nav-link{padding:10px 14px;border-radius:var(--r-full);font-size:.875rem;font-weight:600;color:var(--muted);white-space:nowrap;transition:background .15s,color .15s}
+    .nav-link:hover{background:var(--divider);color:var(--text)}
+    .nav-link.amber{color:var(--amber)}
+    .nav-cta{
+      display:flex;align-items:center;gap:8px;
+      padding:8px 10px 8px 16px;
+      border:1.5px solid var(--border);border-radius:var(--r-full);
+      background:var(--surface);font-size:.875rem;font-weight:600;
+      box-shadow:var(--shadow-sm);transition:box-shadow .15s;
+    }
+    .nav-cta:hover{box-shadow:var(--shadow-md)}
+    .nav-avatar{width:32px;height:32px;border-radius:50%;background:var(--green);display:grid;place-items:center;color:#fff;font-size:.8rem;font-weight:700;flex-shrink:0}
+    .nav-ham{display:none}
+
+    /* ─────────────────────────────────────────────
+       HERO — full-bleed, photo-style gradient like Airbnb
+    ───────────────────────────────────────────── */
+    .hero{
+      position:relative;
+      min-height:580px;
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+      padding:60px 24px 80px;
+    }
+    .hero-bg{
+      position:absolute;inset:0;
+      background:
+        linear-gradient(135deg,#1a2e1a 0%,#2d4a1e 30%,#3d5e28 55%,#6b5220 80%,#4a3810 100%);
+    }
+    /* texture overlay */
+    .hero-bg::after{
+      content:'';position:absolute;inset:0;
+      background:
+        radial-gradient(ellipse 60% 80% at 70% 50%,rgba(193,127,58,.18),transparent),
+        radial-gradient(ellipse 40% 60% at 10% 90%,rgba(26,107,122,.15),transparent),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+    }
+    /* foreground silhouette tree line */
+    .hero-trees{
+      position:absolute;bottom:0;left:0;right:0;height:160px;
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 160' preserveAspectRatio='none'%3E%3Cpath d='M0,160 L0,100 Q20,60 40,90 Q55,40 70,70 Q85,20 100,55 Q115,0 130,40 Q145,10 160,50 Q175,20 190,60 Q210,30 230,70 Q250,0 270,45 Q285,15 300,55 Q315,5 330,50 Q345,20 360,60 Q380,10 400,55 Q420,0 440,45 Q460,20 480,65 Q495,30 510,70 Q525,5 540,50 Q560,25 580,65 Q600,10 620,55 Q645,0 665,48 Q685,15 705,60 Q725,5 745,52 Q765,20 785,65 Q805,0 825,50 Q845,25 865,70 Q885,10 905,55 Q925,0 945,48 Q965,20 985,65 Q1005,5 1025,55 Q1050,15 1075,60 Q1100,0 1125,50 Q1145,20 1165,65 Q1185,10 1205,55 Q1225,0 1250,48 Q1270,20 1295,65 Q1315,0 1340,50 Q1360,20 1380,60 Q1400,10 1420,55 L1440,60 L1440,160 Z' fill='%23111810' opacity='0.85'/%3E%3C/svg%3E");
+      background-size:100% 100%;
+      pointer-events:none;
+    }
+
+    .hero-content{
+      position:relative;z-index:2;
+      max-width:600px;
+      width:100%;
+      margin:0 auto;
+    }
+    .hero-eyebrow{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:5px 12px;border-radius:var(--r-full);
+      background:rgba(193,127,58,.25);border:1px solid rgba(193,127,58,.4);
+      font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+      color:#f0c878;margin-bottom:20px;
+    }
+    .hero h1{
+      font-size:clamp(2.6rem,5.5vw,4.2rem);
+      font-weight:700;letter-spacing:.01em;
+      color:#fff;line-height:1.08;
+      margin-bottom:20px;
+    }
+    .hero h1 em{font-style:normal;color:#c17f3a}
+    .hero-sub{
+      font-size:1.05rem;color:rgba(255,255,255,.78);
+      line-height:1.6;margin-bottom:32px;max-width:48ch;
+    }
+
+    /* search bar inside hero — shown on all screen sizes */
+    .hero-search{
+      background:var(--surface);border-radius:var(--r-xl);
+      box-shadow:var(--shadow-lg);overflow:hidden;
+      display:block;
+      max-width:560px;
+    }
+    .hs-row{
+      display:flex;align-items:center;
+      padding:14px 18px;gap:12px;
+      border-bottom:1px solid var(--divider);
+      cursor:pointer;
+    }
+    .hs-row:last-child{border-bottom:none}
+    .hs-icon{width:36px;height:36px;border-radius:50%;background:var(--surface2);display:grid;place-items:center;flex-shrink:0}
+    .hs-label{flex:1}
+    .hs-label strong{display:block;font-size:.875rem;font-weight:700}
+    .hs-label span{font-size:.8rem;color:var(--muted)}
+
+    /* hero CTA buttons — hidden, replaced by search card */
+    .hero-btns{display:none}
+    .btn-hero-primary{
+      padding:14px 28px;border-radius:var(--r-full);
+      background:var(--green);color:#fff;
+      font-size:1rem;font-weight:700;
+      box-shadow:0 4px 20px rgba(45,90,39,.4);
+      transition:background .15s,transform .15s;
+      white-space:nowrap;
+    }
+    .btn-hero-primary:hover{background:var(--green-dk);transform:translateY(-1px)}
+    .btn-hero-secondary{
+      padding:14px 28px;border-radius:var(--r-full);
+      background:rgba(255,255,255,.15);color:#fff;
+      border:1.5px solid rgba(255,255,255,.35);
+      font-size:1rem;font-weight:700;
+      backdrop-filter:blur(6px);
+      transition:background .15s;
+      white-space:nowrap;
+    }
+    .btn-hero-secondary:hover{background:rgba(255,255,255,.25)}
+
+    /* hero trust badges */
+    .hero-trust{
+      display:flex;flex-wrap:wrap;gap:16px;margin-top:28px;
+    }
+    .trust-badge{
+      display:flex;align-items:center;gap:7px;
+      font-size:.78rem;color:rgba(255,255,255,.65);font-weight:600;
+    }
+    .trust-badge svg{color:rgba(193,127,58,.9)}
+
+    /* ─────────────────────────────────────────────
+       CATEGORY PILLS (below hero — Airbnb style)
+    ───────────────────────────────────────────── */
+    .categories{
+      background:var(--surface);
+      border-bottom:1px solid var(--border);
+      position:sticky;top:var(--nav-h);z-index:100;
+    }
+    .cat-inner{
+      max-width:1280px;margin:0 auto;
+      padding:0 24px;
+      display:flex;gap:0;overflow-x:auto;
+      scrollbar-width:none;-ms-overflow-style:none;
+    }
+    .cat-inner::-webkit-scrollbar{display:none}
+    .cat-pill{
+      display:flex;flex-direction:column;align-items:center;gap:6px;
+      padding:14px 20px;
+      border-bottom:2px solid transparent;
+      color:var(--muted);font-size:.75rem;font-weight:600;
+      white-space:nowrap;cursor:pointer;
+      transition:color .15s,border-color .15s;
+      flex-shrink:0;
+    }
+    .cat-pill:hover{color:var(--text);border-color:var(--faint)}
+    .cat-pill.active{color:var(--text);border-color:var(--text)}
+    .cat-pill svg,.cat-pill .cat-icon{color:inherit}
+
+    /* ─────────────────────────────────────────────
+       MAIN LAYOUT — two-column (listings + map)
+    ───────────────────────────────────────────── */
+    .main-layout{
+      max-width:1280px;margin:0 auto;
+      display:grid;
+      grid-template-columns:1fr 480px;
+      gap:0;
+      padding:0;
+      min-height:calc(100vh - var(--nav-h));
+    }
+
+    /* LEFT COLUMN — listing grid */
+    .listings-col{
+      padding:32px 24px 40px;
+      border-right:1px solid var(--border);
+    }
+    .listings-count{
+      font-size:.875rem;color:var(--muted);margin-bottom:20px;
+    }
+    .listings-count strong{color:var(--text)}
+
+    .cards-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+      gap:24px;
+    }
+
+    /* CARD */
+    .card{
+      border-radius:var(--r-lg);
+      overflow:hidden;
+      cursor:pointer;
+      transition:transform .2s,box-shadow .2s;
+      background:var(--surface);
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+    .card-img{
+      position:relative;
+      aspect-ratio:4/3;
+      overflow:hidden;
+    }
+    /* Gradient photo backgrounds */
+    .bg-hunt-1{background:linear-gradient(145deg,#1e3520 0%,#2d5228 40%,#4a7835 65%,#7a6030 100%)}
+    .bg-hunt-2{background:linear-gradient(145deg,#162a18 0%,#253e1e 40%,#3d6030 65%,#8a6a38 100%)}
+    .bg-hunt-3{background:linear-gradient(145deg,#1a2e10 0%,#2a4820 45%,#4a7030 65%,#704e20 100%)}
+    .bg-fish-1{background:linear-gradient(145deg,#0a1e30 0%,#144060 40%,#1a6b7a 70%,#2590b0 100%)}
+    .bg-fish-2{background:linear-gradient(145deg,#081828 0%,#103450 40%,#175e72 70%,#1e80a0 100%)}
+    /* subtle scene elements */
+    .card-img::before{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(to top,rgba(0,0,0,.5) 0%,rgba(0,0,0,.1) 50%,transparent 100%);
+    }
+    .card-img-scene{
+      position:absolute;bottom:0;left:0;right:0;height:45%;
+      opacity:.55;
+    }
+    .card-img-scene-hunt{
+      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 80' preserveAspectRatio='none'%3E%3Cpath d='M0,80 L0,50 Q16,30 32,48 Q44,15 56,40 Q70,5 84,35 Q96,20 108,45 Q120,0 136,30 Q150,15 164,42 Q180,5 196,35 Q212,0 228,38 Q244,15 260,42 Q276,5 292,35 Q305,20 320,40 L320,80Z' fill='%23111'/3E%3C/svg%3E") no-repeat bottom/cover;
+    }
+    .card-img-scene-fish{
+      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 80' preserveAspectRatio='none'%3E%3Cellipse cx='160' cy='60' rx='200' ry='40' fill='rgba(100,200,240,.12)'/%3E%3Cellipse cx='80' cy='65' rx='100' ry='28' fill='rgba(100,200,240,.08)'/%3E%3C/svg%3E") no-repeat bottom/cover;
+    }
+
+    /* save button */
+    .card-save{
+      position:absolute;top:12px;right:12px;z-index:2;
+      width:32px;height:32px;border-radius:50%;
+      background:rgba(0,0,0,.3);backdrop-filter:blur(4px);
+      display:grid;place-items:center;
+      transition:background .15s,transform .15s;
+      border:none;cursor:pointer;
+    }
+    .card-save:hover{background:rgba(0,0,0,.5);transform:scale(1.1)}
+    .card-save svg{pointer-events:none}
+
+    /* type chip */
+    .card-chip{
+      position:absolute;bottom:10px;left:10px;z-index:2;
+      padding:4px 10px;border-radius:var(--r-full);
+      font-size:.7rem;font-weight:700;letter-spacing:.04em;
+      backdrop-filter:blur(8px);
+    }
+    .chip-hunt{background:rgba(45,90,39,.85);color:#b8dfc0}
+    .chip-fish{background:rgba(26,107,122,.85);color:#b0e0f0}
+    .chip-camp{background:rgba(120,75,30,.85);color:#f5d9b0}
+
+    /* rating badge top-left */
+    .card-rating-badge{
+      position:absolute;top:10px;left:10px;z-index:2;
+      display:flex;align-items:center;gap:4px;
+      padding:3px 8px;border-radius:var(--r-full);
+      background:rgba(0,0,0,.45);backdrop-filter:blur(6px);
+      font-size:.7rem;font-weight:700;color:#fff;
+    }
+
+    .card-body{padding:14px 16px 16px}
+    .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px}
+    .card-title{font-family:var(--font-display);font-size:1rem;font-weight:600;color:var(--text);line-height:1.2}
+    .card-price-inline{font-size:.875rem;font-weight:700;color:var(--text);white-space:nowrap}
+    .card-price-inline span{font-weight:400;color:var(--muted)}
+    .card-location{font-size:.8rem;color:var(--muted);margin-bottom:6px}
+    .card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+    .card-tag{
+      padding:2px 8px;border-radius:var(--r-full);
+      font-size:.68rem;font-weight:600;
+      background:var(--surface2);border:1px solid var(--border);
+      color:var(--muted);
+    }
+    .card-footer-row{
+      display:flex;align-items:center;justify-content:space-between;
+      padding-top:10px;border-top:1px solid var(--divider);
+      font-size:.78rem;
+    }
+    .card-verified{display:flex;align-items:center;gap:4px;color:var(--green);font-weight:600}
+    .card-acreage{color:var(--muted)}
+
+    /* RIGHT COLUMN — sticky map */
+    .map-col{
+      position:sticky;
+      top:calc(var(--nav-h) + 49px); /* below categories bar */
+      height:calc(100vh - var(--nav-h) - 49px);
+      overflow:hidden;
+      /* sticky creates a stacking context in Chrome; also set explicitly */
+    }
+    #hunt-map{width:100%;height:100%}
+    .map-filter-bar{
+      position:absolute;top:12px;left:50%;transform:translateX(-50%);
+      z-index:500;display:flex;gap:6px;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r-full);padding:4px;
+      box-shadow:var(--shadow-md);
+    }
+    .mf-btn{
+      padding:6px 16px;border-radius:var(--r-full);
+      font-size:.78rem;font-weight:700;
+      transition:background .15s,color .15s;
+      color:var(--muted);
+    }
+    .mf-btn.active{background:var(--text);color:#fff}
+    .mf-btn:hover:not(.active){background:var(--surface2)}
+
+    /* ─────────────────────────────────────────────
+       SOCIAL PROOF STRIP
+    ───────────────────────────────────────────── */
+    .proof-strip{
+      background:var(--green);
+      padding:40px 24px;
+    }
+    .proof-inner{
+      max-width:1280px;margin:0 auto;
+      display:grid;grid-template-columns:repeat(4,1fr);
+      gap:24px;text-align:center;
+    }
+    .proof-num{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:#fff;display:block;margin-bottom:4px}
+    .proof-lbl{font-size:.85rem;color:rgba(255,255,255,.7)}
+
+    /* ─────────────────────────────────────────────
+       HOW IT WORKS
+    ───────────────────────────────────────────── */
+    .section{padding:64px 24px;max-width:1280px;margin:0 auto}
+    .section-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+    .section h2{font-size:clamp(1.8rem,3vw,2.6rem);font-weight:700;letter-spacing:.02em;margin-bottom:12px}
+    .section-sub{font-size:1rem;color:var(--muted);max-width:52ch;line-height:1.65;margin-bottom:40px}
+
+    .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+    .step{text-align:center}
+    .step-num{
+      width:52px;height:52px;border-radius:50%;
+      background:var(--green-lt);color:var(--green);
+      font-family:var(--font-display);font-size:1.3rem;font-weight:700;
+      display:grid;place-items:center;margin:0 auto 16px;
+    }
+    .step h3{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+    .step p{font-size:.875rem;color:var(--muted);line-height:1.6}
+
+    /* ─────────────────────────────────────────────
+       TESTIMONIALS
+    ───────────────────────────────────────────── */
+    .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+    .testi{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--r-xl);padding:24px;
+    }
+    .testi-stars{color:var(--amber);font-size:1rem;margin-bottom:14px;letter-spacing:2px}
+    .testi p{font-size:.9rem;line-height:1.7;color:var(--text);margin-bottom:18px}
+    .testi-author{display:flex;align-items:center;gap:10px}
+    .testi-avatar{
+      width:40px;height:40px;border-radius:50%;
+      display:grid;place-items:center;font-weight:700;font-size:.85rem;color:#fff;
+      flex-shrink:0;
+    }
+    .testi-author strong{display:block;font-size:.875rem}
+    .testi-author span{font-size:.75rem;color:var(--muted)}
+
+    /* ─────────────────────────────────────────────
+       LANDOWNER CTA SPLIT
+    ───────────────────────────────────────────── */
+    .split-cta{
+      display:grid;grid-template-columns:1fr 1fr;
+      gap:0;overflow:hidden;
+      border-radius:var(--r-xl);
+      border:1px solid var(--border);
+      margin:0 24px 64px;
+      max-width:1232px;
+      margin-left:auto;margin-right:auto;
+    }
+    .split-panel{padding:52px 48px}
+    .split-panel.green-panel{background:var(--green);color:#fff}
+    .split-panel.water-panel{background:var(--water);color:#fff}
+    .split-panel h2{font-size:clamp(1.5rem,2.5vw,2.1rem);font-weight:700;margin-bottom:12px}
+    .split-panel p{font-size:.95rem;opacity:.82;line-height:1.65;margin-bottom:28px}
+    .split-btn{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:12px 24px;border-radius:var(--r-full);
+      background:#fff;font-size:.9rem;font-weight:700;
+      transition:opacity .15s;
+    }
+    .split-btn.green-btn{color:var(--green)}
+    .split-btn.water-btn{color:var(--water)}
+    .split-btn:hover{opacity:.9}
+
+    /* ─────────────────────────────────────────────
+       WAITLIST EMAIL STRIP
+    ───────────────────────────────────────────── */
+    .email-strip{
+      background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+      padding:56px 24px;text-align:center;
+    }
+    .email-strip h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;margin-bottom:10px}
+    .email-strip p{font-size:1rem;color:var(--muted);margin-bottom:28px}
+    .email-form{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;max-width:480px;margin:0 auto}
+    .email-input{
+      flex:1;min-width:220px;
+      padding:13px 18px;border:1.5px solid var(--border);border-radius:var(--r-full);
+      background:var(--surface);font-size:.9rem;outline:none;
+      transition:border-color .15s;
+    }
+    .email-input:focus{border-color:var(--green)}
+    .email-btn{
+      padding:13px 24px;border-radius:var(--r-full);
+      background:var(--green);color:#fff;font-size:.9rem;font-weight:700;
+      white-space:nowrap;transition:background .15s;
+    }
+    .email-btn:hover{background:var(--green-dk)}
+
+    /* ─────────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────────── */
+    footer{
+      background:var(--surface);border-top:1px solid var(--border);
+      padding:48px 24px 24px;
+    }
+    .footer-inner{
+      max-width:1280px;margin:0 auto;
+      display:grid;grid-template-columns:1.6fr repeat(3,1fr);
+      gap:40px;margin-bottom:40px;
+    }
+    .footer-brand p{font-size:.85rem;color:var(--muted);margin-top:12px;line-height:1.65;max-width:26ch}
+    .footer-socials{display:flex;gap:14px;margin-top:20px}
+    .footer-socials a{color:var(--faint);transition:color .15s}
+    .footer-socials a:hover{color:var(--text)}
+    .footer-col h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--faint);font-weight:700;margin-bottom:14px}
+    .footer-col ul{list-style:none;display:grid;gap:10px}
+    .footer-col a{font-size:.875rem;color:var(--muted);transition:color .15s}
+    .footer-col a:hover{color:var(--text)}
+    .footer-bottom{
+      max-width:1280px;margin:0 auto;
+      padding-top:20px;border-top:1px solid var(--divider);
+      display:flex;align-items:center;justify-content:space-between;
+      flex-wrap:wrap;gap:12px;font-size:.8rem;color:var(--faint);
+    }
+    .footer-bottom-links{display:flex;gap:20px}
+    .footer-bottom-links a{color:var(--faint);transition:color .15s}
+    .footer-bottom-links a:hover{color:var(--text)}
+
+    /* ─────────────────────────────────────────────
+       MODALS
+    ───────────────────────────────────────────── */
+    .modal-backdrop{
+      display:none;position:fixed;inset:0;z-index:900;
+      background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
+      align-items:center;justify-content:center;padding:16px;
+    }
+    .modal-backdrop.open{display:flex}
+    .modal{
+      background:var(--surface);border-radius:var(--r-xl);
+      padding:36px 32px;width:100%;max-width:440px;
+      box-shadow:var(--shadow-lg);position:relative;
+      max-height:90vh;overflow-y:auto;
+    }
+    .modal-close{
+      position:absolute;top:14px;right:14px;
+      width:32px;height:32px;border-radius:50%;
+      background:var(--surface2);border:1px solid var(--border);
+      display:grid;place-items:center;
+      font-size:1rem;color:var(--muted);cursor:pointer;
+    }
+    .modal-close:hover{background:var(--divider)}
+    .modal h2{font-size:1.4rem;font-weight:700;margin-bottom:6px}
+    .modal-sub{font-size:.875rem;color:var(--muted);margin-bottom:24px;line-height:1.5}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+    .form-field{margin-bottom:12px}
+    .form-field label{display:block;font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+    .form-field input{
+      width:100%;padding:11px 14px;
+      border:1.5px solid var(--border);border-radius:var(--r-md);
+      background:var(--bg);font-size:.9rem;outline:none;
+      transition:border-color .15s;
+    }
+    .form-field input:focus{border-color:var(--green)}
+    .btn-submit{
+      width:100%;padding:13px;border-radius:var(--r-full);
+      background:var(--green);color:#fff;font-size:1rem;font-weight:700;
+      margin-top:8px;transition:background .15s;
+    }
+    .btn-submit:hover{background:var(--green-dk)}
+    .btn-submit:disabled{opacity:.6;cursor:not-allowed}
+    .modal-note{font-size:.75rem;color:var(--faint);text-align:center;margin-top:12px}
+    .modal-success{display:none;text-align:center;padding:20px 0}
+    .success-icon{
+      width:60px;height:60px;border-radius:50%;
+      background:var(--green-lt);display:grid;place-items:center;
+      margin:0 auto 16px;
+    }
+
+    /* ─────────────────────────────────────────────
+       MOBILE BOTTOM NAV BAR
+    ───────────────────────────────────────────── */
+    .mob-bar{
+      display:none;
+      position:fixed;bottom:0;left:0;right:0;z-index:300;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-top:1px solid rgba(0,0,0,.07);
+      box-shadow:0 -1px 0 rgba(0,0,0,.06),0 -8px 32px rgba(0,0,0,.07);
+      padding-bottom:env(safe-area-inset-bottom,0px);
+    }
+    .mob-bar-inner{
+      display:flex;align-items:center;height:68px;
+      padding:0 8px;
+      width:100%;
+      justify-content:space-around;
+    }
+    .mob-tab{
+      flex:1;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;gap:4px;
+      font-size:.65rem;font-weight:700;letter-spacing:.02em;
+      color:var(--faint);
+      cursor:pointer;border:none;background:none;
+      padding:6px 0;
+      border-radius:12px;
+      transition:color .15s,background .15s;
+      position:relative;
+    }
+    .mob-tab:active{background:rgba(0,0,0,.04)}
+    .mob-tab .mob-icon-wrap{
+      width:36px;height:36px;
+      display:grid;place-items:center;
+      border-radius:10px;
+      transition:background .15s,transform .15s;
+    }
+    .mob-tab.active .mob-icon-wrap{
+      background:var(--green-lt);
+      transform:translateY(-1px);
+    }
+    .mob-tab.active{
+      color:var(--green);
+    }
+    .mob-tab svg{flex-shrink:0;width:24px;height:24px}
+
+    /* ─────────────────────────────────────────────
+       MOBILE SEARCH SHEET
+    ───────────────────────────────────────────── */
+    .search-sheet{
+      display:none;position:fixed;inset:0;z-index:400;
+      background:var(--surface);
+      flex-direction:column;
+    }
+    .search-sheet.open{display:flex}
+    .ss-header{
+      display:flex;align-items:center;gap:12px;
+      padding:14px 16px;border-bottom:1px solid var(--border);
+    }
+    .ss-back{
+      width:36px;height:36px;border-radius:50%;
+      background:var(--surface2);border:1px solid var(--border);
+      display:grid;place-items:center;flex-shrink:0;cursor:pointer;
+    }
+    .ss-title{font-family:var(--font-display);font-weight:700;font-size:1.05rem}
+    .ss-body{flex:1;overflow-y:auto;padding:16px}
+    .ss-section-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--faint);margin-bottom:10px}
+    .ss-option{
+      display:flex;align-items:center;gap:14px;
+      padding:14px 12px;border-radius:var(--r-md);
+      cursor:pointer;transition:background .15s;border:none;background:none;width:100%;text-align:left;
+    }
+    .ss-option:hover{background:var(--surface2)}
+    .ss-option-icon{
+      width:44px;height:44px;border-radius:var(--r-md);
+      display:grid;place-items:center;flex-shrink:0;
+    }
+    .ss-option strong{display:block;font-size:.9rem;font-weight:700;margin-bottom:2px}
+    .ss-option span{font-size:.78rem;color:var(--muted)}
+    .ss-cta{
+      padding:14px 16px;border-top:1px solid var(--border);
+    }
+    .ss-go-btn{
+      width:100%;padding:14px;border-radius:var(--r-full);
+      background:var(--green);color:#fff;font-size:1rem;font-weight:700;
+    }
+
+    /* ─────────────────────────────────────────────
+       MOBILE OVERRIDES  (≤ 900px)
+    ───────────────────────────────────────────── */
+    @media(max-width:900px){
+      /* nav — simpler mobile nav */
+      .nav-search,.nav-right .nav-link,.nav-right .nav-cta{display:none !important}
+      .nav-ham{
+        display:grid;place-items:center;
+        width:40px;height:40px;border-radius:50%;
+        border:1.5px solid var(--border);color:var(--muted);
+        cursor:pointer;flex-shrink:0;background:none;
+        overflow:visible;
+      }
+      .nav-inner{padding:0 32px 0 16px;overflow:visible}
+
+      /* hero */
+      .hero{min-height:auto;padding:36px 16px 60px}
+      .hero h1{font-size:2.1rem}
+      .hero-trust{gap:10px;margin-top:20px}
+      .hero-search{margin-top:24px}
+
+      /* categories */
+      .categories{top:var(--nav-h)}
+      .cat-inner{padding:0 12px}
+      .cat-pill{padding:10px 14px;font-size:.7rem}
+
+      /* layout — single column */
+      .main-layout{grid-template-columns:1fr}
+      .map-col{display:none}
+      .listings-col{padding:20px 16px 100px;border-right:none}
+      .cards-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+
+      /* proof strip */
+      .proof-inner{grid-template-columns:repeat(2,1fr)}
+
+      /* steps */
+      .steps-grid{grid-template-columns:1fr;gap:24px}
+
+      /* testimonials */
+      .testi-grid{grid-template-columns:1fr}
+
+      /* split CTA */
+      .split-cta{grid-template-columns:1fr;margin:0 16px 48px}
+      .split-panel{padding:36px 28px}
+
+      /* footer */
+      .footer-inner{grid-template-columns:1fr 1fr}
+
+      /* bottom bar */
+      .mob-bar{display:flex}
+
+      /* hide top nav on mobile — bottom bar handles navigation */
+      .nav{display:none !important}
+
+      /* section padding */
+      .section{padding:40px 16px}
+    }
+
+    @media(max-width:540px){
+      .cards-grid{grid-template-columns:1fr}
+      .proof-inner{grid-template-columns:1fr 1fr}
+      .footer-inner{grid-template-columns:1fr}
+      .form-row{grid-template-columns:1fr}
+      .hero h1{font-size:1.9rem}
+    }
+
+    /* ─────────────────────────────────────────────
+       ANIMATIONS
+    ───────────────────────────────────────────── */
+    .fade-up{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
+    .fade-up.in{opacity:1;transform:none}
+    /* Cards always visible — animation is a bonus not a visibility gate */
+    #cards-grid .card{opacity:1;transform:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(prefers-reduced-motion:reduce){.fade-up{opacity:1;transform:none}}
+
+    /* ─────────────────────────────────────────────
+       CSS VAR ALIASES — for booking.js compatibility
+    ───────────────────────────────────────────── */
+    :root {
+      --color-primary: var(--green);
+      --color-primary-hover: var(--green-dk);
+      --color-accent: var(--amber);
+      --color-water: var(--water);
+      --color-border: var(--border);
+      --color-text: var(--text);
+      --color-text-muted: var(--muted);
+      --color-text-faint: var(--faint);
+      --color-bg: var(--bg);
+      --color-surface: var(--surface);
+      --color-surface-2: var(--surface2);
+      --color-surface-offset: var(--surface2);
+      --radius-md: var(--r-md);
+    }
+
+    /* ─────────────────────────────────────────────
+       LISTING DETAIL MODAL
+    ───────────────────────────────────────────── */
+    #listing-detail-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      align-items: flex-end;
+      justify-content: center;
+    }
+    @media(min-width:640px) {
+      #listing-detail-modal { align-items: center; }
+    }
+    #listing-detail-sheet {
+      background: var(--surface);
+      width: 100%;
+      max-width: 680px;
+      max-height: 92dvh;
+      border-radius: 20px 20px 0 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 0 -4px 48px rgba(0,0,0,.2);
+      position: relative;
+    }
+    @media(min-width:640px) {
+      #listing-detail-sheet { border-radius: 20px; max-height: 90dvh; }
+    }
+    .ldm-handle {
+      width: 40px; height: 4px; background: var(--border);
+      border-radius: 99px; margin: 12px auto 0;
+    }
+    .ldm-close {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; justify-content: flex-end;
+      padding: 8px 14px 0;
+      pointer-events: none;
+    }
+    .ldm-close button {
+      pointer-events: all;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-sm); cursor: pointer;
+      font-size: 1rem; color: var(--muted);
+      transition: background .15s;
+    }
+    .ldm-close button:hover { background: var(--surface2); }
+
+    /* ── Full-screen map modal (mobile + desktop fallback) ── */
+    #map-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      flex-direction: column;
+      background: #111;
+    }
+    #map-modal.open { display: flex; }
+    #map-modal-header {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #map-modal-back {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-full);
+      font-family: var(--font-body);
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--text);
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    #map-modal-search {
+      flex: 1;
+      position: relative;
+    }
+    #map-modal-search svg {
+      position: absolute; left: 10px; top: 50%;
+      transform: translateY(-50%); pointer-events: none;
+    }
+    #map-modal-input {
+      width: 100%;
+      padding: 9px 12px 9px 32px;
+      border-radius: var(--r-full);
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: var(--text);
+      box-shadow: var(--shadow-md);
+      outline: none;
+    }
+    #map-modal-input:focus { border-color: var(--green); }
+    #modal-map { flex: 1; width: 100%; }
+
+    /* Floating "Map" button on mobile above cards */
+    #mob-map-btn {
+      display: none;
+    }
+    @media(max-width:900px) {
+      #mob-map-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0 0 14px;
+        padding: 9px 18px;
+        background: var(--text);
+        color: #fff;
+        border-radius: var(--r-full);
+        font-family: var(--font-body);
+        font-size: .85rem;
+        font-weight: 700;
+        box-shadow: var(--shadow-md);
+        cursor: pointer;
+        border: none;
+      }
+    }
+
+    /* ── Leaflet popup custom skin ── */
+    .lw-popup .leaflet-popup-content-wrapper {
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.18);
+      padding: 0;
+      overflow: hidden;
+      border: none;
+    }
+    .lw-popup .leaflet-popup-content { margin: 0; width: auto !important; }
+    .lw-popup .leaflet-popup-tip-container { margin-top: -1px; }
+    .lw-popup .leaflet-popup-tip { background: #fff; }
+    .lw-popup .leaflet-popup-close-button {
+      top: 8px; right: 10px;
+      color: #6b6656; font-size: 18px; font-weight: 400;
+    }
+    /* Map search input focus ring */
+    #map-loc-input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(45,90,39,.12), var(--shadow-md);
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+<meta name="robots" content="noindex,nofollow"><style>body{padding-top:46px!important}.lw-sandbox-banner{position:fixed;z-index:2147483647;top:0;left:0;right:0;background:#a96914;color:white;text-align:center;font:700 13px system-ui;padding:13px}.sandbox-inert-form{opacity:.65}button:disabled{cursor:not-allowed!important}</style></head>
+<body><div class="lw-sandbox-banner">LEASEWILD SANDBOX — PREVIEW ONLY · No real bookings or payments</div>
+
+  <!-- ══════════════════════════════════════════
+       NAV
+  ══════════════════════════════════════════ -->
+  <nav class="nav" style="position:relative" id="main-nav">
+    <div class="nav-inner">
+      <!-- Logo -->
+      <a href="index.html" class="logo">
+        <svg width="36" height="36" viewBox="0 0 38 38" fill="none">
+          <polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/>
+        </svg>
+        <span class="wordmark"><span style="color:var(--text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
+      </a>
+
+      <!-- Center search pill (desktop) -->
+      <div class="nav-search">
+        <div class="ns-pill">
+          Where<span>Search properties</span>
+        </div>
+        <div class="ns-pill">
+          Check-in<span>Add dates</span>
+        </div>
+        <div class="ns-pill" style="border-right:none">
+          Type<span>Hunt · Fish · Any</span>
+        </div>
+        <button disabled class="ns-btn" aria-label="Search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+      </div>
+
+      <!-- Right side -->
+      <div class="nav-right">
+        <a href="list-your-land.html" class="nav-link">List your land</a>
+        <a href="guest-portal.html" class="nav-link">Hunter Login</a>
+        <a href="outfitter-portal.html" class="nav-link">Outfitter Login</a>
+        <a href="landowner-portal.html" class="nav-link">Landowner Login</a>
+        <!-- Logged-out: Join waitlist CTA -->
+        <button disabled class="nav-cta" id="nav-cta-waitlist" style="display:flex">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+          Join waitlist
+        </button>
+        <!-- Logged-in: profile avatar dropdown -->
+        <div id="nav-profile-wrap" style="display:none;position:relative">
+          <button disabled id="nav-profile-btn" style="display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border-radius:var(--r-full);border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-family:var(--font-body)">
+            <div class="nav-avatar" id="nav-avatar-initials">?</div>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div id="nav-profile-menu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-lg,12px);box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:180px;padding:.4rem 0;z-index:300">
+            <div id="nav-profile-name" style="padding:.6rem 1rem .4rem;font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);margin-bottom:.3rem">My Account</div>
+            <a id="nav-portal-link" href="guest-portal.html" style="display:block;padding:.55rem 1rem;font-size:.9rem;font-weight:600;color:var(--text);text-decoration:none" onmouseout="this.style.background=''">My dashboard</a>
+            <a href="guest-portal.html" style="display:block;padding:.55rem 1rem;font-size:.9rem;font-weight:600;color:var(--muted);text-decoration:none" id="nav-messages-link" onmouseout="this.style.background=''">Messages</a>
+            <div style="border-top:1px solid var(--border);margin:.3rem 0"></div>
+            <button disabled style="width:100%;text-align:left;padding:.55rem 1rem;font-size:.9rem;font-weight:600;color:var(--color-danger,#c0392b);background:none;border:none;cursor:pointer;font-family:inherit" onmouseout="this.style.background=''">Sign out</button>
+          </div>
+        </div>
+        <!-- mobile search -->
+        <button disabled class="nav-ham" aria-label="Search">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+        <!-- mobile hamburger menu -->
+        <button disabled class="nav-ham" id="mob-menu-btn" aria-label="Menu" style="background:none;border:1.5px solid var(--border)">
+          <svg id="mob-ham-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          <svg id="mob-close-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile slide-down menu -->
+    <div id="mob-menu-drawer" style="display:none;background:var(--surface2);border-top:1px solid var(--border);padding:1rem 1.25rem 1.5rem;position:absolute;top:100%;left:0;right:0;z-index:299;box-shadow:0 8px 24px rgba(0,0,0,.12)">
+      <nav style="display:flex;flex-direction:column;gap:.15rem">
+        <a href="list-your-land.html" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--divider)">List your land</a>
+        <a href="guest-portal.html" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--divider)">Hunter Login</a>
+        <a href="outfitter-portal.html" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:#1a6b7a;text-decoration:none;border-bottom:1px solid var(--divider)">Outfitter Login</a>
+        <a href="landowner-portal.html" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--divider)">Landowner Login</a>
+        <a href="about.html" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:var(--text);text-decoration:none;border-bottom:1px solid var(--divider)">About</a>
+        <a href="outfitters.html" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:var(--text);text-decoration:none">Outfitters</a>
+      </nav>
+      <div style="margin-top:1.25rem">
+        <button disabled style="width:100%;padding:.85rem;background:var(--color-primary,#2d5a27);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer">Join waitlist</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-trees"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>
+        Coming to Florida · Bookings open July 1, 2026
+      </div>
+      <h1>Private land.<br>Your <em>hunt.</em><br>Your <em>water.</em></h1>
+      <p class="hero-sub">Book exclusive access to private hunting ranches, bass ponds, and spring creeks across Florida — land that's never been open to the public.</p>
+
+      <!-- Desktop CTAs -->
+      <div class="hero-btns">
+        <button disabled class="btn-hero-primary">Browse available land</button>
+        <button disabled class="btn-hero-secondary">Join waitlist</button>
+      </div>
+
+      <!-- Mobile search card -->
+      <div class="hero-search">
+        <button disabled class="hs-row" style="width:100%;text-align:left;background:none;border:none;cursor:pointer">
+          <div class="hs-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </div>
+          <div class="hs-label">
+            <strong>Where are you hunting?</strong>
+            <span>County · Activity · Dates</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <button disabled class="hs-row" style="width:100%;text-align:left;background:none;border:none;cursor:pointer">
+          <div class="hs-icon" style="background:#d6e8d3">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div class="hs-label">
+            <strong>Hunting land</strong>
+            <span>Deer · Hog · Turkey · Quail</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <button disabled class="hs-row" style="width:100%;text-align:left;background:none;border:none;cursor:pointer">
+          <div class="hs-icon" style="background:#cde9ee">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--water)" stroke-width="2"><path d="M17.5 2H6.5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M8 10h8M8 14h5"/></svg>
+          </div>
+          <div class="hs-label">
+            <strong>Private fishing water</strong>
+            <span>Bass · Trout · Bream</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <!-- Trust badges -->
+      <div class="hero-trust">
+        <div class="trust-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Verified landowners
+        </div>
+        <div class="trust-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Digital waivers included
+        </div>
+        <div class="trust-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Secure payments
+        </div>
+        <div class="trust-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Flexible cancellation
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       CATEGORY PILLS
+  ══════════════════════════════════════════ -->
+  <div class="categories">
+    <div class="cat-inner">
+      <button disabled class="cat-pill active" data-filter="all">
+        <span style="font-size:1.3rem;line-height:1">&#127758;</span>
+        All
+      </button>
+      <button disabled class="cat-pill" data-filter="hunt">
+        <span style="font-size:1.3rem;line-height:1">&#129420;</span>
+        Deer
+      </button>
+      <button disabled class="cat-pill" data-filter="hunt">
+        <span style="font-size:1.3rem;line-height:1">&#128055;</span>
+        Wild Hog
+      </button>
+      <button disabled class="cat-pill" data-filter="hunt">
+        <span style="font-size:1.3rem;line-height:1">&#129413;</span>
+        Turkey
+      </button>
+      <button disabled class="cat-pill" data-filter="hunt">
+        <span style="font-size:1.3rem;line-height:1">&#129414;</span>
+        Duck
+      </button>
+      <button disabled class="cat-pill" data-filter="hunt">
+        <span style="font-size:1.3rem;line-height:1">&#128038;</span>
+        Dove
+      </button>
+      <button disabled class="cat-pill" data-filter="fish">
+        <span style="font-size:1.3rem;line-height:1">&#128031;</span>
+        Bass Fishing
+      </button>
+      <button disabled class="cat-pill" data-filter="fish">
+        <span style="font-size:1.3rem;line-height:1">&#127907;</span>
+        Private Ponds
+      </button>
+      <button disabled class="cat-pill" data-filter="hunt">
+        <span style="font-size:1.3rem;line-height:1">&#127968;</span>
+        Cabin Stays
+      </button>
+      <button disabled class="cat-pill" data-filter="camp">
+        <span style="font-size:1.3rem;line-height:1">&#9981;</span>
+        Camping
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MAIN — LISTINGS + MAP
+  ══════════════════════════════════════════ -->
+  <div class="main-layout" id="listings-section">
+    <!-- LEFT: cards -->
+    <div class="listings-col">
+      <p class="listings-count"><strong id="listings-count-num">8 properties</strong> in Florida</p>
+
+      <!-- Mobile map button — always visible on mobile -->
+      <button disabled id="mob-map-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z"/><path d="M9 3v15M15 6v15"/></svg>
+        Map
+      </button>
+
+      <div class="cards-grid" id="cards-grid">
+
+        <!-- Card 1 -->
+        <article class="card fade-up" data-type="hunt" data-acres="450" data-species="hog deer">
+          <div class="card-img bg-hunt-1">
+            <div class="card-img-scene card-img-scene-hunt"></div>
+            <div class="card-rating-badge">★ 4.9</div>
+            <button disabled class="card-save" aria-label="Save">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-hunt">Hunting Land</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">Palmetto Ridge Cabin</div>
+              <div class="card-price-inline">$240<span>/day</span></div>
+            </div>
+            <div class="card-location">Lake Placid, FL · 450 acres</div>
+            <div class="card-tags">
+              <span class="card-tag">Deer</span>
+              <span class="card-tag">Hog</span>
+              <span class="card-tag">Night access</span>
+              <span class="card-tag">Cabin</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified host
+              </span>
+              <span class="card-acreage">2 blinds included</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 2 -->
+        <article class="card fade-up" data-type="fish" data-acres="18" data-species="bass">
+          <div class="card-img bg-fish-1">
+            <div class="card-img-scene card-img-scene-fish"></div>
+            <div class="card-rating-badge">★ 5.0</div>
+            <button disabled class="card-save" aria-label="Save">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-fish">Private Pond</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">Silver Springs Bass Ranch</div>
+              <div class="card-price-inline">$195<span>/day</span></div>
+            </div>
+            <div class="card-location">Ocala, FL · 18-acre pond</div>
+            <div class="card-tags">
+              <span class="card-tag">Largemouth bass</span>
+              <span class="card-tag">Boat included</span>
+              <span class="card-tag">No license req.</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Water verified
+              </span>
+              <span class="card-acreage">Trolling motor</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 3 -->
+        <article class="card fade-up" data-type="hunt" data-acres="210" data-species="turkey hog">
+          <div class="card-img bg-hunt-2">
+            <div class="card-img-scene card-img-scene-hunt"></div>
+            <div class="card-rating-badge">★ 4.8</div>
+            <button disabled class="card-save" aria-label="Save">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-hunt">Hunting Land</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">Cypress Hollow Preserve</div>
+              <div class="card-price-inline">$175<span>/day</span></div>
+            </div>
+            <div class="card-location">Ocala, FL · 210 acres</div>
+            <div class="card-tags">
+              <span class="card-tag">Turkey</span>
+              <span class="card-tag">Hog</span>
+              <span class="card-tag">Cypress hammock</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified host
+              </span>
+              <span class="card-acreage">Private gate code</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 4 -->
+        <article class="card fade-up" data-type="fish" data-acres="5" data-species="trout bass">
+          <div class="card-img bg-fish-2">
+            <div class="card-img-scene card-img-scene-fish"></div>
+            <div class="card-rating-badge">★ 4.9</div>
+            <button disabled class="card-save" aria-label="Save">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-fish">Spring Creek</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">Big Creek Trout Access</div>
+              <div class="card-price-inline">$320<span>/day</span></div>
+            </div>
+            <div class="card-location">Highlands Co., FL · 1.2 mi creek</div>
+            <div class="card-tags">
+              <span class="card-tag">Trout</span>
+              <span class="card-tag">Bluegill</span>
+              <span class="card-tag">Spring-fed</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Water verified
+              </span>
+              <span class="card-acreage">Exclusive access</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 5 -->
+        <article class="card fade-up" data-type="hunt" data-acres="890" data-species="deer turkey">
+          <div class="card-img bg-hunt-3">
+            <div class="card-img-scene card-img-scene-hunt"></div>
+            <div class="card-rating-badge">★ 4.7</div>
+            <button disabled class="card-save" aria-label="Save">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-hunt">Hunting Land</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">Gainesville Ranch</div>
+              <div class="card-price-inline">$250<span>/day</span></div>
+            </div>
+            <div class="card-location">Gainesville, FL · 890 acres</div>
+            <div class="card-tags">
+              <span class="card-tag">Whitetail deer</span>
+              <span class="card-tag">Turkey</span>
+              <span class="card-tag">Food plots</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified host
+              </span>
+              <span class="card-acreage">Trail cam access</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 6 -->
+        <article class="card fade-up" data-type="fish" data-acres="8" data-species="bass crappie">
+          <div class="card-img bg-fish-1">
+            <div class="card-img-scene card-img-scene-fish"></div>
+            <div class="card-rating-badge">★ 4.8</div>
+            <button disabled class="card-save" aria-label="Save">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-fish">Private Lake</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">Orlando Private Lake Frontage</div>
+              <div class="card-price-inline">$110<span>/day</span></div>
+            </div>
+            <div class="card-location">Orlando, FL · 8-acre lake</div>
+            <div class="card-tags">
+              <span class="card-tag">Bass</span>
+              <span class="card-tag">Crappie</span>
+              <span class="card-tag">Kayak incl.</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Water verified
+              </span>
+              <span class="card-acreage">Shore + kayak</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 7 -->
+        <article class="card fade-up" data-type="hunt" data-acres="1200" data-species="deer hog turkey">
+          <div class="card-img bg-hunt-1">
+            <div class="card-img-scene card-img-scene-hunt"></div>
+            <div class="card-rating-badge">★ 4.9</div>
+            <button disabled class="card-save" aria-label="Save">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-hunt">Timber Tract</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">North FL Timber Tract</div>
+              <div class="card-price-inline">$195<span>/day</span></div>
+            </div>
+            <div class="card-location">Jacksonville, FL · 1,200 acres</div>
+            <div class="card-tags">
+              <span class="card-tag">Deer</span>
+              <span class="card-tag">Hog</span>
+              <span class="card-tag">Turkey</span>
+              <span class="card-tag">Multi-day</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified host
+              </span>
+              <span class="card-acreage">4 stand sites</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 8 -->
+        <!-- Camping placeholder card -->
+        <article class="card fade-up" data-type="camp" data-acres="120" data-species="camping primitive">
+          <div class="card-img" style="background:linear-gradient(160deg,#3d2a10,#6b4820)">
+            <div class="card-rating-badge">★ 4.8</div>
+            <button disabled class="card-save" aria-label="Save">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-camp">Camping</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">Osceola Flatwoods Campsite</div>
+              <div class="card-price-inline">$55<span>/night</span></div>
+            </div>
+            <div class="card-location">Kissimmee, FL · 120 acres</div>
+            <div class="card-tags">
+              <span class="card-tag">Primitive camping</span>
+              <span class="card-tag">Fire pit</span>
+              <span class="card-tag">Creek access</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified host
+              </span>
+              <span class="card-acreage">No hunting required</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card fade-up" data-type="hunt" data-acres="700" data-species="quail turkey">
+          <div class="card-img bg-hunt-3">
+            <div class="card-img-scene card-img-scene-hunt"></div>
+            <div class="card-rating-badge">★ 5.0</div>
+            <button disabled class="card-save" aria-label="Save">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="card-chip chip-hunt">Guided Hunt</span>
+          </div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-title">Tallahassee Quail Farm</div>
+              <div class="card-price-inline">$300<span>/day</span></div>
+            </div>
+            <div class="card-location">Tallahassee, FL · 700 acres</div>
+            <div class="card-tags">
+              <span class="card-tag">Quail</span>
+              <span class="card-tag">Turkey</span>
+              <span class="card-tag">Dogs incl.</span>
+              <span class="card-tag">Guided</span>
+            </div>
+            <div class="card-footer-row">
+              <span class="card-verified">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Verified host
+              </span>
+              <span class="card-acreage">Bird dogs provided</span>
+            </div>
+          </div>
+        </article>
+
+      </div><!-- /cards-grid -->
+
+      <p id="filter-empty" style="display:none;text-align:center;padding:40px 0;color:var(--muted)">No listings match that filter — try a different category.</p>
+
+    </div><!-- /listings-col -->
+
+    <!-- RIGHT: sticky map -->
+    <div class="map-col">
+      <!-- Map location search -->
+      <div id="map-search-bar" style="position:absolute;top:12px;left:12px;right:12px;z-index:600;display:flex;gap:8px;align-items:center">
+        <div style="flex:1;position:relative">
+          <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6656" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input disabled id="map-loc-input" type="text" placeholder="Search city, county, or ZIP…"
+            style="width:100%;padding:10px 12px 10px 34px;border-radius:var(--r-full);border:1.5px solid var(--border);background:var(--surface);font-family:var(--font-body);font-size:.88rem;color:var(--text);box-shadow:var(--shadow-md);outline:none"
+            onkeydown="if(event.key==='Enter')geocodeSearch()"
+          />
+          <div id="map-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);box-shadow:var(--shadow-md);z-index:700;overflow:hidden"></div>
+        </div>
+        <button disabled style="flex-shrink:0;padding:10px 16px;background:var(--green);color:#fff;border-radius:var(--r-full);font-family:var(--font-body);font-weight:700;font-size:.85rem;box-shadow:var(--shadow-md);white-space:nowrap">Go</button>
+      </div>
+      <!-- Map type filter -->
+      <div class="map-filter-bar" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);top:auto">
+        <button disabled class="mf-btn active" id="mf-all">All</button>
+        <button disabled class="mf-btn" id="mf-hunt">Hunting</button>
+        <button disabled class="mf-btn" id="mf-fish">Fishing</button>
+      </div>
+      <div id="hunt-map"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PROOF STRIP
+  ══════════════════════════════════════════ -->
+  <div class="proof-strip">
+    <div class="proof-inner">
+      <div class="fade-up">
+        <span class="proof-num">1,200+</span>
+        <span class="proof-lbl">Acres in early access</span>
+      </div>
+      <div class="fade-up">
+        <span class="proof-num">1</span>
+        <span class="proof-lbl">Launch state — Florida</span>
+      </div>
+      <div class="fade-up">
+        <span class="proof-num">$0</span>
+        <span class="proof-lbl">Cost to list your land</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       HOW IT WORKS
+  ══════════════════════════════════════════ -->
+  <div style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="section">
+      <p class="section-eyebrow">How it works</p>
+      <h2>Book land like you book a hotel</h2>
+      <p class="section-sub">LeaseWild gives you Airbnb-style simplicity for private outdoor access — search, pick dates, pay, and show up.</p>
+      <div class="steps-grid">
+        <div class="step fade-up">
+          <div class="step-num">1</div>
+          <h3>Find your property</h3>
+          <p>Browse private hunting land and fishing water across Florida. Filter by species, acreage, activity type, and price. Every listing shows state regulations.</p>
+        </div>
+        <div class="step fade-up">
+          <div class="step-num">2</div>
+          <h3>Pick your dates & book</h3>
+          <p>Select check-in and check-out dates, review the full pricing breakdown — daily rate + 20% service fee — and confirm with Stripe.</p>
+        </div>
+        <div class="step fade-up">
+          <div class="step-num">3</div>
+          <h3>Show up & hunt</h3>
+          <p>Receive gate codes, directions, and rules 24 hours before arrival. Digital waiver signed at checkout.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SPLIT CTA (List / Fish)
+  ══════════════════════════════════════════ -->
+
+  <!-- ══════════════════════════════════════════
+       LANDOWNER TRUST SYSTEM (3-STEP)
+  ══════════════════════════════════════════ -->
+  <style>
+    .lts-wrap{background:var(--surface);border-top:3px solid var(--green);border-bottom:1px solid var(--border);padding:56px 0}
+    .lts-inner{max-width:1060px;margin:0 auto;padding:0 24px}
+    .lts-header{text-align:center;margin-bottom:44px}
+    .lts-title{font-family:var(--font-display);font-size:clamp(1.4rem,2.2vw,1.9rem);font-weight:700;letter-spacing:.02em;color:var(--text);margin-bottom:10px}
+    .lts-sub{font-size:.93rem;color:var(--muted);max-width:50ch;margin:0 auto}
+    .lts-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
+    .lts-steps::before{content:'';position:absolute;top:30px;left:calc(16.67% + 8px);right:calc(16.67% + 8px);height:2px;background:linear-gradient(90deg,var(--green) 0%,var(--amber) 50%,#1a6b7a 100%);z-index:0}
+    .lts-step{position:relative;z-index:1;padding:0 20px 0;text-align:center}
+    .lts-step-num{width:44px;height:44px;border-radius:50%;color:#fff;font-family:var(--font-display);font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 0 0 4px var(--surface)}
+    .lts-step:nth-child(1) .lts-step-num{background:var(--green)}
+    .lts-step:nth-child(2) .lts-step-num{background:var(--amber)}
+    .lts-step:nth-child(3) .lts-step-num{background:#1a6b7a}
+    .lts-step-icon{margin-bottom:10px;height:28px;display:flex;align-items:center;justify-content:center}
+    .lts-step:nth-child(1) .lts-step-icon{color:var(--green)}
+    .lts-step:nth-child(2) .lts-step-icon{color:var(--amber)}
+    .lts-step:nth-child(3) .lts-step-icon{color:#1a6b7a}
+    .lts-step-label{font-family:var(--font-display);font-size:.88rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text);margin-bottom:8px}
+    .lts-step-desc{font-size:.84rem;color:var(--muted);line-height:1.65;max-width:24ch;margin:0 auto}
+    .lts-footer{display:flex;justify-content:center;margin-top:32px;gap:24px;flex-wrap:wrap}
+    .lts-footer a{font-size:.82rem;font-weight:700;color:var(--green);text-decoration:none;border-bottom:1.5px solid var(--green);padding-bottom:1px}
+    .lts-footer a:hover{color:var(--amber);border-color:var(--amber)}
+    @media(max-width:640px){
+      .lts-steps{grid-template-columns:1fr;gap:24px}
+      .lts-steps::before{display:none}
+      .lts-step{padding:20px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+    }
+  </style>
+  <div class="lts-wrap">
+    <div class="lts-inner">
+      <div class="lts-header">
+        <p class="section-eyebrow" style="margin-bottom:10px">Landowner Protection System</p>
+        <h2 class="lts-title">Every booking comes with three layers of protection</h2>
+        <p class="lts-sub">Built to remove every landowner objection. No strangers. No surprises. Full control.</p>
+      </div>
+      <div class="lts-steps">
+        <div class="lts-step fade-up">
+          <div class="lts-step-num">1</div>
+          <div class="lts-step-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <div class="lts-step-label">Protected Booking</div>
+          <p class="lts-step-desc">Digital liability waiver signed at checkout. Guest agrees to your exact property rules before booking is confirmed.</p>
+        </div>
+
+      </div>
+      <div class="lts-footer">
+        <a href="landowner-protection.html">See every protection detail →</a>
+        <a href="list-your-land.html">List your land free →</a>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:64px 0 0">
+    <div class="split-cta">
+      <div class="split-panel green-panel">
+        <p style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:6px">For landowners</p>
+        <h2>Earn passive income from your land — without the risk.</h2>
+        <p>Digital waivers. $1M coverage. You control the calendar, set your rules. We handle everything else.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px">
+          <span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600">✓ Digital waiver signed</span>
+          <span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600">✓ Location stays private</span>
+        </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+          <a href="list-your-land.html" class="split-btn green-btn" style="margin:0">
+            Start earning free
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <a href="landowner-protection.html" style="color:rgba(255,255,255,.8);font-family:var(--font-body);font-size:.85rem;font-weight:600;text-decoration:none">How we protect you →</a>
+        </div>
+      </div>
+      <div class="split-panel water-panel">
+        <p style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:12px">For anglers</p>
+        <h2>Access verified private land with trusted landowners.</h2>
+        <p>Skip the crowded public access. Book exclusive bass ponds, spring creeks, and freshwater lakes — direct from verified Florida landowners.</p>
+        <a href="fishing.html" class="split-btn water-btn">
+          Explore fishing
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+    </div>
+
+  <!-- ══════════════════════════════════════════
+       TESTIMONIALS
+  ══════════════════════════════════════════ -->
+  <div style="background:var(--bg);padding:0 0 64px">
+    <div class="section" style="padding-bottom:0">
+      <p class="section-eyebrow">What people are saying</p>
+      <h2>Early access members</h2>
+      <p class="section-sub">Hunters and anglers across Florida who are first in line.</p>
+    </div>
+    <div style="max-width:1280px;margin:0 auto;padding:0 24px">
+      <div class="testi-grid">
+        <div class="testi fade-up">
+          <div class="testi-stars">★★★★★</div>
+          <p>"I've been trying to find a private place to deer hunt near Tampa for 3 years. Every piece of land I wanted was leased or not for sale. LeaseWild is exactly what we've needed."</p>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:var(--green)">JD</div>
+            <div>
+              <strong>Jason D.</strong>
+              <span>Tampa, FL — Deer &amp; hog hunter</span>
+            </div>
+          </div>
+        </div>
+        <div class="testi fade-up">
+          <div class="testi-stars">★★★★★</div>
+          <p>"I own a 180-acre bass pond in Central Florida that sits empty 300 days a year. If I can book even 40 weekends at $200 a pop, that's $8k per year from land I'm already paying taxes on."</p>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:var(--water)">MR</div>
+            <div>
+              <strong>Mike R.</strong>
+              <span>Polk County, FL — Landowner</span>
+            </div>
+          </div>
+        </div>
+        <div class="testi fade-up">
+          <div class="testi-stars">★★★★★</div>
+          <p>"The state regulations panel on every listing is a game changer. I fish all over Florida and always second-guess license requirements on private ponds. Seeing it on the listing is huge."</p>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:var(--amber)">CW</div>
+            <div>
+              <strong>Chris W.</strong>
+              <span>Jacksonville, FL — Bass angler</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       EMAIL STRIP
+  ══════════════════════════════════════════ -->
+  <div class="email-strip">
+    <p style="font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:10px">Be first in Florida</p>
+    <h2>Bookings open July 1, 2026.</h2>
+    <p>Join the waitlist and we'll notify you the day access opens. No spam, ever.</p>
+    <div class="sandbox-inert-form">
+      <input disabled class="email-input" type="email" id="inline-email" placeholder="your@email.com" required />
+      <button disabled class="email-btn" type="submit" id="inline-btn">Join waitlist</button>
+    </div>
+    <p id="inline-confirm" style="display:none;color:var(--green);font-weight:600;margin-top:14px">You're on the list — we'll be in touch.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       FAQ
+  ══════════════════════════════════════════ -->
+  <div style="background:var(--surface);border-top:1px solid var(--border)">
+    <div class="section" style="max-width:800px">
+      <p class="section-eyebrow">FAQ</p>
+      <h2>Common questions</h2>
+      <div style="display:grid;gap:10px;margin-top:28px">
+        <details style="border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px">
+          <summary style="font-weight:700;font-size:.9rem;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">How do I book private hunting land in Florida? <span style="font-size:1.2rem;color:var(--faint)">+</span></summary>
+          <p style="font-size:.875rem;color:var(--muted);margin-top:10px;line-height:1.65">Browse listings, select your dates, and complete checkout with Stripe. Bookings officially open July 1, 2026. Join the waitlist to be first in line when bookings open.</p>
+        </details>
+        <details style="border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px">
+          <summary style="font-weight:700;font-size:.9rem;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">Do I need a hunting license on private land? <span style="font-size:1.2rem;color:var(--faint)">+</span></summary>
+          <p style="font-size:.875rem;color:var(--muted);margin-top:10px;line-height:1.65">Florida state regulations apply to private land for most species. Regulations are displayed on every listing. Fully private, non-navigable ponds do not require a Florida fishing license.</p>
+        </details>
+        <details style="border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px">
+          <summary style="font-weight:700;font-size:.9rem;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">What is the cancellation policy? <span style="font-size:1.2rem;color:var(--faint)">+</span></summary>
+          <p style="font-size:.875rem;color:var(--muted);margin-top:10px;line-height:1.65">Flexible — full refund if you cancel 48+ hours before check-in. No refund within 48 hours of check-in.</p>
+        </details>
+        <details style="border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px">
+          <summary style="font-weight:700;font-size:.9rem;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">Can I list my land immediately? <span style="font-size:1.2rem;color:var(--faint)">+</span></summary>
+          <p style="font-size:.875rem;color:var(--muted);margin-top:10px;line-height:1.65">Yes — no approval needed. Create your landowner account, upload photos and details, and go live in minutes.</p>
+        </details>
+        <details style="border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px">
+          <summary style="font-weight:700;font-size:.9rem;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">How much does it cost guests? <span style="font-size:1.2rem;color:var(--faint)">+</span></summary>
+          <p style="font-size:.875rem;color:var(--muted);margin-top:10px;line-height:1.65">Guests pay the listed daily rate + 20% service fee (on rate + cleaning fee) + Stripe payment processing fee (2.9% + $0.30). Optional trip protection available at checkout. No monthly subscription required.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <svg width="34" height="34" viewBox="0 0 38 38" fill="none"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
+          <span class="wordmark"><span style="color:var(--text)">Lease</span><span style="color:#c17f3a">Wild</span></span>
+        </a>
+        <p>Private hunting land and fishing water access — land that was never available before.</p>
+        <div class="footer-socials">
+          <a href="https://www.instagram.com/leasewild?igsh=Z2J6NG4zNmUxOGp0" target="_blank" aria-label="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" aria-label="Facebook">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="#" aria-label="TikTok">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.28 6.28 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>
+          </a>
+          <a href="#" aria-label="YouTube">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Hunting</h4>
+        <ul>
+          <li><a href="listings.html">Browse hunting land</a></li>
+          <li><a href="listings.html">Guided stays</a></li>
+          <li><a href="listings.html">Cabin + land access</a></li>
+          <li><a href="listings.html">Night hog access</a></li>
+          <li><a href="listings.html">Turkey season</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Fishing</h4>
+        <ul>
+          <li><a href="fishing.html">Private ponds</a></li>
+          <li><a href="fishing.html">Spring creeks</a></li>
+          <li><a href="fishing.html">Lake frontage</a></li>
+          <li><a href="fishing.html">Guided fishing</a></li>
+          <li><a href="fishing.html">License guide</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About LeaseWild</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="landowner-protection.html">Landowner protection</a></li>
+          <li><a href="list-your-land.html">List your land</a></li>
+          <li><a href="landowner-portal.html">Landowner login</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 LeaseWild · Florida</span>
+      <div class="footer-bottom-links">
+        <a href="terms.html">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">Landowner Agreement</a>
+        <a href="#">Support</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════════
+       MOBILE BOTTOM NAV BAR
+  ══════════════════════════════════════════ -->
+  <nav class="mob-bar" aria-label="Mobile navigation">
+    <div class="mob-bar-inner">
+
+      <button disabled class="mob-tab active">
+        <div class="mob-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
+        Explore
+      </button>
+
+      <button disabled class="mob-tab">
+        <div class="mob-icon-wrap">
+          <!-- target crosshair — hunting -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="21"/><line x1="3" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="21" y2="12"/></svg>
+        </div>
+        Hunting
+      </button>
+
+      <button disabled class="mob-tab">
+        <div class="mob-icon-wrap">
+          <!-- fishing rod / wave -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M4 4l16 7"/><circle cx="4" cy="4" r="1.5" fill="currentColor" stroke="none"/></svg>
+        </div>
+        Fishing
+      </button>
+
+      <button disabled class="mob-tab">
+        <div class="mob-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        Wishlist
+      </button>
+
+      <!-- Smart login/messages tab — swapped by JS based on auth state -->
+      <button disabled class="mob-tab" id="mob-tab-account">
+        <div class="mob-icon-wrap" id="mob-account-icon">
+          <!-- default: person/login icon -->
+          <svg id="mob-icon-login" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <svg id="mob-icon-messages" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <span id="mob-account-label">Sign In</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════
+       MOBILE SEARCH SHEET
+  ══════════════════════════════════════════ -->
+  <div class="search-sheet" id="search-sheet">
+    <div class="ss-header">
+      <button disabled class="ss-back" aria-label="Back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <span class="ss-title">Find private land</span>
+    </div>
+    <div class="ss-body">
+      <!-- search input -->
+      <div style="position:relative;margin-bottom:24px">
+        <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input disabled type="text" placeholder="County, city, or zip code" id="ss-input"
+          style="width:100%;padding:13px 16px 13px 40px;border:1.5px solid var(--border);border-radius:var(--r-full);background:var(--surface2);font-size:.95rem;outline:none;font-family:inherit"
+          onkeydown="if(event.key==='Enter')doSheetSearch()" />
+      </div>
+
+      <p class="ss-section-label">Browse by activity</p>
+      <button disabled class="ss-option">
+        <div class="ss-option-icon" style="background:var(--green-lt)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </div>
+        <div>
+          <strong>Hunting land</strong>
+          <span>Deer · Hog · Turkey · Quail</span>
+        </div>
+      </button>
+      <button disabled class="ss-option">
+        <div class="ss-option-icon" style="background:var(--water-lt)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--water)" stroke-width="2"><path d="M6 12C6 8 9 4 12 2c3 2 6 6 6 10s-3 8-6 10c-3-2-6-6-6-10z"/></svg>
+        </div>
+        <div>
+          <strong>Private fishing water</strong>
+          <span>Bass · Trout · Bream</span>
+        </div>
+      </button>
+      <button disabled class="ss-option">
+        <div class="ss-option-icon" style="background:var(--divider)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+        </div>
+        <div>
+          <strong>All properties</strong>
+          <span>See everything in Florida</span>
+        </div>
+      </button>
+
+      <p class="ss-section-label" style="margin-top:24px">Dates</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div style="border:1.5px solid var(--border);border-radius:var(--r-md);padding:12px 14px">
+          <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin-bottom:4px">Check-in</div>
+          <input disabled type="date" style="border:none;background:none;font-size:.9rem;font-family:inherit;color:var(--text);width:100%;outline:none" />
+        </div>
+        <div style="border:1.5px solid var(--border);border-radius:var(--r-md);padding:12px 14px">
+          <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin-bottom:4px">Check-out</div>
+          <input disabled type="date" style="border:none;background:none;font-size:.9rem;font-family:inherit;color:var(--text);width:100%;outline:none" />
+        </div>
+      </div>
+    </div>
+    <div class="ss-cta">
+      <button disabled class="ss-go-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;margin-right:6px;vertical-align:middle"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Search
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       WAITLIST MODAL
+  ══════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="wl-modal">
+    <div class="modal">
+      <button disabled class="modal-close" aria-label="Close">✕</button>
+      <div id="wl-form-view">
+        <p style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:10px">Early Access</p>
+        <h2>Join the waitlist</h2>
+        <p class="modal-sub">Be first to book when LeaseWild opens in Florida on July 1, 2026.</p>
+        <div class="sandbox-inert-form">
+          <div class="form-row">
+            <div class="form-field">
+              <label>First name</label>
+              <input disabled type="text" id="wl-first" required placeholder="First" />
+            </div>
+            <div class="form-field">
+              <label>Last name</label>
+              <input disabled type="text" id="wl-last" placeholder="Last" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Email</label>
+            <input disabled type="email" id="wl-email" required placeholder="your@email.com" />
+          </div>
+          <div class="form-field">
+            <label>Phone</label>
+            <input disabled type="tel" id="wl-phone" required placeholder="(555) 000-0000" />
+          </div>
+          <div class="form-field">
+            <label>City, State</label>
+            <input disabled type="text" id="wl-location" required placeholder="Tampa, FL" />
+          </div>
+          <button disabled class="btn-submit" type="submit" id="wl-submit">Join waitlist</button>
+          <p id="wl-error" style="display:none;color:var(--danger);font-size:.78rem;text-align:center;margin-top:8px"></p>
+        </div>
+        <p class="modal-note">No spam. We'll only contact you when early access opens.</p>
+      </div>
+      <div class="modal-success" id="wl-success">
+        <div class="success-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2>You're in!</h2>
+        <p style="font-size:.9rem;color:var(--muted);margin:8px 0 24px;line-height:1.6">We'll reach out when early access opens in Florida. First come, first served.</p>
+        <button disabled class="btn-submit">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       LEAFLET MAP
+  ══════════════════════════════════════════ -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- ══════════════════════════════════════════
+       FULL-SCREEN MAP MODAL
+  ══════════════════════════════════════════ -->
+  <div id="map-modal">
+    <div id="map-modal-header">
+      <button disabled id="map-modal-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+        Back
+      </button>
+      <div id="map-modal-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b6656" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input disabled id="map-modal-input" type="text" placeholder="Search city, county, or ZIP…"
+          onkeydown="if(event.key==='Enter')geocodeFromModal()" />
+      </div>
+      <button disabled style="flex-shrink:0;padding:9px 14px;background:var(--green);color:#fff;border-radius:var(--r-full);font-family:var(--font-body);font-weight:700;font-size:.82rem;border:none;box-shadow:var(--shadow-md);cursor:pointer">Go</button>
+    </div>
+    <div id="modal-map"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       LISTING DETAIL MODAL
+  ══════════════════════════════════════════ -->
+  <div id="listing-detail-modal" role="dialog" aria-modal="true" aria-label="Listing detail">
+    <div id="listing-detail-sheet">
+      <div class="ldm-handle"></div>
+      <div class="ldm-close"><button disabled aria-label="Close">&times;</button></div>
+      <div id="listing-detail-content"></div>
+    </div>
+  </div>
+
+  
+  
+  
+  
+
+  
+
+  <!-- booking.js: openListingDetail, Stripe checkout, date pickers, promo codes -->
+  
+  
+</body>
+</html>
