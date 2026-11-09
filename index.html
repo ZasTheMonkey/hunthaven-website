@@ -1016,7 +1016,7 @@
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 </head>
-<body>
+<body><div style="position:sticky;top:0;z-index:99999;background:#f8d86a;color:#243b24;text-align:center;padding:7px;font:700 13px system-ui">LEASEWILD SANDBOX — TEST DATA ONLY</div>
 
   <!-- ══════════════════════════════════════════
        NAV
@@ -2160,8 +2160,8 @@
 
   /* ── FETCH LIVE LISTINGS FROM SUPABASE ── */
   (function fetchListings(){
-    var SB_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
-    var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
+    var SB_URL = 'https://kbkdfpmlyggfijkyjxoi.supabase.co';
+    var SB_KEY = 'sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
     fetch(SB_URL + '/rest/v1/listings?status=eq.active&order=created_at.desc', {
       headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
     })
