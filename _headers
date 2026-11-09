@@ -1,0 +1,3 @@
+/*
+  Content-Security-Policy: connect-src 'self' https://kbkdfpmlyggfijkyjxoi.supabase.co wss://kbkdfpmlyggfijkyjxoi.supabase.co; form-action 'self'; frame-src 'self' https://checkout.stripe.com; base-uri 'self'
+  X-Robots-Tag: noindex, nofollow
