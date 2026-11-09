@@ -117,95 +117,49 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script>
-    var SB_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
-    var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
-
-    var params = new URLSearchParams(window.location.search);
-    var bookingId = params.get('id');
-    var booking = null;
-
-    async function init() {
-      if (!bookingId) {
-        document.getElementById('loading').innerHTML = '<p style="color:#ef4444">Invalid cancellation link.</p>';
-        return;
-      }
-      var res = await fetch(SB_URL + '/rest/v1/bookings?id=eq.' + encodeURIComponent(bookingId) + '&select=*', {
-        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
-      });
-      var data = await res.json();
-      booking = data && data[0];
-      if (!booking) {
-        document.getElementById('loading').innerHTML = '<p style="color:#ef4444">Reservation not found.</p>';
-        return;
-      }
-      document.getElementById('loading').style.display = 'none';
-
-      if (booking.status === 'cancelled') {
-        document.getElementById('content').style.display = 'block';
-        document.getElementById('content').innerHTML = '<p style="color:#ef4444;font-weight:700;font-size:1rem">This reservation has already been cancelled.</p><a href="listings.html" style="display:block;margin-top:1.25rem;color:var(--color-accent);font-weight:700;text-decoration:none">Browse other properties →</a>';
-        return;
-      }
-
-      var cin = booking.checkin || booking.check_in || '';
-      var cout = booking.checkout || booking.check_out || '';
-      var cinFmt = cin ? new Date(cin+'T00:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '—';
-      var coutFmt = cout ? new Date(cout+'T00:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '—';
-      var hoursUntil = cin ? (new Date(cin+'T00:00:00') - new Date()) / 3600000 : 999;
-      var refundEligible = hoursUntil >= 48;
-      var total = booking.total ? '$'+parseFloat(booking.total).toFixed(2) : '—';
-
-      var refundMsg = refundEligible
-        ? '✓ You are eligible for a <strong>full refund</strong> — your check-in is more than 48 hours away. Refunds will be processed when payments go live July 1, 2026.'
-        : '✗ Your check-in is less than 48 hours away. Under our flexible policy, <strong>no refund applies</strong>.';
-
-      document.getElementById('content').style.display = 'block';
-      document.getElementById('content').innerHTML = `
-        <h1>Cancel Reservation</h1>
-        <p style="margin-top:.4rem">Please review your reservation details before cancelling.</p>
-        <div class="details-box">
-          <div class="detail-row"><span>Guest</span><strong>${booking.guest_name || '—'}</strong></div>
-          <div class="detail-row"><span>Check-in</span><strong>${cinFmt}</strong></div>
-          <div class="detail-row"><span>Check-out</span><strong>${coutFmt}</strong></div>
-          <div class="detail-row"><span>Nights</span><strong>${booking.nights || '—'}</strong></div>
-          <div class="detail-row"><span>Total paid</span><strong>${total}</strong></div>
-        </div>
-        <div class="policy-box">${refundMsg}</div>
-        <button class="btn-cancel" id="confirm-btn" onclick="confirmCancel()">Yes, cancel my reservation</button>
-        <button class="btn-back" onclick="history.back()">Keep my reservation</button>
-        <p class="msg" id="cancel-msg" style="display:none"></p>
-      `;
+    const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+    const bookingId=new URLSearchParams(location.search).get('id');
+    const api=SUPABASE_URL+'/functions/v1/sandbox-booking-cancel';
+    let preview=null;
+    async function request(action){
+      const {data:{session}}=await sb.auth.getSession();
+      if(!session)throw new Error('Please sign in to your hunter account in the Guest Portal before cancelling.');
+      const res=await fetch(api,{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+session.access_token},body:JSON.stringify({action,booking_id:bookingId})});
+      const data=await res.json();if(!res.ok)throw new Error(data.error||'Cancellation unavailable');return data;
     }
-
-    async function confirmCancel() {
-      var btn = document.getElementById('confirm-btn');
-      var msg = document.getElementById('cancel-msg');
-      btn.disabled = true;
-      btn.textContent = 'Cancelling…';
-      var res = await fetch(SB_URL + '/rest/v1/bookings?id=eq.' + encodeURIComponent(bookingId), {
-        method: 'PATCH',
-        headers: {
-          'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY,
-          'Content-Type': 'application/json', 'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ status: 'cancelled', cancelled_at: new Date().toISOString(), cancelled_by: 'guest' })
-      });
-      if (!res.ok) {
-        btn.disabled = false; btn.textContent = 'Yes, cancel my reservation';
-        msg.style.display = 'block'; msg.className = 'msg error';
-        msg.textContent = 'Something went wrong. Please try again.';
-        return;
-      }
-      document.getElementById('content').style.display = 'none';
-      var done = document.getElementById('done');
-      done.style.display = 'block';
-      var cin = booking.checkin || booking.check_in || '';
-      var hoursUntil = cin ? (new Date(cin+'T00:00:00') - new Date()) / 3600000 : 999;
-      document.getElementById('done-msg').textContent = hoursUntil >= 48
-        ? 'Your reservation has been cancelled. A full refund will be issued when payments go live.'
-        : 'Your reservation has been cancelled. No refund applies under the 48-hour policy.';
+    function safe(v){return String(v??'—').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));}
+    async function init(){
+      try{
+        if(!bookingId)throw new Error('Missing reservation ID.');
+        preview=await request('preview');
+        const b=preview.booking;
+        const fmt=x=>x?new Date(x+'T00:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}):'—';
+        const msg=preview.refund_type==='release_hold'?'Your card authorization will be released. Your bank may take additional time to remove the hold.':preview.refund_type==='full_refund'?'Under the existing 48-hour flexible policy, your test payment qualifies for a full refund.':'Under the existing 48-hour flexible policy, this booking does not qualify for a refund.';
+        document.getElementById('loading').style.display='none';
+        const box=document.getElementById('content');box.style.display='block';
+        box.innerHTML=`<h1>Cancel Reservation</h1><p style="margin-top:.4rem">Review your reservation and cancellation terms.</p>
+          <div class="details-box"><div class="detail-row"><span>Guest</span><strong>${safe(b.guest_name)}</strong></div>
+          <div class="detail-row"><span>Check-in</span><strong>${fmt(b.check_in)}</strong></div>
+          <div class="detail-row"><span>Check-out</span><strong>${fmt(b.check_out)}</strong></div>
+          <div class="detail-row"><span>Nights</span><strong>${safe(b.nights)}</strong></div>
+          <div class="detail-row"><span>Booking total</span><strong>$${Number(b.total||0).toFixed(2)}</strong></div></div>
+          <div class="policy-box">${safe(msg)}</div>
+          <button class="btn-cancel" id="confirm-btn" onclick="confirmCancel()">Yes, cancel my reservation</button>
+          <button class="btn-back" onclick="history.back()">Keep my reservation</button>
+          <p class="msg" id="cancel-msg" style="display:none"></p>`;
+      }catch(e){document.getElementById('loading').innerHTML='<p style="color:#ef4444">'+safe(e.message)+'</p><p><a href="guest-portal.html">Sign in to Guest Portal</a></p>';}
     }
-
+    async function confirmCancel(){
+      const btn=document.getElementById('confirm-btn'),msg=document.getElementById('cancel-msg');btn.disabled=true;btn.textContent='Cancelling…';
+      try{
+        const result=await request('cancel');
+        document.getElementById('content').style.display='none';document.getElementById('done').style.display='block';
+        document.getElementById('done-msg').textContent=result.result==='authorization_released'?'Your reservation is cancelled. The card hold has been released; bank processing may take longer.':result.result==='full_refund_issued'?'Your reservation is cancelled and a full test refund was initiated.':'Your reservation is cancelled. No refund applies under the existing 48-hour policy.';
+      }catch(e){btn.disabled=false;btn.textContent='Yes, cancel my reservation';msg.style.display='block';msg.className='msg error';msg.textContent=e.message;}
+    }
     init();
   </script>
 </body>
