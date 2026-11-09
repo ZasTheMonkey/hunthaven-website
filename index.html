@@ -2991,5 +2991,28 @@
   <!-- booking.js: openListingDetail, Stripe checkout, date pickers, promo codes -->
   <script src="fl-regulations.js"></script>
   <script src="booking.js?v=3"></script>
+<script>
+/* Sandbox-only checkout: do not copy this integration to production. */
+async function submitBookingStripe(){
+ const l=window._currentListing,btn=document.getElementById('bk-btn'),msg=document.getElementById('bk-msg');
+ if(!l||!btn||!msg)return;
+ const check_in=document.getElementById('bk-checkin')?.value,check_out=document.getElementById('bk-checkout')?.value;
+ const guests=Number(document.getElementById('bk-guests')?.value||1);
+ const trip_protection=!!document.getElementById('bk-trip-protection')?.checked;
+ if(!check_in||!check_out){msg.style.display='block';msg.textContent='Choose your dates first.';return}
+ btn.disabled=true;btn.textContent='Opening Stripe test checkout…';
+ try{
+  const client=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  const {data:{session}}=await client.auth.getSession();
+  if(!session){msg.style.display='block';msg.textContent='Please sign in to your sandbox hunter account before booking.';return}
+  const res=await fetch('https://kbkdfpmlyggfijkyjxoi.supabase.co/functions/v1/sandbox-booking-checkout',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+session.access_token},body:JSON.stringify({listing_id:l.id,check_in,check_out,guests,trip_protection})});
+  const data=await res.json();
+  if(!res.ok||!data.url)throw Error(data.error||'Test checkout unavailable');
+  if(!/^https:\/\/checkout\.stripe\.com\//.test(data.url))throw Error('Unexpected checkout destination');
+  location.href=data.url;
+ }catch(e){msg.style.display='block';msg.style.color='#c0392b';msg.textContent=e.message||'Checkout failed'}
+ finally{btn.disabled=false;btn.innerHTML='Book Now &rarr;'}
+}
+</script>
 </body>
 </html>
