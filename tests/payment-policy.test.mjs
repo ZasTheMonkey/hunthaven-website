@@ -4,7 +4,7 @@ import {quote,cents,checkoutTime,windowFor,validateClaim,validHold} from '../sup
 test('lease splits 80/20; cleaning is excluded from immediate charge',()=>{
  const q=quote({rate:100,nights:1,deposit:50});
  assert.equal(q.owner,8000);assert.equal(q.commission,2000);assert.equal(q.deposit,5000);
- assert.equal(q.total,10320);assert.equal(q.platform,2320);
+ assert.equal(q.total,10970);assert.equal(q.platform,2970);
 });
 test('100% cleaning is independent of lease pricing and protection',()=>{
  const a=quote({rate:100,nights:2,deposit:0});const b=quote({rate:100,nights:2,deposit:500});
@@ -56,4 +56,12 @@ test('hold must cover deadline with safety margin; never assume card window',()=
  assert.equal(validHold({...pi,status:'succeeded'},row.claim_deadline),false);
  assert.equal(validHold({...pi,latest_charge:'ch_unexpanded'},row.claim_deadline),false);
  assert.equal(validHold(pi,row.capture_before),false);
+});
+
+test('fixed sales tax applies after discounts, excludes holds and optional protection',()=>{
+ const q=quote({rate:100,nights:2,discount:50,deposit:80,protection:true});
+ assert.equal(q.tax,975);assert.equal(q.owner,12000);assert.equal(q.commission,3000);
+ assert.equal(q.total,q.lease+q.tax+q.protection+q.processing);
+ assert.equal(quote({rate:10.03,nights:1,discount:1}).tax,59);
+ assert.equal(q.owner+q.platform,q.total);
 });

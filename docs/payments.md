@@ -10,9 +10,13 @@ Guests must sign in with a verified email and explicitly accept the cleaning aut
 
 Only the snapshotted owner can claim a positive amount up to the deposit, with a cleaning explanation, after checkout and strictly before its 48-hour deadline. Partial capture releases the unused balance. The worker releases an unclaimed hold at the deadline (normally within its one-minute polling interval). Bank statement availability may lag. Cancellation releases the deposit only; this change does not implement the site's pre-existing lease-refund policy. A fully refunded Stripe lease also releases its deposit. Existing charges are not retroactively converted.
 
+## Fixed sales tax
+
+At the user's request, new checkout quotes add 6.5% to the discounted lease price, rounded to cents. Tax is a separate line and protected snapshot field; it is retained by LeaseWild separately from its 20% commission. Cleaning authorizations, optional protection, and processing fees are excluded from this configured tax base. This manual calculation does not activate Stripe Tax, register the business, file returns, or determine legal taxability. Confirm the tax base and remitting entity before production rollout. The existing processing surcharge calculation is unchanged.
+
 ## Validation performed
 
-- `npm test`: 21 tests covering cent conservation, 80/20 split, cleaning exclusion, discounts, DST/custom times, exact claim cutoffs, authorization/capture/release scenarios, short holds, failed cards, lost-response recovery, and refunds.
+- `npm test`: 22 tests covering cent conservation, 80/20 split, cleaning exclusion, discounts, DST/custom times, exact claim cutoffs, authorization/capture/release scenarios, short holds, failed cards, lost-response recovery, and refunds.
 - PGlite executes the actual migration and verifies participant-only reads, denied client writes, claim bounds, and lock contention.
 - `npm run check`: TypeScript checking against the pinned Stripe/Supabase SDK types.
 - No real customer was charged; Stripe calls in lifecycle tests are mocks. A real Stripe sandbox/test-mode checkout is still required before production activation.

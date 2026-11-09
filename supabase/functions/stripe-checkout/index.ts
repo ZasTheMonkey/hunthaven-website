@@ -42,7 +42,7 @@ Deno.serve(async(req:Request)=>{
    }
    const q=quote({rate:listing.price_per_day,nights,deposit:listing.cleaning_fee||0,discount:discount/100,protection:Number(booking.trip_protection)===18});
    if(body.amount_cents!==q.total) return json({error:'Price changed. Refresh the listing before paying.'},409);
-   row=check(await sb.from('lease_payments').insert({booking_id:booking.id,listing_id:listing.id,guest_id:guest.id,owner_id:owner.user_id,guest_email:guest.email,destination:owner.stripe_account_id,lease_cents:q.lease,owner_cents:q.owner,platform_cents:q.platform,total_cents:q.total,deposit_cents:q.deposit,...window,checkin_at:checkinAt,time_zone:listing.time_zone,hunting_methods:listing.hunting_methods,policy_version:POLICY_VERSION,consent_at:new Date().toISOString(),state:q.deposit?'scheduled':'not_required'}).select().single());
+   row=check(await sb.from('lease_payments').insert({booking_id:booking.id,listing_id:listing.id,guest_id:guest.id,owner_id:owner.user_id,guest_email:guest.email,destination:owner.stripe_account_id,lease_cents:q.lease,tax_cents:q.tax,tax_rate_bps:650,owner_cents:q.owner,platform_cents:q.platform,total_cents:q.total,deposit_cents:q.deposit,...window,checkin_at:checkinAt,time_zone:listing.time_zone,hunting_methods:listing.hunting_methods,policy_version:POLICY_VERSION,consent_at:new Date().toISOString(),state:q.deposit?'scheduled':'not_required'}).select().single());
   }
   return await locked(row.id,async(p)=>{
    if(p.payment_state!=='unpaid') throw new Error('This booking has already been paid or closed.');
@@ -55,7 +55,7 @@ Deno.serve(async(req:Request)=>{
    await save(p.id,{customer_id:customer.id});
    const session=await stripe.checkout.sessions.create({
     mode:'payment',customer:customer.id,payment_method_types:['card'],
-    line_items:[{price_data:{currency:'usd',unit_amount:p.total_cents,product_data:{name:'LeaseWild lease',description:'Lease and selected fees. Refundable cleaning hold is separate.'}},quantity:1}],
+    line_items:[{price_data:{currency:'usd',unit_amount:p.total_cents-p.tax_cents,product_data:{name:'LeaseWild lease',description:'Lease and selected fees. Refundable cleaning hold is separate.'}},quantity:1},...(p.tax_cents?[{price_data:{currency:'usd',unit_amount:p.tax_cents,product_data:{name:'Sales tax (6.5%)',description:'Fixed tax on the discounted lease price.'}},quantity:1}]:[])],
     payment_intent_data:{application_fee_amount:p.platform_cents,transfer_data:{destination:p.destination},...(p.deposit_cents?{setup_future_usage:'off_session' as const}:{}),metadata:{lease_payment_id:p.id,policy_version:POLICY_VERSION}},
     metadata:{lease_payment_id:p.id,booking_id:p.booking_id},
     custom_text:{submit:{message:p.deposit_cents?`You authorize saving this card and a separate $${(p.deposit_cents/100).toFixed(2)} cleaning hold 24 hours before the scheduled checkout. Only cleaning claimed within 48 hours after checkout is charged; unused funds are released. Monitor your guest portal if authorization needs attention.`:'Lease fee: 80% to the landowner, 20% to LeaseWild.'}},

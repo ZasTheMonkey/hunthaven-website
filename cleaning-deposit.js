@@ -22,12 +22,13 @@
     var nodes=Array.from(container.querySelectorAll('.cleaning-payment'));
     for(var node of nodes){
       var id=node.dataset.bookingId;
-      var result=await sb.from('lease_payments').select('booking_id,owner_cents,captured_cents,total_cents,deposit_cents,state,checkin_at,checkout_at,time_zone,hunting_methods,claim_deadline,claim_reason,payment_state,last_error').eq('booking_id',id).maybeSingle();
+      var result=await sb.from('lease_payments').select('booking_id,owner_cents,tax_cents,captured_cents,total_cents,deposit_cents,state,checkin_at,checkout_at,time_zone,hunting_methods,claim_deadline,claim_reason,payment_state,last_error').eq('booking_id',id).maybeSingle();
       if(result.error){node.textContent='Payment status unavailable. Refresh or contact LeaseWild.';continue;}
       var row=result.data;
       if(!row){node.textContent='Existing booking: original payment terms apply.';continue;}
       node.replaceChildren();node.style.cssText='margin-top:1rem;padding:.8rem;border:1px solid var(--color-border);border-radius:8px;font-size:.85rem';
       function line(text){var p=document.createElement('p');p.textContent=text;node.appendChild(p);}
+      line('Sales tax (6.5%): '+money(row.tax_cents||0));
       line(isOwner?'Lease payout: '+money(row.owner_cents)+(row.payment_state==='paid'?'':' (payment pending)'):'Lease checkout total: '+money(row.total_cents));
       line('Access: '+date(row.checkin_at,row.time_zone)+' to '+date(row.checkout_at,row.time_zone));
       if(row.hunting_methods?.length)line('Hunting methods: '+row.hunting_methods.join(' and '));

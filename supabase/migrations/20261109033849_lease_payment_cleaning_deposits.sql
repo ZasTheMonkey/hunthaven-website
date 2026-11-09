@@ -14,6 +14,8 @@ create table public.lease_payments (
   guest_email text not null,
   destination text not null,
   lease_cents integer not null check (lease_cents >= 50),
+  tax_cents integer not null default 0 check (tax_cents >= 0),
+  tax_rate_bps integer not null default 0 check (tax_rate_bps between 0 and 10000),
   owner_cents integer not null check (owner_cents >= 0),
   platform_cents integer not null check (platform_cents >= 0),
   total_cents integer not null check (total_cents = owner_cents + platform_cents),

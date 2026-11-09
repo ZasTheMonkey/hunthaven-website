@@ -14,13 +14,14 @@ export function quote({rate, nights, deposit = 0, discount = 0, protection = fal
   if (discountCents > gross) throw new Error('Discount exceeds lease price');
   const lease = gross - discountCents;
   if (lease < 50) throw new Error('Lease must be at least $0.50');
+  const tax = Math.round(lease * 650 / 10000); // User-selected fixed 6.5%, discounted lease only.
   const commission = Math.round(lease * 0.20);
   const protectionCents = protection ? 1800 : 0;
   // Preserve the existing disclosed guest processing surcharge, on paid items only.
   const processing = Math.round((lease + protectionCents) * 0.029) + 30;
-  return {lease, commission, owner: lease - commission, deposit: cents(deposit),
-    protection: protectionCents, processing, total: lease + protectionCents + processing,
-    platform: commission + protectionCents + processing};
+  return {lease, tax, commission, owner: lease - commission, deposit: cents(deposit),
+    protection: protectionCents, processing, total: lease + protectionCents + processing + tax,
+    platform: commission + protectionCents + processing + tax};
 }
 export const TIME_ZONES = ['America/New_York','America/Chicago','America/Denver','America/Phoenix','America/Los_Angeles','America/Anchorage','Pacific/Honolulu'];
 export function checkoutTime(date, time='00:00', zone='America/New_York') {

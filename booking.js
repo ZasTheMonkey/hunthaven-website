@@ -358,13 +358,15 @@ function updateBookingPrice() {
   var tripProtection = (tpChecked && tpChecked.checked) ? 18 : 0;
   var preStripe = +(subtotal + svcFee + tripProtection - discountAmt).toFixed(2);
   var processingFee = +((preStripe * 0.029) + 0.30).toFixed(2);
-  var total = +(preStripe + processingFee).toFixed(2);
+  var salesTax = Math.round(Math.round((subtotal - discountAmt) * 100) * 650 / 10000) / 100;
+  var total = +(preStripe + processingFee + salesTax).toFixed(2);
   bd.style.display = 'flex';
   bd.innerHTML =
     '<div style="display:flex;justify-content:space-between"><span>$'+rate+' x '+nights+' night'+(nights>1?'s':'')+'</span><span>$'+(rate*nights).toFixed(2)+'</span></div>' +
     (cleaning ? '<div style="display:flex;justify-content:space-between"><span>Refundable cleaning hold (later)</span><span>$'+cleaning.toFixed(2)+'</span></div>' : '') +
     (tripProtection > 0 ? '<div style="display:flex;justify-content:space-between"><span>Trip protection</span><span>$18.00</span></div>' : '') +
     (discountAmt > 0 ? '<div style="display:flex;justify-content:space-between;color:var(--color-primary);font-weight:600"><span>Discount ('+discountLabel+')</span><span>−$'+discountAmt.toFixed(2)+'</span></div>' : '') +
+    '<div style="display:flex;justify-content:space-between"><span>Sales tax (6.5%)</span><span>$'+salesTax.toFixed(2)+'</span></div>' +
     '<div style="display:flex;justify-content:space-between"><span>Processing fee</span><span>$'+processingFee.toFixed(2)+'</span></div>' +
     '<div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid var(--color-border);padding-top:.4rem;margin-top:.25rem"><span>Due now (excludes cleaning hold)</span><span>$'+total.toFixed(2)+'</span></div>';
 }
@@ -395,7 +397,9 @@ async function submitPreReservation() {
   var discountAmt = discountFixed2 > 0 ? Math.min(discountFixed2, subtotal + svcFee) : (discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0);
   var tpBox = document.getElementById('bk-trip-protection');
   var tripProtectionAmt = (tpBox && tpBox.checked) ? 18 : 0;
-  var total = +(subtotal + svcFee + tripProtectionAmt - discountAmt).toFixed(2);
+  var preStripe = +(subtotal + svcFee + tripProtectionAmt - discountAmt).toFixed(2);
+  var salesTax = Math.round(Math.round((subtotal - discountAmt) * 100) * 650 / 10000) / 100;
+  var total = +(preStripe + Math.round((preStripe * 0.029 + 0.30) * 100) / 100 + salesTax).toFixed(2);
   btn.disabled = true; btn.textContent = 'Saving...'
   try {
     var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -518,7 +522,8 @@ async function submitBookingStripe() {
   // Stripe fee passed to guest: 2.9% + $0.30 on top of everything
   var preStripe = subtotal + svcFee + tripProtection - discountAmt;
   var stripeFee = +((preStripe * 0.029) + 0.30).toFixed(2);
-  var total = +(preStripe + stripeFee).toFixed(2);
+  var salesTax = Math.round(Math.round((subtotal - discountAmt) * 100) * 650 / 10000) / 100;
+  var total = +(preStripe + stripeFee + salesTax).toFixed(2);
   var totalCents = Math.round(total * 100);
 
   // ─ 4. Save booking as pending_payment in Supabase ───
