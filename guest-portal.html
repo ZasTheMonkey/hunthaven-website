@@ -533,8 +533,8 @@
         container.innerHTML = '<div class="empty-state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><p>No bookings yet.</p><a href="listings.html" style="color:var(--color-accent);font-weight:700;text-decoration:none;font-size:var(--text-sm)">Browse available land →</a></div>';
         return;
       }
-      var statusColor = { pending_approval:'#b97920', approved:'#247343', declined:'#b83232', pre_reserved:'#c17f3a', confirmed:'#2d5a27', cancelled:'#ef4444', pending_payment:'#6366f1' };
-      var statusLabel = { pending_approval:'Awaiting landowner approval', approved:'Approved — ready to pay', declined:'Declined', pre_reserved:'Pre-reserved', confirmed:'Confirmed', cancelled:'Cancelled', pending_payment:'Payment pending' };
+      var statusColor = { authorization_pending:'#b97920', pending_approval:'#b97920', capturing:'#b97920', approved:'#247343', declined:'#b83232', pre_reserved:'#c17f3a', confirmed:'#2d5a27', cancelled:'#ef4444', pending_payment:'#6366f1' };
+      var statusLabel = { authorization_pending:'Card authorization pending', pending_approval:'Awaiting landowner approval (24 hours)', capturing:'Capturing payment', approved:'Approved', declined:'Declined', pre_reserved:'Pre-reserved', confirmed:'Confirmed', cancelled:'Cancelled', pending_payment:'Payment pending' };
       container.innerHTML = data.map(function(b) {
         var cin = b.checkin || b.check_in || '';
         var cout = b.checkout || b.check_out || '';
@@ -555,7 +555,7 @@
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
             <span style="font-size:var(--text-sm);font-weight:700;color:var(--color-primary)">${total}</span>
             <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-              ${st === 'approved' ? `<button onclick="payApprovedBooking('${b.id}')" style="padding:.5rem 1rem;background:#247343;color:#fff;border:0;border-radius:6px;font-weight:700">Pay Now (Test)</button>` : ''}
+              
               <button onclick="openConversation('${b.id}','${b.listing_id}','Booking #${b.id.slice(0,8).toUpperCase()}')" style="padding:.4rem .85rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:inherit">Message Landowner</button>
               ${st !== 'cancelled' ? `<a href="cancel.html?id=${b.id}" style="padding:.4rem .85rem;border:1.5px solid var(--color-danger);color:var(--color-danger);border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;text-decoration:none;display:inline-block">Cancel</a>` : ''}
             </div>
