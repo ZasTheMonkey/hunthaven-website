@@ -19,12 +19,13 @@ At the user's request, new checkout quotes add 6.5% to the discounted lease pric
 - `npm test`: 22 tests covering cent conservation, 80/20 split, cleaning exclusion, discounts, DST/custom times, exact claim cutoffs, authorization/capture/release scenarios, short holds, failed cards, lost-response recovery, and refunds.
 - PGlite executes the actual migration and verifies participant-only reads, denied client writes, claim bounds, and lock contention.
 - `npm run check`: TypeScript checking against the pinned Stripe/Supabase SDK types.
-- No real customer was charged; Stripe calls in lifecycle tests are mocks. A real Stripe sandbox/test-mode checkout is still required before production activation.
+- Real Stripe sandbox verification completed on 2026-11-09: a $109.70 checkout ($100 lease, $6.50 manual tax, $3.20 processing) paid the connected owner $80 net after the application fee. The real deposit engine authorized a separate $50 hold, captured $25 in one scenario, and canceled an unclaimed hold in another. No real customer was charged. Automated tests also use mocked Stripe calls.
+- Scheduled worker invocation, signed webhook delivery, and complete guest/owner browser flows remain deployment gates.
 
 ## Deployment prerequisites (not yet performed)
 
 1. Use a separate Supabase test project and Stripe sandbox/test account. Apply `supabase/migrations/20261109033849_lease_payment_cleaning_deposits.sql`. No production migration or function was changed during preparation.
-2. Configure the existing `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SB_URL`, and `SB_SERVICE_KEY` secrets for that environment. Generate a strong random `CLEANING_WORKER_SECRET`; save it in Supabase Edge Function secrets and as `cleaning_worker_secret` in Supabase Vault. Do not commit either secret.
+2. Configure the existing `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SB_URL`, and `SB_SERVICE_KEY` secrets (the built-in `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are supported fallbacks) for that environment. Generate a strong random `CLEANING_WORKER_SECRET`; save it in Supabase Edge Function secrets and as `cleaning_worker_secret` in Supabase Vault. Do not commit either secret.
 3. Deploy `stripe-checkout`, `stripe-webhook`, `cleaning-deposit`, and `cleaning-deposit-worker` together, including `_shared`. Honor `supabase/config.toml`: user endpoints verify JWT and additionally validate the user; the webhook verifies Stripe's signature; the worker verifies its own secret. Never expose the service-role key to browsers.
 4. Configure Stripe's webhook endpoint for `checkout.session.completed`, `checkout.session.expired`, and payment-intent changes. The handler reads Stripe to verify paid amounts and destinations; the worker also reconciles checkout state if a webhook is delayed.
 5. Enable `pg_cron` and `pg_net`. Store the project URL as `cleaning_project_url` in Vault. Run the scheduler statement below as the database owner. Confirm successful invocation and monitor `failed` counts; failure to run the worker means holds are not promptly created/released.
