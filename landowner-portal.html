@@ -863,8 +863,8 @@
       if (h3) listingMap[id] = h3.textContent;
     });
 
-    var statusColor = { pending_approval:'#b97920', approved:'#247343', capturing:'#b97920', authorization_pending:'#b97920', declined:'#c0392b', pending_payment:'#b97920', pre_reserved: '#c17f3a', confirmed: '#2d5a27', cancelled: '#ef4444' };
-    var statusLabel = { pending_approval:'Awaiting your approval', approved:'Approved', capturing:'Processing payment', authorization_pending:'Awaiting card authorization', declined:'Declined', pending_payment:'Payment pending', pre_reserved: 'Pre-reserved', confirmed: 'Confirmed', cancelled: 'Cancelled' };
+    var statusColor = { pending_approval:'#b97920', approved:'#247343', capturing:'#b97920', authorization_pending:'#b97920', declined:'#c0392b', pending_payment:'#b97920', pre_reserved: '#c17f3a', confirmed: '#2d5a27', cancelled: '#ef4444', expired:'#777', declining:'#b97920', expiring:'#b97920' };
+    var statusLabel = { pending_approval:'Awaiting your approval', approved:'Approved', capturing:'Processing payment', authorization_pending:'Awaiting card authorization', declined:'Declined', pending_payment:'Payment pending', pre_reserved: 'Pre-reserved', confirmed: 'Confirmed', cancelled: 'Cancelled', expired:'Expired — authorization released', declining:'Releasing authorization', expiring:'Expiring — releasing authorization' };
 
     container.innerHTML = data.map(function(b) {
       var cin = b.checkin || b.check_in || '';
@@ -923,7 +923,21 @@
       if (!res.ok) throw new Error(result.error || 'Could not update request');
       var {data:listings} = await sb.from('listings').select('id').eq('owner_id',session.user.id);
       await loadReservations((listings||[]).map(x=>x.id));
-    } catch(e) { alert(e.message); }
+    } catch(e) {
+      var message = e.message || 'Could not update this reservation.';
+      try {
+        var {data:latest} = await sb.from('bookings').select('status,approval_deadline').eq('id',id).maybeSingle();
+        if (latest?.status === 'expired') message = 'This reservation expired because the 24-hour approval window ended. The guest\'s card authorization has been released. It cannot be approved or declined.';
+        else if (latest?.status === 'confirmed') message = 'This reservation is already approved and confirmed. The payment has been captured; no further approval is needed.';
+        else if (latest?.status === 'declined') message = 'This reservation has already been declined. The guest\'s card authorization has been released.';
+        else if (latest?.status === 'cancelled') message = 'This reservation was canceled and can no longer be approved or declined.';
+        else if (['capturing','declining','expiring'].includes(latest?.status)) message = 'This reservation is already being processed. Please wait and refresh before trying again.';
+        else if (latest?.status === 'pending_approval' && latest.approval_deadline && Date.now() >= Date.parse(latest.approval_deadline)) message = 'The 24-hour approval window has ended. This reservation is being expired; please refresh shortly.';
+        var {data:ownerListings} = await sb.from('listings').select('id').eq('owner_id',session?.user?.id);
+        if (ownerListings) await loadReservations(ownerListings.map(x=>x.id));
+      } catch(refreshError) { console.warn('Could not refresh reservation status',refreshError); }
+      alert(message);
+    }
   }
 
   async function cancelReservation(bookingId, guestName, checkin) {
