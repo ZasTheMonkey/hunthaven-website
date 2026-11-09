@@ -969,6 +969,11 @@
     var sandboxUser = authResult.data && authResult.data.user;
     if (!sandboxUser) { clearTimeout(submitTimeout); btn.disabled = false; btn.textContent = 'Submit My Property — It\'s Free'; alert('Sign in to your sandbox landowner account first.'); location.href='landowner-portal.html?next=list-your-land.html'; return; }
     var data = new FormData(e.target);
+    var formEmail = String(data.get('email') || '').trim();
+    if (formEmail && formEmail.toLowerCase() !== String(sandboxUser.email).toLowerCase()) {
+      clearTimeout(submitTimeout); btn.disabled = false; btn.textContent = 'Submit My Property — It\'s Free';
+      alert('The listing email must match your signed-in sandbox account (' + sandboxUser.email + '). Please update it and try again.'); return;
+    }
     var firstName   = data.get('first_name') || '';
     var lastName    = data.get('last_name')  || '';
     var email       = data.get('email')      || '';
@@ -1065,7 +1070,7 @@
       owner_id:      sandboxUser.id,
       first_name:    firstName,
       last_name:     lastName,
-      email:         email,
+      email:         sandboxUser.email,
       phone:         phone,
       state:         state,
       county:        county,
