@@ -83,7 +83,7 @@
     .badge-review{background:#e8eaf6;color:#3949ab}
   </style>
 </head>
-<body>
+<body><div style="position:sticky;top:0;z-index:99999;background:#f8d86a;color:#243b24;text-align:center;padding:7px;font:700 13px system-ui">LEASEWILD SANDBOX — TEST DATA ONLY</div>
   <script>
     // Persist theme
     
@@ -301,8 +301,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
-  const SB_URL = 'https://teohfzegpoxzimfsmviy.supabase.co';
-  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
+  const SB_URL = 'https://kbkdfpmlyggfijkyjxoi.supabase.co';
+  const SB_KEY = 'sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
   let sb;
   try { sb = supabase.createClient(SB_URL, SB_KEY); } catch(e) { console.error('Supabase init failed:', e); }
 
@@ -370,7 +370,7 @@
     try {
       // Sign up with 15s timeout
       if (!sb) throw new Error('Connection error. Please refresh the page.');
-      var signupPromise = sb.auth.signUp({ email, password: pass, options: { data: { full_name: name, phone }, emailRedirectTo: 'https://leasewild.com/landowner-portal.html' } });
+      var signupPromise = sb.auth.signUp({ email, password: pass, options: { data: { full_name: name, phone }, emailRedirectTo: 'https://leasewild-sandbox.pages.dev/landowner-portal.html' } });
       var timeoutPromise = new Promise((_,rej) => setTimeout(() => rej(new Error('Request timed out. Check your connection and try again.')), 15000));
       var { data, error } = await Promise.race([signupPromise, timeoutPromise]);
 
@@ -428,7 +428,7 @@
   async function handleForgot() {
     var email = document.getElementById('si-email').value.trim();
     if (!email) { showMsg('Enter your email above first.','error'); return; }
-    await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://leasewild.com/landowner-portal.html' });
+    await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://leasewild-sandbox.pages.dev/landowner-portal.html' });
     showMsg('Password reset link sent to ' + email,'success');
   }
 
@@ -775,7 +775,7 @@
     try {
       var { data: { session } } = await sb.auth.getSession();
       if (!session) { alert('Please sign in first.'); btn.disabled=false; btn.textContent='Connect Stripe →'; return; }
-      var res = await fetch('https://teohfzegpoxzimfsmviy.supabase.co/functions/v1/stripe-connect-oauth', {
+      var res = await fetch('https://kbkdfpmlyggfijkyjxoi.supabase.co/functions/v1/stripe-connect-oauth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
         body: JSON.stringify({ user_id: session.user.id, email: session.user.email })
