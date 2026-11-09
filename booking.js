@@ -448,7 +448,7 @@ async function submitBookingStripe() {
   if (!check_in || !check_out) {
     msg.style.display = 'block'; msg.textContent = 'Choose your dates first.'; return;
   }
-  btn.disabled = true; btn.textContent = 'Opening Stripe test checkout…';
+  btn.disabled = true; btn.textContent = 'Sending booking request…';
   try {
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const { data: { session } } = await client.auth.getSession();
@@ -456,17 +456,17 @@ async function submitBookingStripe() {
     const res = await fetch('https://kbkdfpmlyggfijkyjxoi.supabase.co/functions/v1/sandbox-booking-checkout', {
       method: 'POST',
       headers: {'Content-Type':'application/json', apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+session.access_token},
-      body: JSON.stringify({listing_id:l.id, check_in, check_out, guests, trip_protection})
+      body: JSON.stringify({action:'request',listing_id:l.id, check_in, check_out, guests, trip_protection})
     });
     const data = await res.json();
-    if (!res.ok || !data.url) throw new Error(data.error || 'Sandbox checkout is unavailable.');
-    if (!/^https:\/\/checkout\.stripe\.com\//.test(data.url)) throw new Error('Unexpected checkout destination.');
-    window.location.href = data.url;
+    if (!res.ok || data.status !== 'pending_approval') throw new Error(data.error || 'Unable to send booking request.');
+    msg.style.display = 'block'; msg.style.color = '#247343';
+    msg.textContent = 'Request sent! The landowner must approve before you can pay. Check your Hunter Portal for updates.';
   } catch (e) {
     msg.style.display = 'block'; msg.style.color = '#c0392b';
     msg.textContent = e.message || 'Sandbox checkout failed.';
   } finally {
-    btn.disabled = false; btn.innerHTML = 'Book Now &rarr;';
+    btn.disabled = false; btn.innerHTML = 'Request Booking &rarr;';
   }
 }
 
