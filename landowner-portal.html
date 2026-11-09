@@ -839,10 +839,16 @@
     section.style.display = 'block';
 
     // Fetch all bookings for this landowner's listings
-    var { data, error } = await sb.from('bookings')
-      .select('*')
-      .in('listing_id', listingIds)
-      .order('created_at', { ascending: false });
+    var { data: { session } } = await sb.auth.getSession();
+    if (!session) { container.textContent = 'Sign in to view requests.'; return; }
+    var response = await fetch(SB_URL + '/functions/v1/sandbox-booking-approval', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', apikey:SB_KEY, Authorization:'Bearer '+session.access_token },
+      body: JSON.stringify({ action:'owner_list' })
+    });
+    var result = await response.json();
+    var data = result.bookings || [];
+    var error = !response.ok ? {message:result.error || 'Unable to load requests'} : null;
 
     if (error || !data?.length) {
       container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:1.5rem 0">No reservations yet.</p>';
@@ -857,8 +863,8 @@
       if (h3) listingMap[id] = h3.textContent;
     });
 
-    var statusColor = { pre_reserved: '#c17f3a', confirmed: '#2d5a27', cancelled: '#ef4444' };
-    var statusLabel = { pre_reserved: 'Pre-reserved', confirmed: 'Confirmed', cancelled: 'Cancelled' };
+    var statusColor = { pending_approval:'#b97920', approved:'#247343', declined:'#c0392b', pending_payment:'#b97920', pre_reserved: '#c17f3a', confirmed: '#2d5a27', cancelled: '#ef4444' };
+    var statusLabel = { pending_approval:'Awaiting your approval', approved:'Approved — awaiting payment', declined:'Declined', pending_payment:'Payment pending', pre_reserved: 'Pre-reserved', confirmed: 'Confirmed', cancelled: 'Cancelled' };
 
     container.innerHTML = data.map(function(b) {
       var cin = b.checkin || b.check_in || '';
@@ -891,6 +897,7 @@
           <div><span style="font-weight:600;color:var(--color-text)">Booked</span><br>${new Date(b.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
         </div>
         <div style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--color-border);display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:space-between">
+          ${st === 'pending_approval' ? `<div style="display:flex;gap:.5rem"><button onclick="decideSandboxBooking('${b.id}','approve')" style="padding:.5rem .9rem;background:#247343;color:#fff;border:0;border-radius:6px">Accept</button><button onclick="decideSandboxBooking('${b.id}','decline')" style="padding:.5rem .9rem;background:#b83232;color:#fff;border:0;border-radius:6px">Decline</button></div>` : ''}
           ${st !== 'cancelled' ? `<button onclick="openLoConversationFromBooking('${b.id}','${b.listing_id}','${(b.guest_name||'Guest').replace(/'/g,"&#39;")}','${b.guest_email||''}')" style="padding:.4rem .9rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit">Message Guest</button>` : ''}
           ${st !== 'cancelled' ? `
           <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
@@ -900,6 +907,22 @@
         </div>
       </div>`;
     }).join('');
+  }
+
+  async function decideSandboxBooking(id, action) {
+    if (!confirm(action === 'approve' ? 'Approve this request? The hunter will then be able to pay.' : 'Decline this booking request?')) return;
+    try {
+      var {data:{session}} = await sb.auth.getSession();
+      if (!session) throw new Error('Sign in first.');
+      var res = await fetch(SB_URL + '/functions/v1/sandbox-booking-approval', {
+        method:'POST', headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+session.access_token},
+        body:JSON.stringify({action:action,booking_id:id})
+      });
+      var result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Could not update request');
+      var {data:listings} = await sb.from('listings').select('id').eq('owner_id',session.user.id);
+      await loadReservations((listings||[]).map(x=>x.id));
+    } catch(e) { alert(e.message); }
   }
 
   async function cancelReservation(bookingId, guestName, checkin) {
