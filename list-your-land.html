@@ -965,6 +965,9 @@
       alert('This is taking longer than expected. Please check your connection and try again.');
     }, 30000);
 
+    var authResult = await sb.auth.getUser();
+    var sandboxUser = authResult.data && authResult.data.user;
+    if (!sandboxUser) { clearTimeout(submitTimeout); btn.disabled = false; btn.textContent = 'Submit My Property — It\'s Free'; alert('Sign in to your sandbox landowner account first.'); location.href='landowner-portal.html?next=list-your-land.html'; return; }
     var data = new FormData(e.target);
     var firstName   = data.get('first_name') || '';
     var lastName    = data.get('last_name')  || '';
@@ -1011,7 +1014,7 @@
     for (var i = 0; i < selectedFiles.length; i++) {
       var file = selectedFiles[i];
       var ext  = file.name.split('.').pop();
-      var path = Date.now() + '_' + i + '.' + ext;
+      var path = sandboxUser.id + '/' + Date.now() + '_' + i + '.' + ext;
       var { data: uploadData, error: uploadErr } = await sb.storage
         .from('listing-photos')
         .upload(path, file, { cacheControl: '3600', upsert: false });
@@ -1027,7 +1030,7 @@
     if (videoFile) {
       btn.textContent = 'Uploading video…';
       try {
-        var vPath = 'videos/' + Date.now() + '-' + videoFile.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+        var vPath = sandboxUser.id + '/videos/' + Date.now() + '-' + videoFile.name.replace(/[^a-zA-Z0-9._-]/g,'_');
         var vResult = await Promise.race([
           sb.storage.from('listing-photos').upload(vPath, videoFile, { cacheControl: '3600', upsert: false }),
           new Promise((_,rej) => setTimeout(() => rej(new Error('Video upload timed out')), 20000))
@@ -1059,6 +1062,7 @@
     btn.textContent = 'Saving listing…';
     try {
     var insertPromise = sb.from('listings').insert({
+      owner_id:      sandboxUser.id,
       first_name:    firstName,
       last_name:     lastName,
       email:         email,
