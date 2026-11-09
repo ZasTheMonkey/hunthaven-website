@@ -874,6 +874,7 @@
       var nights = b.nights || (cin && cout ? Math.round((new Date(cout) - new Date(cin)) / 86400000) : '—');
       var listingLabel = listingMap[b.listing_id] || 'Listing';
       var st = b.status || 'pre_reserved';
+      var deadlineText = (st === 'pending_approval' && b.approval_deadline) ? '<div style="margin:.5rem 0;padding:.55rem .7rem;border-radius:8px;background:rgba(185,121,32,.10);font-size:.82rem"><strong>Host response deadline:</strong> <span class="leasewild-countdown" data-deadline="' + b.approval_deadline + '"></span><div style="font-size:.74rem;margin-top:.2rem">Your card is authorized, not charged. If the request expires or is declined, the hold is released; your bank may take longer to show it.</div></div>' : '';
       var color = statusColor[st] || '#888';
       var label = statusLabel[st] || st;
       var landEarnings = b.rate_per_night && b.nights ? '$' + (b.rate_per_night * b.nights * 0.80 + (b.cleaning_fee || 0)).toFixed(2) : '—';
@@ -886,7 +887,7 @@
           </div>
           <span style="padding:.25rem .7rem;border-radius:999px;font-size:.72rem;font-weight:700;color:#fff;background:${color}">${label}</span>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .75rem;font-size:var(--text-xs);color:var(--color-text-muted)">
+        ${deadlineText}\n        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .75rem;font-size:var(--text-xs);color:var(--color-text-muted)">
           <div><span style="font-weight:600;color:var(--color-text)">Check-in</span><br>${cinFmt}</div>
           <div><span style="font-weight:600;color:var(--color-text)">Check-out</span><br>${coutFmt}</div>
           <div><span style="font-weight:600;color:var(--color-text)">Nights</span><br>${nights}</div>
@@ -1460,5 +1461,19 @@
   });
   </script>
 
+<script>
+(function(){
+ function tick(){
+  document.querySelectorAll('.leasewild-countdown').forEach(function(el){
+   var remaining=Date.parse(el.dataset.deadline)-Date.now();
+   if(!Number.isFinite(remaining)){el.textContent='Deadline unavailable';return;}
+   if(remaining<=0){el.textContent='Expired — awaiting status update';return;}
+   var h=Math.floor(remaining/3600000),m=Math.floor(remaining%3600000/60000);
+   el.textContent=h+'h '+m+'m remaining';
+  });
+ }
+ tick();setInterval(tick,30000);
+})();
+</script>
 </body>
 </html>
