@@ -863,8 +863,8 @@
       if (h3) listingMap[id] = h3.textContent;
     });
 
-    var statusColor = { pending_approval:'#b97920', approved:'#247343', declined:'#c0392b', pending_payment:'#b97920', pre_reserved: '#c17f3a', confirmed: '#2d5a27', cancelled: '#ef4444' };
-    var statusLabel = { pending_approval:'Awaiting your approval', approved:'Approved — awaiting payment', declined:'Declined', pending_payment:'Payment pending', pre_reserved: 'Pre-reserved', confirmed: 'Confirmed', cancelled: 'Cancelled' };
+    var statusColor = { pending_approval:'#b97920', approved:'#247343', capturing:'#b97920', authorization_pending:'#b97920', declined:'#c0392b', pending_payment:'#b97920', pre_reserved: '#c17f3a', confirmed: '#2d5a27', cancelled: '#ef4444' };
+    var statusLabel = { pending_approval:'Awaiting your approval', approved:'Approved', capturing:'Processing payment', authorization_pending:'Awaiting card authorization', declined:'Declined', pending_payment:'Payment pending', pre_reserved: 'Pre-reserved', confirmed: 'Confirmed', cancelled: 'Cancelled' };
 
     container.innerHTML = data.map(function(b) {
       var cin = b.checkin || b.check_in || '';
@@ -910,7 +910,7 @@
   }
 
   async function decideSandboxBooking(id, action) {
-    if (!confirm(action === 'approve' ? 'Approve this request? The hunter will then be able to pay.' : 'Decline this booking request?')) return;
+    if (!confirm(action === 'approve' ? 'Approve this request and capture the authorized test payment?' : 'Decline this booking request?')) return;
     try {
       var {data:{session}} = await sb.auth.getSession();
       if (!session) throw new Error('Sign in first.');
