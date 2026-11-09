@@ -1,0 +1,6 @@
+{
+  "name": "leasewild-payment-tests",
+  "private": true,
+  "scripts": {"test": "node --test tests/*.test.mjs", "check": "tsc --noEmit"},
+  "devDependencies": {"@electric-sql/pglite":"0.3.14", "@supabase/supabase-js":"2.49.8", "stripe":"14.25.0", "typescript":"5.9.3", "@types/node":"24.10.0"}
+}

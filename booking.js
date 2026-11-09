@@ -37,11 +37,17 @@ function openListingDetail(l) {
     ? '<div style="margin-top:.75rem"><video src="'+l.video_url+'" controls style="width:100%;border-radius:12px;max-height:220px"></video></div>'
     : '';
 
+  function accessTime(value) { var parts=(value || '00:00').split(':');var h=Number(parts[0]);return (h%12 || 12)+':'+parts[1]+' '+(h<12?'a.m.':'p.m.'); }
+  var accessTimes = 'Check-in '+accessTime(l.checkin_time)+'; checkout '+accessTime(l.checkout_time)+' ('+(l.time_zone || 'America/New_York')+').';
+  var huntingMethods = (l.hunting_methods || []).filter(function(m){return m==='rifle'||m==='bow';});
+  var huntingLabel = huntingMethods.length===2?'Rifle and bow':huntingMethods[0]==='rifle'?'Rifle only':huntingMethods[0]==='bow'?'Bow only':'Hunting methods: confirm with landowner';
   var details = [];
+  details.push('<span>'+escHtml(accessTimes)+'</span>');
+  if (isHunt) details.push('<span>'+escHtml(huntingLabel)+'</span>');
   if (l.max_guests) details.push('<span style="padding:.3rem .7rem;background:var(--color-surface-offset);border-radius:999px;font-size:.85rem">Up to '+l.max_guests+' guests</span>');
   if (l.num_beds) details.push('<span style="padding:.3rem .7rem;background:var(--color-surface-offset);border-radius:999px;font-size:.85rem">'+l.num_beds+' bed'+(l.num_beds>1?'s':'')+'</span>');
   if (l.min_stay) details.push('<span style="padding:.3rem .7rem;background:var(--color-surface-offset);border-radius:999px;font-size:.85rem">Min '+l.min_stay+' night'+(l.min_stay>1?'s':'')+'</span>');
-  if (l.cleaning_fee) details.push('<span style="padding:.3rem .7rem;background:var(--color-surface-offset);border-radius:999px;font-size:.85rem">+$'+l.cleaning_fee+' cleaning</span>');
+  if (l.cleaning_fee) details.push('<span style="padding:.3rem .7rem;background:var(--color-surface-offset);border-radius:999px;font-size:.85rem">+$'+l.cleaning_fee+' refundable cleaning deposit</span>');
   if (l.allow_out_of_state) details.push('<span style="padding:.3rem .7rem;background:var(--color-surface-offset);border-radius:999px;font-size:.85rem">Out-of-state welcome</span>');
 
   // Harvest limits block — displayed when allowed_zone has harvest data
@@ -103,7 +109,7 @@ function openListingDetail(l) {
           '<select id="bk-guests" style="'+inputStyle+'">'+guestOpts+'</select></div>' +
           '<div id="bk-price-breakdown" style="display:none;background:var(--color-surface-offset);border-radius:8px;padding:.85rem;margin-bottom:.75rem;font-size:.85rem;flex-direction:column;gap:.4rem"></div>' +
           '<div id="bk-trip-protection-row" style="display:none;align-items:center;gap:.6rem;margin-bottom:.75rem;background:var(--color-surface-offset);border-radius:8px;padding:.7rem .85rem;font-size:.85rem">' +
-            '<input type="checkbox" id="bk-trip-protection" onchange="updatePriceBreakdown()" style="width:16px;height:16px;accent-color:var(--color-primary);cursor:pointer" />' +
+            '<input type="checkbox" id="bk-trip-protection" onchange="updateBookingPrice()" style="width:16px;height:16px;accent-color:var(--color-primary);cursor:pointer" />' +
             '<label for="bk-trip-protection" style="cursor:pointer;flex:1">Add trip protection <span style="color:var(--color-text-muted)">+$18.00</span></label>' +
           '</div>' +
           '<div style="margin-bottom:.75rem">' +
@@ -114,6 +120,8 @@ function openListingDetail(l) {
             '</div>' +
             '<p id="bk-code-msg" style="font-size:.78rem;margin-top:.3rem;display:none"></p>' +
           '</div>' +
+          '<p style="font-size:.8rem;margin-bottom:.75rem">'+escHtml(accessTimes)+' For midnight-to-midnight access, select the following day as checkout for a full day of hunting. Book consecutive days for camping where allowed.</p>' +
+          '<label style="display:flex;gap:.5rem;font-size:.8rem;margin-bottom:1rem"><input type="checkbox" id="bk-deposit-consent" />I agree to the lease payment and, if listed, a separate refundable cleaning hold. My card will be saved for a hold 24 hours before checkout. Only necessary cleaning claimed within 48 hours after checkout can be charged, up to the displayed deposit. Unused funds are released; my bank controls when they become available. I will check my guest portal for authorization issues.</label>' +
           nameEmailHtml +
           '<button onclick="'+btnAction+'" id="bk-btn" style="width:100%;padding:.9rem;background:var(--color-primary);color:#fff;border:none;border-radius:999px;font-family:var(--font-display);font-weight:800;font-size:1.1rem;cursor:pointer">'+btnLabel+'</button>' +
           '<p id="bk-msg" style="font-size:.85rem;text-align:center;margin-top:.5rem;display:none"></p>' +
@@ -330,7 +338,7 @@ function updateBookingPrice() {
   var nights = Math.round((d2 - d1) / (1000*60*60*24));
   var rate = parseFloat(l.price_per_day) || 0;
   var cleaning = parseFloat(l.cleaning_fee) || 0;
-  var subtotal = rate * nights + cleaning;
+  var subtotal = rate * nights; // Cleaning is a separate refundable authorization, not paid now.
   var svcFee = 0; // LeaseWild takes 20% from landowner payout — not charged to guest
   var discountAmt = 0;
   var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
@@ -348,14 +356,19 @@ function updateBookingPrice() {
   if (tpRow) tpRow.style.display = 'flex';
   var tpChecked = document.getElementById('bk-trip-protection');
   var tripProtection = (tpChecked && tpChecked.checked) ? 18 : 0;
-  var total = +(subtotal + svcFee + tripProtection - discountAmt).toFixed(2);
+  var preStripe = +(subtotal + svcFee + tripProtection - discountAmt).toFixed(2);
+  var processingFee = +((preStripe * 0.029) + 0.30).toFixed(2);
+  var salesTax = Math.round(Math.round((subtotal - discountAmt) * 100) * 650 / 10000) / 100;
+  var total = +(preStripe + processingFee + salesTax).toFixed(2);
   bd.style.display = 'flex';
   bd.innerHTML =
     '<div style="display:flex;justify-content:space-between"><span>$'+rate+' x '+nights+' night'+(nights>1?'s':'')+'</span><span>$'+(rate*nights).toFixed(2)+'</span></div>' +
-    (cleaning ? '<div style="display:flex;justify-content:space-between"><span>Cleaning fee</span><span>$'+cleaning.toFixed(2)+'</span></div>' : '') +
+    (cleaning ? '<div style="display:flex;justify-content:space-between"><span>Refundable cleaning hold (later)</span><span>$'+cleaning.toFixed(2)+'</span></div>' : '') +
     (tripProtection > 0 ? '<div style="display:flex;justify-content:space-between"><span>Trip protection</span><span>$18.00</span></div>' : '') +
     (discountAmt > 0 ? '<div style="display:flex;justify-content:space-between;color:var(--color-primary);font-weight:600"><span>Discount ('+discountLabel+')</span><span>−$'+discountAmt.toFixed(2)+'</span></div>' : '') +
-    '<div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid var(--color-border);padding-top:.4rem;margin-top:.25rem"><span>Total</span><span>$'+total.toFixed(2)+'</span></div>';
+    '<div style="display:flex;justify-content:space-between"><span>Sales tax (6.5%)</span><span>$'+salesTax.toFixed(2)+'</span></div>' +
+    '<div style="display:flex;justify-content:space-between"><span>Processing fee</span><span>$'+processingFee.toFixed(2)+'</span></div>' +
+    '<div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid var(--color-border);padding-top:.4rem;margin-top:.25rem"><span>Due now (excludes cleaning hold)</span><span>$'+total.toFixed(2)+'</span></div>';
 }
 
 async function submitPreReservation() {
@@ -377,14 +390,16 @@ async function submitPreReservation() {
   if (l.min_stay && nights < l.min_stay) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='This property requires a minimum stay of '+l.min_stay+' night'+(l.min_stay>1?'s':'')+'. Please adjust your dates.'; return; }
   var rate = parseFloat(l.price_per_day) || 0;
   var cleaning = parseFloat(l.cleaning_fee) || 0;
-  var subtotal = rate * nights + cleaning;
+  var subtotal = rate * nights; // Cleaning is a separate refundable authorization, not paid now.
   var svcFee = 0; // LeaseWild takes 20% from landowner payout — not charged to guest
   var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
   var discountFixed2 = _appliedCode ? (_appliedCode.discount_fixed || 0) : 0;
   var discountAmt = discountFixed2 > 0 ? Math.min(discountFixed2, subtotal + svcFee) : (discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0);
   var tpBox = document.getElementById('bk-trip-protection');
   var tripProtectionAmt = (tpBox && tpBox.checked) ? 18 : 0;
-  var total = +(subtotal + svcFee + tripProtectionAmt - discountAmt).toFixed(2);
+  var preStripe = +(subtotal + svcFee + tripProtectionAmt - discountAmt).toFixed(2);
+  var salesTax = Math.round(Math.round((subtotal - discountAmt) * 100) * 650 / 10000) / 100;
+  var total = +(preStripe + Math.round((preStripe * 0.029 + 0.30) * 100) / 100 + salesTax).toFixed(2);
   btn.disabled = true; btn.textContent = 'Saving...'
   try {
     var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -444,6 +459,16 @@ async function submitBookingStripe() {
   var btn = document.getElementById('bk-btn');
   var msg = document.getElementById('bk-msg');
 
+  var paymentClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  var auth = await paymentClient.auth.getSession();
+  if (!auth.data.session) {
+    msg.style.display = 'block';
+    msg.innerHTML = 'Please <a href="guest-portal.html">sign in or create a guest account</a> before booking.';
+    return;
+  }
+  if (!document.getElementById('bk-deposit-consent').checked) {
+    msg.style.display = 'block'; msg.textContent = 'Please accept the lease and cleaning-deposit terms.'; return;
+  }
   if (!cin || !cout) {
     msg.style.display = 'block'; msg.style.color = '#c0392b';
     msg.textContent = 'Please select check-in and check-out dates.';
@@ -487,16 +512,18 @@ async function submitBookingStripe() {
   var nights = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
   var rate = parseFloat(l.price_per_day) || 0;
   var cleaning = parseFloat(l.cleaning_fee) || 0;
-  var subtotal = rate * nights + cleaning;
+  var subtotal = rate * nights; // Cleaning is a separate refundable authorization, not paid now.
   var svcFee = 0; // LeaseWild takes 20% from landowner payout — not charged to guest
   var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
-  var discountAmt = discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0;
+  var discountFixed = _appliedCode ? (_appliedCode.discount_fixed || 0) : 0;
+  var discountAmt = discountFixed > 0 ? Math.min(discountFixed, subtotal) : (discountPct > 0 ? +(subtotal * discountPct / 100).toFixed(2) : 0);
   var tpBoxStripe = document.getElementById('bk-trip-protection');
   var tripProtection = (tpBoxStripe && tpBoxStripe.checked) ? 18 : 0;
   // Stripe fee passed to guest: 2.9% + $0.30 on top of everything
   var preStripe = subtotal + svcFee + tripProtection - discountAmt;
   var stripeFee = +((preStripe * 0.029) + 0.30).toFixed(2);
-  var total = +(preStripe + stripeFee).toFixed(2);
+  var salesTax = Math.round(Math.round((subtotal - discountAmt) * 100) * 650 / 10000) / 100;
+  var total = +(preStripe + stripeFee + salesTax).toFixed(2);
   var totalCents = Math.round(total * 100);
 
   // ─ 4. Save booking as pending_payment in Supabase ───
@@ -506,7 +533,7 @@ async function submitBookingStripe() {
     var result = await _sb.from('bookings').insert({
       listing_id: l.id,
       guest_name: 'Pending',
-      guest_email: 'pending@stripe',
+      guest_email: auth.data.session.user.email,
       check_in: cin,
       check_out: cout,
       nights: nights,
@@ -556,31 +583,21 @@ function switchToPreReservation() {
 }
 
 async function launchStripeCheckout(totalCents, bookingId, description, cin, cout, nights, listing) {
-  // No-backend approach: use Stripe Payment Links.
-  // Since we cannot create checkout sessions client-side securely,
-  // we redirect to a Stripe Payment Link with the pre-built product.
-  // The link is configured in Stripe dashboard as a "variable amount" link.
-  // For now, redirect to a Stripe payment link page with metadata in the URL.
-  //
-  // IMPORTANT: You must create a Stripe Payment Link in your dashboard:
-  //   1. Go to dashboard.stripe.com/payment-links/create
-  //   2. Set it to collect custom amount OR create a one-time product
-  //   3. Paste the link below
-  //
-  // For a clean flow with dynamic pricing, the ideal solution is a
-  // small Stripe Checkout server (e.g. Supabase Edge Function).
-  // We'll wire that up and redirect accordingly.
-
   var btn = document.getElementById('bk-btn');
   var msg = document.getElementById('bk-msg');
 
   // Attempt to call our Supabase Edge Function to create a Checkout session
   try {
+    var client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var session = (await client.auth.getSession()).data.session;
+    if (!session) throw new Error('Please sign in again.');
     var res = await fetch('https://teohfzegpoxzimfsmviy.supabase.co/functions/v1/stripe-checkout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + session.access_token },
       body: JSON.stringify({
         booking_id: bookingId,
+        deposit_policy: 'lease-80-20-cleaning-hold-48h-v1',
+        deposit_consent: true,
         amount_cents: totalCents,
         description: description,
         checkin: cin,

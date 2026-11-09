@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "allowImportingTsExtensions": true,
+    "allowJs": true,
+    "checkJs": false,
+    "strict": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "npm:@supabase/supabase-js@2.49.8": [
+        "node_modules/@supabase/supabase-js"
+      ]
+    }
+  },
+  "include": [
+    "supabase/functions/_shared/*",
+    "supabase/functions/stripe-checkout/index.ts",
+    "supabase/functions/stripe-webhook/index.ts",
+    "supabase/functions/cleaning-deposit*/index.ts",
+    "tests/deno-env.d.ts"
+  ]
+}
