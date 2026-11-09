@@ -436,175 +436,41 @@ async function submitPreReservation() {
 // If OFF → falls back to pre-reservation form.
 // If ON  → saves booking as 'pending_payment' then redirects to Stripe.
 async function submitBookingStripe() {
-  var l = _currentListing;
-  if (!l) return;
-  var cin = document.getElementById('bk-checkin').value;
-  var cout = document.getElementById('bk-checkout').value;
-  var guests = parseInt((document.getElementById('bk-guests') || {}).value) || 1;
-  var btn = document.getElementById('bk-btn');
-  var msg = document.getElementById('bk-msg');
-
-  if (!cin || !cout) {
-    msg.style.display = 'block'; msg.style.color = '#c0392b';
-    msg.textContent = 'Please select check-in and check-out dates.';
-    return;
+  const l = _currentListing;
+  const btn = document.getElementById('bk-btn');
+  const msg = document.getElementById('bk-msg');
+  if (!l || !btn || !msg) return;
+  const check_in = document.getElementById('bk-checkin')?.value;
+  const check_out = document.getElementById('bk-checkout')?.value;
+  const guests = Number(document.getElementById('bk-guests')?.value || 1);
+  const trip_protection = !!document.getElementById('bk-trip-protection')?.checked;
+  msg.style.display = 'none';
+  if (!check_in || !check_out) {
+    msg.style.display = 'block'; msg.textContent = 'Choose your dates first.'; return;
   }
-  if (l.min_stay) {
-    var _d1 = new Date(cin), _d2 = new Date(cout);
-    var _nights = Math.round((_d2 - _d1) / (1000*60*60*24));
-    if (_nights < l.min_stay) {
-      msg.style.display = 'block'; msg.style.color = '#c0392b';
-      msg.textContent = 'This property requires a minimum stay of ' + l.min_stay + ' night' + (l.min_stay > 1 ? 's' : '') + '. Please adjust your dates.';
-      return;
-    }
-  }
-
-  btn.disabled = true; btn.textContent = 'Checking…';
-
-  // ─ 1. Check if checkout is enabled ────────────────────
-  var checkoutEnabled = false;
+  btn.disabled = true; btn.textContent = 'Opening Stripe test checkout…';
   try {
-    var settingsRes = await fetch(
-      SUPABASE_URL + '/rest/v1/site_settings?key=eq.checkout_enabled&select=value',
-      { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY } }
-    );
-    var settingsRows = await settingsRes.json();
-    checkoutEnabled = settingsRows.length && settingsRows[0].value === 'true';
-  } catch(e) { checkoutEnabled = false; }
-
-  // ─ 2. If OFF — block checkout ─────────────────────
-  if (!checkoutEnabled) {
-    btn.disabled = false; btn.innerHTML = 'Book Now &rarr;';
-    msg.style.display = 'block'; msg.style.color = 'var(--color-accent)';
-    msg.style.fontWeight = '600';
-    msg.textContent = 'Sandbox checkout is not enabled yet. No payment has been taken. Test payment integration is still being configured.';
-    return;
-  }
-
-  // ─ 3. Checkout IS enabled — calculate totals ───────
-  btn.textContent = 'Preparing checkout…';
-  var d1 = new Date(cin), d2 = new Date(cout);
-  var nights = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
-  var rate = parseFloat(l.price_per_day) || 0;
-  var cleaning = parseFloat(l.cleaning_fee) || 0;
-  var subtotal = rate * nights + cleaning;
-  var svcFee = 0; // LeaseWild takes 20% from landowner payout — not charged to guest
-  var discountPct = _appliedCode ? (_appliedCode.discount_pct || 0) : 0;
-  var discountAmt = discountPct > 0 ? +((subtotal + svcFee) * (discountPct / 100)).toFixed(2) : 0;
-  var tpBoxStripe = document.getElementById('bk-trip-protection');
-  var tripProtection = (tpBoxStripe && tpBoxStripe.checked) ? 18 : 0;
-  // Stripe fee passed to guest: 2.9% + $0.30 on top of everything
-  var preStripe = subtotal + svcFee + tripProtection - discountAmt;
-  var stripeFee = +((preStripe * 0.029) + 0.30).toFixed(2);
-  var total = +(preStripe + stripeFee).toFixed(2);
-  var totalCents = Math.round(total * 100);
-
-  // ─ 4. Save booking as pending_payment in Supabase ───
-  var bookingId = null;
-  try {
-    var _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    var result = await _sb.from('bookings').insert({
-      listing_id: l.id,
-      guest_name: 'Pending',
-      guest_email: 'pending@stripe',
-      check_in: cin,
-      check_out: cout,
-      nights: nights,
-      guests: guests,
-      rate_per_night: rate,
-      cleaning_fee: cleaning,
-      service_fee: svcFee,
-      trip_protection: tripProtection, // 0 or 18 based on checkbox
-      stripe_fee: stripeFee,
-      discount_code: _appliedCode ? _appliedCode.code : null,
-      discount_pct: discountPct || null,
-      discount_amt: discountAmt || null,
-      affiliate_code: _appliedCode && _appliedCode.type === 'affiliate' ? _appliedCode.code : null,
-      total: total,
-      status: 'pending_payment'
-    }).select();
-    if (result.error) throw result.error;
-    bookingId = result.data[0].id;
-  } catch(e) {
-    btn.disabled = false; btn.innerHTML = 'Book Now &rarr;';
-    msg.style.display = 'block'; msg.style.color = '#c0392b';
-    msg.textContent = 'Error: ' + (e.message || 'Please try again.');
-    return;
-  }
-
-  // ─ 5. Redirect to Stripe Checkout via payment link ──
-  // Stripe Payment Links let you pass custom amounts via query params.
-  // We use Stripe's hosted checkout with the total encoded in the URL.
-  // The return URL brings the guest back to a confirmation page.
-  var listingName = l.county ? l.county + ' Private Land' : 'LeaseWild Booking';
-  var description = listingName + ' \u2014 ' + nights + ' night' + (nights > 1 ? 's' : '') + ' (' + cin + ' to ' + cout + ')';
-
-  // Use Stripe Checkout JS to redirect
-  // Load Stripe.js if not already loaded
-  if (typeof Stripe === 'undefined') {
-    var stripeScript = document.createElement('script');
-    stripeScript.src = 'https://js.stripe.com/v3/';
-    stripeScript.onload = function() { launchStripeCheckout(totalCents, bookingId, description, cin, cout, nights, l); };
-    document.head.appendChild(stripeScript);
-  } else {
-    launchStripeCheckout(totalCents, bookingId, description, cin, cout, nights, l);
-  }
-}
-
-function switchToPreReservation() {
-  openWaitlist();
-}
-
-async function launchStripeCheckout(totalCents, bookingId, description, cin, cout, nights, listing) {
-  // No-backend approach: use Stripe Payment Links.
-  // Since we cannot create checkout sessions client-side securely,
-  // we redirect to a Stripe Payment Link with the pre-built product.
-  // The link is configured in Stripe dashboard as a "variable amount" link.
-  // For now, redirect to a Stripe payment link page with metadata in the URL.
-  //
-  // IMPORTANT: You must create a Stripe Payment Link in your dashboard:
-  //   1. Go to dashboard.stripe.com/payment-links/create
-  //   2. Set it to collect custom amount OR create a one-time product
-  //   3. Paste the link below
-  //
-  // For a clean flow with dynamic pricing, the ideal solution is a
-  // small Stripe Checkout server (e.g. Supabase Edge Function).
-  // We'll wire that up and redirect accordingly.
-
-  var btn = document.getElementById('bk-btn');
-  var msg = document.getElementById('bk-msg');
-
-  // Attempt to call our Supabase Edge Function to create a Checkout session
-  try {
-    var res = await fetch('https://teohfzegpoxzimfsmviy.supabase.co/functions/v1/stripe-checkout', {
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const { data: { session } } = await client.auth.getSession();
+    if (!session) throw new Error('Sign in to your sandbox hunter account before booking.');
+    const res = await fetch('https://kbkdfpmlyggfijkyjxoi.supabase.co/functions/v1/sandbox-booking-checkout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
-      body: JSON.stringify({
-        booking_id: bookingId,
-        amount_cents: totalCents,
-        description: description,
-        checkin: cin,
-        checkout: cout,
-        nights: nights,
-        listing_title: listing.county ? listing.county + ' Private Land' : 'LeaseWild',
-        success_url: window.location.origin + '/guest-portal.html?booking=' + bookingId + '&payment=success',
-        cancel_url: window.location.href
-      })
+      headers: {'Content-Type':'application/json', apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+session.access_token},
+      body: JSON.stringify({listing_id:l.id, check_in, check_out, guests, trip_protection})
     });
-    var data = await res.json();
-    if (data && data.url) {
-      window.location.href = data.url;
-      return;
-    }
-    throw new Error(data.error || data.message || 'No checkout URL returned');
-  } catch(e) {
-    if (btn) { btn.disabled = false; btn.innerHTML = 'Book Now &rarr;'; }
-    if (msg) {
-      msg.style.display = 'block'; msg.style.color = '#c0392b';
-      msg.textContent = 'Checkout error: ' + (e.message || 'Please try again.');
-    }
+    const data = await res.json();
+    if (!res.ok || !data.url) throw new Error(data.error || 'Sandbox checkout is unavailable.');
+    if (!/^https:\/\/checkout\.stripe\.com\//.test(data.url)) throw new Error('Unexpected checkout destination.');
+    window.location.href = data.url;
+  } catch (e) {
+    msg.style.display = 'block'; msg.style.color = '#c0392b';
+    msg.textContent = e.message || 'Sandbox checkout failed.';
+  } finally {
+    btn.disabled = false; btn.innerHTML = 'Book Now &rarr;';
   }
 }
+
+function switchToPreReservation() { openWaitlist(); }
 
 function closeListingDetail() {
   document.getElementById('listing-detail-modal').style.display = 'none';
