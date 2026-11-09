@@ -151,7 +151,7 @@
     .empty-state p{color:var(--color-text-muted);font-size:var(--text-sm);margin-bottom:1.25rem}
   </style>
 </head>
-<body>
+<body><div style="position:sticky;top:0;z-index:99999;background:#f8d86a;color:#243b24;text-align:center;padding:7px;font:700 13px system-ui">LEASEWILD SANDBOX — TEST DATA ONLY</div>
 
   <!-- ── AUTH CARD ──────────────────────────────────────────── -->
   <div class="portal-card" id="auth-card">
@@ -404,8 +404,8 @@
   </div><!-- /dashboard -->
 
   <script>
-  const SB_URL  = 'https://teohfzegpoxzimfsmviy.supabase.co';
-  const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
+  const SB_URL  = 'https://kbkdfpmlyggfijkyjxoi.supabase.co';
+  const SB_ANON = 'sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
   let sb, currentUser, currentConvId, pollInterval;
 
   try { sb = supabase.createClient(SB_URL, SB_ANON); } catch(e) { console.error(e); }
@@ -452,7 +452,7 @@
       email, password: pass,
       options: {
         data: { full_name: first+' '+last, first_name: first, last_name: last, phone, role: 'guest' },
-        emailRedirectTo: 'https://leasewild.com/guest-portal.html'
+        emailRedirectTo: 'https://leasewild-sandbox.pages.dev/guest-portal.html'
       }
     });
     btn.disabled = false; btn.textContent = 'Create Hunter Account';
@@ -464,7 +464,7 @@
   async function resetPassword() {
     var email = document.getElementById('si-email').value.trim();
     if (!email) { showAuthMsg('Enter your email first.','error'); return; }
-    await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://leasewild.com/guest-portal.html' });
+    await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://leasewild-sandbox.pages.dev/guest-portal.html' });
     showAuthMsg('Password reset email sent — check your inbox.','success');
   }
 
