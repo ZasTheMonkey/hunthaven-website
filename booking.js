@@ -459,9 +459,8 @@ async function submitBookingStripe() {
       body: JSON.stringify({action:'request',listing_id:l.id, check_in, check_out, guests, trip_protection})
     });
     const data = await res.json();
-    if (!res.ok || data.status !== 'pending_approval') throw new Error(data.error || 'Unable to send booking request.');
-    msg.style.display = 'block'; msg.style.color = '#247343';
-    msg.textContent = 'Request sent! The landowner must approve before you can pay. Check your Hunter Portal for updates.';
+    if (!res.ok || data.status !== 'authorization_pending' || !/^https:\/\/checkout\.stripe\.com\//.test(data.url || '')) throw new Error(data.error || 'Unable to authorize your card.');
+    window.location.href = data.url;
   } catch (e) {
     msg.style.display = 'block'; msg.style.color = '#c0392b';
     msg.textContent = e.message || 'Sandbox checkout failed.';
