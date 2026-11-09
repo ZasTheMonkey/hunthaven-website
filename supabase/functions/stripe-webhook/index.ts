@@ -1,5 +1,7 @@
-import Stripe from 'https://esm.sh/stripe@14?target=deno';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2?target=deno';
+import {locked,check} from '../_shared/payments.ts';
+import {processPayment} from '../_shared/deposit-lifecycle.ts';
+import Stripe from 'npm:stripe@14.25.0';
+import { createClient } from 'npm:@supabase/supabase-js@2.49.8';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
   apiVersion: '2023-10-16',
@@ -36,11 +38,28 @@ Deno.serve(async (req) => {
 
   const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
+  const meta = (event.data.object as any).metadata || {};
+  const paymentId = meta.lease_payment_id || meta.cleaning_payment_id;
+  if (paymentId) {
+    try {
+      await locked(paymentId, async (row) => {
+        // Match the object to the stored session; never trust metadata alone.
+        if (event.type.startsWith('checkout.session.') &&
+            ![row.checkout_session_id,row.recovery_session_id].includes((event.data.object as any).id)) throw new Error('Session mismatch');
+        await processPayment(row);
+      });
+      return new Response(JSON.stringify({received:true}),{headers:{'Content-Type':'application/json'}});
+    } catch(error) {
+      console.error('Payment webhook retry required',error);
+      return new Response('Retry required',{status:500});
+    }
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const bookingId = session.metadata?.booking_id;
 
-    if (bookingId) {
+    if (bookingId && session.payment_status === 'paid') {
       // Mark booking as confirmed and store payment details
       await sb
         .from('bookings')

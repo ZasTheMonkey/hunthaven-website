@@ -447,11 +447,12 @@
                   <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-1)">Leave blank if there’s no lodging on the property.</p>
                 </div>
               </div>
+              <fieldset style="padding:1rem;margin:1rem 0;border:1px solid var(--color-border);border-radius:10px"><legend>Access times and hunting methods</legend><label style="display:block;margin:.6rem 0">Check-in time <input type="time" name="checkin_time" value="00:00" required /></label><label style="display:block;margin:.6rem 0">Checkout time <input type="time" name="checkout_time" value="00:00" required /></label><label style="display:block;margin:.6rem 0">Property time zone <select name="time_zone"><option value="America/New_York">Eastern</option><option value="America/Chicago">Central</option><option value="America/Denver">Mountain</option><option value="America/Phoenix">Arizona</option><option value="America/Los_Angeles">Pacific</option><option value="America/Anchorage">Alaska</option><option value="Pacific/Honolulu">Hawaii</option></select></label><label style="display:block;margin:.6rem 0">Hunting methods allowed <select name="hunting_methods"><option value="">Not specified / no hunting</option><option value="rifle">Rifle only</option><option value="bow">Bow only</option><option value="rifle,bow">Rifle and bow</option></select></label><p style="font-size:.8rem">Midnight-to-midnight gives a full day of access. Guests can book consecutive days for camping where your listing permits it. Hunting methods remain subject to applicable seasons and regulations. Time changes apply to new bookings; existing bookings keep their agreed times.</p></fieldset>
               <div class="field-row">
                 <div class="field">
-                  <label>Cleaning fee (optional)</label>
+                  <label>Refundable cleaning deposit (optional)</label>
                   <input type="text" name="cleaning_fee" placeholder="e.g. $75 per stay" />
-                  <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-1)">Charged once per booking, on top of the daily rate. Guests see this before they book.</p>
+                  <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-1)">Not charged upfront. A separate card hold is placed 24 hours before checkout; claim necessary cleaning within 48 hours after checkout or the hold is released.</p>
                 </div>
                 <div class="field">
                   <label>Minimum stay (optional)</label>
@@ -641,7 +642,7 @@
         </div>
         <div style="margin-bottom:var(--space-5)">
           <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);font-weight:700;color:var(--color-text-muted);margin-bottom:var(--space-2);text-transform:uppercase;letter-spacing:.05em">
-            <span>Cleaning fee per booking</span><span id="clean-val" style="color:var(--color-text)">$0</span>
+            <span>Refundable cleaning deposit per booking</span><span id="clean-val" style="color:var(--color-text)">$0</span>
           </div>
           <input type="range" id="clean-slider" min="0" max="300" value="0" step="25" style="width:100%;accent-color:var(--color-accent);cursor:pointer" />
         </div>
@@ -650,7 +651,7 @@
           <p class="calc-big" id="calc-monthly">$680</p>
           <div class="calc-row"><span style="color:var(--color-text-muted)">Rate subtotal</span><span id="calc-gross">$800</span></div>
           <div class="calc-row"><span style="color:var(--color-text-muted)">LeaseWild fee (15% of rate + cleaning)</span><span id="calc-fee" style="color:var(--color-text-muted)">−$120</span></div>
-          <div class="calc-row"><span style="color:var(--color-text-muted)">Cleaning fee (100% yours)</span><span id="calc-clean-total" style="color:var(--color-text-muted)">+$0</span></div>
+          <div class="calc-row"><span style="color:var(--color-text-muted)">Refundable cleaning deposit (100% yours)</span><span id="calc-clean-total" style="color:var(--color-text-muted)">+$0</span></div>
           <div class="calc-row"><span>Your payout</span><span id="calc-payout" style="color:var(--color-primary)">$680</span></div>
           <div style="margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--color-border)">
             <div class="calc-row" style="border:none;padding:0;margin:0"><span style="color:var(--color-text-muted);font-weight:400">Annual (same pace)</span><span id="calc-annual" style="color:var(--color-primary);font-weight:800">$8,160</span></div>
@@ -1071,6 +1072,10 @@
       max_guests:    maxGuests ? parseInt(maxGuests) : null,
       num_beds:      numBeds   ? parseInt(numBeds)   : null,
       cleaning_fee:  cleaningFee,
+      checkin_time: data.get('checkin_time') || '00:00',
+      checkout_time: data.get('checkout_time') || '00:00',
+      time_zone: data.get('time_zone') || 'America/New_York',
+      hunting_methods: String(data.get('hunting_methods') || '').split(',').filter(Boolean),
       min_stay:      minStay,
       activities:    activities,
       custom_animals: customAnimalsList,

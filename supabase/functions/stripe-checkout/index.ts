@@ -1,144 +1,69 @@
-import Stripe from 'https://esm.sh/stripe@14?target=deno';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2?target=deno';
+import {stripe,sb,json,cors,check,user,locked,save} from '../_shared/payments.ts';
+import {quote,windowFor,POLICY_VERSION,cents,checkoutTime} from '../_shared/payment-policy.mjs';
 
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', {
-  apiVersion: '2023-10-16',
-});
-
-const SUPABASE_URL = Deno.env.get('SB_URL') ?? '';
-const SUPABASE_SERVICE_KEY = Deno.env.get('SB_SERVICE_KEY') ?? '';
-const PLATFORM_FEE_PCT = 0.20; // LeaseWild takes 20% from landowner payout
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-Deno.serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+Deno.serve(async(req:Request)=>{
+ if(req.method==='OPTIONS') return new Response('ok',{headers:cors});
+ if(req.method!=='POST') return json({error:'Method not allowed'},405);
+ try {
+  const guest=await user(req);
+  const body=await req.json();
+  if(body.deposit_policy!==POLICY_VERSION || body.deposit_consent!==true) return json({error:'Please review and accept the payment and cleaning-deposit terms.'},400);
+  const booking=check(await sb.from('bookings').select('*').eq('id',body.booking_id).single());
+  if(!booking || booking.guest_email?.toLowerCase()!==guest.email?.toLowerCase()) throw new Error('Booking does not belong to your account.');
+  const prior=check(await sb.from('lease_payments').select('*').eq('booking_id',booking.id).maybeSingle());
+  let row=prior;
+  if(prior && prior.guest_id!==guest.id) throw new Error('Booking does not belong to your account.');
+  if(!row) {
+   const enabled=check(await sb.from('site_settings').select('value').eq('key','checkout_enabled').single());
+   if(enabled.value!=='true') throw new Error('Online booking is currently unavailable.');
+   const listing=check(await sb.from('listings').select('*').eq('id',booking.listing_id).eq('status','active').single());
+   const owner=check(await sb.from('landowner_profiles').select('user_id,email,stripe_account_id').eq('email',listing.email).single());
+   if(!owner?.user_id || !owner.stripe_account_id) throw new Error('Landowner must connect Stripe before accepting bookings.');
+   const ownerAuth=check(await sb.auth.admin.getUserById(owner.user_id)).user;
+   if(!ownerAuth?.email_confirmed_at || ownerAuth.email?.toLowerCase()!==listing.email?.toLowerCase()) throw new Error('Landowner account requires verification.');
+   const account=await stripe.accounts.retrieve(owner.stripe_account_id);
+   if(account.capabilities?.transfers!=='active') throw new Error('Landowner payout account is not ready.');
+   const nights=(Date.parse(booking.check_out)-Date.parse(booking.check_in))/86400000;
+   const window=windowFor(booking.check_out,listing.checkout_time,listing.time_zone);
+   const checkinAt=checkoutTime(booking.check_in,listing.checkin_time,listing.time_zone);
+   if(nights<(parseInt(listing.min_stay)||1) || Date.parse(checkinAt)<=Date.now() || Date.parse(window.checkout_at)<=Date.parse(checkinAt)) throw new Error('Invalid booking dates.');
+   if(!Number.isInteger(booking.guests) || booking.guests<1 || (listing.max_guests && booking.guests>listing.max_guests)) throw new Error('Invalid guest count.');
+   const gross=cents(listing.price_per_day)*nights;
+   let discount=0;
+   if(booking.discount_code) {
+    const code=check(await sb.from('promo_codes').select('*').eq('code',booking.discount_code).eq('active',true).maybeSingle());
+    if(code) {
+     if((code.expires_at && code.expires_at<new Date().toISOString().slice(0,10)) || (code.max_uses!==null && code.uses>=code.max_uses) || (code.listing_ids?.length && !code.listing_ids.includes(listing.id)) || (code.owner_role==='landowner' && code.owner_email!==listing.email)) throw new Error('Promo code is not valid for this booking.');
+     discount=code.discount_type==='fixed'?Math.min(gross,cents(code.discount_amount)):Math.round(gross*Number(code.discount_pct)/100);
+    } else {
+     const affiliate=check(await sb.from('affiliate_codes').select('*').eq('code',booking.discount_code).eq('active',true).single());
+     discount=Math.round(gross*Number(affiliate.guest_discount_pct||0)/100);
+    }
+   }
+   const q=quote({rate:listing.price_per_day,nights,deposit:listing.cleaning_fee||0,discount:discount/100,protection:Number(booking.trip_protection)===18});
+   if(body.amount_cents!==q.total) return json({error:'Price changed. Refresh the listing before paying.'},409);
+   row=check(await sb.from('lease_payments').insert({booking_id:booking.id,listing_id:listing.id,guest_id:guest.id,owner_id:owner.user_id,guest_email:guest.email,destination:owner.stripe_account_id,lease_cents:q.lease,owner_cents:q.owner,platform_cents:q.platform,total_cents:q.total,deposit_cents:q.deposit,...window,checkin_at:checkinAt,time_zone:listing.time_zone,hunting_methods:listing.hunting_methods,policy_version:POLICY_VERSION,consent_at:new Date().toISOString(),state:q.deposit?'scheduled':'not_required'}).select().single());
   }
-
-  try {
-    const body = await req.json();
-    const {
-      booking_id,
-      amount_cents,
-      description,
-      checkin,
-      checkout,
-      nights,
-      listing_title,
-      success_url,
-      cancel_url,
-    } = body;
-
-    if (!booking_id || !amount_cents || !success_url) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Look up the booking to get listing_id and landowner stripe account
-    const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-    const { data: booking, error: bookingErr } = await sb
-      .from('bookings')
-      .select('id, listing_id, rate_per_night, nights, cleaning_fee, trip_protection, total')
-      .eq('id', booking_id)
-      .single();
-
-    if (bookingErr || !booking) {
-      throw new Error('Booking not found: ' + (bookingErr?.message ?? ''));
-    }
-
-    // Get listing to find landowner's email
-    const { data: listing, error: listingErr } = await sb
-      .from('listings')
-      .select('id, email')
-      .eq('id', booking.listing_id)
-      .single();
-
-    if (listingErr || !listing) {
-      throw new Error('Listing not found: ' + (listingErr?.message ?? ''));
-    }
-
-    // Look up landowner's connected Stripe account via landowner_profiles
-    let stripe_account_id: string | null = null;
-    if (listing.email) {
-      const { data: profile } = await sb
-        .from('landowner_profiles')
-        .select('stripe_account_id')
-        .eq('email', listing.email)
-        .single();
-      stripe_account_id = profile?.stripe_account_id ?? null;
-    }
-
-    // Calculate platform fee (20% of booking subtotal, not including trip protection)
-    const bookingSubtotal = (booking.rate_per_night * booking.nights) + (booking.cleaning_fee || 0);
-    const platformFeeCents = Math.round(bookingSubtotal * PLATFORM_FEE_PCT * 100);
-
-    // Build line items
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
-      {
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: listing_title || 'LeaseWild Booking',
-            description: description || `${nights} night${nights !== 1 ? 's' : ''} (${checkin} – ${checkout})`,
-          },
-          unit_amount: amount_cents,
-        },
-        quantity: 1,
-      },
-    ];
-
-    // Build session params
-    const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      mode: 'payment',
-      line_items: lineItems,
-      success_url: success_url + '&session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: cancel_url,
-      metadata: {
-        booking_id: String(booking_id),
-        listing_id: String(booking.listing_id),
-        checkin: checkin ?? '',
-        checkout: checkout ?? '',
-        nights: String(nights ?? ''),
-      },
-    };
-
-    // If landowner has a connected Stripe account, use destination charge
-    if (stripe_account_id) {
-      sessionParams.payment_intent_data = {
-        application_fee_amount: platformFeeCents,
-        transfer_data: {
-          destination: stripe_account_id,
-        },
-      };
-    }
-    // If no connected account yet, funds go to LeaseWild platform account
-    // and will be manually transferred later
-
-    const session = await stripe.checkout.sessions.create(sessionParams);
-
-    // Update booking with Stripe session ID
-    await sb
-      .from('bookings')
-      .update({ stripe_session_id: session.id })
-      .eq('id', booking_id);
-
-    return new Response(
-      JSON.stringify({ url: session.url, session_id: session.id }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
-  } catch (err) {
-    console.error('stripe-checkout error:', err);
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : 'Unknown error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
+  return await locked(row.id,async(p)=>{
+   if(p.payment_state!=='unpaid') throw new Error('This booking has already been paid or closed.');
+   if(p.checkout_session_id) {
+    const existing=await stripe.checkout.sessions.retrieve(p.checkout_session_id);
+    if(existing.status==='open') return json({url:existing.url});
+    throw new Error('This checkout has closed. Start a new booking.');
+   }
+   const customer=p.customer_id?{id:p.customer_id}:await stripe.customers.create({email:guest.email,metadata:{lease_payment_id:p.id}}, {idempotencyKey:'customer-'+p.id});
+   await save(p.id,{customer_id:customer.id});
+   const session=await stripe.checkout.sessions.create({
+    mode:'payment',customer:customer.id,payment_method_types:['card'],
+    line_items:[{price_data:{currency:'usd',unit_amount:p.total_cents,product_data:{name:'LeaseWild lease',description:'Lease and selected fees. Refundable cleaning hold is separate.'}},quantity:1}],
+    payment_intent_data:{application_fee_amount:p.platform_cents,transfer_data:{destination:p.destination},...(p.deposit_cents?{setup_future_usage:'off_session' as const}:{}),metadata:{lease_payment_id:p.id,policy_version:POLICY_VERSION}},
+    metadata:{lease_payment_id:p.id,booking_id:p.booking_id},
+    custom_text:{submit:{message:p.deposit_cents?`You authorize saving this card and a separate $${(p.deposit_cents/100).toFixed(2)} cleaning hold 24 hours before the scheduled checkout. Only cleaning claimed within 48 hours after checkout is charged; unused funds are released. Monitor your guest portal if authorization needs attention.`:'Lease fee: 80% to the landowner, 20% to LeaseWild.'}},
+    success_url:'https://leasewild.com/guest-portal.html?payment=success&session_id={CHECKOUT_SESSION_ID}',cancel_url:'https://leasewild.com/guest-portal.html?payment=cancelled'
+   },{idempotencyKey:'lease-checkout-'+p.id});
+   await save(p.id,{checkout_session_id:session.id});
+   check(await sb.from('bookings').update({stripe_session_id:session.id,total:p.total_cents/100,cleaning_fee:p.deposit_cents/100}).eq('id',p.booking_id));
+   return json({url:session.url,session_id:session.id});
+  });
+ }catch(e){console.error('checkout',e);return json({error:e instanceof Error?e.message:'Checkout failed'},400);}
 });
