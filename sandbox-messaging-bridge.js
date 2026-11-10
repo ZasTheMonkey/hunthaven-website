@@ -65,7 +65,7 @@ const style=document.createElement('style');
   document.head.appendChild(style);
   const initials=name=>name.split(/[\s·,]+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join('');
   const threadCard=(t,title,last)=>'<button type="button" class="lw-message-thread" data-conv="'+safe(t.id)+'" data-booking="'+safe(t.booking_id)+'" data-title="'+safe(title)+'"><span class="lw-avatar" aria-hidden="true">'+safe(initials(title))+'</span><span class="lw-thread-body"><span class="lw-thread-name">'+safe(title)+'</span><span class="lw-thread-preview">'+safe(last?.body||'Start a conversation')+'</span></span><span class="lw-thread-date">'+safe(last?new Date(last.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'')+'</span></button>';
-  const threadPreview=async t=>{const x=await messages(t.id);return x?.[x.length-1]||null;};
+  const threadPreview=async t=>{const x=await api('booking_messages?conversation_id=eq.'+encodeURIComponent(t.id)+'&order=created_at.desc&limit=1&select=body,created_at');return x?.[0]||null;};
   const chatMarkup=(rows,myId)=>rows.length?rows.map(m=>'<div class="lw-chat-row '+(m.sender_id===myId?'mine':'')+'"><div class="lw-chat-bubble">'+safe(m.body)+'</div><span class="lw-chat-time">'+safe(fmt(m))+'</span></div>').join(''):'<div class="lw-chat-empty">No messages yet.<p>Say hello and start the conversation.</p></div>';
     if(owner){
     window.loadLoThreads=async function(email){
