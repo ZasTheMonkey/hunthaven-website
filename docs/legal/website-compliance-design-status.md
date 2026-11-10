@@ -121,3 +121,14 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - Browser submission was not performed. A privacy-reviewed, response-verifiable lead endpoint, consent/copy review, retention rules, vendor review and failure-path E2E remain required before re-enabling signup.
 - `docs/legal/website-compliance-handoff.md` remains absent. No legal terms, consent language, waiver, insurance promise, access-zone disclosure rule, review policy or production content was approved.
 - **Release remains NO-GO.** Access-zone authorization/privacy, hunter-review eligibility/moderation, authenticated QA, responsive coverage and Florida attorney approval remain open. Production and live services were untouched.
+
+
+## Public listing-card data handling update — November 10, 2026 at 2:15 AM ET
+
+- **Implementation:** `1d83886a69ba6f9d68edb3858dfaca350c621836` on sandbox staging only.
+- Escaped owner-provided activity, identifier, trail-camera date and metadata values before HTML rendering, and rejected non-HTTPS image schemes. This narrows client-side injection exposure but is not a substitute for server validation, storage policy, CSP, database authorization or security review.
+- Removed a nonfunctional “save” affordance that did not persist a preference and could open a listing instead. No user preference or booking data was changed.
+- Corrected duplicate acreage, empty location rows and singular labels; added keyboard link semantics. No legal terms, inventory approval, marketing substantiation or payment behavior changed.
+- Exact-SHA static compilation and deterministic hostile-input assertions passed. Cloudflare deployment `0a1e1532-3617-42c3-ae30-814a7a6dcead` succeeded; public browser smoke at 1363px rendered three cards without duplicate acreage or horizontal overflow.
+- Full responsive, CSP, authenticated, database-policy and stored-input tests remain incomplete. `docs/legal/website-compliance-handoff.md` is still absent.
+- **Release remains NO-GO.** Access-zone location privacy/authorization, hunter-review eligibility/moderation, legal terms and Florida attorney approval remain unresolved. Production and live systems were untouched.
