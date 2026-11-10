@@ -170,3 +170,11 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - Hunter-review wording, moderation procedure, retention, dispute/appeal rights, privacy disclosures, and deletion obligations require Florida attorney review before any binding policy is published.
 
 **Legal launch recommendation remains NO-GO.** No production data, legal terms, live payments, or production systems were changed.
+
+## 2026-11-10 05:25 ET — Accessible property-discovery status
+
+**Implemented in sandbox:** commit `105fb5eea1dcdd067e26b5034f40720a87943b64` adds a persistent polite live region for loading and result counts, grid busy state, distinct empty/error messaging, alert semantics for load failures, and a keyboard-operable retry control.
+
+**Evidence:** exact deployment `b5faa2ee-12fc-4c4d-b505-0d53bced8ac4` succeeded. Browser smoke at 1363px exposed “3 properties are available,” then “1 property is available” after filtering, with no horizontal overflow. Source/static checks passed. A real screen reader, network-failure retry, 200% zoom, touch, and the full responsive matrix were not tested.
+
+**Compliance boundary:** this accessibility improvement does not resolve the separate direct Data API exposure risk, access-zone privacy/authorization, hunter-review moderation and appeal obligations, missing legal handoff, or attorney approval. The property-zone/review schema remains a fail-closed design draft and was not applied. Legal release recommendation remains **NO-GO**.
