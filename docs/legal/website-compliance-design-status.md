@@ -56,3 +56,14 @@ Those active Hunter QA and Landowner QA files were intentionally not modified. T
 ## Recommended next implementation
 
 After Legal supplies the missing handoff, prioritize the highest-risk approved item. In parallel, the safest product-design target is mobile search/listing-card hierarchy and map controls, provided no QA bot has begun editing those files.
+
+
+## Launch sprint update — November 9, 2026 at 9:31 PM ET
+
+- The required legal handoff remained absent.
+- Removed stale July 1, 2026 launch messaging and fabricated homepage fallback listings in implementation commit `b21c515fb9601abb455550d8cdf1d5180bf1938b`.
+- Preserved live sandbox inventory rendering and added honest loading, empty, insufficient-detail, and fetch-error states.
+- Published the integration gate at `docs/launch-sprint/launch-readiness.md`.
+- Current decision is **NO-GO for production launch** pending attorney review and authenticated/payment evidence.
+- Newly documented legal P0s include unverified insurance, verification, waiver, cancellation, and “without risk” claims across the homepage and listings page.
+- No binding policy text was changed or published.
