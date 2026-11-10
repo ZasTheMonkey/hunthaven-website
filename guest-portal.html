@@ -694,6 +694,7 @@
         headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + await messagingAccessToken() }
       });
       var existing = await res.json();
+      if (!res.ok || !Array.isArray(existing)) throw new Error('Could not look up this conversation. Please retry.');
       if (existing.length) { convId = existing[0].id; }
       else {
         var createRes = await fetch(SB_URL + '/rest/v1/conversations', {
@@ -702,11 +703,13 @@
           body: JSON.stringify({ booking_id: bookingId, listing_id: listingId, guest_email: currentUser.email, subject, last_message: null, guest_unread: 0, landowner_unread: 0 })
         });
         var created = await createRes.json();
-        convId = created[0]?.id;
+        if (!createRes.ok || !Array.isArray(created) || !created[0]?.id) throw new Error('Could not start the conversation. Please retry.');
+        convId = created[0].id;
       }
     }
+    if (!convId) throw new Error('Conversation is unavailable. Please retry.');
     currentConvId = convId;
-    await fetch(SB_URL + '/rest/v1/conversations?id=eq.' + convId, {
+    await fetch(SB_URL + '/rest/v1/conversations?id=eq.' + encodeURIComponent(convId), {
       method: 'PATCH',
       headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + await messagingAccessToken(), 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ guest_unread: 0 })
@@ -714,7 +717,7 @@
     document.getElementById('conv-title').textContent = subject;
     document.getElementById('thread-list-view').style.display = 'none';
     document.getElementById('conversation-view').style.display = 'block';
-    loadMessages(convId);
+    loadMessages(convId).catch(function(err) { console.warn('Message loading failed', err); });
   }
 
   async function loadMessages(convId) {
@@ -722,15 +725,17 @@
     var res = await fetch(SB_URL + '/rest/v1/messages?conversation_id=eq.' + encodeURIComponent(convId) + '&order=created_at.asc&select=*', {
       headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + await messagingAccessToken() }
     });
+    if (!res.ok) { if (currentConvId === convId) container.textContent = 'Messages could not be loaded. Please try again.'; return; }
     var msgs = await res.json();
-    if (!Array.isArray(msgs) || !msgs.length) {
+    if (currentConvId !== convId) return;
+    if (!Array.isArray(msgs)) { container.textContent = 'Messages could not be loaded. Please try again.'; return; }
+    if (!msgs.length) {
       container.innerHTML = '<p style="color:var(--color-text-muted);text-align:center;padding:2rem;font-size:var(--text-sm)">No messages yet. Say hello!</p>';
       return;
     }
     var myEmail = currentUser.email;
-    var prev = container.scrollTop === container.scrollHeight - container.clientHeight;
     container.innerHTML = msgs.map(function(m) {
-      var mine = m.sender_email === myEmail;
+      var mine = String(m.sender_email || '').toLowerCase() === String(myEmail || '').toLowerCase();
       var time = new Date(m.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
       return `<div class="msg-wrap">
         <div class="msg-bubble ${mine?'mine':'theirs'}">${escStr(m.body)}</div>
