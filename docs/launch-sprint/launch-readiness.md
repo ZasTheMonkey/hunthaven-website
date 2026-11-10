@@ -223,3 +223,42 @@ A first implementation commit `c60dfa0e` was rejected by validation after native
 3. The full responsive matrix and real-device interaction remain untested.
 4. User-reported payment success is acknowledged; the independent Stripe TEST refund/webhook/payout lifecycle was not retested and payment code was untouched.
 5. Florida attorney review and a privacy-reviewed, response-verifiable lead endpoint remain required.
+
+
+## Hourly update — November 10, 2026 at 1:45 AM ET
+
+**Decision: NO-GO.** This run fixed a verified P1 privacy/reliability defect in the public listings updates form. It did not implement access-zone drawing, hunter reviews, database policies, payment changes, or authenticated product flows.
+
+### Completed and verified
+
+- **Implementation:** `53cc99375e7b1fa7f040987bd50ec2e5f7a662ed` — `listings.html`.
+- Removed the unverified Google Apps Script GET transport that placed first name, last name, email, phone, location and timestamp in a URL.
+- Submission now fails closed: no contact data is transmitted, entered values remain in the form, the false success state is not shown, and a keyboard-focusable `role="alert"` explains that signup is temporarily unavailable.
+- Replaced unsupported species/booking promises in description, Open Graph, Twitter and keyword metadata with inventory-neutral language.
+- Static evidence at exact SHA: all three executable inline scripts compiled; endpoint/query/no-cors checks passed; fail-closed copy, alert semantics, field preservation and metadata checks passed.
+- Cloudflare deployment `def0a4d3-5196-480f-ae0f-a8608d3e9c74` reports `success` for exact commit `53cc9937`, branch `staging/leasewild-full-clone`, deployed 2026-11-10 06:44 UTC.
+- Browser smoke at the immutable deployment URL rendered three live-data listing cards and the updates dialog at 1363px. The form was not submitted through browser automation, so the deployed error state was source-verified rather than browser-submitted.
+
+### Five-bot evidence
+
+- **Designer/Developer:** `53cc9937` resolves Growth's verified listings-signup privacy/false-success defect; exact deployment and public browser render verified.
+- **Hunter QA:** latest code `aee5e28d` adds request sequencing for hunter active-chat refreshes; report `3f5c6330`; source/deployment evidence present, authenticated E2E blocked.
+- **Landowner QA:** latest code `f2a77360` adds request sequencing for owner active-chat refreshes; report `d4339932`; source/deployment evidence present, authenticated E2E blocked.
+- **Growth Research:** `9cfb1c2e` identified the listings signup false success, URL PII exposure and stale metadata; this run implemented the assigned P1 fix.
+- **Legal Risk Review:** latest automation completed without a substantive report; `docs/legal/website-compliance-handoff.md` remains absent.
+
+### Test status and blockers
+
+| Area | Status | Evidence / blocker |
+|---|---|---|
+| Listings scripts and fail-closed transport | PASS | Exact-SHA compilation and source assertions |
+| Immutable sandbox deployment | PASS | Cloudflare `def0a4d3...` / `53cc9937` |
+| Public listings + dialog browser smoke | PASS at 1363px | Three cards and dialog rendered |
+| Browser form submission | NOT TESTED | Avoided transmitting/submitting even synthetic contact data through the public form |
+| Authenticated hunter/owner E2E | BLOCKED | No securely provisioned dedicated QA sessions |
+| Responsive matrix | NOT TESTED this run | 320–1920px, zoom, touch and orientation remain open |
+| Access zones / hunter reviews | NOT IMPLEMENTED | Schema, RLS, sensitive-location disclosure, eligibility, uniqueness and moderation remain open |
+| Stripe TEST lifecycle | NOT RETESTED | User-reported payment success is acknowledged; payment code untouched |
+| Legal approval | BLOCKED | Legal handoff absent; Florida attorney review outstanding |
+
+Production, `main`, live Stripe, production Supabase, real users and personal sessions were untouched.
