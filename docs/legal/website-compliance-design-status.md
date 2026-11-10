@@ -132,3 +132,13 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - Exact-SHA static compilation and deterministic hostile-input assertions passed. Cloudflare deployment `0a1e1532-3617-42c3-ae30-814a7a6dcead` succeeded; public browser smoke at 1363px rendered three cards without duplicate acreage or horizontal overflow.
 - Full responsive, CSP, authenticated, database-policy and stored-input tests remain incomplete. `docs/legal/website-compliance-handoff.md` is still absent.
 - **Release remains NO-GO.** Access-zone location privacy/authorization, hunter-review eligibility/moderation, legal terms and Florida attorney approval remain unresolved. Production and live systems were untouched.
+
+
+## Disabled listings signup removal — November 10, 2026 at 3:34 AM ET
+
+- **Implementation:** `cd7c4393fa22231c7bfcb07e12a43d5abb054a14` on sandbox staging only.
+- Removed the disabled listings updates form, dialog, styling and client submission code. Desktop/mobile signup controls now lead to active inventory; the secondary conversion path leads landowners to the existing listing flow.
+- The listings page no longer collects names, email addresses, phone numbers or location through this removed feature. Reintroducing subscription capture still requires a privacy-reviewed endpoint, minimal-data design, consent language, retention/vendor review, verified success/failure states and attorney review.
+- Exact-SHA compilation/static checks passed. Cloudflare deployment `dcf8b405-2a63-45da-aa67-eb9accd819d5` succeeded. Browser smoke at 1363px confirmed three cards, working browse/landowner links, no signup form/dialog/dead controls and no horizontal overflow.
+- No legal terms, binding consent, booking/payment behavior or production content changed. `docs/legal/website-compliance-handoff.md` remains absent.
+- **Release remains NO-GO.** Access-zone privacy/authorization, hunter-review eligibility/moderation, authenticated QA, complete responsive coverage and Florida attorney approval remain unresolved.
