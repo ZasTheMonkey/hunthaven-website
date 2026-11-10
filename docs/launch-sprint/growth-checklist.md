@@ -228,3 +228,11 @@ GitHub report/source evidence only; sandbox public URL could not be fetched inde
 - **PASS (Cloudflare API metadata):** Deployment for `6afbd6c` exists (`0997c6cf-90a1-4a43-851e-255c981f908a`, created 2026-11-10 14:23:47 UTC), but stage was **initialize/active** when checked; previous `a6ac5da` deployment was **deploy/active**. **NOT YET PASS:** final deployment success or deployed HTML/browser behavior.
 - **NOT TESTED:** iPhone pointercancel/pointerup runtime, save/reload, 320–2560px, keyboard, zoom, booking/messaging/Stripe TEST. **BLOCKED:** authenticated positive cross-role E2E without securely provisioned synthetic browser sessions.
 - **Follow-up:** Designer/Hunter QA should confirm deployment success and run touch cancel/save-button regression. Do not treat these source-level fixes as mobile E2E evidence. Live site, main, production Supabase and live Stripe untouched.
+
+## 2026-11-10 09:57 ET — Mobile listing-discovery conversion
+
+- **FAIL (source before fix):** Homepage mobile bottom tab labeled `Updates` invoked `openWaitlist()`, diverting users away from the live listing catalog despite booking availability. This was a mobile conversion dead-end rather than a discovery CTA.
+- **PASS (source change):** Replaced only that mobile tab with `Browse`, scrolling to the existing `#listings-section` instead of opening the waitlist. Commit `58d745d429b5b2a4e63dadd865e61bd8bf5d84a4` on staging. No booking, payment, messaging, or database logic changed.
+- **PASS (inventory integrity):** No fabricated properties, availability, reviews, or metrics introduced. Existing catalog remains the source of listing truth.
+- **NOT TESTED:** Actual mobile browser navigation, 320–2560 px viewport matrix, accessibility/VoiceOver, Cloudflare deployed HTML, authenticated listing/booking conversion, Stripe TEST regression. Source-level fix alone is not E2E evidence.
+- **Next for Designer/Hunter QA:** Check bottom nav label/tap target, verify listings section appears with actual sandbox inventory and empty-state behavior, confirm scroll offset under sticky headers, and verify current Cloudflare deployment independently. Do not alter production/main.
