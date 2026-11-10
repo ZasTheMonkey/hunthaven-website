@@ -157,3 +157,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **PASS:** Under `SET LOCAL ROLE authenticated` with synthetic JWT sub `11111111-1111-4111-8111-111111111111`, attempted direct INSERT into `hunter_reviews` with invented booking/hunter IDs and a 5-star rating. Database returned PostgreSQL 42501: `new row violates row-level security policy for table "hunter_reviews"`. Transaction failed; no review inserted.
 - **LIMITATION:** Negative RLS test only, not a real Supabase Auth browser session. Positive owner review, cross-owner with real seeded bookings, browser/mobile flows and Stripe TEST remain blocked until dedicated synthetic Auth identities and fixtures exist.
 - **LIVE:** No production changes.
+
+## 2026-11-10 recurring landowner QA follow-up
+- **PASS (SQL, sandbox):** Confirmed exactly 3 persisted synthetic map features in sandbox `public.listing_access_zones` after previous fixture creation. This is a persistence check, **not** browser reload.
+- **PASS (SQL, sandbox):** Under simulated authenticated Owner B identity, UPDATE targeting Owner A's persisted polygon UUID `46c222f7-979a-406a-8986-12d35fa6e627` returned `owner_b_modified=0`. Transaction rolled back.
+- **NOT TESTED:** Actual owner browser session, drawing, save/reload, touch/keyboard/zoom at 320–2560px, property verification, review and messaging E2E. Do not infer success from SQL tests.
+- **BLOCKED (deployment verification only):** Attempted direct HTTP GET of `https://leasewild-sandbox.pages.dev/sandbox-zone-editor.html`; runtime DNS resolution failed, so deployed version of the Leaflet featureGroup fix cannot be confirmed. This is not evidence the site is down.
+- **Next:** Verify deployed HTML and browser map persistence in an authenticated sandbox browser; then property verification and completed-booking review workflow. Production untouched.
