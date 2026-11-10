@@ -14,7 +14,7 @@
 <label for="longitude">Longitude (-180 to 180)</label><input id="longitude" type="number" min="-180" max="180" step="any" inputmode="decimal">
 <button type="button" id="add-point">Add coordinate</button></details><button type="button" id="undo" class="secondary">Undo last point</button><button type="button" id="clear" class="secondary">Clear draft</button>
 <button type="button" id="draw-boundary" class="secondary" aria-pressed="false">Draw boundary</button><button type="button" id="keep-zone" class="secondary">Keep draft &amp; draw another</button><p id="pending-count" aria-live="polite">0 other draft zones</p><p id="draw-help">Drawing off. Select Draw boundary to trace directly on the map.</p><p id="draft-count" aria-live="polite">No draft points</p>
-<button type="button" id="save" disabled>Save zone</button>
+<button type="button" id="save" disabled>Save zone</button><button type="button" id="save-all" disabled>Save all hunting drafts</button><p><small>Green outlines are unsaved drafts. Save all before leaving; unsaved drawings are lost when this page closes.</small></p>
 <h2>Saved zones</h2><ul id="saved"></ul><small>Only signed-in owners can manage their own listing's zones. Exact access coordinates are not available to hunters yet.</small>
 </section><section aria-label="Map"><div id="map" role="application" aria-label="Interactive property map. Use coordinate fields for keyboard access."></div><p><small>Map data © OpenStreetMap contributors. Do not rely on these boundaries as a legal survey.</small></p></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -32,8 +32,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'�
 let points=[],draftLayer=null,pendingZones=[],pendingLayers=L.featureGroup().addTo(map),savedLayers=L.featureGroup().addTo(map),owner=false,drawing=false,tracing=false,tracePointer=null;const drawButton=document.getElementById('draw-boundary'),drawHelp=document.getElementById('draw-help'),mapEl=document.getElementById('map');
 function message(s){status.textContent=s;}
 function valid(p){return Number.isFinite(p[0])&&Number.isFinite(p[1])&&Math.abs(p[0])<=90&&Math.abs(p[1])<=180;}
-function renderPending(){pendingLayers.clearLayers();pendingZones.forEach(z=>{if(z.points.length>=3)L.polygon(z.points,{color:'#477a54',weight:3,fillOpacity:.13}).addTo(pendingLayers);});document.getElementById('pending-count').textContent=pendingZones.length+' other draft zone(s)';}
+function renderPending(){document.getElementById('save-all').disabled=!owner||(!pendingZones.length&&points.length<3);pendingLayers.clearLayers();pendingZones.forEach(z=>{if(z.points.length>=3)L.polygon(z.points,{color:'#477a54',weight:3,fillOpacity:.13}).addTo(pendingLayers);});document.getElementById('pending-count').textContent=pendingZones.length+' other draft zone(s)';}
 function renderDraft(){
+ document.getElementById('save-all').disabled=!owner||(!pendingZones.length&&points.length<3);
  save.disabled=!owner||!points.length||document.getElementById('zone-type').value==='trail';
  if(draftLayer)map.removeLayer(draftLayer);
  const type=document.getElementById('zone-type').value,polygon=type==='hunting_area',trail=type==='trail';
@@ -46,10 +47,10 @@ function setDrawing(on){
  drawButton.textContent=on?'Finish drawing mode':'Draw boundary';drawHelp.textContent=on?'Press and drag on the map to trace the boundary. Release to finish the outline.':'Drawing off. Add one starting point, then select Draw boundary.';
  if(on){map.dragging.disable();map.touchZoom.disable();map.doubleClickZoom.disable();map.scrollWheelZoom.disable();}else{map.dragging.enable();map.touchZoom.enable();map.doubleClickZoom.enable();map.scrollWheelZoom.enable();}
 }
-document.getElementById('keep-zone').onclick=()=>{if(points.length<3||document.getElementById('zone-type').value!=='hunting_area'){message('Draw a complete hunting boundary before keeping it.');return;}if(pendingZones.length>=20){message('Save or clear existing draft zones before adding more.');return;}pendingZones.push({points:points.map(p=>p.slice())});points=[];setDrawing(false);renderPending();renderDraft();message('Boundary kept on the map. You can draw another. Other drafts are not saved to your property yet.');};
+document.getElementById('keep-zone').onclick=()=>{if(points.length<3||document.getElementById('zone-type').value!=='hunting_area'){message('Draw a complete hunting boundary before keeping it.');return;}if(pendingZones.length>=20){message('Save or clear existing draft zones before adding more.');return;}pendingZones.push({points:points.map(p=>p.slice()),label:document.getElementById('zone-label').value.trim(),instructions:document.getElementById('zone-notes').value.trim()});points=[];document.getElementById('zone-label').value='';document.getElementById('zone-notes').value='';setDrawing(false);renderPending();renderDraft();message('Boundary kept on the map. You can draw another. Other drafts are not saved to your property yet.');};
 drawButton.onclick=()=>{
  if(!['hunting_area','trail'].includes(document.getElementById('zone-type').value)){message('Drawing is available for hunting boundaries and trails.');return;}
- if(!drawing&&points.length>=3){if(pendingZones.length>=20){message('Save or clear some draft zones before drawing another.');return;}pendingZones.push({points:points.map(p=>p.slice())});points=[];renderPending();renderDraft();}setDrawing(!drawing);if(drawing)message('Trace the next property boundary on the map with one continuous stroke. Previous drafts remain visible.');
+ if(!drawing&&points.length>=3){if(pendingZones.length>=20){message('Save or clear some draft zones before drawing another.');return;}pendingZones.push({points:points.map(p=>p.slice())});points=[];document.getElementById('zone-label').value='';document.getElementById('zone-notes').value='';renderPending();renderDraft();}setDrawing(!drawing);if(drawing)message('Trace the next property boundary on the map with one continuous stroke. Previous drafts remain visible.');
 };
 function tracePosition(e){const bounds=mapEl.getBoundingClientRect();return map.containerPointToLatLng([e.clientX-bounds.left,e.clientY-bounds.top]);}
 mapEl.addEventListener('pointerdown',e=>{
@@ -91,6 +92,35 @@ async function refresh(){
  });
  if(savedLayers.getLayers().length){try{map.fitBounds(savedLayers.getBounds().pad(.2),{maxZoom:15});}catch(e){}}
 }
+function polygonGeometry(vertices){const ring=vertices.map(p=>[p[1],p[0]]);ring.push(ring[0]);return {type:'Polygon',coordinates:[ring]};}
+function validBoundary(vertices){return vertices.length>=3&&vertices.length<=100&&vertices.every(valid)&&Math.abs(vertices.reduce((sum,p,i)=>{const q=vertices[(i+1)%vertices.length];return sum+p[1]*q[0]-q[1]*p[0];},0))>=1e-12;}
+let savingAll=false;
+document.getElementById('save-all').onclick=async()=>{
+ if(savingAll)return;
+ if(!owner||!id){message('Sign in as the listing owner before saving.');return;}
+ if(document.getElementById('zone-type').value!=='hunting_area'){message('Switch to Hunting boundary to save hunting drafts.');return;}
+ const all=pendingZones.map(z=>({points:z.points.map(p=>p.slice()),label:z.label,instructions:z.instructions}));
+ if(points.length)all.push({points:points.map(p=>p.slice()),label:document.getElementById('zone-label').value.trim(),instructions:document.getElementById('zone-notes').value.trim()});
+ if(!all.length){message('Draw a boundary first.');return;}
+ const bad=all.findIndex(z=>!validBoundary(z.points)||!z.label);
+ if(bad!==-1){message('Draft '+(bad+1)+' needs a label and a valid boundary with at least three corners. Nothing saved.');return;}
+ savingAll=true;const button=document.getElementById('save-all');button.disabled=true;save.disabled=true;
+ let completed=0;
+ try{
+  for(let i=0;i<all.length;i++){
+   message('Saving hunting boundary '+(i+1)+' of '+all.length+'…');
+   const z=all[i];
+   const {error}=await client.from('listing_access_zones').insert({listing_id:id,zone_type:'hunting_area',label:z.label,geometry:polygonGeometry(z.points),instructions:z.instructions||null});
+   if(error){message(completed+' saved; boundary '+(i+1)+' failed: '+error.message+'. Remaining drafts are retained.');break;}
+   completed++;
+   if(i<pendingZones.length){pendingZones.shift();}else{points=[];document.getElementById('zone-label').value='';document.getElementById('zone-notes').value='';}
+  }
+  if(completed===all.length)message('All '+completed+' hunting boundaries saved.');
+  if(completed)await refresh();
+ }catch(e){message(completed+' saved. Save interrupted: '+e.message+'. Unsaved drafts retained.');}
+ finally{savingAll=false;renderPending();renderDraft();}
+};
+window.addEventListener('beforeunload',e=>{if(pendingZones.length||points.length){e.preventDefault();e.returnValue='';}});
 save.onclick=async()=>{
  const polygon=document.getElementById('zone-type').value==='hunting_area';
  if(document.getElementById('zone-type').value==='trail'){message('Trail preview is available, but saving trails requires a reviewed sandbox database update. No trail was saved.');return;}if(!owner||!id){message('Draft is ready, but saving requires signing in as the owner of a selected listing.');return;}
