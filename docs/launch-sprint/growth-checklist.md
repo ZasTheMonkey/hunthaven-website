@@ -236,3 +236,12 @@ GitHub report/source evidence only; sandbox public URL could not be fetched inde
 - **PASS (inventory integrity):** No fabricated properties, availability, reviews, or metrics introduced. Existing catalog remains the source of listing truth.
 - **NOT TESTED:** Actual mobile browser navigation, 320–2560 px viewport matrix, accessibility/VoiceOver, Cloudflare deployed HTML, authenticated listing/booking conversion, Stripe TEST regression. Source-level fix alone is not E2E evidence.
 - **Next for Designer/Hunter QA:** Check bottom nav label/tap target, verify listings section appears with actual sandbox inventory and empty-state behavior, confirm scroll offset under sticky headers, and verify current Cloudflare deployment independently. Do not alter production/main.
+
+
+## 2026-11-10 — Priority 1: multiple hunting-boundary save workflow
+- Implemented **Save all hunting drafts** in `sandbox-zone-editor.html` on staging (`5e30b979`, follow-up correction `cfed30de`). Kept individual Save zone and existing owner authorization. Drafts now retain their labels/instructions when kept; sequential saves stop on the first error and retain remaining unsaved drawings; browser warns on navigation with unsaved work. No database migration or payment change.
+- **PASS:** GitHub accepted both source commits; source logic inspected.
+- **NOT TESTED:** authenticated browser save/reload, partial-failure handling, touch drawing, viewport matrix, actual deployed HTML, Stripe TEST and messaging. Do not claim database persistence from source inspection.
+- **Known limitations:** Unsaved drafts remain in-memory only; browser unload warnings vary on iOS Safari; no automatic restore after reload. Trail saving remains preview-only. Save All applies to hunting polygons, not parking/entry points.
+- **QA next:** Synthetic owner draws two named polygons, Save All, reload and verify two persisted zones; induce second insert failure and verify only unsaved drafts remain; test navigation warning, owner B access denial, Safari touch and 320–2560px layouts.
+- **Release:** NO-GO pending verified E2E. Production/main/live payments untouched.
