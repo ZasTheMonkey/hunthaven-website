@@ -23,3 +23,11 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 1. Provision sandbox-only secure authenticated sessions for dedicated QA accounts in the automation runtime.
 2. Execute hunter-landowner cross-role send/receive, refresh, ordering, error, and RLS tests with synthetic bookings.
 3. Coordinate unread/read-state design with developer and landowner QA, test at 375/390/430/768px and desktop, then run Stripe TEST checkout.
+
+## 2026-11-09 21:55 ET — Inbox preview performance
+- **PASS (source):** `sandbox-messaging-bridge.js` inbox `threadPreview` previously fetched every message in each conversation (`order=created_at.asc&select=*`) solely to display the last message. Replaced preview query with `order=created_at.desc&limit=1&select=body,created_at`, reducing returned rows to at most one per conversation while preserving full ascending message fetch for open chats. Applies to both hunter and landowner inboxes.
+- **PASS (source verification):** Re-fetched branch file and confirmed bounded preview query plus unchanged full chat query.
+- **PASS (deployment metadata only):** Cloudflare Pages latest `leasewild-sandbox` deployment `e39beb4b-9912-4cec-8f4a-e68e8e3068e4` reports `active` at commit `37b872fbaa7e4ab0028c790bb5f0b4e9d8930d69`.
+- **BLOCKED (runtime):** No secure QA session available, so inbox rendering, message delivery, real mobile layouts, checkout and Stripe TEST are not end-to-end verified. No browser emulation or real-device run conducted.
+- **FAIL / P1 remains:** unread badge intentionally hidden; no read-state schema. Coordinate design with developer/landowner before schema changes.
+- **Risk:** one HTTP request per conversation remains; future batched preview endpoint can eliminate N+1 requests after backend review. No production changes.
