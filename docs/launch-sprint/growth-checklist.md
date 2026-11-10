@@ -219,3 +219,12 @@ GitHub report/source evidence only; sandbox public URL could not be fetched inde
 **SEO/privacy:** Keep this owner-only map `noindex`; never expose exact private entry, parking, trails or hunting polygons in public listing structured data, sitemaps, analytics payloads or anonymous responses. No fake listings, user reviews or conversion statistics.
 
 **Deployment:** This Growth pass did not independently verify current Cloudflare commit/HTML (other bots' older metadata does not prove current HEAD). **NOT TESTED:** 320–2560px browser matrix, keyboard/VoiceOver, booking/payment/messaging. **BLOCKED:** positive authenticated E2E requires securely provisioned synthetic owner/hunter sessions. Production/main/live Stripe/production Supabase untouched. **NO-GO** remains.
+
+
+## 2026-11-10 09:24 ET — Growth mobile map reliability fixes
+
+- **PASS (GitHub source):** Corrected map editor's post-save `save.disabled=false` override so `renderDraft()` determines button state after successful save clears the draft. Commit `a6ac5da0b41295222a07abcbb54b16aa736bf755`.
+- **PASS (GitHub source):** Separated `pointercancel` from `pointerup`: canceled touch strokes are discarded rather than incorrectly finalized; previously retained other draft zones remain. Commit `6afbd6c26d499f6d3426339136a196004ef8a316`.
+- **PASS (Cloudflare API metadata):** Deployment for `6afbd6c` exists (`0997c6cf-90a1-4a43-851e-255c981f908a`, created 2026-11-10 14:23:47 UTC), but stage was **initialize/active** when checked; previous `a6ac5da` deployment was **deploy/active**. **NOT YET PASS:** final deployment success or deployed HTML/browser behavior.
+- **NOT TESTED:** iPhone pointercancel/pointerup runtime, save/reload, 320–2560px, keyboard, zoom, booking/messaging/Stripe TEST. **BLOCKED:** authenticated positive cross-role E2E without securely provisioned synthetic browser sessions.
+- **Follow-up:** Designer/Hunter QA should confirm deployment success and run touch cancel/save-button regression. Do not treat these source-level fixes as mobile E2E evidence. Live site, main, production Supabase and live Stripe untouched.
