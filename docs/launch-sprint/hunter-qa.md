@@ -212,3 +212,12 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **BLOCKED (authenticated E2E):** Synthetic hunter/owner secure sessions and isolated Stripe TEST booking fixtures are not accessible in this run; no checkout, refund, webhook, messaging, cancellation, review or cross-role RLS request was executed. Authorization to test exists; runtime provisioning is missing.
 - **NOT TESTED:** Browser viewport widths 320, 375, 390, 430, 768, 1024, 1280, 1440, 1920 and 2560; touch, keyboard, 200% zoom and screen reader. No browser runner executed.
 - **NO-GO:** Do not infer booking-gated precise coordinate privacy or payment safety from static source/deployment metadata. No main, live site, production Supabase, live Stripe or real accounts touched.
+
+## 2026-11-10 18:31 ET — Hunter messaging security and accessibility source audit
+- **PASS (source inspection only):** `sandbox-messaging-bridge.js` escapes message bodies, participant labels and thread attributes before inserting them into HTML, and requires an authenticated session for REST messaging calls. This is not proof that database RLS prevents unauthorized access.
+- **FAIL / P1 (source accessibility):** Hunter `loadThreads` catch path sets raw `textContent` without `role=alert` or a retry control; owner inbox adds `role=alert`. Keyboard/screen-reader error announcement parity remains incomplete.
+- **FAIL / P1 (source feature):** `loadUnreadCount` explicitly hides the hunter unread badge, and owner inbox hides its badge. No unread/read-state implementation verified.
+- **RISK / P1:** `threadPreview` sends one request per conversation, though each request is bounded to one row. High-thread-count load behavior remains unmeasured.
+- **BLOCKED (runtime, not approval):** No sandbox-only authenticated sessions were supplied to this execution, so checkout TEST, webhooks, refunds, cancellations, reviews, booking permissions and cross-role messaging were not exercised. No production credentials or personal accounts were used.
+- **NOT TESTED:** Browser/device viewports 320/375/390/430/768/1024/1280/1440/1920/2560, touch, keyboard and zoom. Source audit cannot establish responsive PASS.
+- **Coordination request to developer/landowner QA:** implement consistent hunter inbox `role=alert` and explicit retry, agree on unread schema/RLS, and provision isolated synthetic E2E fixtures before asserting booking, privacy or payment PASS. No production or main changes authorized.
