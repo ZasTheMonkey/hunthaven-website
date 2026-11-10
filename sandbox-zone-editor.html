@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Property access map — LeaseWild sandbox</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{font-family:system-ui,sans-serif;color:#192c20;background:#f5f1e8}*{box-sizing:border-box}body{margin:0}header{background:#203e2a;color:white;padding:1rem clamp(1rem,3vw,3rem)}h1{font-size:clamp(1.3rem,3vw,2rem);margin:.2rem 0}main{max-width:1280px;margin:auto;padding:1rem;display:grid;grid-template-columns:minmax(280px,350px) minmax(0,1fr);gap:1rem}section{background:white;border:1px solid #ddd5c6;border-radius:14px;padding:1rem}label{display:block;font-weight:650;margin:.7rem 0 .25rem}input,select,button{font:inherit}input,select{width:100%;padding:.65rem;border:1px solid #847f70;border-radius:8px}button{padding:.65rem .85rem;border:1px solid #365b3a;border-radius:8px;background:#2d5a27;color:white;cursor:pointer;margin:.3rem .25rem .3rem 0}button.secondary{background:white;color:#213e2b}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #bc8737;outline-offset:2px}#map{height:min(72vh,760px);min-height:420px;border-radius:12px}#status{min-height:2.5rem}#saved{padding-left:1.3rem}#saved li{margin:.5rem 0}small{color:#585d54}a{color:inherit}@media(max-width:740px){main{grid-template-columns:1fr}#map{height:55vh;min-height:340px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style></head><body>
+<header><a href="landowner-portal.html">← Back to landowner portal</a><h1>Property access map</h1><div>Sandbox · Private to the listing owner</div></header>
+<main><section aria-label="Zone editor"><p id="status" role="status" aria-live="polite">Checking your session…</p>
+<label for="zone-type">Zone type</label><select id="zone-type"><option value="hunting_area">Hunting boundary (polygon)</option><option value="entry">Entry point</option><option value="parking">Parking point</option></select>
+<label for="zone-label">Label</label><input id="zone-label" maxlength="80" placeholder="e.g. North hunting area">
+<label for="zone-notes">Instructions (optional)</label><input id="zone-notes" maxlength="1000" placeholder="e.g. Enter from county road">
+<p>Tap the map to add boundary corners, or one point for entry/parking. Keyboard users can enter coordinates below.</p>
+<label for="latitude">Latitude (-90 to 90)</label><input id="latitude" type="number" min="-90" max="90" step="any" inputmode="decimal">
+<label for="longitude">Longitude (-180 to 180)</label><input id="longitude" type="number" min="-180" max="180" step="any" inputmode="decimal">
+<button type="button" id="add-point">Add coordinate</button><button type="button" id="undo" class="secondary">Undo last point</button><button type="button" id="clear" class="secondary">Clear draft</button>
+<p id="draft-count" aria-live="polite">No draft points</p>
+<button type="button" id="save" disabled>Save zone</button>
+<h2>Saved zones</h2><ul id="saved"></ul><small>Only signed-in owners can manage their own listing's zones. Exact access coordinates are not available to hunters yet.</small>
+</section><section aria-label="Map"><div id="map" role="application" aria-label="Interactive property map. Use coordinate fields for keyboard access."></div><p><small>Map data © OpenStreetMap contributors. Do not rely on these boundaries as a legal survey.</small></p></section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="supabase-config.js"></script>
+<script>
+(function(){
+'use strict';
+const id=new URLSearchParams(location.search).get('listing');
+const status=document.getElementById('status'),save=document.getElementById('save'),list=document.getElementById('saved');
+const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const map=L.map('map').setView([29.02,-80.93],11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:19}).addTo(map);
+let points=[],draftLayer=null,savedLayers=L.layerGroup().addTo(map),owner=false;
+function message(s){status.textContent=s;}
+function valid(p){return Number.isFinite(p[0])&&Number.isFinite(p[1])&&Math.abs(p[0])<=90&&Math.abs(p[1])<=180;}
+function renderDraft(){
+ if(draftLayer)map.removeLayer(draftLayer);
+ const polygon=document.getElementById('zone-type').value==='hunting_area';
+ if(points.length)draftLayer=polygon?L.polyline(points,{color:'#d18a32',weight:4}).addTo(map):L.marker(points[0]).addTo(map);
+ document.getElementById('draft-count').textContent=points.length+' draft point(s)'+(polygon?' — minimum 3':' — exactly 1');
+}
+function add(p){if(!owner)return;const polygon=document.getElementById('zone-type').value==='hunting_area';if(!valid(p)){message('Coordinates out of range.');return;}if(!polygon)points=[p];else if(points.length<100)points.push(p);else{message('Maximum 100 boundary corners.');return;}renderDraft();}
+map.on('click',e=>add([e.latlng.lat,e.latlng.lng]));
+document.getElementById('add-point').onclick=()=>add([Number(document.getElementById('latitude').value),Number(document.getElementById('longitude').value)]);
+document.getElementById('undo').onclick=()=>{points.pop();renderDraft();};
+document.getElementById('clear').onclick=()=>{points=[];renderDraft();};
+document.getElementById('zone-type').onchange=()=>{points=[];renderDraft();};
+function geometry(){const type=document.getElementById('zone-type').value;if(type!=='hunting_area')return {type:'Point',coordinates:[points[0][1],points[0][0]]};const ring=points.map(p=>[p[1],p[0]]);ring.push(ring[0]);return {type:'Polygon',coordinates:[ring]};}
+async function refresh(){
+ const {data,error}=await client.from('listing_access_zones').select('id,zone_type,label,geometry,instructions').eq('listing_id',id).order('created_at');
+ if(error){message('Cannot load zones: '+error.message);return;}
+ savedLayers.clearLayers();list.replaceChildren();
+ (data||[]).forEach(z=>{
+  const li=document.createElement('li'),title=document.createElement('span'),del=document.createElement('button');
+  title.textContent=z.label+' ('+z.zone_type.replace('_',' ')+') ';del.textContent='Delete';del.className='secondary';del.setAttribute('aria-label','Delete '+z.label);
+  del.onclick=async()=>{if(!confirm('Delete this zone?'))return;del.disabled=true;const {error:e}=await client.from('listing_access_zones').delete().eq('id',z.id).eq('listing_id',id);if(e){message(e.message);del.disabled=false;}else{message('Zone deleted.');refresh();}};
+  li.append(title,del);list.append(li);
+  try{const layer=L.geoJSON(z.geometry,{style:{color:'#2d5a27',weight:3},pointToLayer:(feature,latlng)=>L.marker(latlng)}).addTo(savedLayers);layer.bindPopup(document.createTextNode(z.label));}catch(e){message('One saved zone could not be rendered.');}
+ });
+ if(savedLayers.getLayers().length){try{map.fitBounds(savedLayers.getBounds().pad(.2),{maxZoom:15});}catch(e){}}
+}
+save.onclick=async()=>{
+ const polygon=document.getElementById('zone-type').value==='hunting_area';
+ if(!owner||!id)return;
+ if((polygon&&points.length<3)||(!polygon&&points.length!==1)){message('Add enough points before saving.');return;}
+ const label=document.getElementById('zone-label').value.trim();if(!label){message('Enter a zone label.');return;}
+ save.disabled=true;message('Saving zone…');
+ const {error}=await client.from('listing_access_zones').insert({listing_id:id,zone_type:document.getElementById('zone-type').value,label,geometry:geometry(),instructions:document.getElementById('zone-notes').value.trim()||null});
+ if(error)message('Save failed: '+error.message);else{points=[];renderDraft();message('Zone saved.');await refresh();}
+ save.disabled=false;
+};
+(async()=>{
+ if(!id||!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id)){message('Missing or invalid listing ID.');return;}
+ const {data:{user},error:e}=await client.auth.getUser();if(e||!user){message('Sign in to the landowner portal first.');return;}
+ const {data,error}=await client.from('listings').select('id,owner_id,state,county').eq('id',id).eq('owner_id',user.id).maybeSingle();
+ if(error||!data){message('You do not have access to edit this listing.');return;}
+ owner=true;save.disabled=false;message('Editing your '+(data.county||'')+' property. Select a zone type to begin.');await refresh();
+})();
+})();
+</script></body></html>
