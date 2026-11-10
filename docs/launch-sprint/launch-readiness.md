@@ -118,6 +118,10 @@ No automatic production launch is authorized.
 | Growth Research | Completed run `f60203ab…`; report commit `b819613d` identified this listings P0 and unsupported trust claims. | Documentation/source audit only; no browser or payment tests. |
 | Legal Risk Review | Recorded completed run `ee3f12a8…`, but no latest result, `legal-blockers.md`, or legal handoff exists. | BLOCKED / no substantive legal evidence available. |
 
+### Independent Cloudflare deployment reconciliation
+
+Cloudflare's deployment list independently returned successful sandbox deployments for Designer code `c7c85d75` (deployment `27e43b56…`), Hunter code `37b872fb` (`e39beb4b…`), Landowner code `9795f1aa` (`86d3abdb…`), and Growth documentation `b819613d` (`5978479d…`). This verifies deployment records only; it does not convert blocked authenticated, mobile, messaging, or payment flows into passed tests.
+
 ### Remaining release blockers — **NO-GO**
 
 1. Authenticated Hunter and Landowner authorization/RLS and cross-role booking/messaging tests need securely provisioned QA sessions.
