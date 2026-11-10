@@ -69,6 +69,7 @@ const style=document.createElement('style');
   const chatMarkup=(rows,myId)=>rows.length?rows.map(m=>'<div class="lw-chat-row '+(m.sender_id===myId?'mine':'')+'"><div class="lw-chat-bubble">'+safe(m.body)+'</div><span class="lw-chat-time">'+safe(fmt(m))+'</span></div>').join(''):'<div class="lw-chat-empty">No messages yet.<p>Say hello and start the conversation.</p></div>';
     if(owner){
     let ownerInboxRequest=0;
+    let ownerMessageRequest=0;
     window.loadLoThreads=async function(email){
       const request=++ownerInboxRequest;
       loCurrentUserEmail=email;
@@ -94,10 +95,11 @@ const style=document.createElement('style');
       await window.loadLoMessages(id);
     };
     window.loadLoMessages=async function(id){
+      const request=++ownerMessageRequest;
       const el=document.getElementById('lo-messages-container');
       try{
         const rows=await messages(id), {data}=await sb.auth.getSession();
-        if(loCurrentConvId!==id)return;
+        if(loCurrentConvId!==id||request!==ownerMessageRequest)return;
         el.classList.add('lw-chat-messages');
         if(!data?.session?.user?.id) throw Error('Please sign in again to view messages.');
         const nearBottom=el.scrollHeight-el.scrollTop-el.clientHeight<80;
@@ -105,7 +107,7 @@ const style=document.createElement('style');
         el.innerHTML=chatMarkup(rows,data.session.user.id);
         if(nearBottom)el.scrollTop=el.scrollHeight;
         else el.scrollTop=previousTop+(el.scrollHeight-previousHeight);
-      }catch(e){if(loCurrentConvId===id)el.textContent=e.message;}
+      }catch(e){if(loCurrentConvId===id&&request===ownerMessageRequest)el.textContent=e.message;}
     };
     window.sendLoMessage=async function(){
       const el=document.getElementById('lo-compose'),btn=document.getElementById('lo-send-btn'),body=el.value.trim();
