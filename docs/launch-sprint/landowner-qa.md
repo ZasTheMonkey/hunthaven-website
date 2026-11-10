@@ -152,3 +152,8 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **LIMITATION:** Zero visible zones/reviews is not proof of cross-owner isolation because the tables have no fixture records. Simulated JWT/role is not an actual browser login and does not validate login sessions or APIs.
 - **NEXT:** Provision two dedicated synthetic landowner accounts and a hunter through approved sandbox Auth workflow, seed distinct test listings/booking/payment state, then test positive and negative RLS, map UI, review form, messaging, and Stripe TEST end-to-end. Do not use any real user identity or production data.
 - **NO-GO:** Live environment unchanged.
+
+## 2026-11-10 — Review INSERT negative RLS test
+- **PASS:** Under `SET LOCAL ROLE authenticated` with synthetic JWT sub `11111111-1111-4111-8111-111111111111`, attempted direct INSERT into `hunter_reviews` with invented booking/hunter IDs and a 5-star rating. Database returned PostgreSQL 42501: `new row violates row-level security policy for table "hunter_reviews"`. Transaction failed; no review inserted.
+- **LIMITATION:** Negative RLS test only, not a real Supabase Auth browser session. Positive owner review, cross-owner with real seeded bookings, browser/mobile flows and Stripe TEST remain blocked until dedicated synthetic Auth identities and fixtures exist.
+- **LIVE:** No production changes.
