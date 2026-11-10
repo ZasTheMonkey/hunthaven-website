@@ -309,3 +309,14 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **NOT TESTED:** Deployed page click-through, 320–2560px visual matrix, mobile touch, browser keyboard/zoom, actual catalog conversion and Core Web Vitals. Provider deployment must be checked separately.
 - **Coordination:** Designer should ensure footer spacing remains balanced with one icon; Legal/Growth should only add social profiles after verifying their genuine URLs; Hunter QA should test external navigation in browser.
 - **Release:** NO-GO; no main/production/live Stripe/customer changes.
+
+
+## 2026-11-10 13:20 ET — Growth Research: keyboard-first listing discovery
+
+- **FAIL (initial source audit):** `listings.html` had no HTML `<main>` landmark and no keyboard skip-to-content link. Its long navigation required keyboard users to tab through header actions before reaching property discovery.
+- **PASS (staging source):** Commit `204d7653e25877fa7535c217c6a815807249458c` adds one `<main id="main-content" tabindex="-1">` enclosing discovery content, a visible-on-focus skip link before navigation, a clear focus outline, and reduced-motion handling. No listing inventory, booking, messaging, payment or auth logic modified.
+- **PASS (source re-fetch):** Exactly one opening/closing main landmark; skip target exists; footer remains outside main; existing live result announcement preserved.
+- **PASS (independent Cloudflare metadata):** Sandbox Pages deployment for exact commit `204d7653e25877fa7535c217c6a815807249458c` reports deploy stage `success`; immutable deployment URL `https://3f682dd5.leasewild-sandbox.pages.dev`. This verifies provider deployment status, **not** browser rendering or interaction.
+- **NOT TESTED:** Actual Tab/Enter focus jump, iPhone VoiceOver, 200% zoom, ten-width viewport matrix, real listing conversion and live map filtering. Browser/session harness not used.
+- **Coordination:** Designer: apply consistent skip-link/landmark pattern to other discovery and conversion pages; Hunter QA: verify Tab-to-skip behavior and focus placement on mobile/desktop; Legal: confirm accessible support and trust flows.
+- **Release:** NO-GO. Sandbox branch and sandbox Cloudflare only; no production/main/live payment changes.
