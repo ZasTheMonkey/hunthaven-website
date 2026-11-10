@@ -457,37 +457,51 @@
   function buildCard(l) {
     var type = getType(l);
     var acres = parseAcres(l.acreage);
-    var species = (l.activities || []).join(',');
+    var activities = Array.isArray(l.activities) ? l.activities : [];
+    var species = activities.join(',');
+    var priceValue = Number(l.price_per_day);
     var priceLabel = 'Contact for pricing';
-    if (l.price_per_day) {
-      if (l.pricing_type === 'per_person') priceLabel = '$' + l.price_per_day + ' / person';
-      else if (l.pricing_type === 'group') priceLabel = '$' + l.price_per_day + ' / group' + (l.max_guests ? ' (up to ' + l.max_guests + ')' : '');
-      else priceLabel = '$' + l.price_per_day + ' / day';
+    if (Number.isFinite(priceValue) && priceValue > 0) {
+      var formattedPrice = '$' + priceValue.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      if (l.pricing_type === 'per_person') priceLabel = formattedPrice + ' / person';
+      else if (l.pricing_type === 'group') priceLabel = formattedPrice + ' / group' + (l.max_guests ? ' (up to ' + Number(l.max_guests) + ')' : '');
+      else priceLabel = formattedPrice + ' / day';
     }
-    var price = priceLabel;
+
     var guestInfo = [];
-    if (l.max_guests) guestInfo.push('Up to ' + l.max_guests + ' guests');
-    if (l.num_beds)   guestInfo.push(l.num_beds + ' bed' + (l.num_beds > 1 ? 's' : ''));
+    var maxGuests = Number(l.max_guests);
+    var beds = Number(l.num_beds);
+    if (Number.isFinite(maxGuests) && maxGuests > 0) guestInfo.push('Up to ' + maxGuests + ' guest' + (maxGuests === 1 ? '' : 's'));
+    if (Number.isFinite(beds) && beds > 0) guestInfo.push(beds + ' bed' + (beds === 1 ? '' : 's'));
+
     var location = [l.county, l.state].filter(Boolean).join(', ');
-    var name = [l.first_name, l.last_name].filter(Boolean).join(' ') || 'Private Property';
-    var title = (l.county || l.state || 'Private Land') + ' — ' + (l.acreage || '') + (l.acreage ? ' ac' : '') ;
+    var acreageLabel = formatAcreage(l.acreage);
+    var titleBase = l.county ? l.county + ' Private Land' : (l.state ? l.state + ' Private Land' : 'Private Land');
+    var imageAlt = [titleBase, acreageLabel].filter(Boolean).join(' — ');
 
     var mediaClass = type === 'fishing'
-      ? (Math.random()>.5 ? 'card-media-fish-1' : 'card-media-fish-2')
-      : (['card-media-hunt-1','card-media-hunt-2','card-media-hunt-3'][Math.floor(Math.random()*3)]);
+      ? (Math.random() > .5 ? 'card-media-fish-1' : 'card-media-fish-2')
+      : (['card-media-hunt-1','card-media-hunt-2','card-media-hunt-3'][Math.floor(Math.random() * 3)]);
 
-    var mediaContent = l.photo_urls && l.photo_urls.length > 0
-      ? '<img src="'+l.photo_urls[0]+'" alt="'+title+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" />'
+    var photoUrl = safePhotoUrl(l.photo_urls && l.photo_urls[0]);
+    var mediaContent = photoUrl
+      ? '<img src="' + escHtml(photoUrl) + '" alt="' + escHtml(imageAlt) + '" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" />'
       : '';
 
-    var typeLabel = type === 'fishing' ? '<div class="card-type card-type-fish">Fishing</div>' : '<div class="card-type card-type-hunt">Hunting</div>';
-    var speciesTags = (l.activities||[]).slice(0,4).join(' &middot; ');
-    var cleanFee = l.cleaning_fee ? '<span>+ $'+l.cleaning_fee+' cleaning</span>' : '';
-    var minStay = l.min_stay && l.min_stay !== '' ? '<span>Min '+l.min_stay+'</span>' : '';
+    var typeLabel = type === 'fishing'
+      ? '<div class="card-type card-type-fish">Fishing</div>'
+      : '<div class="card-type card-type-hunt">Hunting</div>';
+    var speciesTags = activities.slice(0, 4).map(escHtml).join(' &middot; ');
+    var cleaningFee = Number(l.cleaning_fee);
+    var cleanFee = Number.isFinite(cleaningFee) && cleaningFee > 0
+      ? '<span>+ $' + cleaningFee.toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' cleaning</span>'
+      : '';
+    var minStay = l.min_stay !== null && l.min_stay !== undefined && String(l.min_stay).trim() !== ''
+      ? '<span>Min ' + escHtml(l.min_stay) + '</span>'
+      : '';
 
-    // Determine badges
     var isHot = l.deer_activity === 'very_high' || l.deer_activity === 'high';
-    var isLastMinute = false; // future: check availability within 7 days
+    var isLastMinute = false;
     var hogsActive = l.hogs_active === true;
     var deerHigh = l.deer_activity === 'high' || l.deer_activity === 'very_high';
     var deerLabel = l.deer_activity ? {'low':'Low','moderate':'Moderate','high':'High','very_high':'Very High'}[l.deer_activity] : null;
@@ -495,29 +509,52 @@
     var activityBadges = '';
     if (isHot) activityBadges += '<span class="badge-hot">🔥 Hot Spot</span>';
     if (hogsActive) activityBadges += '<span class="badge-hog">🐗 Hogs Active</span>';
-    if (deerHigh) activityBadges += '<span class="badge-deer">🦌 Deer: '+deerLabel+'</span>';
-    var activityRow = activityBadges ? '<div class="activity-badge-row">'+activityBadges+'</div>' : '';
+    if (deerHigh) activityBadges += '<span class="badge-deer">🦌 Deer: ' + deerLabel + '</span>';
+    var activityRow = activityBadges ? '<div class="activity-badge-row">' + activityBadges + '</div>' : '';
 
-    var trailCam = l.trail_cam_date ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">📷 Trail cam: '+l.trail_cam_date+'</span>' : '';
+    var metadata = [];
+    if (location) metadata.push('<span><span aria-hidden="true">📍</span> ' + escHtml(location) + '</span>');
+    if (acreageLabel) metadata.push('<span>' + escHtml(acreageLabel) + '</span>');
+    var metadataRow = metadata.length ? '<div class="card-meta">' + metadata.join('') + '</div>' : '';
+    var trailCam = l.trail_cam_date
+      ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">📷 Trail cam: ' + escHtml(l.trail_cam_date) + '</span>'
+      : '';
+    var listingId = escHtml(l.id);
 
-    return '<div class="listing-card fade-up" data-type="'+type+'" data-acres="'+acres+'" data-species="'+species+'" data-hotspot="'+(isHot?'1':'0')+'" data-lastminute="'+(isLastMinute?'1':'0')+'" data-deerhigh="'+(deerHigh?'1':'0')+'" data-hogsactive="'+(hogsActive?'1':'0')+'" onclick="openListingById(this.dataset.lid)" data-lid="'+l.id+'">' +
-      '<div class="card-media '+mediaClass+'">'+mediaContent+'<div class="card-price">'+price+'</div>'+typeLabel+'<button class="card-save">♡</button></div>' +
-      '<div class="card-body">'+
-        activityRow+
-        '<h3>'+escHtml(l.county ? l.county+' Private Land' : 'Private Land')+'</h3>'+
-        '<div class="card-meta"><span>📍 '+escHtml(location)+'</span>'+(l.acreage?'<span>'+escHtml(l.acreage)+' ac</span>':'')+'</div>'+
-        (guestInfo.length ? '<div class="card-meta"><span>👥 '+guestInfo.join(' &middot; ')+'</span></div>' : '')+
-        (speciesTags ? '<div class="card-meta"><span>'+speciesTags+'</span></div>' : '')+
-        '<div class="card-footer">'+
-          '<span class="verified-badge">🌱 Early Listing</span>'+
-          (trailCam ? trailCam : (cleanFee||minStay ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">'+[cleanFee,minStay].filter(Boolean).join(' ')+'</span>' : ''))+
-        '</div>'+
-      '</div>'+
-    '</div>';
+    return '<article class="listing-card fade-up" role="link" tabindex="0" aria-label="View ' + escHtml(titleBase) + '" data-type="' + escHtml(type) + '" data-acres="' + acres + '" data-species="' + escHtml(species) + '" data-hotspot="' + (isHot ? '1' : '0') + '" data-lastminute="' + (isLastMinute ? '1' : '0') + '" data-deerhigh="' + (deerHigh ? '1' : '0') + '" data-hogsactive="' + (hogsActive ? '1' : '0') + '" onclick="openListingById(this.dataset.lid)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openListingById(this.dataset.lid)}" data-lid="' + listingId + '">' +
+      '<div class="card-media ' + mediaClass + '">' + mediaContent + '<div class="card-price">' + escHtml(priceLabel) + '</div>' + typeLabel + '</div>' +
+      '<div class="card-body">' +
+        activityRow +
+        '<h3>' + escHtml(titleBase) + '</h3>' +
+        metadataRow +
+        (guestInfo.length ? '<div class="card-meta"><span><span aria-hidden="true">👥</span> ' + guestInfo.join(' &middot; ') + '</span></div>' : '') +
+        (speciesTags ? '<div class="card-meta"><span>' + speciesTags + '</span></div>' : '') +
+        '<div class="card-footer">' +
+          '<span class="verified-badge">🌱 Early Listing</span>' +
+          (trailCam || (cleanFee || minStay ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">' + [cleanFee,minStay].filter(Boolean).join(' ') + '</span>' : '')) +
+        '</div>' +
+      '</div>' +
+    '</article>';
   }
 
   function escHtml(s) {
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function formatAcreage(value) {
+    var raw = String(value || '').trim();
+    if (!raw) return '';
+    return /\b(?:ac|acre|acres)\b/i.test(raw) ? raw : raw + ' acres';
+  }
+
+  function safePhotoUrl(value) {
+    if (!value) return '';
+    try {
+      var url = new URL(String(value), window.location.origin);
+      return url.protocol === 'https:' ? url.href : '';
+    } catch (error) {
+      return '';
+    }
   }
 
   function renderListings(list) {
