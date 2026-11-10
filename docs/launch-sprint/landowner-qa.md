@@ -138,3 +138,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **PASS (read-only negative check):** Calling function without an authenticated user using dummy UUIDs returned false.
 - **NOT TESTED:** Authenticated positive owner booking, wrong-owner/wrong-hunter negative cases, direct Data API access, real review INSERT and duplicate enforcement. Function is privileged and must be threat-model reviewed before launch.
 - **NOT VERIFIED:** Browser E2E, deploy, messaging, Stripe TEST. **NO-GO** remains.
+
+## 2026-11-10 — Sandbox security smoke test
+- **PASS (database privilege checks):** Anonymous cannot USAGE private review schema, cannot EXECUTE private review eligibility function, cannot SELECT hunter_reviews, cannot SELECT listing_access_zones. Authenticated role can execute eligibility function and INSERT reviews; it cannot directly SELECT bookings. Both hunter_reviews and listing_access_zones have RLS enabled.
+- **PASS (PostGIS function checks):** Self-intersecting bowtie polygon invalid; ordinary square valid. These are geometry function checks, not actual authenticated INSERT tests.
+- **SECURITY ADVISORS:** Five RLS-enabled/no-policy tables, pg_net in public, three exposed authenticated SECURITY DEFINER messaging functions, and leaked-password protection disabled. Existing findings remain unresolved; evaluate dependencies before changing.
+- **BLOCKED:** No verified separate synthetic owner A, owner B, hunter credentials/session. Cannot truthfully mark cross-owner RLS, booking/review submission, UI touch/responsive, Stripe TEST, messaging E2E as passed.
+- **NO-GO:** Staging-only checks. No production deployment or live-account testing.
