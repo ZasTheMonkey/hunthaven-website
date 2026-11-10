@@ -329,3 +329,12 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **NOT TESTED:** Screen-reader group announcements, actual filter behavior, ten-width responsive visual matrix, touch/keyboard/200% zoom, real inventory conversion.
 - **Coordination:** Designer to verify wrapping at 320/375/390/430px and consistent filter chip spacing; Hunter QA to test keyboard/screen-reader group names, pressed states and live result count; Legal to review truthful filtering and inventory claims.
 - **Release:** NO-GO; staging/sandbox only, no production/main/live payment changes.
+
+
+## 2026-11-10 15:42 ET — Growth Research: acreage-filter integrity
+- **FAIL (source audit):** `listings.html` previously returned `0` for missing/malformed acreage, making unknown-acreage listings match the “<50 ac” filter. The parser also called `.match()` directly on the value, which could fail for numeric acreage.
+- **PASS (staging source):** Commit `a970d9c8c83297ab3436dc40071fbf01b13f432e` parses positive acreage numbers and formatted strings (including decimal and comma separators), returns `null` for unknown/invalid acreage, and excludes unknown values from all acreage-specific filters. `Any size` still includes them. Missing acreage now yields empty `data-acres` instead of misleading zero. No payment, booking, auth or mapping code modified.
+- **PASS (source re-fetch):** Confirmed updated parser and three guarded acreage ranges in GitHub staging.
+- **NOT TESTED:** Actual sandbox inventory distribution, browser filter clicks, responsive widths, screen reader, production analytics or booking conversion.
+- **Coordination:** Designer: inspect filter chips and card acreage labels at 320–2560px. Hunter QA: verify unknown, 0, 0.5, 49.9, 50, 300, 300.1, 1,200 acreage values in synthetic listing UI; verify no card appears in wrong size group. Legal: verify truthful property acreage disclosures and no parcel-size guarantees.
+- **Release:** NO-GO; staging/sandbox only, no production/main/live Stripe changes.
