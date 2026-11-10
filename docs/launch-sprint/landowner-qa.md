@@ -125,3 +125,9 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **PASS (staging source):** Added `sandbox-hunter-review.html` form at commit `383eb2451554b37464974ec3e2cfb2ab396d4035`. Requires `?booking=<uuid>`; does a client eligibility precheck and relies on server RLS for final decision.
 - **LIMITATION:** Payment state lifecycle not fully mapped, and actual completed/refunded semantics may differ. Review form is a standalone page, not yet linked from booking history. No moderation admin workflow or report/appeal UI. No authenticated E2E verification. Existing lease_payments access policies may block client precheck; do not claim working UX until tested.
 - **NOT VERIFIED:** Cloudflare deployment, authenticated owner/hunter RLS, mobile browser, Stripe TEST, messaging regression. **NO-GO** remains.
+
+## 2026-11-10 — Review button wired; RLS blocker discovered
+- **PASS (source):** Reservation cards now show a `Review Hunter` link only when booking status is confirmed and checkout date has passed, passing the booking UUID to `sandbox-hunter-review.html`. Commit `6069aa85f3e25c21a76d6836f6098f587375e414`; re-fetched source and confirmed link exists.
+- **PASS (schema inspection):** `lease_payments` has participant SELECT RLS policy; `hunter_reviews` has owner/hunter SELECT and owner INSERT policies. `bookings` has RLS enabled but **no SELECT policies**.
+- **BLOCKER:** `review_eligible_owner_insert` joins `bookings` under caller permissions. With bookings RLS enabled and no SELECT policy, eligible inserts may be denied. Do not weaken booking RLS or claim successful submissions. A narrowly scoped reviewed server-side authorization strategy is needed that checks the authoritative booking state without exposing guest records.
+- **NOT TESTED:** Real authenticated booking list, review submission, RLS cross-owner negative tests, browser/mobile layout, Stripe TEST or Cloudflare deploy. Production untouched.
