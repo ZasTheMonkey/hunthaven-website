@@ -37,7 +37,7 @@ function renderDraft(){
  if(points.length)draftLayer=polygon?L.polyline(points,{color:'#d18a32',weight:4}).addTo(map):L.marker(points[0]).addTo(map);
  document.getElementById('draft-count').textContent=points.length+' draft point(s)'+(polygon?' — minimum 3':' — exactly 1');
 }
-function add(p){if(!owner)return;const polygon=document.getElementById('zone-type').value==='hunting_area';if(!valid(p)){message('Coordinates out of range.');return;}if(!polygon)points=[p];else if(points.length<100)points.push(p);else{message('Maximum 100 boundary corners.');return;}renderDraft();}
+function add(p){if(!owner){message('Coordinates were not added: sign in as the listing owner and open this editor from your property dashboard.');return;}const polygon=document.getElementById('zone-type').value==='hunting_area';if(!valid(p)){message('Coordinates out of range.');return;}if(!polygon)points=[p];else if(points.length<100)points.push(p);else{message('Maximum 100 boundary corners.');return;}renderDraft();message(polygon?'Boundary corner added ('+points.length+' of at least 3).':'Location point added.');}
 map.on('click',e=>add([e.latlng.lat,e.latlng.lng]));
 document.getElementById('add-point').onclick=()=>{const lat=document.getElementById('latitude').value.trim(),lng=document.getElementById('longitude').value.trim();if(!lat||!lng){message('Enter both latitude and longitude.');return;}add([Number(lat),Number(lng)]);};
 document.getElementById('undo').onclick=()=>{points.pop();renderDraft();};
