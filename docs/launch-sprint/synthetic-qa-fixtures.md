@@ -71,3 +71,10 @@ These are proposed identifiers, **not verified Auth users**. Gmail plus-addressi
 - Staging `supabase-config.js` references sandbox project `kbkdfpmlyggfijkyjxoi` (public anon client; no secret value recorded).
 - Map editor Leaflet `L.featureGroup` bounds fix committed previously, but browser rendering and deployment still **unverified**.
 - Cleanup: remove the above three feature UUIDs before deleting the Owner A draft listing. Do not remove unrelated zones.
+
+## Landowner QA — 2026-11-10 13:14 EST
+- **FAIL (source review, fixed):** In `sandbox-zone-editor.html`, selecting Draw boundary after a completed polygon silently auto-queued a draft without requiring its name. This conflicted with `save-all` validation and left a user with an un-saveable unnamed queued boundary.
+- **FIX committed:** `8eb00793b0e343081dec85c5440728a1b0a313c5` now requires a nonempty label before the auto-queue transition, focuses the label input, and preserves the polygon for correction.
+- **PASS:** exact source path located and targeted replacement committed on staging branch.
+- **NOT TESTED:** browser drawing/keyboard/touch, mobile widths, Cloudflare deployment, property verification, completed-booking reviews, bookings/messaging, Stripe TEST-mode flow. No live or main changes.
+- **Coordination:** Map-editor UX defect and fix recorded here for design/developer, hunter QA, legal and market research bot review. Follow-up: confirm drawn polygon persists after reload and verify 320/375/390/430/768/1024/1280/1440/1920/2560 widths with authenticated sandbox browser.
