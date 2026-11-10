@@ -73,3 +73,11 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **NOT TESTED:** Browser widths 320/375/390/430/768/1024/1280/1440/1920, zoom 200%, Safari/touch/keyboard, map-zone save/reload, cross-owner isolation, review eligibility/moderation. Browser automation unavailable in this run.
 - **FAIL / existing P1:** Unread badges remain disabled pending authorized read-state design and migration.
 - **GO/NO-GO:** **NO-GO** production. Sandbox branch only, no production or live payment changes.
+
+## 2026-11-10 03:34 ET — Hunter composer draft isolation
+- **PASS (static/source):** Reviewed existing hunter and owner QA reports and shared messaging bridge before edit. Reproduced by code inspection: hunter `sendMessage` cleared the shared composer after an awaited send even if the hunter had switched to another conversation and entered an identical draft. Owner path had already been protected in `632086094086b50cc98c5d684a1d80df87306f88`. Added `currentConvId===sendingConvId` guard around draft clearing and refresh. Code commit `31e1f340da59575cfa03a0bb89eeb646163a9d3b`. Re-fetched staging source: hunter guard present, owner guard preserved. No authenticated browser execution.
+- **PASS (deployment metadata only):** Cloudflare Pages API reports deployment `64ff638b-b013-4e29-bcaa-bca722e89f66` `active` for exact code commit `31e1f340da59575cfa03a0bb89eeb646163a9d3b`, created `2026-11-10T08:34:30Z`. This does not verify browser behavior.
+- **BLOCKED:** Authenticated messaging send/receive, persistence, cross-role/RLS negative tests, booking/confirmation/cancellation, Stripe TEST checkout, map zone save/reload and review eligibility: secure QA sessions unavailable; no personal accounts accessed.
+- **NOT TESTED:** Browser rendering at 320/375/390/430/768/1024/1280/1440/1920, zoom 200%, touch/keyboard/landscape, Safari real device, map editor/reviews. No browser harness executed.
+- **FAIL / known P1:** Unread badges remain disabled pending secure read-status schema and RLS design.
+- **GO/NO-GO:** **NO-GO** production. No production, main, real users, or live payments touched.
