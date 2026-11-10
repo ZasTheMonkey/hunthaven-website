@@ -109,3 +109,15 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - Validation rejected the preceding `c60dfa0e` implementation because replacement-token expansion duplicated script content. The final commit was rebuilt from the clean pre-change SHA and is the only implementation counted as passing.
 - **Legal handoff remains absent.** No binding policy, waiver, insurance promise, payment term, location-disclosure rule, review policy or production content was approved in this run.
 - **Release remains NO-GO.** Access-zone privacy/authorization, hunter-review eligibility/moderation, authenticated E2E, responsive coverage and Florida attorney approval remain open.
+
+
+## Listings updates privacy/reliability fix — November 10, 2026 at 1:45 AM ET
+
+- **Implementation:** `53cc99375e7b1fa7f040987bd50ec2e5f7a662ed` on sandbox staging only.
+- Removed the unverified cross-origin GET submission that encoded first name, last name, email, phone, location and timestamp in the request URL and could display success without a verifiable response.
+- The form now fails closed without transmitting contact data, preserves entered values, does not show the success view, and presents a focusable `role="alert"` explaining the temporary unavailability.
+- Removed unsupported species/booking language from listings metadata; this is a technical/content-risk correction, not approval of inventory or marketing claims.
+- Exact-SHA static checks and inline-script compilation passed. Cloudflare deployment `def0a4d3-5196-480f-ae0f-a8608d3e9c74` succeeded for `53cc9937`; public listings and dialog rendered at 1363px.
+- Browser submission was not performed. A privacy-reviewed, response-verifiable lead endpoint, consent/copy review, retention rules, vendor review and failure-path E2E remain required before re-enabling signup.
+- `docs/legal/website-compliance-handoff.md` remains absent. No legal terms, consent language, waiver, insurance promise, access-zone disclosure rule, review policy or production content was approved.
+- **Release remains NO-GO.** Access-zone authorization/privacy, hunter-review eligibility/moderation, authenticated QA, responsive coverage and Florida attorney approval remain open. Production and live services were untouched.
