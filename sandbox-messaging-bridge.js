@@ -141,9 +141,12 @@ const style=document.createElement('style');
         if(currentConvId!==id)return;
         el.classList.add('lw-chat-messages');
         if(!data?.session?.user?.id) throw Error('Please sign in again to view messages.');
+        const nearBottom=el.scrollHeight-el.scrollTop-el.clientHeight<80;
+        const previousHeight=el.scrollHeight,previousTop=el.scrollTop;
         el.innerHTML=chatMarkup(rows,data.session.user.id);
-        el.scrollTop=el.scrollHeight;
-      }catch(e){el.textContent=e.message;}
+        if(nearBottom)el.scrollTop=el.scrollHeight;
+        else el.scrollTop=previousTop+(el.scrollHeight-previousHeight);
+      }catch(e){if(currentConvId===id)el.textContent=e.message;}
     };
     window.sendMessage=async function(){
       const el=document.getElementById('compose-input'),btn=document.getElementById('send-btn'),body=el.value.trim();
