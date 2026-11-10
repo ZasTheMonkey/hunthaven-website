@@ -320,3 +320,12 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **NOT TESTED:** Actual Tab/Enter focus jump, iPhone VoiceOver, 200% zoom, ten-width viewport matrix, real listing conversion and live map filtering. Browser/session harness not used.
 - **Coordination:** Designer: apply consistent skip-link/landmark pattern to other discovery and conversion pages; Hunter QA: verify Tab-to-skip behavior and focus placement on mobile/desktop; Legal: confirm accessible support and trust flows.
 - **Release:** NO-GO. Sandbox branch and sandbox Cloudflare only; no production/main/live payment changes.
+
+
+## 2026-11-10 14:29 ET — Growth Research: accessible discovery filter groups
+- **FAIL (initial source audit):** Property discovery filter buttons were visually grouped but activity and acreage button clusters had no accessible group names. Nine filter buttons also lacked explicit `type="button"`.
+- **PASS (staging source):** Commits `80196b0e78a9a0259e71674a3295bb65f9cf800e` and `51412ee939de8753d2b3f11623d0625ba7a01056` add labeled activity/acreage groups with flex-wrap (not `display:contents`) and explicit non-submit button types. Existing filter functions, real inventory, booking, payments, authentication and maps unchanged.
+- **PASS (source re-fetch):** Exactly one labeled activity group and one acreage group; nine filter buttons with explicit type.
+- **NOT TESTED:** Screen-reader group announcements, actual filter behavior, ten-width responsive visual matrix, touch/keyboard/200% zoom, real inventory conversion.
+- **Coordination:** Designer to verify wrapping at 320/375/390/430px and consistent filter chip spacing; Hunter QA to test keyboard/screen-reader group names, pressed states and live result count; Legal to review truthful filtering and inventory claims.
+- **Release:** NO-GO; staging/sandbox only, no production/main/live payment changes.
