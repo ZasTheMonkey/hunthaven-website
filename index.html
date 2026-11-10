@@ -681,6 +681,9 @@
     .btn-submit:hover{background:var(--green-dk)}
     .btn-submit:disabled{opacity:.6;cursor:not-allowed}
     .modal-note{font-size:.75rem;color:var(--faint);text-align:center;margin-top:12px}
+    .field-label-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+    .field-optional{font-size:.68rem;font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0}
+    .field-help{font-size:.72rem;line-height:1.4;color:var(--muted);margin-top:5px}
     .modal-success{display:none;text-align:center;padding:20px 0}
     .success-icon{
       width:60px;height:60px;border-radius:50%;
@@ -2010,8 +2013,12 @@
             <input type="email" id="wl-email" name="email" autocomplete="email" required placeholder="your@email.com" />
           </div>
           <div class="form-field">
-            <label for="wl-phone">Phone</label>
-            <input type="tel" id="wl-phone" name="phone" autocomplete="tel" inputmode="tel" required placeholder="(555) 000-0000" />
+            <div class="field-label-row">
+              <label for="wl-phone">Phone</label>
+              <span class="field-optional">Optional</span>
+            </div>
+            <input type="tel" id="wl-phone" name="phone" autocomplete="tel" inputmode="tel" maxlength="25" aria-describedby="wl-phone-help" placeholder="(555) 000-0000" />
+            <p class="field-help" id="wl-phone-help">Used only for waitlist updates when you choose to provide it.</p>
           </div>
           <div class="form-field">
             <label for="wl-location">City, State</label>
@@ -2908,7 +2915,9 @@
     var btn = document.getElementById('wl-submit');
     btn.disabled=true; btn.textContent='Submitting…';
     try{
-      var params = new URLSearchParams({firstName:first,lastName:last,email,phone,location,timestamp:new Date().toLocaleString('en-US',{timeZone:'America/New_York'})});
+      var waitlistData = {firstName:first,lastName:last,email,location,timestamp:new Date().toLocaleString('en-US',{timeZone:'America/New_York'})};
+      if(phone) waitlistData.phone = phone;
+      var params = new URLSearchParams(waitlistData);
       await fetch(WAITLIST_URL+'?'+params,{method:'GET',mode:'no-cors'});
     }catch(err){console.warn(err);}
     document.getElementById('wl-form-view').style.display='none';
