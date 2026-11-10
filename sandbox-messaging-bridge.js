@@ -28,6 +28,8 @@
     const field=owner?'landowner_id':'hunter_id';
     return api('booking_conversations?'+field+'=eq.'+encodeURIComponent(data.session.user.id)+'&order=created_at.desc&select=*');
   };
+  const bookingInfo=async id=>{const rows=await api('bookings?id=eq.'+encodeURIComponent(id)+'&select=guest_name,listing_id,listings(first_name,last_name,county,state)');return rows?.[0]||null;};
+  const threadTitle=async t=>{try{const b=await bookingInfo(t.booking_id);if(!b)return 'Booking conversation';const l=b.listings||{};const name=owner?(b.guest_name||'Hunter'):([l.first_name,l.last_name].filter(Boolean).join(' ')||'Landowner');return name+' · '+(l.county||'Property')+(l.state?', '+l.state:'');}catch(e){return 'Booking conversation';}};
   const messages=id=>api('booking_messages?conversation_id=eq.'+encodeURIComponent(id)+'&order=created_at.asc&select=*');
   const send=async(id,body)=>{
     const {data}=await sb.auth.getSession();
@@ -42,7 +44,8 @@
       const el=document.getElementById('lo-threads-container');
       try{
         const rows=await list();
-        el.innerHTML=rows.length?rows.map(t=>'<button type="button" class="lw-message-thread" data-conv="'+safe(t.id)+'" style="display:block;width:100%;text-align:left;padding:1rem;margin-bottom:.5rem;border:1px solid var(--color-border);border-radius:12px;background:var(--color-surface);color:var(--color-text);cursor:pointer">Booking conversation · '+safe(t.booking_id.slice(0,8))+'</button>').join(''):'<p>No messages yet. Open a booking to start a conversation.</p>';
+        const titles=await Promise.all(rows.map(threadTitle));
+        el.innerHTML=rows.length?rows.map((t,i)=>'<button type="button" class="lw-message-thread" data-conv="'+safe(t.id)+'" style="display:block;width:100%;text-align:left;padding:1rem;margin-bottom:.5rem;border:1px solid var(--color-border);border-radius:12px;background:var(--color-surface);color:var(--color-text);cursor:pointer">'+safe(titles[i])+'</button>').join(''):'<p>No messages yet. Open a booking to start a conversation.</p>';
         el.querySelectorAll('[data-conv]').forEach(b=>b.addEventListener('click',()=>window.openLoConversation(b.dataset.conv,'Booking conversation','')));
         document.getElementById('lo-unread-badge').style.display='none';
       }catch(e){el.textContent=e.message;}
@@ -71,14 +74,15 @@
       try{await send(loCurrentConvId,body);if(el.value.trim()===body)el.value='';await window.loadLoMessages(loCurrentConvId);}catch(e){showError(e);}finally{btn.disabled=false;}
     };
     window.openLoConversationFromBooking=async function(bookingId,listingId,guestName,guestEmail){
-      try{const id=await openBooking(bookingId);await window.openLoConversation(id,'Booking with '+guestName,guestEmail);document.getElementById('messages-section').scrollIntoView({behavior:'smooth'});}catch(e){showError(e);}
+      try{const id=await openBooking(bookingId);await window.openLoConversation(id,'Conversation with '+guestName,guestEmail);document.getElementById('messages-section').scrollIntoView({behavior:'smooth'});}catch(e){showError(e);}
     };
   }else{
     window.loadThreads=async function(){
       const el=document.getElementById('threads-container');
       try{
         const rows=await list();
-        el.innerHTML=rows.length?rows.map(t=>'<button type="button" class="thread-item" data-conv="'+safe(t.id)+'" data-booking="'+safe(t.booking_id)+'">Booking #'+safe(t.booking_id.slice(0,8).toUpperCase())+'</button>').join(''):'<div class="empty-state">No messages yet. Open a booking to message the landowner.</div>';
+        const titles=await Promise.all(rows.map(threadTitle));
+        el.innerHTML=rows.length?rows.map((t,i)=>'<button type="button" class="thread-item" data-conv="'+safe(t.id)+'" data-booking="'+safe(t.booking_id)+'">'+safe(titles[i])+'</button>').join(''):'<div class="empty-state">No messages yet. Open a booking to message the landowner.</div>';
         el.querySelectorAll('[data-conv]').forEach(b=>b.addEventListener('click',()=>window.openConversation(b.dataset.booking,null,'Booking conversation',b.dataset.conv)));
       }catch(e){el.textContent=e.message;}
     };
