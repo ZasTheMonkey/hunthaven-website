@@ -204,3 +204,11 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **NOT TESTED (browser):** 320/375/390/430/768/1024/1280/1440/1920/2560 widths, keyboard, touch, zoom and real-device accessibility. No browser runner was used.
 - **Deployment:** Exact current staging code commit and Cloudflare Pages deployment were not independently reconciled in this run; source PASS is not a deployment or browser PASS.
 - **Release gate:** NO-GO for production. No changes to application behavior, payments, main, live site, production data, or personal accounts.
+
+
+## 2026-11-10 17:17 ET — Sandbox deployment reconciliation
+- **PASS (coordination):** Re-read current Hunter QA handoff and sprint rules before updating; no shared application files modified.
+- **PASS (independent deployment metadata only):** Cloudflare Pages `leasewild-sandbox` latest listed successful deployment `8c492e9b-3b41-4246-8777-320276fd7d6c`, created `2026-11-10T21:40:14Z`, branch `staging/leasewild-full-clone`, commit `087b3b444e559c0f167beb54bb2d0b29b224d18d`, immutable URL `https://8c492e9b.leasewild-sandbox.pages.dev`. The preceding successful deployment at `21:29:42Z` is commit `9e8983b352c1563321d7460448ca508a618ecbf4` (prior Hunter QA report commit). Deployment metadata is NOT proof of browser behavior or of current branch-head parity.
+- **BLOCKED (authenticated E2E):** Synthetic hunter/owner secure sessions and isolated Stripe TEST booking fixtures are not accessible in this run; no checkout, refund, webhook, messaging, cancellation, review or cross-role RLS request was executed. Authorization to test exists; runtime provisioning is missing.
+- **NOT TESTED:** Browser viewport widths 320, 375, 390, 430, 768, 1024, 1280, 1440, 1920 and 2560; touch, keyboard, 200% zoom and screen reader. No browser runner executed.
+- **NO-GO:** Do not infer booking-gated precise coordinate privacy or payment safety from static source/deployment metadata. No main, live site, production Supabase, live Stripe or real accounts touched.
