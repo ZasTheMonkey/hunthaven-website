@@ -102,7 +102,7 @@ function renderDraft(){
  if(points.length)draftLayer=polygon?L.polyline(points,{color:'#b46b20',weight:4}).addTo(map):trail?L.polyline(points,{color:'#8b5cf6',weight:5}).addTo(map):L.circleMarker(points[0],{radius:10,color:'#fff',weight:3,fillColor:type==='parking'?'#2563eb':'#15803d',fillOpacity:1}).addTo(map);
  document.getElementById('draft-count').textContent=points.length+' draft point(s)'+(polygon?' — minimum 3':trail?' — minimum 2':' — exactly 1');
 }
-function add(p){if(drawing)return;const type=document.getElementById('zone-type').value,polygon=type==='hunting_area'||type==='trail';if(!valid(p)){message('Coordinates out of range.');return;}if(!polygon)points=[p];else if(points.length<100)points.push(p);else{message('Maximum 100 boundary corners.');return;}renderDraft();message(polygon?'Boundary corner added ('+points.length+' of at least 3).':'Location point added.');}
+function add(p){if(drawing)return;const type=document.getElementById('zone-type').value,polygon=type==='hunting_area'||type==='trail';if(!valid(p)){message('Coordinates out of range.');return;}if(!polygon)points=[p];else if(points.length<100)points.push(p);else{message('Maximum 100 boundary corners.');return;}renderDraft();message(polygon?(type==='trail'?'Trail point added ('+points.length+' of at least 2).':'Boundary corner added ('+points.length+' of at least 3).'):'Location point added.');}
 function setDrawing(on){
  drawing=on;tracing=false;tracePointer=null;mapEl.classList.toggle('drawing',on);drawButton.setAttribute('aria-pressed',String(on));
  drawButton.textContent=on?'Finish drawing mode':'Draw boundary';drawHelp.textContent=on?'Press and drag on the map to trace the boundary. Release to finish the outline.':'Drawing off. Add one starting point, then select Draw boundary.';
@@ -133,7 +133,7 @@ function endTrace(e){
  const p=tracePosition(e),last=points[points.length-1];if(valid([p.lat,p.lng])&&map.latLngToContainerPoint(last).distanceTo(map.latLngToContainerPoint(p))>=3&&points.length<100)points.push([p.lat,p.lng]);
  tracing=false;tracePointer=null;suppressMapClickUntil=Date.now()+500;setDrawing(false);
  if(points.length<(document.getElementById('zone-type').value==='trail'?2:3)){message('The stroke was too short. Trace a longer route or boundary.');return;}
- renderDraft();message('Boundary traced with '+points.length+' points. Review the outline before saving.');
+ renderDraft();message((document.getElementById('zone-type').value==='trail'?'Trail':'Boundary')+' traced with '+points.length+' points. Review the '+(document.getElementById('zone-type').value==='trail'?'route':'outline')+' before saving.');
 }
 mapEl.addEventListener('pointerup',endTrace);
 mapEl.addEventListener('pointercancel',e=>{if(!tracing||e.pointerId!==tracePointer)return;tracing=false;tracePointer=null;suppressMapClickUntil=Date.now()+500;setDrawing(false);renderDraft();message('Drawing interrupted; '+points.length+' captured point(s) kept as an unsaved draft. Continue with map taps or Undo, or clear it explicitly.');});
