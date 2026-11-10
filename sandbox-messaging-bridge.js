@@ -70,6 +70,9 @@ const style=document.createElement('style');
     if(owner){
     let ownerInboxRequest=0;
     let ownerMessageRequest=0;
+    const ownerDrafts=new Map();
+    const ownerComposer=document.getElementById('lo-compose');
+    if(ownerComposer)ownerComposer.addEventListener('input',()=>{if(loCurrentConvId)ownerDrafts.set(loCurrentConvId,ownerComposer.value);});
     window.loadLoThreads=async function(email){
       const request=++ownerInboxRequest;
       loCurrentUserEmail=email;
@@ -88,7 +91,9 @@ const style=document.createElement('style');
       }catch(e){if(request===ownerInboxRequest){el.setAttribute('role','alert');el.textContent='Unable to load conversations. '+(e.message||'Please retry.');}}
     };
     window.openLoConversation=async function(id,subject,guestEmail){
+      if(loCurrentConvId&&ownerComposer)ownerDrafts.set(loCurrentConvId,ownerComposer.value);
       loCurrentConvId=id;
+      if(ownerComposer)ownerComposer.value=ownerDrafts.get(id)||'';
       document.getElementById('lo-conv-title').textContent=subject;
       document.getElementById('lo-conv-subtitle').textContent=guestEmail?'Guest: '+guestEmail:'';
       document.getElementById('lo-thread-list').style.display='none';
@@ -116,7 +121,7 @@ const style=document.createElement('style');
       if(!body||!loCurrentConvId||btn.disabled)return;
       const sendingConvId=loCurrentConvId;
       btn.disabled=true;
-      try{await send(sendingConvId,body);if(loCurrentConvId===sendingConvId){if(el.value.trim()===body)el.value='';await window.loadLoMessages(sendingConvId);}}catch(e){showError(e);}finally{btn.disabled=false;}
+      try{await send(sendingConvId,body);if(loCurrentConvId===sendingConvId){if(el.value.trim()===body){el.value='';ownerDrafts.set(sendingConvId,'');}await window.loadLoMessages(sendingConvId);}}catch(e){showError(e);}finally{btn.disabled=false;}
     };
     window.openLoConversationFromBooking=async function(bookingId,listingId,guestName,guestEmail){
       try{const id=await openBooking(bookingId);await window.openLoConversation(id,'Conversation with '+guestName,guestEmail);document.getElementById('messages-section').scrollIntoView({behavior:'smooth'});}catch(e){showError(e);}
