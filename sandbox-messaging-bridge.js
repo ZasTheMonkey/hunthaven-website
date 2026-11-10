@@ -28,8 +28,8 @@
     const field=owner?'landowner_id':'hunter_id';
     return api('booking_conversations?'+field+'=eq.'+encodeURIComponent(data.session.user.id)+'&order=created_at.desc&select=*');
   };
-  const bookingInfo=async id=>{const rows=await api('bookings?id=eq.'+encodeURIComponent(id)+'&select=guest_name,listing_id,listings(first_name,last_name,county,state)');return rows?.[0]||null;};
-  const threadTitle=async t=>{try{const b=await bookingInfo(t.booking_id);if(!b)return 'Booking conversation';const l=b.listings||{};const name=owner?(b.guest_name||'Hunter'):([l.first_name,l.last_name].filter(Boolean).join(' ')||'Landowner');return name+' · '+(l.county||'Property')+(l.state?', '+l.state:'');}catch(e){return 'Booking conversation';}};
+  const conversationLabels=async()=>{const rows=await api('rpc/leasewild_sandbox_conversation_labels',{method:'POST',body:'{}'});return new Map((rows||[]).map(x=>[x.conversation_id,x]));};
+  const threadTitle=(t,labels)=>{const x=labels.get(t.id);return x?(x.participant_name+(x.property_location?' · '+x.property_location:'')):'Conversation';};
   const messages=id=>api('booking_messages?conversation_id=eq.'+encodeURIComponent(id)+'&order=created_at.asc&select=*');
   const send=async(id,body)=>{
     const {data}=await sb.auth.getSession();
@@ -71,7 +71,8 @@ const style=document.createElement('style');
       const el=document.getElementById('lo-threads-container');
       try{
         const rows=await list();
-        const titles=await Promise.all(rows.map(threadTitle));
+        const labels=await conversationLabels();
+        const titles=rows.map(t=>threadTitle(t,labels));
         const previews=await Promise.all(rows.map(threadPreview));
         el.classList.add('lw-inbox');
         el.innerHTML=rows.length?rows.map((t,i)=>threadCard(t,titles[i],previews[i])).join(''):'<div class="lw-chat-empty">No conversations yet. Open a booking to message your guest.</div>';
@@ -111,7 +112,8 @@ const style=document.createElement('style');
       const el=document.getElementById('threads-container');
       try{
         const rows=await list();
-        const titles=await Promise.all(rows.map(threadTitle));
+        const labels=await conversationLabels();
+        const titles=rows.map(t=>threadTitle(t,labels));
         const previews=await Promise.all(rows.map(threadPreview));
         el.classList.add('lw-inbox');
         el.innerHTML=rows.length?rows.map((t,i)=>threadCard(t,titles[i],previews[i])).join(''):'<div class="lw-chat-empty">No conversations yet. Open a booking to message the landowner.</div>';
