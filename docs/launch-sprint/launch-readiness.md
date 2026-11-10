@@ -302,3 +302,43 @@ Production, `main`, live Stripe, production Supabase, real users and personal se
 | Legal approval | BLOCKED | Required handoff and Florida attorney review absent |
 
 Production, `main`, live Stripe, production Supabase, real users and personal sessions were untouched.
+
+
+## Hourly update — November 10, 2026 at 3:34 AM ET
+
+**Decision: NO-GO.** This run resolved the public listings page's disabled-signup conversion dead end with working navigation. It did not implement access zones, hunter reviews, database policies or authenticated flows.
+
+### Completed and verified
+
+- **Implementation:** `cd7c4393fa22231c7bfcb07e12a43d5abb054a14` — `listings.html`.
+- Replaced desktop and mobile “Property updates” dead controls with working “Browse properties” anchors.
+- Replaced the lower disabled “Get property updates” action with a working “List your property” path while retaining the primary browse action.
+- Removed the unused updates modal, form, dialog CSS and submission JavaScript. No personal-data collection path remains on this page.
+- Preserved dynamic inventory loading, filters, listing cards, property navigation, auth links, booking code and payment code.
+- Exact-SHA verification: all three executable inline scripts compiled; no waitlist functions/IDs, dead signup copy, forms or dialogs remain; required browse and landowner links are present.
+- Cloudflare deployment `dcf8b405-2a63-45da-aa67-eb9accd819d5` reports `success` for exact commit `cd7c4393`.
+- Browser smoke on the immutable deployment at 1363px: three database-backed cards rendered; three browse links and two landowner paths were present; zero forms, dialogs or dead signup controls; no horizontal overflow.
+
+### Five-bot evidence
+
+- **Designer/Developer:** `cd7c4393` implemented Growth's recommended working-action alternative and independently verified deployment/browser output.
+- **Hunter QA:** latest recorded code remains `1a145489`, report `30664771`; authenticated E2E remains blocked.
+- **Landowner QA:** `d184658a` adds screen-reader alert semantics to owner messaging failures; report `9ad12dd2`; source/deployment verified, runtime screen-reader and authenticated behavior not tested.
+- **Growth Research:** `03378002` identified the disabled-signup conversion tradeoff and recommended replacing the prominent CTA with a working browsing path; this run implemented that recommendation.
+- **Legal Risk Review:** no substantive result; `docs/legal/website-compliance-handoff.md` remains absent.
+
+### Test and blocker status
+
+| Area | Status | Evidence / blocker |
+|---|---|---|
+| Listings scripts and removed signup path | PASS | Exact-SHA compilation and static assertions |
+| Exact code deployment | PASS | `dcf8b405...` / `cd7c4393` |
+| Public listings browser smoke | PASS at 1363px | 3 cards, working actions, no dead controls/overflow |
+| Signup data collection on listings | REMOVED | No form, dialog, endpoint or submission code remains |
+| Full responsive matrix | NOT TESTED this run | 320–1920px, 200% zoom, touch/orientation open |
+| Authenticated hunter/owner E2E | BLOCKED | No securely provisioned QA sessions |
+| Access zones / hunter reviews | NOT IMPLEMENTED | RLS, disclosure, eligibility, uniqueness and moderation unresolved |
+| Stripe TEST lifecycle | NOT RETESTED | User-reported payment success acknowledged; payment code untouched |
+| Legal approval | BLOCKED | Legal handoff and Florida attorney review absent |
+
+Production, `main`, live Stripe, production Supabase, real users and personal sessions were untouched.
