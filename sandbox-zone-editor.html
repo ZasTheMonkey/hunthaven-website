@@ -6,10 +6,10 @@
 </style></head><body>
 <header><a href="landowner-portal.html">← Back to landowner portal</a><h1>Property access map</h1><div>Sandbox · Private to the listing owner</div></header>
 <main><section aria-label="Zone editor"><p id="status" role="status" aria-live="polite">Checking your session…</p>
-<label for="zone-type">Zone type</label><select id="zone-type"><option value="hunting_area">Hunting boundary (polygon)</option><option value="entry">Entry point</option><option value="parking">Parking point</option></select>
+<label for="zone-type">Zone type</label><select id="zone-type"><option value="hunting_area">Hunting boundary (polygon)</option><option value="entry">Entry point</option><option value="parking">Parking point</option><option value="trail">Trail (draw route — preview only)</option></select>
 <label for="zone-label">Label</label><input id="zone-label" maxlength="80" placeholder="e.g. North hunting area">
 <label for="zone-notes">Instructions (optional)</label><input id="zone-notes" maxlength="1000" placeholder="e.g. Enter from county road">
-<p>For a hunting area, tap Draw boundary and trace the outline with your finger or mouse—no coordinates required. You can optionally tap corners or enter coordinates below. For entry or parking, tap the map once.</p>
+<p><strong>Map colors:</strong> <span style="color:#b46b20">● Hunting boundary (amber)</span> · <span style="color:#2563eb">● Parking (blue)</span> · <span style="color:#15803d">● Entry (green)</span> · <span style="color:#8b5cf6">━ Trail (purple)</span></p><p>For a hunting area, tap Draw boundary and trace the outline with your finger or mouse—no coordinates required. You can optionally tap corners or enter coordinates below. For entry or parking, tap the map once.</p>
 <details><summary>Optional: enter exact coordinates</summary><label for="latitude">Latitude (-90 to 90)</label><input id="latitude" type="number" min="-90" max="90" step="any" inputmode="decimal">
 <label for="longitude">Longitude (-180 to 180)</label><input id="longitude" type="number" min="-180" max="180" step="any" inputmode="decimal">
 <button type="button" id="add-point">Add coordinate</button></details><button type="button" id="undo" class="secondary">Undo last point</button><button type="button" id="clear" class="secondary">Clear draft</button>
@@ -33,13 +33,13 @@ function message(s){status.textContent=s;}
 function valid(p){return Number.isFinite(p[0])&&Number.isFinite(p[1])&&Math.abs(p[0])<=90&&Math.abs(p[1])<=180;}
 function renderPending(){pendingLayers.clearLayers();pendingZones.forEach(z=>{if(z.points.length>=3)L.polygon(z.points,{color:'#477a54',weight:3,fillOpacity:.13}).addTo(pendingLayers);});document.getElementById('pending-count').textContent=pendingZones.length+' other draft zone(s)';}
 function renderDraft(){
- save.disabled=!owner||!points.length;
+ save.disabled=!owner||!points.length||document.getElementById('zone-type').value==='trail';
  if(draftLayer)map.removeLayer(draftLayer);
- const polygon=document.getElementById('zone-type').value==='hunting_area';
- if(points.length)draftLayer=polygon?L.polyline(points,{color:'#d18a32',weight:4}).addTo(map):L.marker(points[0]).addTo(map);
+ const type=document.getElementById('zone-type').value,polygon=type==='hunting_area',trail=type==='trail';
+ if(points.length)draftLayer=polygon?L.polyline(points,{color:'#b46b20',weight:4}).addTo(map):trail?L.polyline(points,{color:'#8b5cf6',weight:5}).addTo(map):L.circleMarker(points[0],{radius:10,color:'#fff',weight:3,fillColor:type==='parking'?'#2563eb':'#15803d',fillOpacity:1}).addTo(map);
  document.getElementById('draft-count').textContent=points.length+' draft point(s)'+(polygon?' — minimum 3':' — exactly 1');
 }
-function add(p){if(drawing)return;const polygon=document.getElementById('zone-type').value==='hunting_area';if(!valid(p)){message('Coordinates out of range.');return;}if(!polygon)points=[p];else if(points.length<100)points.push(p);else{message('Maximum 100 boundary corners.');return;}renderDraft();message(polygon?'Boundary corner added ('+points.length+' of at least 3).':'Location point added.');}
+function add(p){if(drawing)return;const type=document.getElementById('zone-type').value,polygon=type==='hunting_area'||type==='trail';if(!valid(p)){message('Coordinates out of range.');return;}if(!polygon)points=[p];else if(points.length<100)points.push(p);else{message('Maximum 100 boundary corners.');return;}renderDraft();message(polygon?'Boundary corner added ('+points.length+' of at least 3).':'Location point added.');}
 function setDrawing(on){
  drawing=on;tracing=false;tracePointer=null;mapEl.classList.toggle('drawing',on);drawButton.setAttribute('aria-pressed',String(on));
  drawButton.textContent=on?'Finish drawing mode':'Draw boundary';drawHelp.textContent=on?'Press and drag on the map to trace the boundary. Release to finish the outline.':'Drawing off. Add one starting point, then select Draw boundary.';
@@ -47,7 +47,7 @@ function setDrawing(on){
 }
 document.getElementById('keep-zone').onclick=()=>{if(points.length<3||document.getElementById('zone-type').value!=='hunting_area'){message('Draw a complete hunting boundary before keeping it.');return;}if(pendingZones.length>=20){message('Save or clear existing draft zones before adding more.');return;}pendingZones.push({points:points.map(p=>p.slice())});points=[];setDrawing(false);renderPending();renderDraft();message('Boundary kept on the map. You can draw another. Other drafts are not saved to your property yet.');};
 drawButton.onclick=()=>{
- if(document.getElementById('zone-type').value!=='hunting_area'){message('Drawing is only for hunting boundaries.');return;}
+ if(!['hunting_area','trail'].includes(document.getElementById('zone-type').value)){message('Drawing is available for hunting boundaries and trails.');return;}
  if(!drawing&&points.length>=3){if(pendingZones.length>=20){message('Save or clear some draft zones before drawing another.');return;}pendingZones.push({points:points.map(p=>p.slice())});points=[];renderPending();renderDraft();}setDrawing(!drawing);if(drawing)message('Trace the next property boundary on the map with one continuous stroke. Previous drafts remain visible.');
 };
 function tracePosition(e){const bounds=mapEl.getBoundingClientRect();return map.containerPointToLatLng([e.clientX-bounds.left,e.clientY-bounds.top]);}
@@ -74,7 +74,7 @@ map.on('click',e=>add([e.latlng.lat,e.latlng.lng]));
 document.getElementById('add-point').onclick=()=>{const lat=document.getElementById('latitude').value.trim(),lng=document.getElementById('longitude').value.trim();if(!lat||!lng){message('Enter both latitude and longitude.');return;}add([Number(lat),Number(lng)]);};
 document.getElementById('undo').onclick=()=>{points.pop();renderDraft();};
 document.getElementById('clear').onclick=()=>{setDrawing(false);points=[];pendingZones=[];renderPending();renderDraft();message('All unsaved draft zones cleared.');};
-document.getElementById('zone-type').onchange=()=>{setDrawing(false);points=[];drawButton.disabled=document.getElementById('zone-type').value!=='hunting_area';renderDraft();};
+document.getElementById('zone-type').onchange=()=>{setDrawing(false);points=[];drawButton.disabled=!['hunting_area','trail'].includes(document.getElementById('zone-type').value);renderDraft();};
 function geometry(){const type=document.getElementById('zone-type').value;if(type!=='hunting_area')return {type:'Point',coordinates:[points[0][1],points[0][0]]};const ring=points.map(p=>[p[1],p[0]]);ring.push(ring[0]);return {type:'Polygon',coordinates:[ring]};}
 async function refresh(){
  const {data,error}=await client.from('listing_access_zones').select('id,zone_type,label,geometry,instructions').eq('listing_id',id).order('created_at');
@@ -85,13 +85,13 @@ async function refresh(){
   title.textContent=z.label+' ('+z.zone_type.replace('_',' ')+') ';del.textContent='Delete';del.className='secondary';del.setAttribute('aria-label','Delete '+z.label);
   del.onclick=async()=>{if(!confirm('Delete this zone?'))return;del.disabled=true;const {error:e}=await client.from('listing_access_zones').delete().eq('id',z.id).eq('listing_id',id);if(e){message(e.message);del.disabled=false;}else{message('Zone deleted.');refresh();}};
   li.append(title,del);list.append(li);
-  try{const layer=L.geoJSON(z.geometry,{style:{color:'#2d5a27',weight:3},pointToLayer:(feature,latlng)=>L.marker(latlng)}).addTo(savedLayers);layer.bindPopup(document.createTextNode(z.label));}catch(e){message('One saved zone could not be rendered.');}
+  try{const colors={hunting_area:'#b46b20',parking:'#2563eb',entry:'#15803d',trail:'#8b5cf6'};const color=colors[z.zone_type]||'#2d5a27';const layer=L.geoJSON(z.geometry,{style:{color,weight:4},pointToLayer:(feature,latlng)=>L.circleMarker(latlng,{radius:9,color:'#fff',weight:3,fillColor:color,fillOpacity:1})}).addTo(savedLayers);layer.bindPopup(document.createTextNode(z.label));}catch(e){message('One saved zone could not be rendered.');}
  });
  if(savedLayers.getLayers().length){try{map.fitBounds(savedLayers.getBounds().pad(.2),{maxZoom:15});}catch(e){}}
 }
 save.onclick=async()=>{
  const polygon=document.getElementById('zone-type').value==='hunting_area';
- if(!owner||!id){message('Draft is ready, but saving requires signing in as the owner of a selected listing.');return;}
+ if(document.getElementById('zone-type').value==='trail'){message('Trail preview is available, but saving trails requires a reviewed sandbox database update. No trail was saved.');return;}if(!owner||!id){message('Draft is ready, but saving requires signing in as the owner of a selected listing.');return;}
  if((polygon&&points.length<3)||(!polygon&&points.length!==1)){message('Add enough points before saving.');return;}if(polygon&&Math.abs(points.reduce((sum,p,i)=>{const q=points[(i+1)%points.length];return sum+p[1]*q[0]-q[1]*p[0];},0))<1e-12){message('Boundary must enclose an area.');return;}
  const label=document.getElementById('zone-label').value.trim();if(!label){message('Enter a zone label.');return;}
  save.disabled=true;message('Saving zone…');
