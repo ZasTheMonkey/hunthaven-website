@@ -179,3 +179,47 @@ No production launch is authorized or implied.
 3. Provision secure sandbox QA sessions for authenticated cross-role E2E.
 4. Implement a response-verifiable, privacy-reviewed lead-capture endpoint before claiming successful signup.
 5. Complete the requested responsive matrix and regression coverage.
+
+
+## 2026-11-10 12:42 AM ET — landowner earnings and trust-claim correction
+
+**Decision: NO-GO.** Final corrective code commit `db3d160a70b61d7b4a24c679d2cb9574068c35a5` updates only `list-your-land.html` on sandbox staging.
+
+### Implemented
+
+- Replaced three public 85% share claims and stale July 2026 / instant-approval language with the current 80/20 marketplace description.
+- Reconciled the interactive earnings calculator: the displayed platform share and calculation now use 20% of booking-rate subtotal, the owner estimate uses 80%, and cleaning fees remain separately displayed.
+- Replaced unsupported “without risk,” $1M coverage, universal ID verification, permanent waiver storage, fixed deposit timing, and automatic security-deposit claims with qualified pre-publish guidance.
+- Replaced broken waitlist-style landowner navigation with direct Sign in and Browse properties links.
+- Preserved the authenticated redirect to `landowner-portal?next=list-your-land.html`, listing form, Supabase insert path, photo/video handlers, and payment code.
+
+### Validation and recovery evidence
+
+| Check | Result | Evidence |
+|---|---|---|
+| Static prohibited-claim scan | PASS | Zero matches for 85%, July 2026, instant approval, $1M coverage, “without the risk,” universal ID verification, fixed 3–5 day deposit, permanent waiver storage, or old 15% calculator comment. |
+| Inline JavaScript syntax | PASS | All three inline executable scripts compiled with `new Function`; script count matches the clean pre-change source. |
+| Calculator fixtures | PASS | $100 × 8 days → $160 platform share / $640 owner estimate; $200/person × 4 × 10 days + $50 cleaning/day → $1,600 share / $6,900 owner estimate. |
+| Navigation and auth gate | PASS | Two Browse properties links and direct Landowner Sign in link present; exact deployment redirected unauthenticated request to `landowner-portal?next=list-your-land.html`. |
+| Browser smoke | PASS at 1363px for public auth gate | Correct portal title/sign-in UI rendered; `next` target preserved; horizontal overflow false. Authenticated listing form was not rendered. |
+| Exact Cloudflare deployment | PASS | Deployment `ffeb7ae6-895a-4174-be87-23ab17180e7c` completed successfully for exact final SHA `db3d160a`. |
+| Authenticated form / save | BLOCKED | No secure dedicated QA session; no synthetic listing or database write performed. |
+| Responsive matrix | NOT TESTED except 1363px auth gate | 320/375/390/430/768/1024/1280/1440/1920, zoom, touch, orientation and authenticated form layout remain outstanding. |
+
+A first implementation commit `c60dfa0e` was rejected by validation after native replacement-token expansion duplicated part of a script. It was immediately superseded by `db3d160a`, rebuilt from clean branch SHA `b737f9cb`; only the corrected commit is counted as passing.
+
+### Five-bot status
+
+- **Designer/Developer:** final corrected landowner public-copy/calculator commit `db3d160a` is source-tested and deployed.
+- **Hunter QA:** `108f7e0a` prevents stale landowner chat errors from overwriting the newly selected conversation; source and deployment verified, authenticated/browser E2E blocked.
+- **Landowner QA:** `58110bab` prevents stale owner inbox refresh responses; source and deployment verified, authenticated/responsive E2E blocked.
+- **Growth Research:** latest recorded work remains `2419661c`; no newer application or browser evidence.
+- **Legal Risk Review:** completed record still has no substantive result; required legal handoff and blocker report remain absent.
+
+### Remaining release gates
+
+1. Access-zone drawing and hunter-review schema/UI are not implemented; owner authorization, booking-based disclosure, eligibility, uniqueness and moderation remain unverified.
+2. Secure QA sessions are required for authenticated landowner form, cross-owner RLS and cross-role flows.
+3. The full responsive matrix and real-device interaction remain untested.
+4. User-reported payment success is acknowledged; the independent Stripe TEST refund/webhook/payout lifecycle was not retested and payment code was untouched.
+5. Florida attorney review and a privacy-reviewed, response-verifiable lead endpoint remain required.
