@@ -745,31 +745,21 @@
   };
   const LISTINGS = []; // populated from Supabase
 
-  function sbListingToMapItem(l, idx) {
-    var type = (typeof getType === 'function') ? getType(l) : 'hunting';
-    var center = STATE_CENTERS[l.state] || {lat:32,lng:-90};
-    // Scatter pins slightly so they don't stack
-    var scatter = 0.4;
-    var lat = center.lat + (Math.random()-0.5)*scatter;
-    var lng = center.lng + (Math.random()-0.5)*scatter*2;
+  // Public map shows state-level discovery summaries, never invented property coordinates.
+  // Individual property locations and private access zones belong in authorized booking views.
+  function sbListingToMapItem(l) {
+    var state = String(l.state || 'FL').toUpperCase().trim();
+    var center = STATE_CENTERS[state];
+    if (!center) return null;
     return {
-      id: idx,
-      type: type,
-      lat: lat,
-      lng: lng,
-      title: (l.county ? l.county + ' Private Land' : 'Private Land'),
-      acres: parseAcres(l.acreage),
-      price: parseInt(l.price_per_day) || 0,
-      unit: 'day',
-      species: l.activities || [],
-      state: l.state || '',
-      city: l.county || ''
+      type: (typeof getType === 'function') ? getType(l) : 'hunting',
+      lat: center.lat, lng: center.lng, state: state
     };
   }
 
   function updateMapWithRealListings(listings) {
     if (!listings || !listings.length) return;
-    var mapped = listings.map(sbListingToMapItem);
+    var mapped = listings.map(sbListingToMapItem).filter(Boolean);
     LISTINGS.length = 0;
     mapped.forEach(function(m){ LISTINGS.push(m); });
     if (huntMap) plotListings(LISTINGS);
@@ -810,19 +800,29 @@
     allMarkers.forEach(m => huntMap.removeLayer(m));
     allMarkers = [];
     const filtered = list.filter(l => currentFilter === 'all' || l.type === currentFilter);
+    const byState = {};
     filtered.forEach(l => {
-      const m = L.marker([l.lat, l.lng], { icon: makeIcon(l.type) })
-        .addTo(huntMap).bindPopup(makePopup(l), { maxWidth: 260 });
+      if (!byState[l.state]) byState[l.state] = {lat:l.lat, lng:l.lng, count:0};
+      byState[l.state].count++;
+    });
+    Object.entries(byState).forEach(([state, summary]) => {
+      const m = L.circleMarker([summary.lat, summary.lng], {
+        radius: 13, color: '#203e2a', weight: 2, fillColor: '#2d5a27', fillOpacity: 0.85
+      }).addTo(huntMap);
+      const popup = document.createElement('div');
+      const heading = document.createElement('strong');
+      heading.textContent = state + ' · ' + summary.count + ' listing' + (summary.count === 1 ? '' : 's');
+      const detail = document.createElement('p');
+      detail.textContent = 'State-level discovery summary only. This marker does not indicate a property location.';
+      popup.append(heading, detail);
+      m.bindPopup(popup, {maxWidth:260});
       allMarkers.push(m);
     });
     const label = document.getElementById('map-results-label');
-    if (label) label.textContent = filtered.length > 0
-      ? `Showing ${filtered.length} listing${filtered.length !== 1 ? 's' : ''} · Map pins show approximate state-level areas, not property locations`
-      : 'No listings found in this area yet — check back soon.';
-    if (filtered.length > 0) {
-      const group = L.featureGroup(allMarkers);
-      huntMap.fitBounds(group.getBounds().pad(0.2));
-    }
+    if (label) label.textContent = filtered.length
+      ? 'Showing ' + filtered.length + ' listing' + (filtered.length === 1 ? '' : 's') + ' across ' + Object.keys(byState).length + ' state(s). Markers represent state summaries, not property locations.'
+      : 'No listings match this map filter.';
+    if (allMarkers.length) huntMap.fitBounds(L.featureGroup(allMarkers).getBounds().pad(0.2), {maxZoom:7});
   }
 
   function setMapFilter(f) {
