@@ -420,3 +420,62 @@ Production, `main`, live Stripe, production Supabase, real users and personal se
 - **Legal Risk Review:** no substantive new recorded result; legal handoff remains absent.
 
 Access-zone and hunter-review work remains at review-only schema design. The migration was not applied because the connected database projects do not unambiguously identify the LeaseWild application sandbox and repository schema drift remains unresolved.
+
+## 2026-11-10 06:25 ET — Pre-7AM morning evidence report
+
+**Decision: NO-GO.** The public listings experience is cleaner and its controls now reflect real data behavior, but the requested map editor and hunter-review system are not implemented end-to-end. Database migration, authenticated authorization, moderation runtime, broad responsive testing, and legal approval remain blocked.
+
+### Changes since the prior report
+
+- **`2756c02a5dd93a9802e8068fb6deca4647412473` — listings discovery controls**
+  - Removed the “Last Minute” filter because the implementation hard-coded every listing as not last-minute.
+  - Removed the duplicate, marketing-heavy “Hot Spots” control.
+  - Replaced emoji-heavy labels with restrained, data-backed labels: **High deer activity** and **Hogs active**.
+  - Corrected filter logic so hunting/fishing, deer activity, and hog activity evaluate the corresponding listing fields.
+  - Added `aria-pressed` state to type and size controls and an accessible label to the species selector.
+- **`a2abe68cd8d3e855d7e7c17e2d5b9d687c01342a` — schema-draft coordination**
+  - Corrected Landowner QA's catalog-view finding: the `security_invoker` view now documents explicit safe-column grants after revoking broad table reads.
+  - Sensitive fields are not granted.
+  - The draft explicitly blocks restoring broad listing SELECT and requires a separate owner-private access design.
+  - Preserved Landowner QA's moderation fix requiring new owner reviews to start `pending`.
+  - File remains fail-closed, review-only, and unapplied.
+
+### Verification evidence
+
+| Area | Result | Evidence |
+|---|---|---|
+| Exact code source | PASS | Blob `670a30f40c0fcb3a5d9c33fc1e39029185996973` re-fetched |
+| JavaScript/static assertions | PASS | 3 executable scripts compiled; 9 pressed-state controls; dead Last Minute/Hot Spots absent; special filters reference real fields |
+| Exact code deployment | PASS | Cloudflare `6927d93d-65e5-4a4e-9d20-7eccf683dbdc` succeeded for `2756c02a...` |
+| Browser at 1363px | PASS | All 5 type/activity controls executed; selected state stayed exclusive; no horizontal overflow |
+| All/Hunting | PASS | 3 cards and “3 properties are available” |
+| Fishing / High deer activity / Hogs active | PASS — zero-state behavior | Current inventory returned 0; clear no-match status and empty state rendered; this is not evidence that such inventory exists |
+| Schema draft invariants | PASS — static only | Fail-closed guard, rollback, `security_invoker`, safe-column grants, no sensitive-field grant, pending review status |
+| Database migration/RLS runtime | BLOCKED / NOT APPLIED | LeaseWild application sandbox project still not unambiguously identified; schema drift unresolved |
+| Map create/edit/save/reload and cross-owner denial | BLOCKED / NOT IMPLEMENTED | No applied schema or secure QA sessions |
+| Hunter reviews submission/moderation/reporting | BLOCKED / NOT IMPLEMENTED | Draft only; no runtime UI or database policies applied |
+| Responsive matrix / real screen reader | NOT TESTED | Browser available only at 1363px; no real device, touch, orientation, 200% zoom, or assistive technology |
+| Booking/messaging/authenticated regression | BLOCKED | Secure synthetic sessions unavailable |
+| Payments | USER-REPORTED PASS; UNCHANGED | Payment code untouched; broader Stripe TEST lifecycle not independently retested |
+
+### Five-bot morning snapshot
+
+- **Designer/Developer:** deployed and browser-tested real-data filter cleanup at `2756c02a`; reconciled the catalog-view draft issue at `a2abe68c`.
+- **Hunter QA:** latest `beec180fc5651e8f4c070821dfa0e7756e2e888e` isolates hunter drafts per conversation; source and deployment verified, authenticated behavior blocked.
+- **Landowner QA:** `fe4fe19558ee68a03235f1d1d22aa6e423cbd2f0` closed a draft moderation bypass by requiring `pending`; report `b6db0a126014839eca382d16b9a9c619dea8478a`. It also identified the catalog-grant issue corrected by Designer this run.
+- **Growth Research:** `81e7e415d6abbb1d90c1f4cfee301dc5afabb833` prioritized accessible discovery feedback and server-side catalog authorization. Discovery feedback is implemented; server-side enforcement remains draft-only.
+- **Legal Risk Review:** no substantive new recorded result. Required legal handoff and Florida attorney review remain absent.
+
+### What is visibly improved overnight
+
+The sandbox homepage/listings work now relies on real inventory, avoids fabricated testimonials and dead signup claims, has cleaner functional CTAs, safer public listing queries, defensive cards, accessible result feedback, and fewer decorative/dead filters. Messaging draft isolation also improved on both hunter and owner code paths.
+
+### Morning priorities
+
+1. Explicitly identify the LeaseWild application sandbox Supabase project and reconcile listings/bookings/status schema.
+2. Review the safe catalog plus owner-private field architecture; only then convert the guarded SQL into a sandbox migration.
+3. Build the owner map editor and completed-booking review UI against applied, tested RLS.
+4. Provision secure synthetic owner/hunter sessions and run negative authorization tests.
+5. Execute the requested 320–1920px, zoom, touch, orientation, and real-device matrix.
+
+Production, `main`, live Stripe, production Supabase, real users, and personal sessions remained untouched.
