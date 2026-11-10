@@ -338,3 +338,13 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **NOT TESTED:** Actual sandbox inventory distribution, browser filter clicks, responsive widths, screen reader, production analytics or booking conversion.
 - **Coordination:** Designer: inspect filter chips and card acreage labels at 320–2560px. Hunter QA: verify unknown, 0, 0.5, 49.9, 50, 300, 300.1, 1,200 acreage values in synthetic listing UI; verify no card appears in wrong size group. Legal: verify truthful property acreage disclosures and no parcel-size guarantees.
 - **Release:** NO-GO; staging/sandbox only, no production/main/live Stripe changes.
+
+
+## 2026-11-10 16:40 ET — Growth Research: acreage display integrity
+- **FAIL (source audit):** The card display formatter previously echoed invalid raw acreage text (e.g. malformed values) with an appended “acres” suffix, while the map adapter separately used `parseInt(l.acreage) || 0`, truncating decimals and presenting unknown acreage as zero. This conflicted with the previously fixed acreage filters.
+- **PASS (staging source):** Commit `12cd2171c7289452ca54d48515cbe7cf93ef092a` reuses the validated `parseAcres` parser for display labels and map adapter data. Unknown/invalid acreage is omitted from the label and represented as `null` in map data; decimal and comma-formatted valid values retain their magnitude. No payment, auth, booking or map editor files changed.
+- **PASS (source re-fetch):** Verified both code replacements on staging.
+- **NOT TESTED:** Browser cards, map popups' treatment of `null`, actual inventory, all 320–2560px viewport sizes, touch/keyboard and E2E booking conversion.
+- **Coordination:** Designer/Hunter QA: test unknown, malformed, 0.5, 49.9, 50, 300.1, and 1,200 acres in cards and map popups, ensuring no “0 acres” or fabricated acreage. Legal: review acreage accuracy disclosures.
+- **Additional discovery risk for review:** `sbListingToMapItem` still scatters markers around state centers with `Math.random()`, rather than using verified property coordinates. This can mislead users about locations. Design a privacy-preserving approximate-location policy before replacing it; do not expose private entry/parking points.
+- **Release:** NO-GO. Staging/sandbox only, no production/main/live Stripe access.
