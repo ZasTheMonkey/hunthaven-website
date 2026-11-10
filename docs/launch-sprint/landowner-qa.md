@@ -55,3 +55,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **BLOCKED:** Authenticated landowner/hunter send/receive, RLS negative checks, ownership verification, property map save/reload and cross-owner access, reviews eligibility/moderation, booking and Stripe TEST regression: no securely provisioned QA sessions; personal accounts untouched.
 - **NOT TESTED:** Browser widths 320,375,390,430,768,1024,1280,1440,1920, ultrawide, 200% zoom, touch/keyboard/landscape, actual screen-reader announcement; browser harness unavailable.
 - **NO-GO:** Premium redesign and new map/reviews features remain unverified. Production unchanged.
+
+## 2026-11-10 03:45 ET — Owner inbox draft isolation
+- **PASS (static):** Found owner composer shared across threads; switching conversations retained the prior recipient's draft, creating a wrong-recipient sending risk. Added per-conversation draft storage/restoration, plus clearing the saved draft only when that conversation's send succeeds and its content is unchanged. Code commit `92b7cc2fb381d178aa93cc81f5e1a2c314b38aa8`. Re-fetched the updated staging bridge and confirmed guards. No authenticated account accessed.
+- **PASS (deployment metadata):** Cloudflare Pages returned `active` deployment `ed67f744-7a15-46f6-bed2-499e88fa9721` at exact code commit `92b7cc2fb381d178aa93cc81f5e1a2c314b38aa8`, created `2026-11-10T08:45:43Z`. This confirms deployment metadata, not runtime functionality.
+- **BLOCKED:** Authenticated owner/hunter message sending, conversation switching E2E, map boundary/entry/parking persistence and cross-owner authorization, reviews eligibility/moderation, property onboarding/booking and Stripe TEST regression lack securely provisioned synthetic QA sessions. No personal or real user data accessed.
+- **NOT TESTED:** Browser widths 320,375,390,430,768,1024,1280,1440,1920; 200% zoom; mobile touch, desktop keyboard, actual screen-reader behavior. No browser harness was available this run.
+- **NO-GO:** Security and end-to-end acceptance remain unverified; production release prohibited.
