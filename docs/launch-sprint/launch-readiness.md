@@ -262,3 +262,43 @@ A first implementation commit `c60dfa0e` was rejected by validation after native
 | Legal approval | BLOCKED | Legal handoff absent; Florida attorney review outstanding |
 
 Production, `main`, live Stripe, production Supabase, real users and personal sessions were untouched.
+
+
+## Hourly update — November 10, 2026 at 2:15 AM ET
+
+**Decision: NO-GO.** This run completed a small public listings-card P1 improvement; access zones, hunter reviews, authenticated verification, full responsive coverage and legal approval remain open.
+
+### Completed and independently verified
+
+- **Implementation:** `1d83886a69ba6f9d68edb3858dfaca350c621836` — `listings.html`.
+- Removed the dynamically rendered heart control because it had no persistence or reliable click handler and could misleadingly open the property instead of saving it.
+- Fixed duplicate acreage output such as “500 – 1,000 acres ac,” singular guest labels, and empty location rows.
+- Converted cards to keyboard-focusable link semantics with Enter/Space activation while preserving pointer navigation.
+- Escaped owner-provided activity, ID, date and metadata values; rejected non-HTTPS image URLs; added lazy image decoding/loading.
+- Exact-SHA tests: all three executable inline scripts compiled. Nine deterministic card fixtures/assertions passed for unit formatting, unsafe text, unsafe image schemes, attribute escaping, keyboard semantics, empty metadata and removed save UI.
+- Cloudflare deployment `0a1e1532-3617-42c3-ae30-814a7a6dcead` reports `success` for exact code commit `1d83886a`.
+- Browser smoke on the immutable deployment at 1363px: three database-backed cards rendered; keyboard card semantics were present; no save buttons, duplicate acreage suffixes or horizontal overflow were found. Visible first card now reads “500 – 1,000 acres” and “Up to 1 guest.”
+
+### Five-bot evidence
+
+- **Designer/Developer:** `1d83886a` completed the listings-card quality/security/accessibility fix and independently verified the exact deployment.
+- **Hunter QA:** `1a145489` isolates send completion from conversation switching; report `30664771`; source and deployment evidence present, authenticated browser E2E blocked.
+- **Landowner QA:** latest recorded code remains `f2a77360` with report `d4339932`; authenticated and responsive behavior remains unverified.
+- **Growth Research:** `03378002` reconciled the resolved signup P1 and documented the remaining disabled-signup conversion tradeoff; it made no application change.
+- **Legal Risk Review:** no substantive latest result; `docs/legal/website-compliance-handoff.md` remains absent.
+
+### Current test matrix
+
+| Area | Status | Evidence / blocker |
+|---|---|---|
+| Listing-card compilation and deterministic rendering | PASS | Exact SHA `1d83886a`, 3 scripts + 9 assertions |
+| Immutable Cloudflare deployment | PASS | `0a1e1532...` exact commit |
+| Public browser render | PASS at 1363px | Three cards; no overflow; updated text and semantics observed |
+| 320–1920px, 200% zoom, touch, orientation | NOT TESTED this run | Browser viewport fixed at 1363px |
+| Authenticated hunter/owner journeys | BLOCKED | No securely provisioned QA sessions |
+| Access zones and hunter reviews | NOT IMPLEMENTED | Schema/RLS/privacy/eligibility/moderation unresolved |
+| Updates subscription | INTENTIONALLY UNAVAILABLE | No vetted response-verifiable endpoint; fail-closed state retained |
+| Stripe TEST lifecycle | NOT RETESTED | User-reported payment success acknowledged; payment code untouched |
+| Legal approval | BLOCKED | Required handoff and Florida attorney review absent |
+
+Production, `main`, live Stripe, production Supabase, real users and personal sessions were untouched.
