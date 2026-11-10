@@ -178,3 +178,14 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 **Evidence:** exact deployment `b5faa2ee-12fc-4c4d-b505-0d53bced8ac4` succeeded. Browser smoke at 1363px exposed “3 properties are available,” then “1 property is available” after filtering, with no horizontal overflow. Source/static checks passed. A real screen reader, network-failure retry, 200% zoom, touch, and the full responsive matrix were not tested.
 
 **Compliance boundary:** this accessibility improvement does not resolve the separate direct Data API exposure risk, access-zone privacy/authorization, hunter-review moderation and appeal obligations, missing legal handoff, or attorney approval. The property-zone/review schema remains a fail-closed design draft and was not applied. Legal release recommendation remains **NO-GO**.
+
+## 2026-11-10 06:25 ET — Morning security coordination
+
+- Landowner QA correctly identified that allowing owner inserts with `moderation_status='published'` would bypass moderation. Draft commit `fe4fe19558ee68a03235f1d1d22aa6e423cbd2f0` now requires `pending`.
+- Landowner QA also identified that a `security_invoker` public view would fail if its caller lost all underlying listing-table privileges.
+- Designer commit `a2abe68cd8d3e855d7e7c17e2d5b9d687c01342a` corrects the review-only design by revoking broad reads and granting only the catalog's presentation columns. Street address, parcel boundary, allowed-zone geometry, owner contact fields, and access zones are not granted.
+- The draft now explicitly requires an owner-private table or separately reviewed owner API before existing owner screens can read private listing fields. Broad SELECT must not be restored.
+- These are static design corrections only. No migration, RLS runtime, anonymous negative test, owner-private access test, moderation, appeal, deletion, or cross-owner test occurred.
+- Public listings filter cleanup `2756c02a5dd93a9802e8068fb6deca4647412473` removed unsupported Last Minute/Hot Spots controls and now exposes selection state; this reduces misleading presentation but does not establish inventory accuracy.
+
+**Legal/security recommendation remains NO-GO.** Access-coordinate disclosure, owner-private data architecture, review moderation/appeals/retention, authenticated authorization, missing legal handoff, and Florida attorney approval remain unresolved.
