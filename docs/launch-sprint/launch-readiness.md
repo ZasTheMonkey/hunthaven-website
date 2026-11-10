@@ -106,7 +106,7 @@ No automatic production launch is authorized.
 | Browser console | PASS with environment note | No LeaseWild page-script errors observed. Seven errors came from the remote browser extension URL, not LeaseWild code. |
 | Mobile 375/390px | NOT TESTED | No viewport emulation or real-device evidence in this run. |
 | Authenticated/Stripe TEST E2E | BLOCKED | Secure dedicated QA sessions remain unavailable. |
-| GitHub CI | NOT TESTED | Combined-status/workflow lookup call was malformed; no CI conclusion is claimed. |
+| GitHub CI | NOT TESTED | Exact implementation SHA returned zero combined-status checks and zero associated workflow runs; CI did not run and is not claimed as passed. |
 
 ### Five-bot evidence snapshot
 
@@ -127,5 +127,7 @@ No automatic production launch is authorized.
 5. Two of three rendered listing cards expose insufficient public details (generic title and missing location/attributes). Inventory quality and booking eligibility must be validated without fabricating data.
 6. Homepage still contains unsubstantiated insurance, waiver, acreage, verification, and “without risk” claims identified by Growth; these remain a public P0.
 7. Unread/read state is not implemented in the messaging schema; do not claim unread counts or read receipts.
+
+Coordination commits: launch evidence `da76ad1b3184b6bd52b6ebfb0a59843d4252f0fa`; legal status `fcd7385f65cc4c0c86ca99b0588f9146e9cc980d`.
 
 No production launch is authorized or implied.
