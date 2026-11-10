@@ -245,3 +245,10 @@ GitHub report/source evidence only; sandbox public URL could not be fetched inde
 - **Known limitations:** Unsaved drafts remain in-memory only; browser unload warnings vary on iOS Safari; no automatic restore after reload. Trail saving remains preview-only. Save All applies to hunting polygons, not parking/entry points.
 - **QA next:** Synthetic owner draws two named polygons, Save All, reload and verify two persisted zones; induce second insert failure and verify only unsaved drafts remain; test navigation warning, owner B access denial, Safari touch and 320–2560px layouts.
 - **Release:** NO-GO pending verified E2E. Production/main/live payments untouched.
+
+
+## 2026-11-10 — Trail/entry/parking user-reported defect follow-up
+- **PASS (sandbox DB):** Confirmed Supabase project `kbkdfpmlyggfijkyjxoi` is `leasewild-payment-testing`; applied migration `allow_owner_trail_linestring_zones` to permit `trail` and valid 2–100 point GeoJSON LineString, retaining owner RLS and existing Polygon/Point constraints. Re-read constraints after migration.
+- **PASS (staging source):** Commit `38576dda02b35a10b730318004aacb1f4749628b` enables trail save geometry and minimum-two-point validation; clarifies Entry/Parking tap-to-place point workflow and zone-type guidance. No payment or booking code touched.
+- **NOT TESTED:** Cloudflare deployment success, authenticated save/reload for trail, entry, parking, mobile touch/keyboard, cross-owner denial, and viewport matrix. Source/database constraint checks alone do not establish successful browser save.
+- **QA handoff:** Landowner QA should save and reload a trail, one entry point and one parking point with synthetic owner; Hunter QA should verify no unauthorized access; Designer should verify touch gestures and Cloudflare deployment. No production/main/live resources touched.
