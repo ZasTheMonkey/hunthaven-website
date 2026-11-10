@@ -48,3 +48,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **BLOCKED:** Authenticated cross-role messaging, send/receive/persistence, owner-specific RLS, map zone save/reload and cross-owner isolation, reviews eligibility/moderation, Stripe TEST checkout regression: secure QA sessions unavailable; no personal login or real user data accessed.
 - **NOT TESTED:** Responsive widths 320,375,390,430,768,1024,1280,1440,1920; zoom 200%; actual touch, keyboard and landscape browser checks. No browser harness used in this run.
 - **NO-GO:** New map zones/reviews remain unverified; no automatic production launch. Sandbox only.
+
+## 2026-11-10 03:26 ET — Accessible owner messaging error states
+- **PASS (source):** Inspected current owner and hunter QA notes and the shared messaging bridge. Owner inbox/message load failures previously replaced text without an alert role, leaving screen-reader users without an explicit error announcement. Added `role=alert` and actionable load-failure copy on owner-only error paths, removing the alert role after a successful render. Code commit `d184658ada76cc9aec352d128e39ba1a4863f704`. Re-fetched staging bridge: both error messages and two alert-role assignments present; hunter send function retained. Static source inspection only, not a browser accessibility audit.
+- **PASS (deployment metadata):** Cloudflare Pages API reports `active` deployment `a6c9a1e2-355b-405d-a0fd-ed6040df83b5` at exact code commit `d184658ada76cc9aec352d128e39ba1a4863f704`, created `2026-11-10T08:26:10Z`. No browser execution asserted.
+- **BLOCKED:** Authenticated landowner/hunter send/receive, RLS negative checks, ownership verification, property map save/reload and cross-owner access, reviews eligibility/moderation, booking and Stripe TEST regression: no securely provisioned QA sessions; personal accounts untouched.
+- **NOT TESTED:** Browser widths 320,375,390,430,768,1024,1280,1440,1920, ultrawide, 200% zoom, touch/keyboard/landscape, actual screen-reader announcement; browser harness unavailable.
+- **NO-GO:** Premium redesign and new map/reviews features remain unverified. Production unchanged.
