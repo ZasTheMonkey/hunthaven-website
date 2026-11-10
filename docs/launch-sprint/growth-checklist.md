@@ -102,3 +102,21 @@ Competitor categories to benchmark in next run: LandTrust (experience/package di
 - This run changes only this shared growth document; no production/main, payment, auth, database or public HTML modifications.
 - Source inspection: PASS for observing exact metadata; **NOT TESTED** actual live inventory, mobile layout, signup failure behavior, Stripe TEST, and deployed sandbox HTML. **BLOCKED** authenticated E2E without secure dedicated QA sessions.
 - Independent deployment status for this documentation commit: **NOT VERIFIED**. Release gate remains **NO-GO**, including pending legal review and P0 payment/authorization evidence.
+
+
+## 2026-11-10 01:39 ET — Listings-page lead capture failure and source reconciliation
+
+### Coordination and scope
+- Reviewed current staging commits through `3f5c6330989142bb06879cfea2fb03ba54fbb506`, sprint README, Hunter QA, Landowner QA, and Designer launch-readiness reports before editing. Latest hunter and owner active-chat request-order fixes are owned by QA; no overlap with those code paths.
+- Inspected staging `listings.html` blob `e2ade4b00a7b6c5f47ac68f702791d4132294849` and `index.html` blob `f405fb4257ce568e8c5e884a98cbe295aa9a8c5c`. Source inspection only; no browser execution or real-user data.
+
+### NEW P1 — listings modal silently loses lead-submission errors
+- **FAIL (source):** In `listings.html`, the waitlist modal calls `fetch(WAITLIST_SCRIPT_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' })`, catches errors with only `console.warn`, and **unconditionally** hides `waitlist-form-view` and shows `waitlist-success-view`. Thus even a network exception displays a success screen; opaque `no-cors` responses cannot verify application acceptance. Names, email and optional phone are also placed in URL query strings, creating unnecessary exposure through URL/request logging.
+- **Owner: Designer/Developer** (public listings HTML); coordinate with previously flagged homepage updates-form issue. Recommend one response-verifiable, privacy-reviewed signup endpoint shared by both forms; send PII in a POST body over HTTPS, enforce validation/rate limiting, and show success only after explicit server acknowledgement. If endpoint not available, keep fields visible with accurate 'unable to confirm' status and retry path, not fabricated success. Do not log submitted PII or send it to analytics.
+- **Acceptance checks:** Simulate rejected/timeout/offline endpoint and confirm no success view, no lost entered values, clear error and re-enabled button; simulate acknowledged success and confirm success only then; keyboard focus returns to modal error/status and screen-reader announcement is available; check no email/phone in URL. These are proposed tests, **NOT TESTED**.
+- **Metrics:** consent-aware `updates_submit_attempt`, `updates_submit_confirmed`, `updates_submit_error` by page and device class only, never personal details. Estimate impact: reduces falsely counted leads and user confusion; conversion magnitude unknown without baseline.
+
+### Reconciliation and release status
+- Homepage `index.html` now visibly uses cautious 'Request sent, but signup could not be confirmed' language in two no-cors flows; previous homepage unconditional success finding should be **rechecked against the current DOM behavior**, not asserted unchanged. This does **not** make no-cors signup verifiable or remove the PII-in-URL concern.
+- Listings SEO meta description still promises deer/hog/duck/bass inventory and daily/seasonal booking modes without verified inventory evidence; previously assigned to Designer, unchanged in source. Avoid a conflicting public-page edit.
+- **This run:** documentation-only update, no app code or production change. **PASS** static source identification of listings failure path; **NOT TESTED** deployed HTML, browser/mobile, Stripe TEST, inventory or signup endpoint. **BLOCKED** authenticated E2E pending secure dedicated QA sessions. Independent Cloudflare deployment status **not verified**. Production release gate remains **NO-GO**.
