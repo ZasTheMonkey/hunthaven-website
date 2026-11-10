@@ -28,7 +28,10 @@ const back=document.getElementById('back-to-listing');if(params.get('return')===
 const status=document.getElementById('status'),save=document.getElementById('save'),list=document.getElementById('saved');
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const map=L.map('map').setView([29.02,-80.93],11);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:19}).addTo(map);
+const streetLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:19});
+const satelliteLayer=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Imagery © Esri and its imagery providers',maxZoom:19});
+satelliteLayer.addTo(map);
+L.control.layers({'Satellite':satelliteLayer,'Street map':streetLayer},null,{position:'topright',collapsed:false}).addTo(map);
 let points=[],draftLayer=null,pendingZones=[],pendingLayers=L.featureGroup().addTo(map),savedLayers=L.featureGroup().addTo(map),owner=false,drawing=false,tracing=false,tracePointer=null;const drawButton=document.getElementById('draw-boundary'),drawHelp=document.getElementById('draw-help'),mapEl=document.getElementById('map');
 function message(s){status.textContent=s;}
 function valid(p){return Number.isFinite(p[0])&&Number.isFinite(p[1])&&Math.abs(p[0])<=90&&Math.abs(p[1])<=180;}
