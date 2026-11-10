@@ -169,7 +169,7 @@ const style=document.createElement('style');
       if(!body||!currentConvId||btn.disabled)return;
       const sendingConvId=currentConvId;
       btn.disabled=true;
-      try{await send(sendingConvId,body);if(el.value.trim()===body)el.value='';if(currentConvId===sendingConvId)await window.loadMessages(sendingConvId);}catch(e){showError(e);}finally{btn.disabled=false;}
+      try{await send(sendingConvId,body);if(currentConvId===sendingConvId){if(el.value.trim()===body)el.value='';await window.loadMessages(sendingConvId);}}catch(e){showError(e);}finally{btn.disabled=false;}
     };
   }
 })();
