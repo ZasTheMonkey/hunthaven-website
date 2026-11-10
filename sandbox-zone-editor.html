@@ -135,7 +135,7 @@ function endTrace(e){
  renderDraft();message('Boundary traced with '+points.length+' points. Review the outline before saving.');
 }
 mapEl.addEventListener('pointerup',endTrace);
-mapEl.addEventListener('pointercancel',e=>{if(!tracing||e.pointerId!==tracePointer)return;tracing=false;tracePointer=null;setDrawing(false);points=[];renderDraft();message('Drawing interrupted; incomplete stroke discarded. Other draft zones remain visible.');});
+mapEl.addEventListener('pointercancel',e=>{if(!tracing||e.pointerId!==tracePointer)return;tracing=false;tracePointer=null;setDrawing(false);renderDraft();message('Drawing interrupted; '+points.length+' captured point(s) kept as an unsaved draft. Continue with map taps or Undo, or clear it explicitly.');});
 map.on('click',e=>add([e.latlng.lat,e.latlng.lng]));
 document.getElementById('add-point').onclick=()=>{const lat=document.getElementById('latitude').value.trim(),lng=document.getElementById('longitude').value.trim();if(!lat||!lng){message('Enter both latitude and longitude.');return;}add([Number(lat),Number(lng)]);};
 document.getElementById('undo').onclick=()=>{points.pop();renderDraft();};
