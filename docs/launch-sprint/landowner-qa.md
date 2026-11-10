@@ -179,3 +179,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **FIX (staging):** While updating optional manual coordinate accessibility, a concurrent edit caused duplicate nested `<details>`. Detected immediately on re-read and corrected to one disclosure with keyboard-accessible label. Final corrective commit `bb921785fcdee75e62e64473035bde6b5f42f4af` (initial `d47fa2ad21220984a6f68da3730f5be4ddba741e`). No changes to payment code.
 - **NOT TESTED:** browser save/reload, 320–2560 responsive rendering, keyboard/touch/zoom, verification, bookings, messages, reviews, live Cloudflare deployment. Source review is not E2E verification.
 - **Next:** run HTML validation and authenticated browser E2E against sandbox deployment, then review property-verification flows. Never merge/deploy main or live.
+
+## 2026-11-10 11:14 ET — zone delete correctness
+- **FAIL (source inspection):** Saved-zone Delete previously treated a Supabase DELETE with no error as success, even when RLS matched zero rows. This could falsely report deletion and leave a zone unchanged.
+- **FIX (staging):** Updated `sandbox-zone-editor.html` to request `.select('id')` on DELETE and require exactly one returned row before displaying `Zone deleted.`; zero-row response now reports that no deletion occurred and refreshes the zone list. Commit `f6abdb763f9b6fe4e4fb8cca10f5d8db12368103`.
+- **PASS (source re-read):** Confirmed the staging file contains the returned-row check and corrected user-facing failure message.
+- **NOT TESTED:** Authenticated browser DELETE and RLS rejection through the actual Supabase Data API; no real customer records touched. Next test: owner deletion, owner B cross-owner delete, and network interruption in sandbox browser.
+- **COORDINATION:** Other bots should avoid interpreting successful HTTP status with zero returned rows as a successful mutation; validate affected rows for zone actions.
