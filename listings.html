@@ -343,21 +343,19 @@
   <section class="section" id="listings">
     <div class="section-inner">
       <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;margin-bottom:var(--space-6)">
-        <button class="card-filter-btn active" data-filter="all" onclick="filterCards(this,'all')">All</button>
-        <button class="card-filter-btn" data-filter="hunting" onclick="filterCards(this,'hunting')">Hunting</button>
-        <button class="card-filter-btn" data-filter="hotspot" onclick="filterCards(this,'hotspot')">🔥 Hot Spots</button>
-        <button class="card-filter-btn" data-filter="lastminute" onclick="filterCards(this,'lastminute')">⚡ Last Minute</button>
-        <button class="card-filter-btn" data-filter="deerhigh" onclick="filterCards(this,'deerhigh')">🦌 Deer Active</button>
-        <button class="card-filter-btn" data-filter="hogsactive" onclick="filterCards(this,'hogsactive')">🐗 Hogs Active</button>
-        
-        <button class="card-filter-btn" data-filter="fishing" onclick="filterCards(this,'fishing')">Fishing</button>
-        <div style="margin-left:auto;display:flex;gap:var(--space-2)">
-          <button class="card-filter-btn" data-size="any" onclick="filterSize(this,'any')">Any size</button>
-          <button class="card-filter-btn" data-size="small" onclick="filterSize(this,'small')">&lt;50 ac</button>
-          <button class="card-filter-btn" data-size="med" onclick="filterSize(this,'med')">50–300 ac</button>
-          <button class="card-filter-btn" data-size="large" onclick="filterSize(this,'large')">300+ ac</button>
+        <button class="card-filter-btn active" data-filter="all" aria-pressed="true" onclick="filterCards(this,'all')">All</button>
+        <button class="card-filter-btn" data-filter="hunting" aria-pressed="false" onclick="filterCards(this,'hunting')">Hunting</button>
+        <button class="card-filter-btn" data-filter="fishing" aria-pressed="false" onclick="filterCards(this,'fishing')">Fishing</button>
+        <button class="card-filter-btn" data-filter="deerhigh" aria-pressed="false" onclick="filterCards(this,'deerhigh')">High deer activity</button>
+        <button class="card-filter-btn" data-filter="hogsactive" aria-pressed="false" onclick="filterCards(this,'hogsactive')">Hogs active</button>
+        <div style="margin-left:auto;display:flex;flex-wrap:wrap;gap:var(--space-2)">
+          <button class="card-filter-btn active" data-size="any" aria-pressed="true" onclick="filterSize(this,'any')">Any size</button>
+          <button class="card-filter-btn" data-size="small" aria-pressed="false" onclick="filterSize(this,'small')">&lt;50 ac</button>
+          <button class="card-filter-btn" data-size="med" aria-pressed="false" onclick="filterSize(this,'med')">50–300 ac</button>
+          <button class="card-filter-btn" data-size="large" aria-pressed="false" onclick="filterSize(this,'large')">300+ ac</button>
         </div>
-        <select onchange="filterSpecies(this.value)" style="padding:.45rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-full);background:var(--color-surface);color:var(--color-text);font-size:var(--text-sm);font-family:inherit;outline:none;cursor:pointer">
+        <label class="sr-only" for="species-filter">Filter by species</label>
+        <select id="species-filter" onchange="filterSpecies(this.value)" style="padding:.45rem .85rem;border:1px solid var(--color-border);border-radius:var(--radius-full);background:var(--color-surface);color:var(--color-text);font-size:var(--text-sm);font-family:inherit;outline:none;cursor:pointer">
           <option value="all">All species</option>
           <option value="Deer">Deer</option>
           <option value="Hog">Hog</option>
@@ -498,16 +496,13 @@
       ? '<span>Min ' + escHtml(l.min_stay) + '</span>'
       : '';
 
-    var isHot = l.deer_activity === 'very_high' || l.deer_activity === 'high';
-    var isLastMinute = false;
     var hogsActive = l.hogs_active === true;
     var deerHigh = l.deer_activity === 'high' || l.deer_activity === 'very_high';
-    var deerLabel = l.deer_activity ? {'low':'Low','moderate':'Moderate','high':'High','very_high':'Very High'}[l.deer_activity] : null;
+    var deerLabel = l.deer_activity ? {'low':'Low','moderate':'Moderate','high':'High','very_high':'Very high'}[l.deer_activity] : null;
 
     var activityBadges = '';
-    if (isHot) activityBadges += '<span class="badge-hot">🔥 Hot Spot</span>';
-    if (hogsActive) activityBadges += '<span class="badge-hog">🐗 Hogs Active</span>';
-    if (deerHigh) activityBadges += '<span class="badge-deer">🦌 Deer: ' + deerLabel + '</span>';
+    if (hogsActive) activityBadges += '<span class="badge-hog">Hogs active</span>';
+    if (deerHigh) activityBadges += '<span class="badge-deer">Deer activity: ' + deerLabel + '</span>';
     var activityRow = activityBadges ? '<div class="activity-badge-row">' + activityBadges + '</div>' : '';
 
     var metadata = [];
@@ -519,7 +514,7 @@
       : '';
     var listingId = escHtml(l.id);
 
-    return '<article class="listing-card fade-up" role="link" tabindex="0" aria-label="View ' + escHtml(titleBase) + '" data-type="' + escHtml(type) + '" data-acres="' + acres + '" data-species="' + escHtml(species) + '" data-hotspot="' + (isHot ? '1' : '0') + '" data-lastminute="' + (isLastMinute ? '1' : '0') + '" data-deerhigh="' + (deerHigh ? '1' : '0') + '" data-hogsactive="' + (hogsActive ? '1' : '0') + '" onclick="openListingById(this.dataset.lid)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openListingById(this.dataset.lid)}" data-lid="' + listingId + '">' +
+    return '<article class="listing-card fade-up" role="link" tabindex="0" aria-label="View ' + escHtml(titleBase) + '" data-type="' + escHtml(type) + '" data-acres="' + acres + '" data-species="' + escHtml(species) + '" data-deerhigh="' + (deerHigh ? '1' : '0') + '" data-hogsactive="' + (hogsActive ? '1' : '0') + '" onclick="openListingById(this.dataset.lid)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openListingById(this.dataset.lid)}" data-lid="' + listingId + '">' +
       '<div class="card-media ' + mediaClass + '">' + mediaContent + '<div class="card-price">' + escHtml(priceLabel) + '</div>' + typeLabel + '</div>' +
       '<div class="card-body">' +
         activityRow +
@@ -595,7 +590,11 @@
       var type  = getType(l);
       var acres = parseAcres(l.acreage);
       var spp   = (l.activities||[]).join(',');
-      var okType   = _ftype==='all' || type===_ftype;
+      var okType   = _ftype==='all' ||
+        (_ftype==='hunting' && type==='hunting') ||
+        (_ftype==='fishing' && type==='fishing') ||
+        (_ftype==='deerhigh' && (l.deer_activity==='high' || l.deer_activity==='very_high')) ||
+        (_ftype==='hogsactive' && l.hogs_active===true);
       var okSize   = _fsize==='any' ||
         (_fsize==='small'&&acres<50) ||
         (_fsize==='med'&&acres>=50&&acres<=300) ||
@@ -606,8 +605,16 @@
     renderListings(filtered);
   }
 
-  function filterCards(b,v){_ftype=v;document.querySelectorAll('[data-filter]').forEach(function(x){x.classList.toggle('active',x.dataset.filter===v)});applyCardFilters();}
-  function filterSize(b,v){_fsize=v;document.querySelectorAll('[data-size]').forEach(function(x){x.classList.toggle('active',x.dataset.size===v)});applyCardFilters();}
+  function setPressedGroup(selector, dataKey, value) {
+    document.querySelectorAll(selector).forEach(function(button) {
+      var selected = button.dataset[dataKey] === value;
+      button.classList.toggle('active', selected);
+      button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    });
+  }
+
+  function filterCards(b,v){_ftype=v;setPressedGroup('[data-filter]','filter',v);applyCardFilters();}
+  function filterSize(b,v){_fsize=v;setPressedGroup('[data-size]','size',v);applyCardFilters();}
   function filterSpecies(v){_fspecies=v;applyCardFilters();}
 
   // Load from Supabase on page load
