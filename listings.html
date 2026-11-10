@@ -7,15 +7,15 @@
   <link rel="apple-touch-icon" href="/favicon-192.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Browse Private Hunting & Fishing Land in Florida | LeaseWild</title>
-  <meta name="description" content="Browse available private hunting land and fishing waters across Florida. Filter by acreage, species, and price. Book deer, hog, duck, and bass fishing properties by the day or season." />
-  <meta name="keywords" content="private hunting land Florida listings, rent hunting land Florida, book private land Florida, deer hunting lease Florida, hog hunting land Florida, private bass fishing Florida, duck hunting land Florida" />
+  <meta name="description" content="Browse active private hunting and fishing access listings in Florida. Review property details, permitted activities, pricing, and availability where provided." />
+  <meta name="keywords" content="private land access Florida listings, hunting land Florida, fishing access Florida, outdoor property marketplace Florida" />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="LeaseWild" />
   <link rel="canonical" href="https://leasewild.com/listings.html" />
 
   <!-- Open Graph -->
   <meta property="og:title" content="Browse Private Hunting & Fishing Land in Florida | LeaseWild" />
-  <meta property="og:description" content="Browse available private hunting land and fishing waters across Florida. Filter by acreage, species, and price. Book deer, hog, duck, and bass fishing properties by the day or season." />
+  <meta property="og:description" content="Browse active private hunting and fishing access listings in Florida. Review property details, permitted activities, pricing, and availability where provided." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://leasewild.com/listings.html" />
   <meta property="og:image" content="https://leasewild.com/wildbook-logo.png" />
@@ -25,7 +25,7 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Browse Private Hunting & Fishing Land in Florida | LeaseWild" />
-  <meta name="twitter:description" content="Browse available private hunting land and fishing waters across Florida. Filter by acreage, species, and price. Book deer, hog, duck, and bass fishing properties by the day or season." />
+  <meta name="twitter:description" content="Browse active private hunting and fishing access listings in Florida. Review property details, permitted activities, pricing, and availability where provided." />
   <meta name="twitter:image" content="https://leasewild.com/wildbook-logo.png" />
 
   <script type="application/ld+json">
@@ -682,7 +682,7 @@
           <button type="submit" id="waitlist-submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem 1.5rem;font-size:var(--text-base)">
             Request updates
           </button>
-          <p id="waitlist-error" style="display:none;color:#c0392b;font-size:var(--text-xs);margin-top:.5rem;text-align:center"></p>
+          <p id="waitlist-error" role="alert" tabindex="-1" style="display:none;color:#c0392b;font-size:var(--text-xs);margin-top:.5rem;text-align:center"></p>
         </form>
         <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:1rem;text-align:center">You can browse current properties without signing up.</p>
       </div>
@@ -861,20 +861,12 @@
   }
 
   // ── WAITLIST MODAL ──
-  const FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSflRqncpu1U2GKag97hbgK8LqhxVImlQf87IRzjzTAX_blfhQ/formResponse';
-  const FIELD_EMAIL = 'entry.248c66f4';
-  const FIELD_TYPE  = 'entry.7bcb4a58';
-
-  const WAITLIST_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxivcs1-B2GaVjf-iecUvzyDdduxxLHbD1azSqDIvikyzKBvtMeS9FZt507gkTQSUDQ/exec';
-
   function openWaitlist(type) {
     document.getElementById('waitlist-form-view').style.display = '';
     document.getElementById('waitlist-success-view').style.display = 'none';
     document.getElementById('waitlist-error').style.display = 'none';
     var btn = document.getElementById('waitlist-submit');
     btn.disabled = false; btn.textContent = 'Request updates';
-    var fields = ['wl-first','wl-last','wl-email','wl-phone','wl-location'];
-    fields.forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
     document.getElementById('waitlist-modal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
     setTimeout(function(){ var el = document.getElementById('wl-first'); if(el) el.focus(); }, 50);
@@ -883,28 +875,16 @@
     document.getElementById('waitlist-modal').style.display = 'none';
     document.body.style.overflow = '';
   }
-  async function submitWaitlist(e) {
+  function submitWaitlist(e) {
     e.preventDefault();
-    var firstName = (document.getElementById('wl-first')||{}).value.trim();
-    var lastName  = (document.getElementById('wl-last')||{}).value.trim();
-    var email     = (document.getElementById('wl-email')||{}).value.trim();
-    var phone     = (document.getElementById('wl-phone')||{}).value.trim();
-    var location  = (document.getElementById('wl-location')||{}).value.trim();
-    var btn   = document.getElementById('waitlist-submit');
+    var btn = document.getElementById('waitlist-submit');
     var errEl = document.getElementById('waitlist-error');
-    if (!firstName || !email) { errEl.style.display='block'; errEl.textContent='Please fill in your name and email.'; return; }
-    btn.disabled = true; btn.textContent = 'Submitting…'; errEl.style.display = 'none';
-    try {
-      var params = new URLSearchParams({
-        firstName: firstName, lastName: lastName, email: email, location: location,
-        timestamp: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })
-      });
-      if (phone) params.set('phone', phone);
-      await fetch(WAITLIST_SCRIPT_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
-    } catch(err) { console.warn('Waitlist submit error:', err); }
-    document.getElementById('waitlist-form-view').style.display = 'none';
-    document.getElementById('waitlist-success-view').style.display = '';
     btn.disabled = false;
+    btn.textContent = 'Request updates';
+    errEl.textContent = 'Online updates signup is temporarily unavailable. Your information was not sent. Please try again later or email support@leasewild.com.';
+    errEl.style.display = 'block';
+    errEl.focus();
+    return false;
   }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeWaitlist(); });
 
