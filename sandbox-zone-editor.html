@@ -98,7 +98,7 @@ save.onclick=async()=>{
  save.disabled=true;message('Saving zone…');
  const {error}=await client.from('listing_access_zones').insert({listing_id:id,zone_type:document.getElementById('zone-type').value,label,geometry:geometry(),instructions:document.getElementById('zone-notes').value.trim()||null});
  if(error)message('Save failed: '+error.message);else{points=[];renderDraft();message('Zone saved. Other unsaved drafts remain on the map.');await refresh();}
- save.disabled=false;
+ renderDraft();
 };
 (async()=>{
  if(!id||!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id)){message('Missing or invalid listing ID.');return;}
