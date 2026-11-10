@@ -129,6 +129,9 @@ const style=document.createElement('style');
   }else{
     let hunterInboxRequest=0;
     let hunterMessageRequest=0;
+    const hunterDrafts=new Map();
+    const hunterComposer=document.getElementById('compose-input');
+    if(hunterComposer)hunterComposer.addEventListener('input',()=>{if(currentConvId)hunterDrafts.set(currentConvId,hunterComposer.value);});
     window.loadThreads=async function(){
       const request=++hunterInboxRequest;
       const el=document.getElementById('threads-container');
@@ -147,7 +150,9 @@ const style=document.createElement('style');
     window.openConversation=async function(bookingId,listingId,subject,convId){
       try{
         const id=convId||await openBooking(bookingId);
+        if(currentConvId&&hunterComposer)hunterDrafts.set(currentConvId,hunterComposer.value);
         currentConvId=id;
+        if(hunterComposer)hunterComposer.value=hunterDrafts.get(id)||'';
         document.getElementById('conv-title').textContent=subject||'Booking conversation';
         document.getElementById('thread-list-view').style.display='none';
         document.getElementById('conversation-view').style.display='block';
@@ -174,7 +179,7 @@ const style=document.createElement('style');
       if(!body||!currentConvId||btn.disabled)return;
       const sendingConvId=currentConvId;
       btn.disabled=true;
-      try{await send(sendingConvId,body);if(currentConvId===sendingConvId){if(el.value.trim()===body)el.value='';await window.loadMessages(sendingConvId);}}catch(e){showError(e);}finally{btn.disabled=false;}
+      try{await send(sendingConvId,body);if(currentConvId===sendingConvId){if(el.value.trim()===body){el.value='';hunterDrafts.set(sendingConvId,'');}await window.loadMessages(sendingConvId);}}catch(e){showError(e);}finally{btn.disabled=false;}
     };
   }
 })();
