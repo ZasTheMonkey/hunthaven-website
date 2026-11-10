@@ -97,8 +97,11 @@ const style=document.createElement('style');
         if(loCurrentConvId!==id)return;
         el.classList.add('lw-chat-messages');
         if(!data?.session?.user?.id) throw Error('Please sign in again to view messages.');
+        const nearBottom=el.scrollHeight-el.scrollTop-el.clientHeight<80;
+        const previousHeight=el.scrollHeight,previousTop=el.scrollTop;
         el.innerHTML=chatMarkup(rows,data.session.user.id);
-        el.scrollTop=el.scrollHeight;
+        if(nearBottom)el.scrollTop=el.scrollHeight;
+        else el.scrollTop=previousTop+(el.scrollHeight-previousHeight);
       }catch(e){el.textContent=e.message;}
     };
     window.sendLoMessage=async function(){
