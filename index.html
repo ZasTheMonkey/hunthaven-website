@@ -1052,6 +1052,45 @@
     .proof-strip{border-top:1px solid rgba(255,255,255,.12)}
     @media(max-width:600px){.hero h1{letter-spacing:-.015em}.hero-sub{line-height:1.5}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+    /* Premium editorial mobile homepage v2: intentionally new composition, not a recolor */
+    .editorial-actions{display:flex;gap:12px;flex-wrap:wrap;margin:30px 0 12px}
+    .editorial-primary,.editorial-secondary{display:inline-flex;align-items:center;justify-content:space-between;gap:20px;min-height:56px;padding:16px 22px;border-radius:5px;font:700 14px var(--font-body);letter-spacing:.02em;text-decoration:none;cursor:pointer}
+    .editorial-primary{background:#e7c494;color:#182c23;min-width:225px}
+    .editorial-secondary{background:transparent;color:#f7f1e7;border:1px solid rgba(247,241,231,.5)}
+    .editorial-primary span,.editorial-secondary span{font-size:21px;line-height:1}
+    .editorial-footnote{color:#e7c494;font-size:11px;font-weight:700;letter-spacing:.2em;margin-top:20px}
+    .hero-search{display:none}
+    .hero{min-height:660px;justify-content:flex-start;padding:96px max(6vw,24px) 86px;background:#122d24}
+    .hero-bg{background:radial-gradient(ellipse at 82% 15%,#3b5745 0%,transparent 46%),linear-gradient(115deg,#10261f 0%,#183b2d 58%,#101f1b 100%)}
+    .hero-bg::after{background:linear-gradient(120deg,rgba(0,0,0,.15),transparent 65%)}
+    .hero-trees{display:none}
+    .hero-content{max-width:1180px}
+    .hero h1{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:clamp(4rem,7vw,7.8rem);line-height:1.02;letter-spacing:-.055em;max-width:850px}
+    .hero h1 em{font-style:italic;color:#e4bd86}
+    .hero-eyebrow{border:0;background:transparent;padding:0;border-radius:0;color:#e4bd86;letter-spacing:.21em;font-size:11px;margin-bottom:30px}
+    .hero-sub{font-size:clamp(1.05rem,1.6vw,1.3rem);line-height:1.65;max-width:560px;color:#e0e6dc}
+    .hero-trust{margin-top:42px;padding-top:22px;border-top:1px solid rgba(255,255,255,.18);gap:14px 28px}
+    .trust-badge{color:#d9e0d4;font-size:12px}
+    .categories{position:relative;top:auto;background:#f4f0e7}
+    .cat-inner{gap:12px;padding:18px max(6vw,24px)}
+    .cat-pill{flex-direction:row;gap:8px;padding:11px 16px;border:1px solid #d8d1c3;border-radius:5px;background:#fff;color:#324436;font-size:13px}
+    .cat-pill.active{background:#193d2e;border-color:#193d2e;color:#fff}
+    .cat-pill span[style]{font-size:1rem!important}
+    @media(max-width:700px){
+      .hero{min-height:auto;padding:64px 24px 58px}
+      .hero-content{max-width:100%}
+      .hero h1{font-size:clamp(3.45rem,12.5vw,5.8rem);line-height:1.02;margin-bottom:22px}
+      .hero-sub{font-size:1rem;line-height:1.65;margin-bottom:0}
+      .hero-eyebrow{font-size:10px;letter-spacing:.15em;line-height:1.6}
+      .editorial-actions{flex-direction:column;margin-top:30px}
+      .editorial-primary,.editorial-secondary{width:100%;min-height:58px}
+      .hero-trust{display:grid;grid-template-columns:1fr 1fr;gap:15px 12px;margin-top:34px}
+      .trust-badge{font-size:11px;align-items:flex-start}
+      .categories{position:relative!important;top:auto!important}
+      .cat-inner{padding:14px 18px;gap:8px}
+      .cat-pill{padding:10px 13px;flex-direction:row;gap:6px}
+    }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 </head>
@@ -1160,6 +1199,12 @@
         <a class="btn-hero-primary" href="listings.html">Browse available properties</a>
         <a class="btn-hero-secondary" href="list-your-land.html">List your land</a>
       </div>
+
+      <div class="editorial-actions" aria-label="Explore LeaseWild">
+        <a href="listings.html" class="editorial-primary">Explore available land <span aria-hidden="true">↗</span></a>
+        <button type="button" class="editorial-secondary" onclick="openSearchSheet()">Search by activity or county <span aria-hidden="true">⌕</span></button>
+      </div>
+      <p class="editorial-footnote">FLORIDA FIRST <span aria-hidden="true">·</span> HUNTING &amp; FISHING ACCESS</p>
 
       <!-- Mobile search card -->
       <div class="hero-search">
