@@ -94,3 +94,18 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - Remaining legal P0s include homepage protection/waiver/insurance-style claims, privacy and communications consent for lead capture, access-zone location privacy, review moderation/reporting, review eligibility, fee/refund presentation, and Florida attorney approval.
 - Access-zone drawing and landowner reviews of hunters are **not implemented or legally approved** in this run. Any schema must enforce owner authorization, booking-based disclosure, one eligible review per completed booking, and moderation/reporting before launch.
 - **Release status: NO-GO.** Production, `main`, live Stripe, production Supabase, real users, and personal sessions were untouched.
+
+
+## Landowner earnings/trust UX update — November 10, 2026 at 12:42 AM ET
+
+- **Final implementation:** `db3d160a70b61d7b4a24c679d2cb9574068c35a5` on sandbox staging only.
+- Corrected public 85%/15% inconsistencies to the current 80/20 marketplace description and calculator model; payment and checkout code were not changed.
+- Removed stale July 2026, instant-approval, “without risk,” $1M coverage, universal ID verification, permanent waiver-storage, fixed deposit-timing, and automatic security-deposit claims.
+- Replaced these with pre-publish guidance that directs landowners to review guest requirements, agreements, sensitive location fields, booking controls, deposits and refunds.
+- Updated landowner navigation to direct Sign in and Browse properties links while retaining the authenticated `next=list-your-land.html` redirect.
+- All three inline scripts passed syntax compilation; static prohibited-claim checks passed; two deterministic calculator fixtures passed.
+- Exact Cloudflare deployment `ffeb7ae6-895a-4174-be87-23ab17180e7c` reports success for final SHA `db3d160a`.
+- Browser smoke confirmed the unauthenticated redirect and portal at 1363px with no horizontal overflow. Authenticated form rendering/save and all other requested widths remain BLOCKED/NOT TESTED.
+- Validation rejected the preceding `c60dfa0e` implementation because replacement-token expansion duplicated script content. The final commit was rebuilt from the clean pre-change SHA and is the only implementation counted as passing.
+- **Legal handoff remains absent.** No binding policy, waiver, insurance promise, payment term, location-disclosure rule, review policy or production content was approved in this run.
+- **Release remains NO-GO.** Access-zone privacy/authorization, hunter-review eligibility/moderation, authenticated E2E, responsive coverage and Florida attorney approval remain open.
