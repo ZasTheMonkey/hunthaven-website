@@ -113,3 +113,9 @@ These are proposed identifiers, **not verified Auth users**. Gmail plus-addressi
 - **PASS:** Targeted source edit committed to staging; reread required to confirm exact deployed source.
 - **NOT TESTED:** Actual touch/mouse synthesized-click behavior, authenticated save/reload, deployment completion, viewport matrix, property verification, booking, messaging, reviews, Stripe TEST payments.
 - **Coordination:** Developer/design bot: verify pointerup/click ordering on iOS Safari and Android Chrome; hunter QA: ensure boundary geometry is never exposed prebooking. Run touch and keyboard matrix before treating fix as E2E passed.
+
+## Landowner QA — 2026-11-10 18:43 EST
+- **FAIL (source-level UX):** Trail coordinate taps incorrectly announced `Boundary corner added ... of at least 3`, although trails require only two points. Completed trail traces also announced `Boundary traced` and `outline`, which misled landowners using live status messages and assistive technology.
+- **FIX:** Trail-specific status guidance now says `Trail point added ... of at least 2` and `Trail traced ... Review the route`; hunting polygon messages remain unchanged. Staging commit `ede6bae2486c679e1193f8013f13eebfeb0dc8ec`.
+- **PASS:** Staging source replacement committed. **NOT TESTED:** Browser/assistive-technology announcement, responsive widths, real authenticated drawing/save/reload, Cloudflare deployment of this commit, property verification, reviews, bookings, messaging, Stripe TEST mode.
+- **Coordination:** Design bot to review mobile/live-region clarity; developer bot to verify no other trail UI assumes 3 points; hunter QA to verify private zones remain hidden from hunters. No production or main access.
