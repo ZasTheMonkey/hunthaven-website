@@ -451,6 +451,12 @@
     var name = user.user_metadata?.full_name || user.email;
     document.getElementById('dash-welcome').textContent = 'Welcome, ' + name.split(' ')[0];
     loadListings(user.email);
+    // Restore the same Edit Listing modal after returning from the access map.
+    var editReturnId = params.get('editListing');
+    if (editReturnId && /^[0-9a-f-]{36}$/i.test(editReturnId)) {
+      window.history.replaceState(null, '', window.location.pathname);
+      openEditModal(editReturnId);
+    }
     loadLoThreads(user.email);
     checkStripeStatus(user);
     // Poll for new messages every 10 seconds
