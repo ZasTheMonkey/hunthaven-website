@@ -589,7 +589,7 @@
   (async function loadListings() {
     var { data, error } = await sbClient
       .from('listings')
-      .select('*')
+      .select('id,created_at,status,state,county,acreage,pricing_type,price_per_day,max_guests,cleaning_fee,min_stay,activities,description,photo_urls,allow_out_of_state,video_url,num_beds,deer_activity,hogs_active,trail_cam_date')
       .eq('status','active')
       .order('created_at', { ascending: false });
 
