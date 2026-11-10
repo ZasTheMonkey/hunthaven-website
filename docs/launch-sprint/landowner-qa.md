@@ -112,3 +112,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **NOT TESTED:** Authenticated browser save/reload/delete, owner A vs B isolation, touch/keyboard/zoom at target widths, rendered deployment, Stripe TEST regression, reviews, messaging. No dedicated QA session was used.
 - **NOT VERIFIED:** Cloudflare deployment. A staging commit alone is not deployment proof.
 - **NO-GO** until actual browser E2E, server-side geometry validation, privacy/legal review and remaining P0 features pass.
+
+## 2026-11-10 — P0 PostGIS geometry hardening
+- **PASS (sandbox migration):** Applied `sandbox_zone_geometry_postgis_validation` to payment-testing project only. Added PostGIS-backed `zone_geometry_valid_geojson` constraint requiring valid GeoJSON geometry, SRID 4326, latitude/longitude bounds, polygons for hunting areas with 4–101 points, and points for entry/parking. Existing zones table contained zero rows when inspected.
+- **PASS (static geometry queries):** PostGIS returns invalid for a self-crossing bowtie polygon and valid for a standard square. **NOT TESTED:** INSERT with a real authenticated owner and database constraint rejection path.
+- **PASS (source):** Fixed map UI blank latitude/longitude becoming (0,0), and rejected zero-area draft polygons. Commit `7475f9bcb4e013b49e1bd6e02067461752b57a8c`.
+- **SECURITY ADVISORS (preexisting findings, not silently fixed):** Five unrelated public tables have RLS enabled without policies; pg_net extension in public; three exposed SECURITY DEFINER messaging functions callable by authenticated users; leaked-password protection disabled. Review each against the existing messaging/payment architecture before altering. See https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable and https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection .
+- **NOT VERIFIED:** Cloudflare Pages deploy, authenticated E2E save/reload/delete, cross-owner RLS, responsive browser tests, hunter reviews, payment and messaging regressions. **NO-GO** remains.
