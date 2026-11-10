@@ -32,12 +32,13 @@ let points=[],draftLayer=null,savedLayers=L.featureGroup().addTo(map),owner=fals
 function message(s){status.textContent=s;}
 function valid(p){return Number.isFinite(p[0])&&Number.isFinite(p[1])&&Math.abs(p[0])<=90&&Math.abs(p[1])<=180;}
 function renderDraft(){
+ save.disabled=!owner||!points.length;
  if(draftLayer)map.removeLayer(draftLayer);
  const polygon=document.getElementById('zone-type').value==='hunting_area';
  if(points.length)draftLayer=polygon?L.polyline(points,{color:'#d18a32',weight:4}).addTo(map):L.marker(points[0]).addTo(map);
  document.getElementById('draft-count').textContent=points.length+' draft point(s)'+(polygon?' — minimum 3':' — exactly 1');
 }
-function add(p){if(!owner){message('Coordinates were not added: sign in as the listing owner and open this editor from your property dashboard.');return;}const polygon=document.getElementById('zone-type').value==='hunting_area';if(!valid(p)){message('Coordinates out of range.');return;}if(!polygon)points=[p];else if(points.length<100)points.push(p);else{message('Maximum 100 boundary corners.');return;}renderDraft();message(polygon?'Boundary corner added ('+points.length+' of at least 3).':'Location point added.');}
+function add(p){const polygon=document.getElementById('zone-type').value==='hunting_area';if(!valid(p)){message('Coordinates out of range.');return;}if(!polygon)points=[p];else if(points.length<100)points.push(p);else{message('Maximum 100 boundary corners.');return;}renderDraft();message(polygon?'Boundary corner added ('+points.length+' of at least 3).':'Location point added.');}
 map.on('click',e=>add([e.latlng.lat,e.latlng.lng]));
 document.getElementById('add-point').onclick=()=>{const lat=document.getElementById('latitude').value.trim(),lng=document.getElementById('longitude').value.trim();if(!lat||!lng){message('Enter both latitude and longitude.');return;}add([Number(lat),Number(lng)]);};
 document.getElementById('undo').onclick=()=>{points.pop();renderDraft();};
@@ -59,7 +60,7 @@ async function refresh(){
 }
 save.onclick=async()=>{
  const polygon=document.getElementById('zone-type').value==='hunting_area';
- if(!owner||!id)return;
+ if(!owner||!id){message('Draft is ready, but saving requires signing in as the owner of a selected listing.');return;}
  if((polygon&&points.length<3)||(!polygon&&points.length!==1)){message('Add enough points before saving.');return;}if(polygon&&Math.abs(points.reduce((sum,p,i)=>{const q=points[(i+1)%points.length];return sum+p[1]*q[0]-q[1]*p[0];},0))<1e-12){message('Boundary must enclose an area.');return;}
  const label=document.getElementById('zone-label').value.trim();if(!label){message('Enter a zone label.');return;}
  save.disabled=true;message('Saving zone…');
@@ -72,7 +73,7 @@ save.onclick=async()=>{
  const {data:{user},error:e}=await client.auth.getUser();if(e||!user){message('Sign in to the landowner portal first.');return;}
  const {data,error}=await client.from('listings').select('id,owner_id,state,county').eq('id',id).eq('owner_id',user.id).maybeSingle();
  if(error||!data){message('You do not have access to edit this listing.');return;}
- owner=true;save.disabled=false;message('Editing your '+(data.county||'')+' property. Select a zone type to begin.');await refresh();
+ owner=true;message('Editing your '+(data.county||'')+' property. Select a zone type to begin.');await refresh();
 })();
 })();
 </script></body></html>
