@@ -120,6 +120,7 @@ const style=document.createElement('style');
     };
   }else{
     let hunterInboxRequest=0;
+    let hunterMessageRequest=0;
     window.loadThreads=async function(){
       const request=++hunterInboxRequest;
       const el=document.getElementById('threads-container');
@@ -146,10 +147,11 @@ const style=document.createElement('style');
       }catch(e){showError(e);}
     };
     window.loadMessages=async function(id){
+      const request=++hunterMessageRequest;
       const el=document.getElementById('messages-container');
       try{
         const rows=await messages(id),{data}=await sb.auth.getSession();
-        if(currentConvId!==id)return;
+        if(currentConvId!==id||request!==hunterMessageRequest)return;
         el.classList.add('lw-chat-messages');
         if(!data?.session?.user?.id) throw Error('Please sign in again to view messages.');
         const nearBottom=el.scrollHeight-el.scrollTop-el.clientHeight<80;
@@ -157,7 +159,7 @@ const style=document.createElement('style');
         el.innerHTML=chatMarkup(rows,data.session.user.id);
         if(nearBottom)el.scrollTop=el.scrollHeight;
         else el.scrollTop=previousTop+(el.scrollHeight-previousHeight);
-      }catch(e){if(currentConvId===id)el.textContent=e.message;}
+      }catch(e){if(currentConvId===id&&request===hunterMessageRequest)el.textContent=e.message;}
     };
     window.sendMessage=async function(){
       const el=document.getElementById('compose-input'),btn=document.getElementById('send-btn'),body=el.value.trim();
