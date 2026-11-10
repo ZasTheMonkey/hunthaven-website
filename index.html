@@ -60,11 +60,7 @@
     "@type": "WebSite",
     "name": "LeaseWild",
     "url": "https://leasewild.com",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://leasewild.com/?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
+    "description": "Browse Florida hunting and fishing access listings."
   }</script>
 
   <!-- Schema: FAQ (boosts featured snippet eligibility) -->
@@ -1043,6 +1039,19 @@
       border-color: var(--green);
       box-shadow: 0 0 0 3px rgba(45,90,39,.12), var(--shadow-md);
     }
+
+    /* Sandbox premium editorial refinement: preserve existing components and flows */
+    :root{--green:#244c37;--green-dk:#153827;--amber:#b68147;--bg:#f4f0e7;--surface2:#f8f5ef;--border:#dcd5c8;--shadow-md:0 10px 30px rgba(22,37,26,.10);--shadow-lg:0 22px 60px rgba(22,37,26,.15)}
+    .nav{border-bottom-color:rgba(34,54,39,.14)}
+    .nav-inner,.section,.proof-inner{max-width:1320px}
+    .btn-hero-primary,.btn-hero-secondary,.split-btn,.nav-cta{transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease}
+    @media(hover:hover){.btn-hero-primary:hover,.btn-hero-secondary:hover,.split-btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.16)}}
+    .hero h1{letter-spacing:-.025em;text-wrap:balance}
+    .hero-sub{line-height:1.65;max-width:660px}
+    .section-eyebrow{letter-spacing:.15em}
+    .proof-strip{border-top:1px solid rgba(255,255,255,.12)}
+    @media(max-width:600px){.hero h1{letter-spacing:-.015em}.hero-sub{line-height:1.5}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 </head>
@@ -1144,7 +1153,7 @@
         Private hunting &amp; fishing access across Florida
       </div>
       <h1>Private land.<br>Your <em>hunt.</em><br>Your <em>water.</em></h1>
-      <p class="hero-sub">Book exclusive access to private hunting ranches, bass ponds, and spring creeks across Florida — land that's never been open to the public.</p>
+      <p class="hero-sub">Explore Florida properties offered for hunting and fishing access. Compare host details, review rules, and find an experience that fits your plans.</p>
 
       <!-- Desktop CTAs -->
       <div class="hero-btns">
@@ -1190,19 +1199,19 @@
       <div class="hero-trust">
         <div class="trust-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Verified landowners
+          Explore host-listed properties
         </div>
         <div class="trust-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Digital waivers included
+          Review property rules
         </div>
         <div class="trust-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Secure payments
+          Review checkout details
         </div>
         <div class="trust-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-          Flexible cancellation
+          Check cancellation terms
         </div>
       </div>
     </div>
@@ -1316,8 +1325,8 @@
   <div class="proof-strip">
     <div class="proof-inner">
       <div class="fade-up">
-        <span class="proof-num">1,200+</span>
-        <span class="proof-lbl">Acres in early access</span>
+        <span class="proof-num">FL</span>
+        <span class="proof-lbl">Florida-first marketplace</span>
       </div>
       <div class="fade-up">
         <span class="proof-num">1</span>
@@ -1343,7 +1352,7 @@
         <div class="step fade-up">
           <div class="step-num">1</div>
           <h3>Find your property</h3>
-          <p>Browse private hunting land and fishing water across Florida. Filter by species, acreage, activity type, and price. Every listing shows state regulations.</p>
+          <p>Browse private hunting land and fishing water across Florida. Filter by species, acreage, activity type, and price. Check the property rules and consult official Florida regulations before your trip.</p>
         </div>
         <div class="step fade-up">
           <div class="step-num">2</div>
@@ -1353,7 +1362,7 @@
         <div class="step fade-up">
           <div class="step-num">3</div>
           <h3>Show up & hunt</h3>
-          <p>Receive gate codes, directions, and rules 24 hours before arrival. Digital waiver signed at checkout.</p>
+          <p>Follow the host's confirmed arrival instructions and review any required agreements before your visit.</p>
         </div>
       </div>
     </div>
@@ -1423,24 +1432,24 @@
     <div class="split-cta">
       <div class="split-panel green-panel">
         <p style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:6px">For landowners</p>
-        <h2>Earn passive income from your land — without the risk.</h2>
-        <p>Digital waivers. $1M coverage. You control the calendar, set your rules. We handle everything else.</p>
+        <h2>Put your land to work, on your terms.</h2>
+        <p>Set your availability, describe permitted activities, and share property rules with prospective guests. Review the terms and responsibilities before accepting bookings.</p>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px">
-          <span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600">✓ Digital waiver signed</span>
-          <span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600">✓ Location stays private</span>
+          <span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600">✓ Set your own property rules</span>
+          <span style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600">✓ Control availability</span>
         </div>
         <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center">
           <a href="list-your-land.html" class="split-btn green-btn" style="margin:0">
             Start earning free
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
           </a>
-          <a href="landowner-protection.html" style="color:rgba(255,255,255,.8);font-family:var(--font-body);font-size:.85rem;font-weight:600;text-decoration:none">How we protect you →</a>
+          <a href="landowner-protection.html" style="color:rgba(255,255,255,.8);font-family:var(--font-body);font-size:.85rem;font-weight:600;text-decoration:none">Review host information →</a>
         </div>
       </div>
       <div class="split-panel water-panel">
         <p style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:12px">For anglers</p>
-        <h2>Access verified private land with trusted landowners.</h2>
-        <p>Skip the crowded public access. Book exclusive bass ponds, spring creeks, and freshwater lakes — direct from verified Florida landowners.</p>
+        <h2>Discover fishing access beyond the usual spots.</h2>
+        <p>Browse host-listed Florida fishing access and review each property's location, rules, and available dates before booking.</p>
         <a href="fishing.html" class="split-btn water-btn">
           Explore fishing
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
