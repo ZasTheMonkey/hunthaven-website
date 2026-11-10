@@ -389,6 +389,20 @@
       grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
       gap:24px;
     }
+    .listing-state{
+      grid-column:1/-1;min-height:220px;
+      display:grid;place-items:center;text-align:center;
+      padding:36px 24px;border:1px solid var(--border);
+      border-radius:var(--r-lg);background:var(--surface);
+    }
+    .listing-state-icon{
+      width:48px;height:48px;border-radius:50%;
+      display:grid;place-items:center;margin:0 auto 12px;
+      background:var(--green-lt);color:var(--green);
+    }
+    .listing-state h3{font-size:1.15rem;margin-bottom:6px}
+    .listing-state p{max-width:420px;color:var(--muted);font-size:.9rem;line-height:1.55}
+    .listing-state a{display:inline-flex;margin-top:16px;padding:10px 18px;border-radius:var(--r-full);background:var(--green);color:#fff;font-weight:700}
 
     /* CARD */
     .card{
@@ -1071,11 +1085,11 @@
         <a href="guest-portal.html" class="nav-link">Hunter Login</a>
         <a href="outfitter-portal.html" class="nav-link">Outfitter Login</a>
         <a href="landowner-portal.html" class="nav-link">Landowner Login</a>
-        <!-- Logged-out: Join waitlist CTA -->
-        <button class="nav-cta" id="nav-cta-waitlist" onclick="openWaitlist()" style="display:flex">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
-          Join waitlist
-        </button>
+        <!-- Logged-out: browse inventory CTA -->
+        <a class="nav-cta" id="nav-cta-waitlist" href="listings.html" style="display:flex">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          Browse listings
+        </a>
         <!-- Logged-in: profile avatar dropdown -->
         <div id="nav-profile-wrap" style="display:none;position:relative">
           <button id="nav-profile-btn" onclick="toggleProfileMenu()" style="display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border-radius:var(--r-full);border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-family:var(--font-body)">
@@ -1113,7 +1127,7 @@
         <a href="outfitters.html" onclick="closeMobMenu()" style="padding:.75rem .5rem;font-weight:600;font-size:1rem;color:var(--text);text-decoration:none">Outfitters</a>
       </nav>
       <div style="margin-top:1.25rem">
-        <button onclick="closeMobMenu();openWaitlist()" style="width:100%;padding:.85rem;background:var(--color-primary,#2d5a27);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer">Join waitlist</button>
+        <a href="listings.html" onclick="closeMobMenu()" style="display:block;width:100%;padding:.85rem;background:var(--color-primary,#2d5a27);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;text-align:center;text-decoration:none">Browse listings</a>
       </div>
     </div>
   </nav>
@@ -1127,15 +1141,15 @@
     <div class="hero-content">
       <div class="hero-eyebrow">
         <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>
-        Coming to Florida · Bookings open July 1, 2026
+        Private hunting &amp; fishing access across Florida
       </div>
       <h1>Private land.<br>Your <em>hunt.</em><br>Your <em>water.</em></h1>
       <p class="hero-sub">Book exclusive access to private hunting ranches, bass ponds, and spring creeks across Florida — land that's never been open to the public.</p>
 
       <!-- Desktop CTAs -->
       <div class="hero-btns">
-        <button class="btn-hero-primary" onclick="document.getElementById('listings-section').scrollIntoView({behavior:'smooth'})">Browse available land</button>
-        <button class="btn-hero-secondary" onclick="openWaitlist()">Join waitlist</button>
+        <a class="btn-hero-primary" href="listings.html">Browse available properties</a>
+        <a class="btn-hero-secondary" href="list-your-land.html">List your land</a>
       </div>
 
       <!-- Mobile search card -->
@@ -1145,7 +1159,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           </div>
           <div class="hs-label">
-            <strong>Where are you hunting?</strong>
+            <strong>Where do you want to go?</strong>
             <span>County · Activity · Dates</span>
           </div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
@@ -1248,7 +1262,7 @@
   <div class="main-layout" id="listings-section">
     <!-- LEFT: cards -->
     <div class="listings-col">
-      <p class="listings-count"><strong id="listings-count-num">8 properties</strong> in Florida</p>
+      <p class="listings-count"><strong id="listings-count-num">Loading properties…</strong> in Florida</p>
 
       <!-- Mobile map button — always visible on mobile -->
       <button id="mob-map-btn" onclick="openMapModal()">
@@ -1256,289 +1270,16 @@
         Map
       </button>
 
-      <div class="cards-grid" id="cards-grid">
-
-        <!-- Card 1 -->
-        <article class="card fade-up" data-type="hunt" data-acres="450" data-species="hog deer" onclick="openWaitlist()">
-          <div class="card-img bg-hunt-1">
-            <div class="card-img-scene card-img-scene-hunt"></div>
-            <div class="card-rating-badge">★ 4.9</div>
-            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </button>
-            <span class="card-chip chip-hunt">Hunting Land</span>
+      <div class="cards-grid" id="cards-grid" aria-live="polite" aria-busy="true">
+        <div class="listing-state" role="status">
+          <div>
+            <div class="listing-state-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            </div>
+            <h3>Loading available properties</h3>
+            <p>Checking current hunting and fishing access across Florida.</p>
           </div>
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-title">Palmetto Ridge Cabin</div>
-              <div class="card-price-inline">$240<span>/day</span></div>
-            </div>
-            <div class="card-location">Lake Placid, FL · 450 acres</div>
-            <div class="card-tags">
-              <span class="card-tag">Deer</span>
-              <span class="card-tag">Hog</span>
-              <span class="card-tag">Night access</span>
-              <span class="card-tag">Cabin</span>
-            </div>
-            <div class="card-footer-row">
-              <span class="card-verified">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Verified host
-              </span>
-              <span class="card-acreage">2 blinds included</span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Card 2 -->
-        <article class="card fade-up" data-type="fish" data-acres="18" data-species="bass" onclick="openWaitlist()">
-          <div class="card-img bg-fish-1">
-            <div class="card-img-scene card-img-scene-fish"></div>
-            <div class="card-rating-badge">★ 5.0</div>
-            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </button>
-            <span class="card-chip chip-fish">Private Pond</span>
-          </div>
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-title">Silver Springs Bass Ranch</div>
-              <div class="card-price-inline">$195<span>/day</span></div>
-            </div>
-            <div class="card-location">Ocala, FL · 18-acre pond</div>
-            <div class="card-tags">
-              <span class="card-tag">Largemouth bass</span>
-              <span class="card-tag">Boat included</span>
-              <span class="card-tag">No license req.</span>
-            </div>
-            <div class="card-footer-row">
-              <span class="card-verified">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Water verified
-              </span>
-              <span class="card-acreage">Trolling motor</span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Card 3 -->
-        <article class="card fade-up" data-type="hunt" data-acres="210" data-species="turkey hog" onclick="openWaitlist()">
-          <div class="card-img bg-hunt-2">
-            <div class="card-img-scene card-img-scene-hunt"></div>
-            <div class="card-rating-badge">★ 4.8</div>
-            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </button>
-            <span class="card-chip chip-hunt">Hunting Land</span>
-          </div>
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-title">Cypress Hollow Preserve</div>
-              <div class="card-price-inline">$175<span>/day</span></div>
-            </div>
-            <div class="card-location">Ocala, FL · 210 acres</div>
-            <div class="card-tags">
-              <span class="card-tag">Turkey</span>
-              <span class="card-tag">Hog</span>
-              <span class="card-tag">Cypress hammock</span>
-            </div>
-            <div class="card-footer-row">
-              <span class="card-verified">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Verified host
-              </span>
-              <span class="card-acreage">Private gate code</span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Card 4 -->
-        <article class="card fade-up" data-type="fish" data-acres="5" data-species="trout bass" onclick="openWaitlist()">
-          <div class="card-img bg-fish-2">
-            <div class="card-img-scene card-img-scene-fish"></div>
-            <div class="card-rating-badge">★ 4.9</div>
-            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </button>
-            <span class="card-chip chip-fish">Spring Creek</span>
-          </div>
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-title">Big Creek Trout Access</div>
-              <div class="card-price-inline">$320<span>/day</span></div>
-            </div>
-            <div class="card-location">Highlands Co., FL · 1.2 mi creek</div>
-            <div class="card-tags">
-              <span class="card-tag">Trout</span>
-              <span class="card-tag">Bluegill</span>
-              <span class="card-tag">Spring-fed</span>
-            </div>
-            <div class="card-footer-row">
-              <span class="card-verified">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Water verified
-              </span>
-              <span class="card-acreage">Exclusive access</span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Card 5 -->
-        <article class="card fade-up" data-type="hunt" data-acres="890" data-species="deer turkey" onclick="openWaitlist()">
-          <div class="card-img bg-hunt-3">
-            <div class="card-img-scene card-img-scene-hunt"></div>
-            <div class="card-rating-badge">★ 4.7</div>
-            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </button>
-            <span class="card-chip chip-hunt">Hunting Land</span>
-          </div>
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-title">Gainesville Ranch</div>
-              <div class="card-price-inline">$250<span>/day</span></div>
-            </div>
-            <div class="card-location">Gainesville, FL · 890 acres</div>
-            <div class="card-tags">
-              <span class="card-tag">Whitetail deer</span>
-              <span class="card-tag">Turkey</span>
-              <span class="card-tag">Food plots</span>
-            </div>
-            <div class="card-footer-row">
-              <span class="card-verified">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Verified host
-              </span>
-              <span class="card-acreage">Trail cam access</span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Card 6 -->
-        <article class="card fade-up" data-type="fish" data-acres="8" data-species="bass crappie" onclick="openWaitlist()">
-          <div class="card-img bg-fish-1">
-            <div class="card-img-scene card-img-scene-fish"></div>
-            <div class="card-rating-badge">★ 4.8</div>
-            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </button>
-            <span class="card-chip chip-fish">Private Lake</span>
-          </div>
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-title">Orlando Private Lake Frontage</div>
-              <div class="card-price-inline">$110<span>/day</span></div>
-            </div>
-            <div class="card-location">Orlando, FL · 8-acre lake</div>
-            <div class="card-tags">
-              <span class="card-tag">Bass</span>
-              <span class="card-tag">Crappie</span>
-              <span class="card-tag">Kayak incl.</span>
-            </div>
-            <div class="card-footer-row">
-              <span class="card-verified">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Water verified
-              </span>
-              <span class="card-acreage">Shore + kayak</span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Card 7 -->
-        <article class="card fade-up" data-type="hunt" data-acres="1200" data-species="deer hog turkey" onclick="openWaitlist()">
-          <div class="card-img bg-hunt-1">
-            <div class="card-img-scene card-img-scene-hunt"></div>
-            <div class="card-rating-badge">★ 4.9</div>
-            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </button>
-            <span class="card-chip chip-hunt">Timber Tract</span>
-          </div>
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-title">North FL Timber Tract</div>
-              <div class="card-price-inline">$195<span>/day</span></div>
-            </div>
-            <div class="card-location">Jacksonville, FL · 1,200 acres</div>
-            <div class="card-tags">
-              <span class="card-tag">Deer</span>
-              <span class="card-tag">Hog</span>
-              <span class="card-tag">Turkey</span>
-              <span class="card-tag">Multi-day</span>
-            </div>
-            <div class="card-footer-row">
-              <span class="card-verified">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Verified host
-              </span>
-              <span class="card-acreage">4 stand sites</span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Card 8 -->
-        <!-- Camping placeholder card -->
-        <article class="card fade-up" data-type="camp" data-acres="120" data-species="camping primitive" onclick="openWaitlist()">
-          <div class="card-img" style="background:linear-gradient(160deg,#3d2a10,#6b4820)">
-            <div class="card-rating-badge">★ 4.8</div>
-            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </button>
-            <span class="card-chip chip-camp">Camping</span>
-          </div>
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-title">Osceola Flatwoods Campsite</div>
-              <div class="card-price-inline">$55<span>/night</span></div>
-            </div>
-            <div class="card-location">Kissimmee, FL · 120 acres</div>
-            <div class="card-tags">
-              <span class="card-tag">Primitive camping</span>
-              <span class="card-tag">Fire pit</span>
-              <span class="card-tag">Creek access</span>
-            </div>
-            <div class="card-footer-row">
-              <span class="card-verified">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Verified host
-              </span>
-              <span class="card-acreage">No hunting required</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="card fade-up" data-type="hunt" data-acres="700" data-species="quail turkey" onclick="openWaitlist()">
-          <div class="card-img bg-hunt-3">
-            <div class="card-img-scene card-img-scene-hunt"></div>
-            <div class="card-rating-badge">★ 5.0</div>
-            <button class="card-save" aria-label="Save" onclick="event.stopPropagation();toggleSave(this)">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </button>
-            <span class="card-chip chip-hunt">Guided Hunt</span>
-          </div>
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-title">Tallahassee Quail Farm</div>
-              <div class="card-price-inline">$300<span>/day</span></div>
-            </div>
-            <div class="card-location">Tallahassee, FL · 700 acres</div>
-            <div class="card-tags">
-              <span class="card-tag">Quail</span>
-              <span class="card-tag">Turkey</span>
-              <span class="card-tag">Dogs incl.</span>
-              <span class="card-tag">Guided</span>
-            </div>
-            <div class="card-footer-row">
-              <span class="card-verified">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Verified host
-              </span>
-              <span class="card-acreage">Bird dogs provided</span>
-            </div>
-          </div>
-        </article>
-
+        </div>
       </div><!-- /cards-grid -->
 
       <p id="filter-empty" style="display:none;text-align:center;padding:40px 0;color:var(--muted)">No listings match that filter — try a different category.</p>
@@ -1759,14 +1500,14 @@
        EMAIL STRIP
   ══════════════════════════════════════════ -->
   <div class="email-strip">
-    <p style="font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:10px">Be first in Florida</p>
-    <h2>Bookings open July 1, 2026.</h2>
-    <p>Join the waitlist and we'll notify you the day access opens. No spam, ever.</p>
+    <p style="font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:10px">Stay in the loop</p>
+    <h2>Get new property updates.</h2>
+    <p>Hear when new hunting land and fishing water becomes available. No spam, ever.</p>
     <form class="email-form" onsubmit="inlineSubmit(event)">
       <input class="email-input" type="email" id="inline-email" name="email" autocomplete="email" aria-label="Email address" placeholder="your@email.com" required />
-      <button class="email-btn" type="submit" id="inline-btn">Join waitlist</button>
+      <button class="email-btn" type="submit" id="inline-btn">Get updates</button>
     </form>
-    <p id="inline-confirm" role="status" aria-live="polite" style="display:none;color:var(--green);font-weight:600;margin-top:14px">You're on the list — we'll be in touch.</p>
+    <p id="inline-confirm" role="status" aria-live="polite" style="display:none;color:var(--green);font-weight:600;margin-top:14px">You're subscribed — we'll be in touch.</p>
   </div>
 
   <!-- ══════════════════════════════════════════
@@ -1779,7 +1520,7 @@
       <div style="display:grid;gap:10px;margin-top:28px">
         <details style="border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px">
           <summary style="font-weight:700;font-size:.9rem;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">How do I book private hunting land in Florida? <span style="font-size:1.2rem;color:var(--faint)">+</span></summary>
-          <p style="font-size:.875rem;color:var(--muted);margin-top:10px;line-height:1.65">Browse listings, select your dates, and complete checkout with Stripe. Bookings officially open July 1, 2026. Join the waitlist to be first in line when bookings open.</p>
+          <p style="font-size:.875rem;color:var(--muted);margin-top:10px;line-height:1.65">Browse current listings, select an available date, review the property rules and full price, then continue to secure checkout. Availability and booking requirements vary by property.</p>
         </details>
         <details style="border:1px solid var(--border);border-radius:var(--r-md);padding:16px 18px">
           <summary style="font-weight:700;font-size:.9rem;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">Do I need a hunting license on private land? <span style="font-size:1.2rem;color:var(--faint)">+</span></summary>
@@ -1898,11 +1639,11 @@
         Fishing
       </button>
 
-      <button class="mob-tab" onclick="mobTab(this,'wishlist');openWaitlist()">
+      <button class="mob-tab" onclick="mobTab(this,'updates');openWaitlist()">
         <div class="mob-icon-wrap">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
         </div>
-        Wishlist
+        Updates
       </button>
 
       <!-- Smart login/messages tab — swapped by JS based on auth state -->
@@ -1995,8 +1736,8 @@
       <button class="modal-close" onclick="closeWaitlist()" aria-label="Close">✕</button>
       <div id="wl-form-view">
         <p style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:10px">Early Access</p>
-        <h2>Join the waitlist</h2>
-        <p class="modal-sub">Be first to book when LeaseWild opens in Florida on July 1, 2026.</p>
+        <h2>Get LeaseWild updates</h2>
+        <p class="modal-sub">Hear about new hunting land, fishing water, and LeaseWild availability in Florida.</p>
         <form onsubmit="submitWaitlist(event)">
           <div class="form-row">
             <div class="form-field">
@@ -2018,16 +1759,16 @@
               <span class="field-optional">Optional</span>
             </div>
             <input type="tel" id="wl-phone" name="phone" autocomplete="tel" inputmode="tel" maxlength="25" aria-describedby="wl-phone-help" placeholder="(555) 000-0000" />
-            <p class="field-help" id="wl-phone-help">Used only for waitlist updates when you choose to provide it.</p>
+            <p class="field-help" id="wl-phone-help">Used only for LeaseWild updates when you choose to provide it.</p>
           </div>
           <div class="form-field">
             <label for="wl-location">City, State</label>
             <input type="text" id="wl-location" name="location" autocomplete="address-level2" required placeholder="Tampa, FL" />
           </div>
-          <button class="btn-submit" type="submit" id="wl-submit">Join waitlist</button>
+          <button class="btn-submit" type="submit" id="wl-submit">Get updates</button>
           <p id="wl-error" role="alert" aria-live="assertive" style="display:none;color:var(--danger);font-size:.78rem;text-align:center;margin-top:8px"></p>
         </form>
-        <p class="modal-note">No spam. We'll only contact you when early access opens.</p>
+        <p class="modal-note">No spam. We'll only contact you with LeaseWild updates.</p>
       </div>
       <div class="modal-success" id="wl-success">
         <div class="success-icon">
@@ -2097,14 +1838,31 @@
   }
 
   /* ── RENDER LIVE LISTING CARDS ── */
-  function renderLiveCards(listings) {
-    if (!listings || listings.length === 0) return; // keep placeholders
-    // Only render listings that have at least a county or price — skip totally empty ones
-    var valid = listings.filter(function(l){ return l.county || l.price_per_day || (l.activities && l.activities.length); });
-    if (!valid.length) return;
+  function renderListingState(title, message, actionLabel, actionHref) {
     var grid = document.getElementById('cards-grid');
     if (!grid) return;
-    // Remove placeholder cards
+    grid.setAttribute('aria-busy','false');
+    grid.innerHTML = '<div class="listing-state" role="status"><div>' +
+      '<div class="listing-state-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg></div>' +
+      '<h3>' + escHtml(title) + '</h3><p>' + escHtml(message) + '</p>' +
+      (actionLabel && actionHref ? '<a href="' + escHtml(actionHref) + '">' + escHtml(actionLabel) + '</a>' : '') +
+      '</div></div>';
+  }
+
+  function renderLiveCards(listings) {
+    if (!listings || listings.length === 0) {
+      renderListingState('No active properties yet','New hunting and fishing access is being added. Check back soon or list your land today.','List your land','list-your-land.html');
+      return;
+    }
+    // Only render listings that have enough public detail to create a useful card
+    var valid = listings.filter(function(l){ return l.county || l.price_per_day || (l.activities && l.activities.length); });
+    if (!valid.length) {
+      renderListingState('No active properties yet','Current inventory does not have enough public detail to display safely.','List your land','list-your-land.html');
+      return;
+    }
+    var grid = document.getElementById('cards-grid');
+    if (!grid) return;
+    grid.setAttribute('aria-busy','false');
     grid.innerHTML = '';
     valid.forEach(function(l) {
       var type = getType(l);
@@ -2176,7 +1934,7 @@
     });
     // Update count
     var cnt = document.getElementById('listings-count-num');
-    if (cnt) cnt.textContent = listings.length + ' propert' + (listings.length === 1 ? 'y' : 'ies');
+    if (cnt) cnt.textContent = valid.length + ' propert' + (valid.length === 1 ? 'y' : 'ies');
   }
 
   /* ── FETCH LIVE LISTINGS FROM SUPABASE ── */
@@ -2193,14 +1951,17 @@
         renderLiveCards(data);
         updateMapWithLiveListings(data); // swap map pins to live listings
       } else {
-        // No live listings yet — wire placeholder cards to open waitlist (existing behavior)
-        // but make them open a generic "coming soon" detail instead
-        document.querySelectorAll('#cards-grid .card').forEach(function(card){
-          // Keep existing onclick=openWaitlist() on placeholders
-        });
+        renderListingState('No active properties yet','New hunting and fishing access is being added. Check back soon or list your land today.','List your land','list-your-land.html');
+        var emptyCount = document.getElementById('listings-count-num');
+        if (emptyCount) emptyCount.textContent = '0 properties';
       }
     })
-    .catch(function(err){ console.warn('Listing fetch failed', err); });
+    .catch(function(err){
+      console.warn('Listing fetch failed', err);
+      renderListingState('Properties are temporarily unavailable','We could not load current availability. Please refresh or try again shortly.','','');
+      var errorCount = document.getElementById('listings-count-num');
+      if (errorCount) errorCount.textContent = 'Availability unavailable';
+    });
   })();
 
   const LISTINGS_DATA = [
