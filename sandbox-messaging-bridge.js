@@ -105,7 +105,7 @@ const style=document.createElement('style');
         el.innerHTML=chatMarkup(rows,data.session.user.id);
         if(nearBottom)el.scrollTop=el.scrollHeight;
         else el.scrollTop=previousTop+(el.scrollHeight-previousHeight);
-      }catch(e){el.textContent=e.message;}
+      }catch(e){if(loCurrentConvId===id)el.textContent=e.message;}
     };
     window.sendLoMessage=async function(){
       const el=document.getElementById('lo-compose'),btn=document.getElementById('lo-send-btn'),body=el.value.trim();
