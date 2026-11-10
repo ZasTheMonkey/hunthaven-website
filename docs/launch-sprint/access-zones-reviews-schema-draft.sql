@@ -110,20 +110,19 @@ create policy "Owners can read their listing access zones"
     )
   );
 
-create policy "Authorized hunters can read confirmed-booking zones"
+-- SECURITY HOLD (P0): do not grant hunters access to precise hunting,
+-- entry or parking coordinates until the real sandbox booking lifecycle is
+-- inspected and a time-limited authorization rule is reviewed and tested.
+-- The former status-only policy permitted indefinite access after completion.
+-- The final policy must derive an access window from authoritative booking
+-- check-in/check-out timestamps, explicitly revoke access on cancellation and
+-- refund, and never trust browser-supplied dates or booking status.
+-- Owner SELECT policy above remains independent of this fail-closed hold.
+create policy "Hunter zone access pending time-window review"
   on public.listing_access_zones
   for select
   to authenticated
-  using (
-    visibility = 'confirmed_booking'
-    and exists (
-      select 1
-      from public.bookings b
-      where b.listing_id = listing_access_zones.listing_id
-        and b.hunter_id = (select auth.uid())
-        and b.status in ('confirmed', 'paid', 'completed') -- REVIEW STATUS SET
-    )
-  );
+  using (false);
 
 create policy "Owners can insert zones for their listings"
   on public.listing_access_zones
