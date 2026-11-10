@@ -25,3 +25,11 @@ Use three distinct, controlled test inboxes (aliases are fine if deliverable). C
 
 ## Current status
 The available Supabase connector exposes SQL, migrations and project inspection, but not Auth Admin create-user operations. Therefore these three **real sign-in accounts have not been provisioned**. Previous RLS tests simulated a JWT subject within a rolled-back SQL transaction; they are not authenticated browser tests.
+
+## Authorized test inbox aliases (2026-11-10)
+The user approved using Gmail inbox `roamquestlx@gmail.com` for these dedicated **sandbox-only** signup aliases:
+- Owner A: `roamquestlx+leasewild-owner-a@gmail.com`
+- Owner B: `roamquestlx+leasewild-owner-b@gmail.com`
+- Hunter: `roamquestlx+leasewild-hunter@gmail.com`
+
+These are proposed identifiers, **not verified Auth users**. Gmail plus-addressing generally routes to the base inbox. Supabase Auth signups, email verification and actual sessions must still be completed through supported Auth flows. Never store passwords, OTPs, or service-role keys in Git.
