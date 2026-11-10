@@ -1076,31 +1076,40 @@
 
   async function sendLoMessage() {
     var input = document.getElementById('lo-compose');
-    var btn   = document.getElementById('lo-send-btn');
-    var body  = input.value.trim();
-    if (!body || !loCurrentConvId) return;
+    var btn = document.getElementById('lo-send-btn');
+    var body = input.value.trim();
+    if (!body || !loCurrentConvId || btn.disabled) return;
     btn.disabled = true;
-    var { data: { session } } = await sb.auth.getSession();
-    var senderName = session?.user?.user_metadata?.full_name || 'Landowner';
-    await fetch(SB_URL + '/rest/v1/messages', {
-      method: 'POST',
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({
-        conversation_id: loCurrentConvId,
-        sender_email: loCurrentUserEmail,
-        sender_name: senderName,
-        sender_role: 'landowner',
-        body: body
-      })
-    });
-    await fetch(SB_URL + '/rest/v1/conversations?id=eq.' + loCurrentConvId, {
-      method: 'PATCH',
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ last_message: body, updated_at: new Date().toISOString() })
-    });
-    input.value = '';
-    btn.disabled = false;
-    loadLoMessages(loCurrentConvId);
+    try {
+      var { data: { session }, error: authError } = await sb.auth.getSession();
+      if (authError || !session?.access_token) throw new Error('Please sign in again before sending.');
+      var senderName = session.user?.user_metadata?.full_name || 'Landowner';
+      var headers = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
+      var sent = await fetch(SB_URL + '/rest/v1/messages', {
+        method: 'POST', headers: headers,
+        body: JSON.stringify({
+          conversation_id: loCurrentConvId,
+          sender_email: loCurrentUserEmail,
+          sender_name: senderName,
+          sender_role: 'landowner',
+          body: body
+        })
+      });
+      if (!sent.ok) throw new Error('Message was not sent (HTTP ' + sent.status + '). Please retry.');
+      // Do not discard newly typed text if the user edited the draft while sending.
+      if (input.value.trim() === body) input.value = '';
+      var updated = await fetch(SB_URL + '/rest/v1/conversations?id=eq.' + encodeURIComponent(loCurrentConvId), {
+        method: 'PATCH', headers: headers,
+        body: JSON.stringify({ last_message: body, updated_at: new Date().toISOString() })
+      });
+      if (!updated.ok) console.warn('Message sent, but conversation preview update failed:', updated.status);
+      await loadLoMessages(loCurrentConvId);
+    } catch (err) {
+      console.error('Landowner message send failed:', err);
+      alert(err.message || 'Unable to send message. Please retry.');
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   async function openLoConversationFromBooking(bookingId, listingId, guestName, guestEmail) {
