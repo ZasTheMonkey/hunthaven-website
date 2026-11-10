@@ -184,3 +184,13 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **BLOCKED (authenticated runtime):** No safely provisioned QA browser sessions and complete isolated synthetic fixtures were available in this execution; booking, Stripe TEST checkout/refund/webhooks, messaging, cancellations, reviews, map persistence and RLS denial cases not exercised. Approval is granted; missing credentials/runtime capability are the blockers.
 - **NOT TESTED:** Viewports 320/375/390/430/768/1024/1280/1440/1920/2560, keyboard, touch, 200% zoom, landscape and screen readers. No browser runner executed.
 - **NO-GO:** Production release remains gated on E2E, security and responsive evidence. No main, production, live payments or personal sessions accessed.
+
+
+## 2026-11-10 15:09 ET — Hunter QA: shared zone-save lock correction
+- **PASS (coordination):** Reviewed current hunter and landowner QA handoffs before editing; limited change to isolated save concurrency logic in staging editor.
+- **FIX (staging):** Commit `6f67397f4102f733965b819d0767623e565fcf03` adds `savingSingle` mutual exclusion with Save All, guards duplicate single-save entry, and restores the lock in `finally` with a draft-retaining network-exception message. No database/payment changes.
+- **PASS (source re-read):** Shared guard in Save All and single Save, single-save lock acquisition, and finally release all confirmed in committed blob `bdb79d845d17cb1ac22d0f69fa9f6dec4a8a5044`. Static inspection only; no browser/runtime duplicate-write test.
+- **PASS (independent sandbox deployment metadata, before fix):** Cloudflare Pages `leasewild-sandbox` deployment `1afacee3-e603-4fb1-9775-89e6994e3aef`, commit `1a0dcc6963f0c9a822c4ae83b71ea1674ad174f6`, created `2026-11-10T20:06:31Z`, status `success`. This predates fix commit; **new fix deployment NOT VERIFIED**.
+- **BLOCKED:** No securely provisioned isolated synthetic authenticated hunter/owner sessions or complete TEST booking/payment fixtures; no booking, messaging, cancellation, Stripe TEST, review, zone persistence or cross-owner browser E2E performed.
+- **NOT TESTED:** Browser widths 320/375/390/430/768/1024/1280/1440/1920/2560, touch, keyboard, 200% zoom and screen reader. No browser runner used.
+- **NO-GO:** No live site, main, production database, real users or live Stripe accessed.
