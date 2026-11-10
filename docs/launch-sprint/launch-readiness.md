@@ -382,3 +382,41 @@ Production, `main`, live Stripe, production Supabase, real users and personal se
 2. Obtain secure synthetic owner/hunter QA sessions; test owner-only zone CRUD, booked-hunter reads, cross-owner denial, completed-booking review eligibility, uniqueness, and moderation.
 3. Build accessible map-drawing and review UI only after the storage and authorization contract is approved.
 4. Continue the responsive matrix and real-device/touch testing.
+
+## 2026-11-10 05:25 ET — Accessible listing result feedback
+
+**Decision: NO-GO.** Public discovery feedback is improved and deployed, while access zones, hunter reviews, database authorization, authenticated E2E, broad responsive coverage, and legal approval remain incomplete.
+
+### Completed
+
+- **Code commit `105fb5eea1dcdd067e26b5034f40720a87943b64`:** added a stable `role=status` / `aria-live=polite` region for listing loading, result counts, empty states, and load failures.
+- The listings grid now exposes `aria-busy` while data loads.
+- Load failures are visually distinguishable, use alert semantics, preserve the page, and provide a keyboard-operable **Retry loading** button.
+- Empty-filter and zero-inventory messages are distinct from network errors.
+- This implements Growth Research's P1 recommendation from `81e7e415d6abbb1d90c1f4cfee301dc5afabb833`.
+- Listing queries, card navigation, authentication, booking, messaging, payments, and database schema were not changed.
+
+### Verification
+
+| Check | Result | Evidence |
+|---|---|---|
+| Exact source | PASS | Re-fetched blob `ca1b0962199ff609b1227bc755185357ccbd1917` |
+| JavaScript syntax | PASS | All three executable inline scripts compiled |
+| Static accessibility assertions | PASS | Live region, atomic announcements, busy state, retry listener, error alert semantics, safe public field allowlist |
+| Exact Cloudflare deployment | PASS | `b5faa2ee-12fc-4c4d-b505-0d53bced8ac4` succeeded for exact commit `105fb5ee...` |
+| Browser loading completion at 1363px | PASS | 3 cards; status “3 properties are available”; `aria-busy=false`; retry hidden; no horizontal overflow |
+| Browser filter announcement at 1363px | PASS | 300+ acre filter rendered 1 card; status “1 property is available”; no horizontal overflow |
+| Network-failure retry runtime | NOT TESTED | No safe request-failure interception was available; source path only |
+| Screen-reader announcement | NOT TESTED | Accessibility tree exposed the status text, but no assistive-technology runtime was available |
+| 320–1920px, 200% zoom, touch/orientation | NOT TESTED | Browser viewport was 1363px only |
+| Authenticated map/review/booking/messaging | BLOCKED | Secure QA sessions remain unavailable |
+
+### Five-bot snapshot
+
+- **Designer/Developer:** implemented and independently deployment/browser-verified the accessible discovery feedback above.
+- **Hunter QA:** `beec180fc5651e8f4c070821dfa0e7756e2e888e` isolates hunter drafts by conversation; report `e443e4fe268d8c381934cd6c1562f966d8df8807`. Source verified; exact deployment independently confirmed by this run as Cloudflare deployment `802fc723-dd8e-4ef2-b180-16d5f1323a33`; authenticated E2E remains blocked.
+- **Landowner QA:** latest recorded `92b7cc2fb381d178aa93cc81f5e1a2c314b38aa8` isolates owner drafts; authenticated/responsive behavior remains blocked.
+- **Growth Research:** `81e7e415d6abbb1d90c1f4cfee301dc5afabb833` recommended the result feedback implemented in this run and retained the public catalog authorization blocker.
+- **Legal Risk Review:** no substantive new recorded result; legal handoff remains absent.
+
+Access-zone and hunter-review work remains at review-only schema design. The migration was not applied because the connected database projects do not unambiguously identify the LeaseWild application sandbox and repository schema drift remains unresolved.
