@@ -799,7 +799,7 @@
   function plotListings(list) {
     allMarkers.forEach(m => huntMap.removeLayer(m));
     allMarkers = [];
-    const filtered = list.filter(l => currentFilter === 'all' || l.type === currentFilter);
+    const filtered = list.filter(l => currentFilter === 'all' || l.type === (currentFilter === 'hunt' ? 'hunting' : currentFilter === 'fish' ? 'fishing' : currentFilter));
     const byState = {};
     filtered.forEach(l => {
       if (!byState[l.state]) byState[l.state] = {lat:l.lat, lng:l.lng, count:0};
@@ -850,12 +850,11 @@
       if (data && data[0]) {
         const { lat, lon } = data[0];
         huntMap.setView([+lat, +lon], 9);
-        const nearby = LISTINGS.filter(l => {
-          const dlat = l.lat - lat, dlng = l.lng - lon;
-          return Math.sqrt(dlat*dlat + dlng*dlng) < 2.5;
-        });
-        plotListings(nearby.length ? nearby : LISTINGS);
-        if (!nearby.length) document.getElementById('map-results-label').textContent = 'No listings near that location yet. Showing all available listings.';
+        // Public markers are state summaries, not property positions; never compute a nearby radius.
+        // A geocoded search may reposition the map, but cannot establish listing proximity.
+        plotListings(LISTINGS);
+        document.getElementById('map-results-label').textContent =
+          'Map centered on your search. Markers show state-wide listing totals, not nearby properties. Browse listing cards for verified locations.';
       } else {
         document.getElementById('map-results-label').textContent = 'Location not found. Try a zip code or "City, State".';
       }
