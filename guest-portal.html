@@ -646,11 +646,17 @@
   }
 
   // ── MESSAGING ────────────────────────────────────────────────
+  async function messagingAccessToken() {
+    const { data, error } = await sb.auth.getSession();
+    if (error || !data?.session?.access_token) throw new Error('Please sign in to use messages.');
+    return data.session.access_token;
+  }
+
   async function loadThreads() {
     var container = document.getElementById('threads-container');
     container.innerHTML = '<p style="color:var(--color-text-muted);text-align:center;padding:1.5rem">Loading…</p>';
     var res = await fetch(SB_URL + '/rest/v1/conversations?guest_email=eq.' + encodeURIComponent(currentUser.email) + '&order=updated_at.desc&select=*', {
-      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
+      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + await messagingAccessToken() }
     });
     var threads = await res.json();
     if (!Array.isArray(threads) || !threads.length) {
@@ -673,7 +679,7 @@
     if (!currentUser) return;
     try {
       var res = await fetch(SB_URL + '/rest/v1/conversations?guest_email=eq.' + encodeURIComponent(currentUser.email) + '&guest_unread=gt.0&select=id', {
-        headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
+        headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + await messagingAccessToken() }
       });
       var data = await res.json();
       var badge = document.getElementById('unread-badge');
@@ -685,14 +691,14 @@
   async function openConversation(bookingId, listingId, subject, convId) {
     if (!convId) {
       var res = await fetch(SB_URL + '/rest/v1/conversations?booking_id=eq.' + encodeURIComponent(bookingId) + '&select=*', {
-        headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
+        headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + await messagingAccessToken() }
       });
       var existing = await res.json();
       if (existing.length) { convId = existing[0].id; }
       else {
         var createRes = await fetch(SB_URL + '/rest/v1/conversations', {
           method: 'POST',
-          headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+          headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + await messagingAccessToken(), 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
           body: JSON.stringify({ booking_id: bookingId, listing_id: listingId, guest_email: currentUser.email, subject, last_message: null, guest_unread: 0, landowner_unread: 0 })
         });
         var created = await createRes.json();
@@ -702,7 +708,7 @@
     currentConvId = convId;
     await fetch(SB_URL + '/rest/v1/conversations?id=eq.' + convId, {
       method: 'PATCH',
-      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + await messagingAccessToken(), 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ guest_unread: 0 })
     });
     document.getElementById('conv-title').textContent = subject;
@@ -714,7 +720,7 @@
   async function loadMessages(convId) {
     var container = document.getElementById('messages-container');
     var res = await fetch(SB_URL + '/rest/v1/messages?conversation_id=eq.' + encodeURIComponent(convId) + '&order=created_at.asc&select=*', {
-      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON }
+      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + await messagingAccessToken() }
     });
     var msgs = await res.json();
     if (!Array.isArray(msgs) || !msgs.length) {
@@ -742,18 +748,23 @@
     btn.disabled = true;
     var meta = currentUser.user_metadata || {};
     var senderName = meta.first_name || currentUser.email.split('@')[0];
-    await fetch(SB_URL + '/rest/v1/messages', {
+    try {
+    var sendRes = await fetch(SB_URL + '/rest/v1/messages', {
       method: 'POST',
-      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + await messagingAccessToken(), 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ conversation_id: currentConvId, sender_email: currentUser.email, sender_name: senderName, sender_role: 'guest', body })
     });
+    if (!sendRes.ok) throw new Error('Message could not be sent (' + sendRes.status + ').');
     await fetch(SB_URL + '/rest/v1/conversations?id=eq.' + currentConvId, {
       method: 'PATCH',
-      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + await messagingAccessToken(), 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ last_message: body, updated_at: new Date().toISOString() })
     });
-    input.value = ''; btn.disabled = false;
-    loadMessages(currentConvId);
+    input.value = '';
+    await loadMessages(currentConvId);
+    } catch (err) {
+      alert(err.message || 'Message failed to send. Please retry.');
+    } finally { btn.disabled = false; }
   }
 
   function showThreadList() {
