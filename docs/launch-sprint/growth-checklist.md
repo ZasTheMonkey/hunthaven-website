@@ -149,3 +149,19 @@ Competitor categories to benchmark in next run: LandTrust (experience/package di
 - **Static inspection:** current staging listings metadata verified; other findings from cross-bot reports are attributed, not re-tested.
 - **Deployment:** no independent Cloudflare or public sandbox deployment check in this run; do not infer latest HEAD is deployed from Designer's earlier exact-commit evidence.
 - **Browser/mobile/Stripe TEST/authenticated E2E:** not executed here. Authenticated E2E blocked without securely provisioned QA sessions. **NO-GO** production pending payment, security, legal, responsive and end-to-end evidence. No production, main, live Stripe, production Supabase, personal sessions or real-user access.
+
+
+## 2026-11-10 04:22 ET — Growth handoff: messaging trust and conversion instrumentation
+
+### Cross-bot evidence checked
+- Hunter QA: code commit `04c1604f115788062a60ce5f43d5b8edc4cd6901` adds accessible message-load errors; report commit `c16ed37636243fb06389dc24ad110b37d6e8d37d`. Source-only, no independent browser test or confirmed deployment for this exact commit.
+- Landowner QA: code commit `92b7cc2fb381d178aa93cc81f5e1a2c314b38aa8` isolates drafts per conversation; reported Cloudflare active deployment for that SHA, but no authenticated browser validation. Report commit `4fe3be3c0a0cc7c3235fa2bbac7b0903d3ee7378`.
+- Designer launch-readiness report still records NO-GO and 1363px listings smoke for earlier code commit `cd7c4393`; this is not evidence for the latest branch head or mobile widths.
+
+### New prioritized growth recommendations (no code changes)
+1. **P1 — messaging confidence before booking (Designer + both QA):** distinguish empty conversation from network/load failure in the same restrained, accessible visual system; show an explicit Retry control, preserve unsent drafts across thread switches, and never imply delivery until server acknowledgement. Acceptance: keyboard and 320/375/390px states, offline/error/retry behavior, and synthetic cross-thread switching test with *two distinct* conversations. Rationale: misleading chat status can interrupt high-intent inquiries; conversion uplift is a hypothesis, not measured.
+2. **P1 — privacy-safe funnel measurement (Growth + Developer):** define event names `listings_view`, `listing_view`, `booking_start`, `booking_confirmed_test`, `landowner_onboarding_start` with anonymous aggregate counts and environment tag; never log chat contents, personal data, access coordinates, or payment tokens. Count confirmed bookings only from authoritative server-side Stripe TEST/booking state, not a client-side success screen. Acceptance: documented event definitions, deduplication, opt-out/consent review and TEST-only validation before implementation. No analytics installation authorized by this note.
+3. **P2 — premium listing detail trust hierarchy (Designer):** place authentic approved property imagery, location granularity, activity/rules, date availability, cancellation policy and clearly itemized TEST total in a consistent mobile-first order. Avoid badges for unverified land ownership, insurance or wildlife. Acceptance: one real synthetic listing at 320/375/390px and 200% zoom; no fake inventory; compare details-to-booking tap path against current baseline before making conversion claims.
+
+### Verification boundaries
+GitHub report/source evidence only; sandbox public URL could not be fetched independently in this run. No deployment assertion for current HEAD, no browser/mobile/authenticated E2E or Stripe TEST execution. Production remains **NO-GO**. Do not touch production, `main`, real-user data or live payments.
