@@ -164,3 +164,12 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **NOT TESTED:** Actual owner browser session, drawing, save/reload, touch/keyboard/zoom at 320–2560px, property verification, review and messaging E2E. Do not infer success from SQL tests.
 - **BLOCKED (deployment verification only):** Attempted direct HTTP GET of `https://leasewild-sandbox.pages.dev/sandbox-zone-editor.html`; runtime DNS resolution failed, so deployed version of the Leaflet featureGroup fix cannot be confirmed. This is not evidence the site is down.
 - **Next:** Verify deployed HTML and browser map persistence in an authenticated sandbox browser; then property verification and completed-booking review workflow. Production untouched.
+
+## 2026-11-10 08:52 ET — synthetic hunter isolation / deployment check
+- Confirmed Supabase project ID `kbkdfpmlyggfijkyjxoi` identifies active healthy project **leasewild-payment-testing** before testing.
+- Simulated authenticated hunter UUID `58356c6f-35b7-42c1-b9da-164863ea0cbb` via transaction-scoped `SET LOCAL ROLE authenticated` + JWT sub; `SELECT count(*)` for Owner A's three saved access zones returned **0** (**PASS**).
+- Same hunter identity SELECT for Owner A's draft listing returned **0** (**PASS**). No database mutation.
+- Staging map editor source still contains `L.featureGroup()` bounds fix (**PASS source inspection only**).
+- Direct HTTPS deployment probe `curl -IL --max-time 12 https://leasewild-sandbox.pages.dev/sandbox-zone-editor.html` failed with **curl (6) Could not resolve host** in current execution environment. **BLOCKED environment DNS**; not evidence that deployment is down.
+- **NOT TESTED** browser E2E drawing/save/reload, mobile widths 320–2560, keyboard/zoom, property verification, payment/webhooks, booking messaging, completed-booking review; no browser/session access used. Do not report these as passed.
+- Next: verify Cloudflare Pages deployment via provider API, then run authenticated browser E2E and viewport/accessibility checks when a browser-capable runner is available. No live/main changes.
