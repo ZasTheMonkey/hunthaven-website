@@ -65,3 +65,11 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **NOT TESTED:** Browser rendering widths 320/375/390/430/768/1024/1280/1440/1920, zoom 200%, touch/keyboard, landscape, real-device Safari, map and reviews UI. No browser harness available in this run.
 - **FAIL / existing P1:** Unread badges still intentionally hidden; read-state schema and read receipts remain absent. Coordinate schema and RLS design before enabling.
 - **GO/NO-GO:** **NO-GO** for production. Sandbox only; no main, production systems, real user data, or live payments modified.
+
+## 2026-11-10 01:50 ET — Send completion isolated from conversation switching
+- **PASS (source):** Inspected current hunter and landowner QA reports and messaging bridge. Found that `sendMessage` and `sendLoMessage` used the mutable active conversation ID again after awaiting network send. If the user switched threads during the request, the completion could refresh the wrong thread. Captured `sendingConvId` before the send and refresh only when the active conversation still matches. Both role paths updated; no backend/schema/payment changes. Code commit `1a145489c99ec94fc21e3083eaf59687b47b6fcb`. Re-fetched the source and confirmed two captured IDs, two sends with captured IDs, and two conditional refresh guards.
+- **PASS (deployment metadata only):** Cloudflare Pages deployment `2732c60c-0b47-4043-8b60-e13199e262db` reported `active` at exact code commit `1a145489c99ec94fc21e3083eaf59687b47b6fcb`, created 2026-11-10T06:50:51Z. No browser execution claimed.
+- **BLOCKED:** Authenticated hunter/owner E2E messaging, persistence, booking/cancellation, Stripe TEST checkout, and RLS negative tests: no securely provisioned QA session. Personal accounts not accessed.
+- **NOT TESTED:** Browser widths 320/375/390/430/768/1024/1280/1440/1920, zoom 200%, Safari/touch/keyboard, map-zone save/reload, cross-owner isolation, review eligibility/moderation. Browser automation unavailable in this run.
+- **FAIL / existing P1:** Unread badges remain disabled pending authorized read-state design and migration.
+- **GO/NO-GO:** **NO-GO** production. Sandbox branch only, no production or live payment changes.
