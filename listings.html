@@ -273,6 +273,12 @@
     .map-popup .pop-btn { display: block; width: 100%; text-align: center; padding: 8px; background: #2a5c3c; color: #fff; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
     .map-popup .pop-btn.water { background: #1a5c7a; }
 
+
+    /* Accessible keyboard skip link and visible focus for property discovery */
+    .skip-to-content{position:fixed;z-index:99999;top:12px;left:12px;transform:translateY(-160%);padding:.8rem 1rem;border-radius:10px;background:#173d2c;color:#fff;font-weight:700;text-decoration:none;box-shadow:0 6px 18px #0004}
+    .skip-to-content:focus{transform:translateY(0);outline:3px solid #d4a75a;outline-offset:3px}
+    #main-content:focus{outline:none}
+    @media(prefers-reduced-motion:reduce){.skip-to-content{transition:none}}
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
@@ -284,6 +290,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-to-content" href="#main-content">Skip to main content</a>
   <!-- NAV -->
   <nav class="nav">
     <div class="nav-inner">
@@ -330,6 +337,7 @@
 
 
 
+  <main id="main-content" tabindex="-1">
   <section class="hero" style="min-height:40dvh">
     <div class="hero-bg"></div>
     <div class="hero-bg-grid"></div>
@@ -656,6 +664,7 @@
   </script>
     
   <!-- FOOTER -->
+  </main>
   <footer>
     <div class="footer-inner">
       <div class="footer-brand">
