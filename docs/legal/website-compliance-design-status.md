@@ -1,6 +1,6 @@
 # LeaseWild Website Compliance Design Status
 
-_Last updated: November 9, 2026 at 9:17 PM ET_
+_Last updated: November 9, 2026 at 10:45 PM ET_
 
 ## Current run
 
@@ -67,3 +67,17 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - Current decision is **NO-GO for production launch** pending attorney review and authenticated/payment evidence.
 - Newly documented legal P0s include unverified insurance, verification, waiver, cancellation, and “without risk” claims across the homepage and listings page.
 - No binding policy text was changed or published.
+
+
+## Listings compliance UX update — November 9, 2026 at 10:45 PM ET
+
+- **Required legal handoff:** `docs/legal/website-compliance-handoff.md` is still absent.
+- **Legal blocker report:** `docs/launch-sprint/legal-blockers.md` is still absent; the Legal automation has a recorded completed run but no stored result or shared report.
+- **Implementation:** [`c7c85d755c948bf8f67ff038c79edcabd48ee04d`](https://github.com/ZasTheMonkey/hunthaven-website/commit/c7c85d755c948bf8f67ff038c79edcabd48ee04d) on sandbox staging only.
+- Removed expired prelaunch dates and claims that booking was not yet open.
+- Replaced universal verification, water-rights, up-to-date regulation, and state-tailored waiver assertions with qualified guidance to review host details and official agency rules.
+- Made the listings updates-form phone field optional, length-limited, described for accessibility, and omitted when blank.
+- No policy, waiver, fee, cancellation term, insurance promise, or other binding legal language was drafted or published.
+- Cloudflare build/deploy succeeded for exact implementation commit; canonical public listings page and updates-dialog behavior were smoke tested without form submission.
+- **Attorney review remains required** for privacy, communications consent, terms, waivers, insurance, host verification, refunds/cancellations, fee presentation, messaging retention, and Florida hunting/fishing obligations.
+- **Release status:** NO-GO. Authenticated E2E, Stripe TEST state handling, RLS/authorization, and mobile viewport evidence remain unavailable.
