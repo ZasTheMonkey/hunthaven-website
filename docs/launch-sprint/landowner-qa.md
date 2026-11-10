@@ -41,3 +41,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **BLOCKED:** Authenticated cross-role messaging, actual send/receive/persistence, map zone ownership/geometry save-reload, hunter-review eligibility and moderation, Stripe TEST checkout and RLS negative testing remain unverified without safely provisioned sessions and/or implemented features.
 - **NOT TESTED:** Browser responsive widths 320,375,390,430,768,1024,1280,1440,1920, 200% zoom, real-device touch/keyboard and landscape. No automated browser evidence gathered this run.
 - **NO-GO:** Production launch is not approved. No production, personal sessions, real users or live payment operations touched.
+
+## 2026-11-10 02:23 ET — Preserve owner draft on mid-send conversation switch
+- **PASS (source):** Found an owner-specific asynchronous send race: `sendLoMessage` captured the sending conversation ID for the network request, but still cleared the shared composer after send completion even when the landowner had switched to a different conversation and typed an identical draft. Scoped draft clearing and refresh to `loCurrentConvId===sendingConvId`. Code commit `632086094086b50cc98c5d684a1d80df87306f88`. Re-fetched the exact staging file and verified the new guard. This is source verification, not runtime browser testing.
+- **PASS (deployment metadata):** Cloudflare Pages returned deployment `4076969c-4c1d-4f3a-b578-d6c65fd1d092` `active` at exact commit `632086094086b50cc98c5d684a1d80df87306f88`, created `2026-11-10T07:23:40Z`. Does not prove browser functionality.
+- **BLOCKED:** Authenticated cross-role messaging, send/receive/persistence, owner-specific RLS, map zone save/reload and cross-owner isolation, reviews eligibility/moderation, Stripe TEST checkout regression: secure QA sessions unavailable; no personal login or real user data accessed.
+- **NOT TESTED:** Responsive widths 320,375,390,430,768,1024,1280,1440,1920; zoom 200%; actual touch, keyboard and landscape browser checks. No browser harness used in this run.
+- **NO-GO:** New map zones/reviews remain unverified; no automatic production launch. Sandbox only.
