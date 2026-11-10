@@ -135,3 +135,47 @@ Cloudflare's deployment list independently returned successful sandbox deploymen
 Coordination commits: launch evidence `da76ad1b3184b6bd52b6ebfb0a59843d4252f0fa`; legal status `fcd7385f65cc4c0c86ca99b0588f9146e9cc980d`.
 
 No production launch is authorized or implied.
+
+
+## 2026-11-09 11:29 PM ET — public homepage truthfulness and conversion-integrity pass
+
+**Decision: NO-GO.** This sandbox-only run removed fabricated public proof and prevented unconfirmed signup responses from being presented as successful subscriptions. It did not implement or approve the new access-zone or hunter-review data model.
+
+### Implemented
+
+- Code commit `93ae8e20413819cbc857fa32877663d355449d04` changed only `index.html`.
+- Removed eight hard-coded sample properties that previously seeded the map before the active-listings request completed.
+- Removed three named “early access member” testimonials with five-star ratings and replaced them with a restrained booking-clarity section describing the observable browse/compare/decide flow.
+- Retained dynamic active-listing rendering and the existing booking-detail integration.
+- Changed both public updates forms so an opaque `no-cors` response no longer hides the form or claims a confirmed subscription. Entered data remains visible and the retry action remains available.
+- Reviewed the existing `notify-signup` Edge Function and did not reuse it: its current contract is an auth-signup notification webhook, not a public lead-capture endpoint. No Supabase function, schema, RLS, auth, booking, messaging, or payment code changed.
+
+### Evidence
+
+| Check | Result | Evidence |
+|---|---|---|
+| Coordination | PASS | Latest branch head, Growth, Hunter QA, Landowner QA, launch-readiness, compliance status, five automation records, and Cloudflare deployment history reviewed before editing. |
+| Static source | PASS | Replacements asserted before commit; fabricated property/testimonial names absent; exactly one empty `LISTINGS_DATA` seed remains; dynamic fetch and renderer retained. |
+| Exact deployment | PASS (rendered while deploy stage was active) | Cloudflare deployment `eaef91d4-5a28-4803-8c95-ca4fa7e27e84` matched exact code SHA `93ae8e20`; exact deployment URL rendered the changed source. Final terminal deployment status is reconciled below when available. |
+| Public browser smoke | PASS at 1363px | Three database-backed cards rendered; fabricated names were absent; new booking-clarity section rendered; horizontal-overflow check returned false. |
+| Public map seed | PASS for removal / NOT TESTED for geospatial completeness | Zero fabricated markers rendered. The three returned listing records produced zero markers in this browser observation; coordinate completeness and map usability therefore remain unverified. |
+| Updates forms | PASS (source integrity) / NOT SUBMITTED | No confirmed-success state is shown from an opaque response and inputs are preserved. External submission was intentionally not performed; endpoint acceptance remains unverified. |
+| Responsive widths | NOT TESTED except 1363px | 320/375/390/430/768/1024/1280/1440/1920, touch, landscape, 200% zoom, and real-device evidence remain outstanding. |
+| Authenticated map zones and hunter reviews | BLOCKED / NOT IMPLEMENTED | No secure QA sessions, reviewed schema migration, RLS evidence, moderation flow, or cross-owner tests were available. |
+| Payments | USER-REPORTED PASS / independent lifecycle NOT TESTED | The user reports payments work. This run preserved payment code and did not test authorization, capture, refund, webhook, expiry, cancellation, or payout reconciliation. |
+
+### Five-bot evidence snapshot
+
+- **Designer/Developer:** implemented and publicly smoke-tested the scoped homepage truthfulness pass at `93ae8e20`.
+- **Hunter QA:** latest code `07fad409414f081fcb625894e48cc5469befe702` ignores stale inbox refresh responses; source and exact deployment evidence recorded. Authenticated and responsive behavior remains unverified.
+- **Landowner QA:** latest code `53b184a1cf0fedf177fa91f0ec93bc34e96e021d` preserves chat reading position during refresh; source and deployment evidence recorded. No access-zone/review implementation is verified.
+- **Growth Research:** `2419661c36433cde73df7b56366aac51201ba6d4` identified the false-success lead-capture defect implemented in this run; Growth did not run browser or payment tests.
+- **Legal Risk Review:** latest recorded run remains completed without a stored substantive result; `docs/legal/website-compliance-handoff.md` and `docs/launch-sprint/legal-blockers.md` are absent.
+
+### Remaining P0/P1 gates
+
+1. Remove or legally substantiate the remaining homepage protection/waiver/insurance-style claims.
+2. Design and review sandbox migrations/RLS for owner-only access-zone editing, authorized-booking location disclosure, eligible completed-booking hunter reviews, one-review-per-booking enforcement, moderation/reporting, and sensitive-data handling.
+3. Provision secure sandbox QA sessions for authenticated cross-role E2E.
+4. Implement a response-verifiable, privacy-reviewed lead-capture endpoint before claiming successful signup.
+5. Complete the requested responsive matrix and regression coverage.
