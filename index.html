@@ -1539,52 +1539,34 @@
     </div>
 
   <!-- ══════════════════════════════════════════
-       TESTIMONIALS
+       BOOKING CLARITY
   ══════════════════════════════════════════ -->
-  <div style="background:var(--bg);padding:0 0 64px">
-    <div class="section" style="padding-bottom:0">
-      <p class="section-eyebrow">What people are saying</p>
-      <h2>Early access members</h2>
-      <p class="section-sub">Hunters and anglers across Florida who are first in line.</p>
+  <section style="background:var(--bg);padding:0 0 64px" aria-labelledby="booking-clarity-title">
+    <div class="section" style="padding-bottom:24px">
+      <p class="section-eyebrow">Designed for informed bookings</p>
+      <h2 id="booking-clarity-title">The details that matter, before you commit.</h2>
+      <p class="section-sub">Explore active inventory, compare property-specific information, and review the booking details presented for each available property.</p>
     </div>
     <div style="max-width:1280px;margin:0 auto;padding:0 24px">
       <div class="testi-grid">
-        <div class="testi fade-up">
-          <div class="testi-stars">★★★★★</div>
-          <p>"I've been trying to find a private place to deer hunt near Tampa for 3 years. Every piece of land I wanted was leased or not for sale. LeaseWild is exactly what we've needed."</p>
-          <div class="testi-author">
-            <div class="testi-avatar" style="background:var(--green)">JD</div>
-            <div>
-              <strong>Jason D.</strong>
-              <span>Tampa, FL — Deer &amp; hog hunter</span>
-            </div>
-          </div>
-        </div>
-        <div class="testi fade-up">
-          <div class="testi-stars">★★★★★</div>
-          <p>"I own a 180-acre bass pond in Central Florida that sits empty 300 days a year. If I can book even 40 weekends at $200 a pop, that's $8k per year from land I'm already paying taxes on."</p>
-          <div class="testi-author">
-            <div class="testi-avatar" style="background:var(--water)">MR</div>
-            <div>
-              <strong>Mike R.</strong>
-              <span>Polk County, FL — Landowner</span>
-            </div>
-          </div>
-        </div>
-        <div class="testi fade-up">
-          <div class="testi-stars">★★★★★</div>
-          <p>"The state regulations panel on every listing is a game changer. I fish all over Florida and always second-guess license requirements on private ponds. Seeing it on the listing is huge."</p>
-          <div class="testi-author">
-            <div class="testi-avatar" style="background:var(--amber)">CW</div>
-            <div>
-              <strong>Chris W.</strong>
-              <span>Jacksonville, FL — Bass angler</span>
-            </div>
-          </div>
-        </div>
+        <article class="testi fade-up">
+          <p class="section-eyebrow" style="margin-bottom:10px">01 · Explore</p>
+          <h3 style="font-size:1.05rem;margin-bottom:8px">Real active inventory</h3>
+          <p>Marketplace cards and map markers are loaded from active property records—not sample listings.</p>
+        </article>
+        <article class="testi fade-up">
+          <p class="section-eyebrow" style="margin-bottom:10px">02 · Compare</p>
+          <h3 style="font-size:1.05rem;margin-bottom:8px">Property-specific context</h3>
+          <p>Review the acreage, activities, access notes, rules, pricing, and availability supplied for each property.</p>
+        </article>
+        <article class="testi fade-up">
+          <p class="section-eyebrow" style="margin-bottom:10px">03 · Decide</p>
+          <h3 style="font-size:1.05rem;margin-bottom:8px">Clear next steps</h3>
+          <p>Open the full property view, select available dates, and review the displayed booking details before checkout.</p>
+        </article>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- ══════════════════════════════════════════
        EMAIL STRIP
@@ -1597,7 +1579,7 @@
       <input class="email-input" type="email" id="inline-email" name="email" autocomplete="email" aria-label="Email address" placeholder="your@email.com" required />
       <button class="email-btn" type="submit" id="inline-btn">Get updates</button>
     </form>
-    <p id="inline-confirm" role="status" aria-live="polite" style="display:none;color:var(--green);font-weight:600;margin-top:14px">You're subscribed — we'll be in touch.</p>
+    <p id="inline-confirm" role="status" aria-live="polite" style="display:none;color:var(--muted);font-weight:600;margin-top:14px"></p>
   </div>
 
   <!-- ══════════════════════════════════════════
@@ -2054,16 +2036,9 @@
     });
   })();
 
-  const LISTINGS_DATA = [
-    { id:1, type:'hunting', lat:27.30, lng:-81.34, title:'Palmetto Ridge Cabin', acres:450, price:240, species:'Deer · Hog', city:'Lake Placid' },
-    { id:2, type:'fishing', lat:29.19, lng:-82.13, title:'Silver Springs Bass Ranch', acres:18, price:195, species:'Largemouth Bass', city:'Ocala' },
-    { id:3, type:'hunting', lat:29.19, lng:-82.13, title:'Cypress Hollow Preserve', acres:210, price:175, species:'Turkey · Hog', city:'Ocala' },
-    { id:4, type:'fishing', lat:27.49, lng:-81.22, title:'Big Creek Trout Access', acres:5, price:320, species:'Trout · Bluegill', city:'Highlands Co.' },
-    { id:5, type:'hunting', lat:29.65, lng:-82.33, title:'Gainesville Ranch', acres:890, price:250, species:'Deer · Turkey', city:'Gainesville' },
-    { id:6, type:'fishing', lat:28.54, lng:-81.38, title:'Orlando Private Lake', acres:8, price:110, species:'Bass · Crappie', city:'Orlando' },
-    { id:7, type:'hunting', lat:30.33, lng:-81.66, title:'North FL Timber Tract', acres:1200, price:195, species:'Deer · Hog · Turkey', city:'Jacksonville' },
-    { id:8, type:'hunting', lat:30.44, lng:-84.28, title:'Tallahassee Quail Farm', acres:700, price:300, species:'Quail · Turkey', city:'Tallahassee' },
-  ];
+  // Do not seed the marketplace map with sample properties. Verified active
+  // listings replace this empty state after the public listings request succeeds.
+  const LISTINGS_DATA = [];
 
   /* ─────────────────────────────────────────────
      MAP — Satellite imagery + location search
@@ -2765,15 +2740,20 @@
     var location = document.getElementById('wl-location').value.trim();
     var btn = document.getElementById('wl-submit');
     btn.disabled=true; btn.textContent='Submitting…';
+    var status = document.getElementById('wl-error');
+    status.style.display='none';
     try{
       var waitlistData = {firstName:first,lastName:last,email,location,timestamp:new Date().toLocaleString('en-US',{timeZone:'America/New_York'})};
       if(phone) waitlistData.phone = phone;
       var params = new URLSearchParams(waitlistData);
       await fetch(WAITLIST_URL+'?'+params,{method:'GET',mode:'no-cors'});
-    }catch(err){console.warn(err);}
-    document.getElementById('wl-form-view').style.display='none';
-    document.getElementById('wl-success').style.display='block';
-    btn.disabled=false;
+      status.textContent='Request sent, but the signup service did not return a confirmation. Your details remain here so you can try again.';
+    }catch(err){
+      console.warn(err);
+      status.textContent='We could not send your request. Check your connection and try again; your details have been preserved.';
+    }
+    status.style.display='block';
+    btn.disabled=false; btn.textContent='Try again';
   }
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape'){
@@ -2790,11 +2770,17 @@
     var email = document.getElementById('inline-email').value.trim();
     var btn = document.getElementById('inline-btn');
     btn.disabled=true; btn.textContent='Joining…';
+    var confirmation = document.getElementById('inline-confirm');
+    confirmation.style.display='none';
     try{
       await fetch(WAITLIST_URL+'?'+new URLSearchParams({firstName:'',lastName:'',email,phone:'',location:'',timestamp:new Date().toLocaleString()}),{method:'GET',mode:'no-cors'});
-    }catch(err){}
-    document.getElementById('inline-confirm').style.display='block';
-    e.target.style.display='none';
+      confirmation.textContent='Request sent, but signup could not be confirmed. Your email is still here so you can try again.';
+    }catch(err){
+      console.warn(err);
+      confirmation.textContent='We could not send your request. Check your connection and try again.';
+    }
+    confirmation.style.display='block';
+    btn.disabled=false; btn.textContent='Try again';
   }
 
   /* ── SCROLL ANIMATIONS ── */
