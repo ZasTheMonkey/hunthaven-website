@@ -87,7 +87,8 @@ const style=document.createElement('style');
         el.removeAttribute('role');
         el.innerHTML=rows.length?rows.map((t,i)=>threadCard(t,titles[i],previews[i])).join(''):'<div class="lw-chat-empty">No conversations yet. Open a booking to message your guest.</div>';
         el.querySelectorAll('[data-conv]').forEach(b=>b.addEventListener('click',()=>window.openLoConversation(b.dataset.conv,b.dataset.title,'')));
-        document.getElementById('lo-unread-badge').style.display='none';
+        const unreadBadge=document.getElementById('lo-unread-badge');
+        if(unreadBadge)unreadBadge.style.display='none';
       }catch(e){if(request===ownerInboxRequest){el.setAttribute('role','alert');el.textContent='Unable to load conversations. '+(e.message||'Please retry.');}}
     };
     window.openLoConversation=async function(id,subject,guestEmail){
