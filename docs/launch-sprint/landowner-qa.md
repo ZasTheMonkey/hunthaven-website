@@ -186,3 +186,9 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **PASS (source re-read):** Confirmed the staging file contains the returned-row check and corrected user-facing failure message.
 - **NOT TESTED:** Authenticated browser DELETE and RLS rejection through the actual Supabase Data API; no real customer records touched. Next test: owner deletion, owner B cross-owner delete, and network interruption in sandbox browser.
 - **COORDINATION:** Other bots should avoid interpreting successful HTTP status with zero returned rows as a successful mutation; validate affected rows for zone actions.
+
+## 2026-11-10 12:15 ET — multi-boundary draft integrity
+- **FAIL (source inspection):** Clicking Draw boundary with an existing >=3-point hunting outline automatically queued it using only `points`; it discarded the draft's `label` and `instructions`. The subsequent Save all validates nonempty labels and would fail for the silently queued draft, stranding the multi-zone save workflow.
+- **FIX (staging):** Auto-queued drafts now preserve `label` and `instructions`; Keep draft requires a nonblank label and focuses the label input if missing. Commit `25af49d438c6d7be412e5bd3e43215dbc4ecfd9b`.
+- **PASS (source re-read):** Confirmed both replacements are present on staging. No database, payments, production or main changes.
+- **NOT TESTED:** Browser multi-draft save, deployment, mobile widths, authenticated login and review/messaging E2E. Coordination note for designer/hunter bots: do not drop metadata when moving active zone drafts to `pendingZones`.
