@@ -25,6 +25,7 @@
   };
   const list=async()=>{
     const {data}=await sb.auth.getSession();
+    if(!data?.session?.user?.id) throw Error('Please sign in again to view messages.');
     const field=owner?'landowner_id':'hunter_id';
     return api('booking_conversations?'+field+'=eq.'+encodeURIComponent(data.session.user.id)+'&order=created_at.desc&select=*');
   };
@@ -33,6 +34,7 @@
   const messages=id=>api('booking_messages?conversation_id=eq.'+encodeURIComponent(id)+'&order=created_at.asc&select=*');
   const send=async(id,body)=>{
     const {data}=await sb.auth.getSession();
+    if(!data?.session?.user?.id) throw Error('Please sign in again to send messages.');
     return api('booking_messages',{method:'POST',headers:{Prefer:'return=minimal'},
       body:JSON.stringify({conversation_id:id,sender_id:data.session.user.id,body})});
   };
@@ -61,9 +63,9 @@ const style=document.createElement('style');
   @media(max-width:600px){.lw-message-thread{padding:13px!important}.lw-chat-messages{max-height:48vh}.lw-avatar{flex-basis:42px;width:42px;height:42px}}
   `;
   document.head.appendChild(style);
-  const initials=name=>name.split(/[\\s·,]+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join('');
+  const initials=name=>name.split(/[\s·,]+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join('');
   const threadCard=(t,title,last)=>'<button type="button" class="lw-message-thread" data-conv="'+safe(t.id)+'" data-booking="'+safe(t.booking_id)+'" data-title="'+safe(title)+'"><span class="lw-avatar" aria-hidden="true">'+safe(initials(title))+'</span><span class="lw-thread-body"><span class="lw-thread-name">'+safe(title)+'</span><span class="lw-thread-preview">'+safe(last?.body||'Start a conversation')+'</span></span><span class="lw-thread-date">'+safe(last?new Date(last.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'')+'</span></button>';
-  const threadPreview=async t=>{try{const x=await messages(t.id);return x?.[x.length-1]||null;}catch(e){return null;}};
+  const threadPreview=async t=>{const x=await messages(t.id);return x?.[x.length-1]||null;};
   const chatMarkup=(rows,myId)=>rows.length?rows.map(m=>'<div class="lw-chat-row '+(m.sender_id===myId?'mine':'')+'"><div class="lw-chat-bubble">'+safe(m.body)+'</div><span class="lw-chat-time">'+safe(fmt(m))+'</span></div>').join(''):'<div class="lw-chat-empty">No messages yet.<p>Say hello and start the conversation.</p></div>';
     if(owner){
     window.loadLoThreads=async function(email){
@@ -94,6 +96,7 @@ const style=document.createElement('style');
         const rows=await messages(id), {data}=await sb.auth.getSession();
         if(loCurrentConvId!==id)return;
         el.classList.add('lw-chat-messages');
+        if(!data?.session?.user?.id) throw Error('Please sign in again to view messages.');
         el.innerHTML=chatMarkup(rows,data.session.user.id);
         el.scrollTop=el.scrollHeight;
       }catch(e){el.textContent=e.message;}
@@ -137,6 +140,7 @@ const style=document.createElement('style');
         const rows=await messages(id),{data}=await sb.auth.getSession();
         if(currentConvId!==id)return;
         el.classList.add('lw-chat-messages');
+        if(!data?.session?.user?.id) throw Error('Please sign in again to view messages.');
         el.innerHTML=chatMarkup(rows,data.session.user.id);
         el.scrollTop=el.scrollHeight;
       }catch(e){el.textContent=e.message;}
