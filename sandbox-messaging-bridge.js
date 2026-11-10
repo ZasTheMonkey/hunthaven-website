@@ -81,10 +81,11 @@ const style=document.createElement('style');
         const previews=await Promise.all(rows.map(threadPreview));
         if(request!==ownerInboxRequest)return;
         el.classList.add('lw-inbox');
+        el.removeAttribute('role');
         el.innerHTML=rows.length?rows.map((t,i)=>threadCard(t,titles[i],previews[i])).join(''):'<div class="lw-chat-empty">No conversations yet. Open a booking to message your guest.</div>';
         el.querySelectorAll('[data-conv]').forEach(b=>b.addEventListener('click',()=>window.openLoConversation(b.dataset.conv,b.dataset.title,'')));
         document.getElementById('lo-unread-badge').style.display='none';
-      }catch(e){if(request===ownerInboxRequest)el.textContent=e.message;}
+      }catch(e){if(request===ownerInboxRequest){el.setAttribute('role','alert');el.textContent='Unable to load conversations. '+(e.message||'Please retry.');}}
     };
     window.openLoConversation=async function(id,subject,guestEmail){
       loCurrentConvId=id;
@@ -101,13 +102,14 @@ const style=document.createElement('style');
         const rows=await messages(id), {data}=await sb.auth.getSession();
         if(loCurrentConvId!==id||request!==ownerMessageRequest)return;
         el.classList.add('lw-chat-messages');
+        el.removeAttribute('role');
         if(!data?.session?.user?.id) throw Error('Please sign in again to view messages.');
         const nearBottom=el.scrollHeight-el.scrollTop-el.clientHeight<80;
         const previousHeight=el.scrollHeight,previousTop=el.scrollTop;
         el.innerHTML=chatMarkup(rows,data.session.user.id);
         if(nearBottom)el.scrollTop=el.scrollHeight;
         else el.scrollTop=previousTop+(el.scrollHeight-previousHeight);
-      }catch(e){if(loCurrentConvId===id&&request===ownerMessageRequest)el.textContent=e.message;}
+      }catch(e){if(loCurrentConvId===id&&request===ownerMessageRequest){el.setAttribute('role','alert');el.textContent='Unable to load messages. '+(e.message||'Please retry.');}}
     };
     window.sendLoMessage=async function(){
       const el=document.getElementById('lo-compose'),btn=document.getElementById('lo-send-btn'),body=el.value.trim();
