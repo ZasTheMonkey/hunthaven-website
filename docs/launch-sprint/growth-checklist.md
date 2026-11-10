@@ -64,3 +64,23 @@ Competitor categories to benchmark in next run: LandTrust (experience/package di
 - **Deployment this run:** not independently verified; prior designer/QA deployment evidence is reported in their respective handoffs, not reclassified as our test.
 - **Browser/mobile/Stripe TEST/authenticated E2E this run:** NOT TESTED / authenticated E2E BLOCKED pending secure dedicated QA sessions.
 - **Release:** NO-GO for production under shared release gate. Production/main/real users/payments untouched.
+
+
+## 2026-11-09 23:17 ET — Current-source reconciliation and new P1 conversion integrity finding
+
+### Coordination
+- Reviewed latest staging history through `6fbfdc5e891d41eab6c212b53b8ffaf6c0a53c61`, plus current Hunter QA, Landowner QA, Designer launch-readiness and sprint README. Hunter/owner messaging scroll fixes `da3c7a4d` / `53b184a1` have source and deployment-metadata evidence, **not authenticated E2E**. Designer owns public homepage/listings implementation. No edits to their files.
+- Re-fetched staging `index.html` (blob `5da7f5544e1fd4af93616f8acfa92c82b9e96164`), `listings.html` (blob `e2ade4b00a7b6c5f47ac68f702791d4132294849`) and `sitemap.xml`. Static source inspection only.
+
+### Updated status: previously flagged P0s resolved in source
+- **PASS (static):** Current `listings.html` contains zero instances of expired “July 1,” “Get early access,” or “when we go live” strings; Designer's `c7c85d75` fix is present. Do **not** keep treating this as an open P0 without new evidence.
+- **PASS (static):** Homepage no longer contains exact strings “1,200+,” “$1M coverage,” “without the risk,” or “Verified landowners.” Current WebSite JSON-LD has **no SearchAction**; earlier unsupported `?q=` schema issue is resolved. Remove these from active defect lists, but separately review any new trust claims in rendered UI.
+
+### New P1 — updates form may falsely claim success
+- **FAIL (source logic):** Homepage updates form uses `fetch(WAITLIST_URL+'?'+params,{method:'GET',mode:'no-cors'})`; its `catch` only logs a warning, then unconditionally hides the form and shows `wl-success`. In `no-cors` mode the opaque response cannot confirm server acceptance. Users can see success when a request fails, risking lost qualified leads. **Owner: Designer/Developer**, not Growth (avoid concurrent homepage edits). Acceptance: use a response-verifiable same-origin or properly CORS-enabled endpoint with server-side validation; show success only after confirmed acknowledgement, preserve entered data and display an actionable error on failure; do not expose PII in URLs or analytics. If no verified endpoint exists, do not falsely claim subscription succeeded.
+- **P1 fee copy pending checkout owner:** Visible FAQ says “daily rate + 20% service fee (on rate + cleaning fee) + Stripe payment processing fee (2.9% + $0.30).” Confirmed owner/platform 80/20 split alone does not prove those *guest-facing* fee terms. Verify Stripe TEST math, payer of processing fees, and actual refund behavior before rewriting public FAQ or structured FAQ. Avoid fixed processor-price claims absent current configuration evidence.
+- **P1 metadata:** `sitemap.xml` lastmod dates remain April 2026; update only with verified substantive page update dates. FAQPage JSON-LD should match visible, validated FAQ and should not imply guaranteed rich results.
+
+### Conversion measurement and release evidence
+- Recommend synthetic sandbox test: deliberately fail updates endpoint, verify no success state and no loss of input; then verify successful server-acknowledged signup once a safe endpoint exists. Measure `updates_submit_attempt`, `updates_submit_confirmed`, `updates_submit_error` **without email/phone/PII in analytics**. No such test performed here.
+- This run: documentation-only change; no application code, browser/mobile/Stripe TEST or authenticated E2E. Deployment status **not independently checked**; commit-to-branch is not evidence of Pages activation. Authenticated E2E remains **BLOCKED** without secure dedicated QA sessions. Production/main/real users/payments untouched. **NO-GO** remains appropriate.
