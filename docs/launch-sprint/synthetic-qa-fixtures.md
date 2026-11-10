@@ -46,3 +46,11 @@ These are proposed identifiers, **not verified Auth users**. Gmail plus-addressi
 - Both bookings explicitly labeled QA ONLY; both listings are draft and must not be publicly bookable. These bookings are database fixtures, **not** proof of end-to-end booking flow or Stripe payment.
 - Verification query: two draft listings, two pre_reserved bookings, **zero** `lease_payments` linked to test bookings.
 - Cleanup: delete these booking IDs first, then these listing IDs, only after tests and dependency inspection. Do not delete unrelated records.
+
+## Owner A versus Owner B zone RLS test — 2026-11-10
+- Transactional SQL test with `SET LOCAL ROLE authenticated` and simulated `request.jwt.claim.sub` for the real synthetic QA Auth user IDs.
+- Owner A INSERT of a temporary `entry` Point into Owner A draft listing succeeded.
+- Switched JWT sub to Owner B in same transaction: Owner B SELECT of Owner A zones returned `0` rows.
+- `ROLLBACK` performed; independent follow-up count confirmed `0` saved zones for Owner A fixture.
+- **PASS:** Owner A INSERT authorization; Owner B cross-owner SELECT isolation; cleanup.
+- **NOT TESTED:** Browser login, cross-owner UPDATE/DELETE, positive persistent map save/reload, payments, bookings through UI.
