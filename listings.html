@@ -549,9 +549,9 @@
   }
 
   function formatAcreage(value) {
-    var raw = String(value || '').trim();
-    if (!raw) return '';
-    return /\b(?:ac|acre|acres)\b/i.test(raw) ? raw : raw + ' acres';
+    var acres = parseAcres(value);
+    if (acres === null) return '';
+    return acres.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' acres';
   }
 
   function safePhotoUrl(value) {
@@ -758,7 +758,7 @@
       lat: lat,
       lng: lng,
       title: (l.county ? l.county + ' Private Land' : 'Private Land'),
-      acres: parseInt(l.acreage) || 0,
+      acres: parseAcres(l.acreage),
       price: parseInt(l.price_per_day) || 0,
       unit: 'day',
       species: l.activities || [],
