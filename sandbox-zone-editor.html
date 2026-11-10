@@ -13,7 +13,7 @@
 <details><summary>Optional: enter exact coordinates</summary><label for="latitude">Latitude (-90 to 90)</label><input id="latitude" type="number" min="-90" max="90" step="any" inputmode="decimal">
 <label for="longitude">Longitude (-180 to 180)</label><input id="longitude" type="number" min="-180" max="180" step="any" inputmode="decimal">
 <button type="button" id="add-point">Add coordinate</button></details><button type="button" id="undo" class="secondary">Undo last point</button><button type="button" id="clear" class="secondary">Clear draft</button>
-<button type="button" id="draw-boundary" class="secondary" aria-pressed="false">Draw boundary</button><p id="draw-help">Drawing off. Select Draw boundary to trace directly on the map.</p><p id="draft-count" aria-live="polite">No draft points</p>
+<button type="button" id="draw-boundary" class="secondary" aria-pressed="false">Draw boundary</button><button type="button" id="keep-zone" class="secondary">Keep draft &amp; draw another</button><p id="pending-count" aria-live="polite">0 other draft zones</p><p id="draw-help">Drawing off. Select Draw boundary to trace directly on the map.</p><p id="draft-count" aria-live="polite">No draft points</p>
 <button type="button" id="save" disabled>Save zone</button>
 <h2>Saved zones</h2><ul id="saved"></ul><small>Only signed-in owners can manage their own listing's zones. Exact access coordinates are not available to hunters yet.</small>
 </section><section aria-label="Map"><div id="map" role="application" aria-label="Interactive property map. Use coordinate fields for keyboard access."></div><p><small>Map data © OpenStreetMap contributors. Do not rely on these boundaries as a legal survey.</small></p></section></main>
@@ -28,9 +28,10 @@ const status=document.getElementById('status'),save=document.getElementById('sav
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const map=L.map('map').setView([29.02,-80.93],11);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:19}).addTo(map);
-let points=[],draftLayer=null,savedLayers=L.featureGroup().addTo(map),owner=false,drawing=false,tracing=false,tracePointer=null;const drawButton=document.getElementById('draw-boundary'),drawHelp=document.getElementById('draw-help'),mapEl=document.getElementById('map');
+let points=[],draftLayer=null,pendingZones=[],pendingLayers=L.featureGroup().addTo(map),savedLayers=L.featureGroup().addTo(map),owner=false,drawing=false,tracing=false,tracePointer=null;const drawButton=document.getElementById('draw-boundary'),drawHelp=document.getElementById('draw-help'),mapEl=document.getElementById('map');
 function message(s){status.textContent=s;}
 function valid(p){return Number.isFinite(p[0])&&Number.isFinite(p[1])&&Math.abs(p[0])<=90&&Math.abs(p[1])<=180;}
+function renderPending(){pendingLayers.clearLayers();pendingZones.forEach(z=>{if(z.points.length>=3)L.polygon(z.points,{color:'#477a54',weight:3,fillOpacity:.13}).addTo(pendingLayers);});document.getElementById('pending-count').textContent=pendingZones.length+' other draft zone(s)';}
 function renderDraft(){
  save.disabled=!owner||!points.length;
  if(draftLayer)map.removeLayer(draftLayer);
@@ -44,9 +45,10 @@ function setDrawing(on){
  drawButton.textContent=on?'Finish drawing mode':'Draw boundary';drawHelp.textContent=on?'Press and drag on the map to trace the boundary. Release to finish the outline.':'Drawing off. Add one starting point, then select Draw boundary.';
  if(on){map.dragging.disable();map.touchZoom.disable();map.doubleClickZoom.disable();map.scrollWheelZoom.disable();}else{map.dragging.enable();map.touchZoom.enable();map.doubleClickZoom.enable();map.scrollWheelZoom.enable();}
 }
+document.getElementById('keep-zone').onclick=()=>{if(points.length<3||document.getElementById('zone-type').value!=='hunting_area'){message('Draw a complete hunting boundary before keeping it.');return;}if(pendingZones.length>=20){message('Save or clear existing draft zones before adding more.');return;}pendingZones.push({points:points.map(p=>p.slice())});points=[];setDrawing(false);renderPending();renderDraft();message('Boundary kept on the map. You can draw another. Other drafts are not saved to your property yet.');};
 drawButton.onclick=()=>{
  if(document.getElementById('zone-type').value!=='hunting_area'){message('Drawing is only for hunting boundaries.');return;}
- setDrawing(!drawing);if(drawing)message('Trace the property boundary on the map with one continuous stroke.');
+ if(!drawing&&points.length>=3){if(pendingZones.length>=20){message('Save or clear some draft zones before drawing another.');return;}pendingZones.push({points:points.map(p=>p.slice())});points=[];renderPending();renderDraft();}setDrawing(!drawing);if(drawing)message('Trace the next property boundary on the map with one continuous stroke. Previous drafts remain visible.');
 };
 function tracePosition(e){const bounds=mapEl.getBoundingClientRect();return map.containerPointToLatLng([e.clientX-bounds.left,e.clientY-bounds.top]);}
 mapEl.addEventListener('pointerdown',e=>{
@@ -71,7 +73,7 @@ mapEl.addEventListener('pointerup',endTrace);mapEl.addEventListener('pointercanc
 map.on('click',e=>add([e.latlng.lat,e.latlng.lng]));
 document.getElementById('add-point').onclick=()=>{const lat=document.getElementById('latitude').value.trim(),lng=document.getElementById('longitude').value.trim();if(!lat||!lng){message('Enter both latitude and longitude.');return;}add([Number(lat),Number(lng)]);};
 document.getElementById('undo').onclick=()=>{points.pop();renderDraft();};
-document.getElementById('clear').onclick=()=>{setDrawing(false);points=[];renderDraft();};
+document.getElementById('clear').onclick=()=>{setDrawing(false);points=[];pendingZones=[];renderPending();renderDraft();message('All unsaved draft zones cleared.');};
 document.getElementById('zone-type').onchange=()=>{setDrawing(false);points=[];drawButton.disabled=document.getElementById('zone-type').value!=='hunting_area';renderDraft();};
 function geometry(){const type=document.getElementById('zone-type').value;if(type!=='hunting_area')return {type:'Point',coordinates:[points[0][1],points[0][0]]};const ring=points.map(p=>[p[1],p[0]]);ring.push(ring[0]);return {type:'Polygon',coordinates:[ring]};}
 async function refresh(){
@@ -94,7 +96,7 @@ save.onclick=async()=>{
  const label=document.getElementById('zone-label').value.trim();if(!label){message('Enter a zone label.');return;}
  save.disabled=true;message('Saving zone…');
  const {error}=await client.from('listing_access_zones').insert({listing_id:id,zone_type:document.getElementById('zone-type').value,label,geometry:geometry(),instructions:document.getElementById('zone-notes').value.trim()||null});
- if(error)message('Save failed: '+error.message);else{points=[];renderDraft();message('Zone saved.');await refresh();}
+ if(error)message('Save failed: '+error.message);else{points=[];renderDraft();message('Zone saved. Other unsaved drafts remain on the map.');await refresh();}
  save.disabled=false;
 };
 (async()=>{
