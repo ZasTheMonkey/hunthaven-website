@@ -112,8 +112,9 @@ const style=document.createElement('style');
     window.sendLoMessage=async function(){
       const el=document.getElementById('lo-compose'),btn=document.getElementById('lo-send-btn'),body=el.value.trim();
       if(!body||!loCurrentConvId||btn.disabled)return;
+      const sendingConvId=loCurrentConvId;
       btn.disabled=true;
-      try{await send(loCurrentConvId,body);if(el.value.trim()===body)el.value='';await window.loadLoMessages(loCurrentConvId);}catch(e){showError(e);}finally{btn.disabled=false;}
+      try{await send(sendingConvId,body);if(el.value.trim()===body)el.value='';if(loCurrentConvId===sendingConvId)await window.loadLoMessages(sendingConvId);}catch(e){showError(e);}finally{btn.disabled=false;}
     };
     window.openLoConversationFromBooking=async function(bookingId,listingId,guestName,guestEmail){
       try{const id=await openBooking(bookingId);await window.openLoConversation(id,'Conversation with '+guestName,guestEmail);document.getElementById('messages-section').scrollIntoView({behavior:'smooth'});}catch(e){showError(e);}
@@ -164,8 +165,9 @@ const style=document.createElement('style');
     window.sendMessage=async function(){
       const el=document.getElementById('compose-input'),btn=document.getElementById('send-btn'),body=el.value.trim();
       if(!body||!currentConvId||btn.disabled)return;
+      const sendingConvId=currentConvId;
       btn.disabled=true;
-      try{await send(currentConvId,body);if(el.value.trim()===body)el.value='';await window.loadMessages(currentConvId);}catch(e){showError(e);}finally{btn.disabled=false;}
+      try{await send(sendingConvId,body);if(el.value.trim()===body)el.value='';if(currentConvId===sendingConvId)await window.loadMessages(sendingConvId);}catch(e){showError(e);}finally{btn.disabled=false;}
     };
   }
 })();
