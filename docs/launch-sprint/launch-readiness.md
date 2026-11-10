@@ -342,3 +342,43 @@ Production, `main`, live Stripe, production Supabase, real users and personal se
 | Legal approval | BLOCKED | Legal handoff and Florida attorney review absent |
 
 Production, `main`, live Stripe, production Supabase, real users and personal sessions were untouched.
+
+
+## 2026-11-10 04:50 ET — Public listing privacy minimization and access-control design
+
+**Decision: NO-GO.** The public listings page now requests only presentation-safe fields, but direct Data API protection, property-access-zone persistence, hunter-review persistence, authenticated authorization tests, full responsive coverage, and legal approval remain incomplete.
+
+### Completed this run
+
+- **Application commit `20be480945856fd3a8b9a85e80d61f27f024f2ec`:** replaced the public listings `select('*')` query with an explicit field allowlist. The query no longer requests owner contact fields, street address, parcel boundary, or allowed-zone geometry.
+- **Review-only schema design `ac8d868148ed113ba92c9e4b3ba05e7acdcf8666`:** added `docs/launch-sprint/access-zones-reviews-schema-draft.sql`. It documents PostGIS zone geometry, owner and booked-hunter RLS, completed-booking review eligibility, one review per booking, reporting/moderation, indexes, a `security_invoker` public catalog view, and required negative tests.
+- The schema file is deliberately fail-closed and is **not an executable migration**. It raises an exception before DDL and ends with `rollback`.
+
+### Verification evidence
+
+| Check | Result | Evidence |
+|---|---|---|
+| Public listings field allowlist | PASS — source | Re-fetched blob `4786a08b5d8a383b402f9e3fadf19cad4194e3ab`; no wildcard query and no sensitive field in the public select |
+| Executable inline JavaScript | PASS — static | All three executable inline scripts compile; JSON-LD scripts were excluded from JavaScript compilation |
+| Schema safety invariants | PASS — static | Fail-closed guard; rollback; RLS on all three proposed tables; cached `auth.uid()`; UPDATE `USING` + `WITH CHECK`; unique booking review; GiST index; no anonymous grant on sensitive tables |
+| Exact Cloudflare deployment | PASS | Deployment `341f65e8-081f-4842-8f66-d4219a993a79` built and deployed successfully for exact head `ac8d868148ed113ba92c9e4b3ba05e7acdcf8666` at 2026-11-10 09:38 UTC |
+| Deployed listings at 1363px | PASS — browser | Three cards rendered, loading cleared, and no horizontal overflow |
+| Database migration / RLS runtime | BLOCKED / NOT APPLIED | Connected Supabase projects do not identify an unambiguous LeaseWild application sandbox; schema drift also exists between repository SQL and application queries |
+| Authenticated map/review workflows | BLOCKED | No securely provisioned owner/hunter QA sessions |
+| 320–1920px matrix, touch, zoom, orientation | NOT TESTED | Only a 1363px browser observation was performed this run |
+| Payments | USER-REPORTED PASS; NOT RETESTED | Existing payment code was preserved. Refund, webhook, payout, and booking-state lifecycle remain independently unverified |
+
+### Five-bot evidence snapshot
+
+- **Designer/Developer:** completed the public listing privacy minimization and review-only schema foundation above.
+- **Hunter QA:** latest recorded code `04c1604f115788062a60ce5f43d5b8edc4cd6901` adds an accessible message-load error; report `c16ed37636243fb06389dc24ad110b37d6e8d37d`. Deployment and authenticated/runtime responsive testing were not verified by that bot.
+- **Landowner QA:** latest recorded code `92b7cc2fb381d178aa93cc81f5e1a2c314b38aa8` preserves drafts per conversation; report `4fe3be3c0a0cc7c3235fa2bbac7b0903d3ee7378`. Exact deployment was reported verified; authenticated behavior remains blocked.
+- **Growth Research:** documentation commit `361867723f2cc03e72ea73b25295ca7810e6a3e0` prioritizes messaging reliability, privacy-conscious conversion measurement, and authentic premium listing content. No application or browser verification was performed.
+- **Legal Risk Review:** latest run has no substantive recorded result. The required legal handoff remains absent.
+
+### Next safe priorities
+
+1. Identify and explicitly approve the LeaseWild application **sandbox** Supabase project, then reconcile listing/booking schema and status vocabulary before converting the draft into a migration.
+2. Obtain secure synthetic owner/hunter QA sessions; test owner-only zone CRUD, booked-hunter reads, cross-owner denial, completed-booking review eligibility, uniqueness, and moderation.
+3. Build accessible map-drawing and review UI only after the storage and authorization contract is approved.
+4. Continue the responsive matrix and real-device/touch testing.
