@@ -81,3 +81,11 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **NOT TESTED:** Browser rendering at 320/375/390/430/768/1024/1280/1440/1920, zoom 200%, touch/keyboard/landscape, Safari real device, map editor/reviews. No browser harness executed.
 - **FAIL / known P1:** Unread badges remain disabled pending secure read-status schema and RLS design.
 - **GO/NO-GO:** **NO-GO** production. No production, main, real users, or live payments touched.
+
+## 2026-11-10 04:06 ET — Hunter message load error accessibility
+- **PASS (source inspection):** Hunter message-load failure now sets `role=alert` and provides a retry-oriented error message, matching the existing landowner error treatment. Stale-conversation and stale-request guards remain intact. Re-fetched committed source; assertion: PASS.
+- **Code commit:** `04c1604f115788062a60ce5f43d5b8edc4cd6901` (`sandbox-messaging-bridge.js`). No production files changed.
+- **NOT VERIFIED (deployment):** No independent Cloudflare deployment status was obtained in this run. Commit does not establish deployment.
+- **BLOCKED:** No securely provisioned QA sessions for hunter/owner authenticated E2E, messaging/RLS, bookings, cancellation, reviews, map-zone save/reload or Stripe TEST. No real data or payments touched.
+- **NOT TESTED:** Browser rendering at 320/375/390/430/768/1024/1280/1440/1920px, zoom, touch/keyboard, and real-device Safari; no browser evidence available.
+- **NO-GO:** Production release remains blocked on verified critical workflows and authorization. This is source-only accessibility improvement, not functional E2E evidence.
