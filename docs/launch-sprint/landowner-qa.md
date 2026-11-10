@@ -95,3 +95,12 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **BLOCKED:** Precise hunter-zone access requires actual sandbox booking time columns/status semantics, owner/hunter synthetic sessions and security/legal review before enabling; do not claim functional map feature.
 - **NOT VERIFIED:** Cloudflare deployment for this change; GitHub commit is not deployment evidence.
 - **NO-GO:** No production release or live-system changes.
+
+## 2026-11-10 — P0 sandbox owner-only zones foundation
+- **PASS (database):** Verified project `kbkdfpmlyggfijkyjxoi` is `leasewild-payment-testing`. Applied migration `sandbox_owner_only_listing_access_zones` creating `public.listing_access_zones` with owner-only SELECT/INSERT/UPDATE/DELETE RLS and no anonymous table privileges. No existing payment, booking or listing tables modified.
+- **PASS (read-back):** RLS enabled; four policies; anonymous SELECT privilege false; authenticated INSERT privilege true. Configuration only, not simulated user behavior.
+- **LIMITATION:** Geometry is bounded JSONB (64 KiB) with basic object/type/coordinates checks; coordinate validity and polygon self-intersection not validated. No hunter access enabled.
+- **BLOCKED:** Cross-owner and synthetic owner/hunter E2E without provisioned dedicated sandbox QA sessions.
+- **NOT TESTED:** Map create/edit/save/reload UI, responsive browser widths, bookings, messaging, reviews, Stripe TEST.
+- **NOT VERIFIED:** Cloudflare Pages deployment; database migration does not prove a frontend deploy.
+- **NO-GO:** Further UI, validation, authorization and privacy review required.
