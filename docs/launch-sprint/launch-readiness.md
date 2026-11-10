@@ -1,6 +1,6 @@
 # LeaseWild sandbox launch readiness
 
-_Last updated: November 9, 2026 at 9:30 PM ET_
+_Last updated: November 9, 2026 at 10:44 PM ET_
 
 ## Decision: **NO-GO for production launch**
 
@@ -79,3 +79,53 @@ The sandbox is suitable for continued public-surface QA and demonstrations. It i
 5. Re-evaluate GO/NO-GO before the deadline using evidence only.
 
 No automatic production launch is authorized.
+
+
+## 10:44 PM ET integration update — listings P0
+
+### Completed and deployed
+
+- **Implementation commit:** [`c7c85d755c948bf8f67ff038c79edcabd48ee04d`](https://github.com/ZasTheMonkey/hunthaven-website/commit/c7c85d755c948bf8f67ff038c79edcabd48ee04d)
+- **File:** `listings.html`
+- Removed expired July 1, 2026 and prelaunch-booking claims.
+- Replaced waitlist-first navigation with secondary **Property updates** while keeping active inventory primary.
+- Replaced unsubstantiated universal host-verification, water-rights, regulatory, and waiver claims with qualified planning guidance.
+- Added a clear **Browse available properties** action and retained the live Supabase listings renderer.
+- Made phone optional, associated its explanation with `aria-describedby`, limited length to 25 characters, and omitted it from the outbound request when blank.
+- Added dialog semantics for the updates modal. No binding terms or policies were changed.
+
+### Evidence from this run
+
+| Check | Result | Evidence |
+|---|---|---|
+| Coordination / conflict check | PASS | Latest Growth, Hunter QA, Landowner QA, prior Designer, Legal-status docs, and commits reviewed. No commit since `b21c515f` touched `listings.html`; Growth explicitly assigned this P0 to Designer. |
+| Static source assertions | PASS | Zero July 1, “when we go live,” or “Get early access” strings; optional-phone and blank-omission guards present; live listings renderer retained. |
+| Cloudflare build + deploy | PASS | Deployment `27e43b56-367f-4073-b11b-56b4ba555971` completed successfully at 2026-11-10 03:42:25 UTC for exact commit `c7c85d75`. |
+| Canonical public listings smoke | PASS | `/listings?verify=c7c85d75` rendered 3 listing cards and the new inventory-first/trust copy. |
+| Optional-updates modal | PASS | Opened and closed; dialog accessible name “Stay informed”; phone `required=false`, `maxlength=25`, `aria-describedby=wl-phone-help`. No submission performed. |
+| Browser console | PASS with environment note | No LeaseWild page-script errors observed. Seven errors came from the remote browser extension URL, not LeaseWild code. |
+| Mobile 375/390px | NOT TESTED | No viewport emulation or real-device evidence in this run. |
+| Authenticated/Stripe TEST E2E | BLOCKED | Secure dedicated QA sessions remain unavailable. |
+| GitHub CI | NOT TESTED | Combined-status/workflow lookup call was malformed; no CI conclusion is claimed. |
+
+### Five-bot evidence snapshot
+
+| Bot | Latest recorded evidence | Assessment |
+|---|---|---|
+| Designer + Developer | Current run in progress; implementation `c7c85d75` deployed and public-smoke verified as above. | PASS for scoped public P0; NO-GO overall. |
+| Hunter QA | Completed run `5a516bbf…`; code `37b872fb` bounds preview queries to one row; report `cdade770`. | Source/deployment metadata verified by bot; authenticated messaging/mobile/Stripe remain BLOCKED. |
+| Landowner QA | Completed run `325c9bc4…`; code `9795f1aa` prevents duplicate inbox polling; report `e27cee1e`. | Exact deployment reported active; cross-role messaging/mobile Safari/auth remain BLOCKED. |
+| Growth Research | Completed run `f60203ab…`; report commit `b819613d` identified this listings P0 and unsupported trust claims. | Documentation/source audit only; no browser or payment tests. |
+| Legal Risk Review | Recorded completed run `ee3f12a8…`, but no latest result, `legal-blockers.md`, or legal handoff exists. | BLOCKED / no substantive legal evidence available. |
+
+### Remaining release blockers — **NO-GO**
+
+1. Authenticated Hunter and Landowner authorization/RLS and cross-role booking/messaging tests need securely provisioned QA sessions.
+2. Stripe TEST authorization, capture, cancellation, expiration, refund, webhook, and Connect/payout reconciliation lack end-to-end evidence.
+3. Legal Risk Review has not produced the required handoff; binding terms, privacy, waivers, insurance, fees, refunds, and Florida-specific obligations require attorney approval.
+4. Mobile 375px/390px, touch, keyboard, and real-device review remains unverified.
+5. Two of three rendered listing cards expose insufficient public details (generic title and missing location/attributes). Inventory quality and booking eligibility must be validated without fabricating data.
+6. Homepage still contains unsubstantiated insurance, waiver, acreage, verification, and “without risk” claims identified by Growth; these remain a public P0.
+7. Unread/read state is not implemented in the messaging schema; do not claim unread counts or read receipts.
+
+No production launch is authorized or implied.
