@@ -454,10 +454,14 @@
     if (fish) return 'fishing';
     return 'hunting';
   }
-  function parseAcres(s) {
-    if (!s) return 0;
-    var m = s.match(/\d+/);
-    return m ? parseInt(m[0]) : 0;
+  function parseAcres(value) {
+    // Unknown acreage must never be advertised as a property under 50 acres.
+    if (value === null || value === undefined || String(value).trim() === '') return null;
+    var text = String(value).trim();
+    var match = text.match(/^(\d[\d,]*(?:\.\d+)?)(?:\s*(?:acres?|ac))?$/i);
+    if (!match) return null;
+    var acres = Number(match[1].replace(/,/g, ''));
+    return Number.isFinite(acres) && acres > 0 ? acres : null;
   }
 
   function buildCard(l) {
@@ -606,9 +610,9 @@
         (_ftype==='deerhigh' && (l.deer_activity==='high' || l.deer_activity==='very_high')) ||
         (_ftype==='hogsactive' && l.hogs_active===true);
       var okSize   = _fsize==='any' ||
-        (_fsize==='small'&&acres<50) ||
-        (_fsize==='med'&&acres>=50&&acres<=300) ||
-        (_fsize==='large'&&acres>300);
+        (_fsize==='small'&&acres!==null&&acres<50) ||
+        (_fsize==='med'&&acres!==null&&acres>=50&&acres<=300) ||
+        (_fsize==='large'&&acres!==null&&acres>300);
       var okSpp    = _fspecies==='all' || spp.toLowerCase().includes(_fspecies.toLowerCase());
       return okType && okSize && okSpp;
     });
