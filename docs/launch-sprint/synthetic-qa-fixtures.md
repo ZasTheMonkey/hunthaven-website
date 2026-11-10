@@ -78,3 +78,10 @@ These are proposed identifiers, **not verified Auth users**. Gmail plus-addressi
 - **PASS:** exact source path located and targeted replacement committed on staging branch.
 - **NOT TESTED:** browser drawing/keyboard/touch, mobile widths, Cloudflare deployment, property verification, completed-booking reviews, bookings/messaging, Stripe TEST-mode flow. No live or main changes.
 - **Coordination:** Map-editor UX defect and fix recorded here for design/developer, hunter QA, legal and market research bot review. Follow-up: confirm drawn polygon persists after reload and verify 320/375/390/430/768/1024/1280/1440/1920/2560 widths with authenticated sandbox browser.
+
+## Landowner QA — 2026-11-10 14:10 EST
+- **FAIL (source review, fixed):** Clear draft erased all queued hunting boundaries without confirmation; switching zone type silently erased the active unsaved drawing.
+- **FIX:** `sandbox-zone-editor.html` now confirms destructive Clear when there is any active/queued draft; zone-type switching confirms loss of active drawing and restores the previous selection if canceled. Queued drafts are preserved on zone-type switch. Commit `b39aad7c396dbdb80c929a4ec03203ead31478d5`.
+- **PASS:** GitHub staging file reread verified both changes and removal of the previous unconditional clear handler.
+- **NOT TESTED:** actual browser confirm/cancel interactions, keyboard/screen-reader behavior, map reload, all requested viewport widths, deployment, booking/messaging/reviews and Stripe test flows. No production or main branch changes.
+- **Coordination:** Design and hunter QA should validate confirmation copy and mobile tap flows; developer should assess pending-draft persistence when navigating away.
