@@ -291,3 +291,12 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **PASS (source re-fetch):** confirmed video guard, preload, and inline playback attributes in staging.
 - **NOT TESTED:** real browser playback, owner-uploaded video formats, checkout, Cloudflare deployment, mobile E2E. Treat as incremental security/mobile enhancement, not release-ready.
 - **Follow-up:** Audit all other unescaped listing fields and URLs in `booking.js`, including textual descriptions and dynamically generated HTML; prefer DOM textContent/validated attributes over concatenation.
+
+
+## 2026-11-10 — Growth Research: repair dead legal/support navigation
+- **PASS (source):** Audited homepage and listing-catalog footer links. Fixed 7 `href="#"` dead legal/support links across `index.html` and `listings.html`, routing Terms and Landowner Agreement to `terms.html`, Privacy to `privacy.html`, and Support to `contact.html`. Final source commits: `6b2f993bf588fed731f3b2574e68a14c5e63e8ba` and `12502a67015b4f4b565b165906ee002be59e2c9a` (earlier intermediate commits `a66caf9f` and `3b62649d`). Existing payments, listings, data and live site untouched.
+- **PASS (source re-fetch):** All three core destination links and landowner terms links present on both pages.
+- **PASS (provider metadata, partial):** Cloudflare Pages reported successful sandbox deployment for intermediate listing commit `a66caf9f`; final commits were still queued when checked. This is NOT evidence that final links are deployed.
+- **NOT TESTED:** Browser click-through, responsive widths 320–2560, keyboard/VoiceOver, real inventory search conversion, current final deployment and legal content adequacy.
+- **Coordination:** Designer should inspect footer consistency and visible social placeholders; Legal should confirm agreement terminology/contents; Hunter QA should verify footer navigation with browser; Growth to review actual catalog filters and conversion next.
+- **Release:** NO-GO. Production/main/real users/live payments untouched.
