@@ -1091,6 +1091,42 @@
       .cat-inner{padding:14px 18px;gap:8px}
       .cat-pill{padding:10px 13px;flex-direction:row;gap:6px}
     }
+
+    /* LeaseWild modern marketplace system — restrained, light, photo-led */
+    :root{--green:#183f35;--green-dk:#123128;--amber:#a97847;--bg:#fff;--surface:#fff;--surface2:#f8f9f7;--border:#e5e9e5;--divider:#edf0ec;--text:#1c2823;--muted:#617067;--r-lg:14px;--r-xl:18px;--shadow-md:0 10px 32px rgba(25,44,35,.08)}
+    body{background:#fff}
+    .nav{background:rgba(255,255,255,.96);border-bottom:1px solid #e9ede9}
+    .hero{background:#f7f9f6;min-height:0;padding:84px max(6vw,24px) 74px}
+    .hero-bg{background:linear-gradient(120deg,#f6f9f5 0%,#fff 62%,#eaf1eb 100%)}
+    .hero-bg::after{display:none}
+    .hero-content{max-width:1180px}
+    .hero h1{color:#183d32;font-family:Georgia,'Times New Roman',serif;font-weight:400;letter-spacing:-.055em;max-width:900px}
+    .hero h1 em{color:#3f7660}
+    .hero-eyebrow{color:#467361;font-weight:700}
+    .hero-sub{color:#52665a;max-width:580px}
+    .editorial-primary{background:#183f35;color:#fff;border-radius:10px}
+    .editorial-secondary{color:#183f35;border:1px solid #c9d6cd;border-radius:10px;background:#fff}
+    .editorial-footnote{color:#698276}
+    .hero-trust{border-top-color:#dce6df}
+    .trust-badge{color:#536b5e}
+    .trust-badge svg{color:#527e67}
+    .categories{background:#fff;border-bottom:1px solid #e8ede8}
+    .cat-pill{border:1px solid #e6ebe6;border-radius:999px;background:#fff;color:#304c3c}
+    .cat-pill.active{background:#183f35;color:#fff;border-color:#183f35}
+    .card{border:1px solid #edf0ed;border-radius:16px;box-shadow:0 3px 15px rgba(22,42,32,.04)}
+    .card:hover{box-shadow:0 14px 36px rgba(22,42,32,.10)}
+    .card-img{background-color:#eef1ed}
+    .section{padding-top:76px;padding-bottom:76px}
+    .section h2{font-family:Georgia,'Times New Roman',serif;font-weight:400;letter-spacing:-.035em}
+    .proof-strip{background:#f7f9f6;border-color:#e5ebe5}
+    @media(max-width:700px){
+      .hero{padding:58px 24px 44px}
+      .hero h1{font-size:clamp(3.15rem,11vw,5rem);line-height:1.04}
+      .hero-sub{font-size:1.02rem;color:#53685b}
+      .editorial-actions{margin-top:26px}
+      .hero-trust{margin-top:30px}
+      .section{padding-top:52px;padding-bottom:52px}
+    }
   </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 </head>
