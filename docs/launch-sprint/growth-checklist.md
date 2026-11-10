@@ -258,3 +258,29 @@ GitHub report/source evidence only; sandbox public URL could not be fetched inde
 - **PASS (GitHub source):** `f31d66dafdaa7a629f37e5bdcd088a15fe5e3d80` updates the owner map editor with satellite-first mobile layout (map above form at <=740px), compact property-map header, premium forest-green styling, accessible-sized controls, grouped action/save buttons, better visual hierarchy and legend. Existing map drawing, saved-zone, authorization and payment code preserved.
 - **NOT TESTED:** deployed Cloudflare HTML, actual iPhone Safari screenshots/touch, 320–2560px viewport matrix, VoiceOver, 200% zoom, authenticated zone save/reload. Source-level CSS presence is not responsive E2E evidence.
 - **Next:** Designer/Hunter/Landowner QA visually inspect map at 320/375/390/430/768/1024/1280/1440/1920/2560 widths; verify controls are usable with keyboard and touch and no overflow; check satellite imagery attribution and tile loading.
+
+
+## 2026-11-10 — $100K-quality transformation audit and first increment
+
+Scope: staging branch and sandbox only. This is a quality target, not a spending authorization. Review of actual GitHub tree and shared QA notes, not a claim of comprehensive browser testing.
+
+### Top 10 prioritized release improvements
+| Rank | Severity | Workstream | Evidence / acceptance |
+|---|---|---|---|
+| 1 | P0 | Authenticated synthetic hunter/owner E2E | Positive/negative RLS, login, bookings, messaging, map save/reload, review eligibility |
+| 2 | P0 | Stripe TEST booking lifecycle | Checkout, duplicate prevention, webhook, cancellation/refund, 80/20 accounting |
+| 3 | P0 | Owner access-zone privacy and integrity | RLS cross-owner denial, trails, entry/parking, valid geometries, multi-zone save/reload |
+| 4 | P0 | Messaging delivery and lifecycle | Cross-role send/receive, unread indicators, expiration and failure recovery |
+| 5 | P0 | Legal/trust gate | Florida counsel review, waivers, property authority verification, privacy and insurance disclosures |
+| 6 | P1 | Mobile-first design consistency | Unified components across homepage, listing, booking, dashboards and map |
+| 7 | P1 | Discovery-to-booking conversion | Real inventory, search filters, truthful availability and clear fee disclosures |
+| 8 | P1 | Owner reviews of hunters | Completed-paid-booking eligibility, moderation, duplicate prevention and reporting |
+| 9 | P1 | Accessibility and responsiveness | 320/375/390/430/768/1024/1280/1440/1920/2560px, keyboard, touch, 200% zoom, VoiceOver |
+| 10 | P1 | SEO, media and performance | Real metadata, image alt/loading, Core Web Vitals and no private geodata leakage |
+
+### First incremental fix — booking photo rendering
+- **PASS source commit:** `57c9b77069062a7d9eb06d216a46daf4bbde23e9` in `booking.js`: reject unsafe/non-HTTPS image URLs before embedding in HTML, escape ampersands, add descriptive ordinal alt text and lazy/async image loading, explicitly set booking action button type. This reduces malformed photo injection risk and improves accessibility; no payment calculations or endpoints changed.
+- **PASS source re-fetch:** Verified updated image and button markup on staging.
+- **NOT TESTED:** Browser rendering, photo URLs from actual listings, checkout behavior, Lighthouse/Core Web Vitals, Cloudflare deployment and cross-role E2E.
+- **Coordination:** Designer to consolidate visual tokens and booking-card layout; Hunter QA to test gallery and checkout; Landowner QA to verify uploaded image formats/URLs; Legal to review photo privacy. Keep this separate from their concurrently edited map editor.
+- **Release:** NO-GO. No live/main/production Supabase/live Stripe changes.
