@@ -644,7 +644,7 @@
   function openZoneEditor() {
     var id = document.getElementById('edit-listing-id').value;
     if (!/^[0-9a-f-]{36}$/i.test(id)) { alert('Open a valid listing first.'); return; }
-    window.location.href = 'sandbox-zone-editor.html?listing=' + encodeURIComponent(id);
+    window.location.href = 'sandbox-zone-editor.html?listing=' + encodeURIComponent(id) + '&return=edit';
   }
 
   function closeEditModal() {
