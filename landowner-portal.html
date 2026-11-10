@@ -911,6 +911,7 @@
         </div>
         <div style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--color-border);display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:space-between">
           ${st === 'pending_approval' ? `<div style="display:flex;gap:.5rem"><button onclick="decideSandboxBooking('${b.id}','approve')" style="padding:.5rem .9rem;background:#247343;color:#fff;border:0;border-radius:6px">Accept</button><button onclick="decideSandboxBooking('${b.id}','decline')" style="padding:.5rem .9rem;background:#b83232;color:#fff;border:0;border-radius:6px">Decline</button></div>` : ''}
+          ${st === 'confirmed' && cout && new Date(cout + 'T23:59:59').getTime() < Date.now() && /^[0-9a-f-]{36}$/i.test(b.id) ? `<a href="sandbox-hunter-review.html?booking=${encodeURIComponent(b.id)}" style="display:inline-block;padding:.45rem .9rem;border-radius:8px;background:#245a36;color:white;font-size:.8rem;font-weight:700;text-decoration:none">Review Hunter</a>` : ''}
           ${st !== 'cancelled' ? `<button onclick="openLoConversationFromBooking('${b.id}','${b.listing_id}','${(b.guest_name||'Guest').replace(/'/g,"&#39;")}','${b.guest_email||''}')" style="padding:.4rem .9rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit">Message Guest</button>` : ''}
           ${st !== 'cancelled' ? `
           <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
