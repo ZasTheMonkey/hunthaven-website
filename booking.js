@@ -29,7 +29,7 @@ function openListingDetail(l) {
 
   var photoHtml = photos.length
     ? '<div style="display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.5rem;scrollbar-width:none;-webkit-overflow-scrolling:touch">' +
-      photos.map(function(u){ return '<img src="'+u+'" style="height:210px;min-width:300px;object-fit:cover;border-radius:12px;flex-shrink:0" />'; }).join('') +
+      photos.map(function(u,i){ var safeUrl=typeof u==='string'&&u.startsWith('https://')&&!/[\s"'<>]/.test(u)?u.replace(/&/g,'&amp;'):''; return safeUrl?'<img src="'+safeUrl+'" alt="Property photo '+(i+1)+'" loading="lazy" decoding="async" style="height:210px;min-width:300px;object-fit:cover;border-radius:12px;flex-shrink:0" />':''; }).join('') +
       '</div>'
     : '<div style="height:180px;border-radius:12px;background:' + (isHunt ? 'linear-gradient(160deg,#2a4a30,#4a7040)' : 'linear-gradient(160deg,#0d2840,#2a90b0)') + '"></div>';
 
@@ -115,7 +115,7 @@ function openListingDetail(l) {
             '<p id="bk-code-msg" style="font-size:.78rem;margin-top:.3rem;display:none"></p>' +
           '</div>' +
           nameEmailHtml +
-          '<button onclick="'+btnAction+'" id="bk-btn" style="width:100%;padding:.9rem;background:var(--color-primary);color:#fff;border:none;border-radius:999px;font-family:var(--font-display);font-weight:800;font-size:1.1rem;cursor:pointer">'+btnLabel+'</button>' +
+          '<button type="button" onclick="'+btnAction+'" id="bk-btn" style="width:100%;padding:.9rem;background:var(--color-primary);color:#fff;border:none;border-radius:999px;font-family:var(--font-display);font-weight:800;font-size:1.1rem;cursor:pointer">'+btnLabel+'</button>' +
           '<p id="bk-msg" style="font-size:.85rem;text-align:center;margin-top:.5rem;display:none"></p>' +
           '<p style="font-size:.78rem;color:var(--color-text-faint);text-align:center;margin-top:.4rem">Test card only · Your card is authorized now and charged only if the landowner accepts within 24 hours. Declined or expired requests release the hold; banks may take extra time to show it.</p>' +
         '</div>' +
