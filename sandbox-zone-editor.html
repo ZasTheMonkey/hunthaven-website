@@ -159,8 +159,9 @@ async function refresh(){
 function polygonGeometry(vertices){const ring=vertices.map(p=>[p[1],p[0]]);ring.push(ring[0]);return {type:'Polygon',coordinates:[ring]};}
 function validBoundary(vertices){return vertices.length>=3&&vertices.length<=100&&vertices.every(valid)&&Math.abs(vertices.reduce((sum,p,i)=>{const q=vertices[(i+1)%vertices.length];return sum+p[1]*q[0]-q[1]*p[0];},0))>=1e-12;}
 let savingAll=false;
+let savingSingle=false;
 document.getElementById('save-all').onclick=async()=>{
- if(savingAll)return;
+ if(savingAll||savingSingle)return;
  if(!owner||!id){message('Sign in as the listing owner before saving.');return;}
  if(document.getElementById('zone-type').value!=='hunting_area'){message('Switch to Hunting boundary to save hunting drafts.');return;}
  const all=pendingZones.map(z=>({points:z.points.map(p=>p.slice()),label:z.label,instructions:z.instructions}));
@@ -186,14 +187,17 @@ document.getElementById('save-all').onclick=async()=>{
 };
 window.addEventListener('beforeunload',e=>{if(pendingZones.length||points.length){e.preventDefault();e.returnValue='';}});
 save.onclick=async()=>{
+ if(savingAll||savingSingle)return;
  const polygon=document.getElementById('zone-type').value==='hunting_area';
  if(!owner||!id){message('Draft is ready, but saving requires signing in as the owner of a selected listing.');return;}
  if((polygon&&points.length<3)||(document.getElementById('zone-type').value==='trail'&&points.length<2)||(!polygon&&document.getElementById('zone-type').value!=='trail'&&points.length!==1)){message('Add enough points before saving.');return;}if(polygon&&Math.abs(points.reduce((sum,p,i)=>{const q=points[(i+1)%points.length];return sum+p[1]*q[0]-q[1]*p[0];},0))<1e-12){message('Boundary must enclose an area.');return;}
  const label=document.getElementById('zone-label').value.trim();if(!label){message('Enter a zone label.');return;}
- save.disabled=true;message('Saving zone…');
+ savingSingle=true;save.disabled=true;message('Saving zone…');
+ try{
  const {error}=await client.from('listing_access_zones').insert({listing_id:id,zone_type:document.getElementById('zone-type').value,label,geometry:geometry(),instructions:document.getElementById('zone-notes').value.trim()||null});
  if(error)message('Save failed: '+error.message);else{points=[];renderDraft();message('Zone saved. Other unsaved drafts remain on the map.');await refresh();}
- renderDraft();
+ }catch(e){message('Save interrupted: '+e.message+'. Draft retained.');}
+ finally{savingSingle=false;renderDraft();}
 };
 (async()=>{
  if(!id||!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id)){message('Missing or invalid listing ID.');return;}
