@@ -284,3 +284,10 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **NOT TESTED:** Browser rendering, photo URLs from actual listings, checkout behavior, Lighthouse/Core Web Vitals, Cloudflare deployment and cross-role E2E.
 - **Coordination:** Designer to consolidate visual tokens and booking-card layout; Hunter QA to test gallery and checkout; Landowner QA to verify uploaded image formats/URLs; Legal to review photo privacy. Keep this separate from their concurrently edited map editor.
 - **Release:** NO-GO. No live/main/production Supabase/live Stripe changes.
+
+
+## 2026-11-10 — Continue: booking video hardening
+- **PASS (source):** commit `473f359dbe3fa7da118c8319d0924b3a0a890a9e` validates listing video URLs as HTTPS before insertion into generated markup, escapes ampersands, sets `preload=metadata` and `playsinline` for mobile. Existing booking/payment actions untouched.
+- **PASS (source re-fetch):** confirmed video guard, preload, and inline playback attributes in staging.
+- **NOT TESTED:** real browser playback, owner-uploaded video formats, checkout, Cloudflare deployment, mobile E2E. Treat as incremental security/mobile enhancement, not release-ready.
+- **Follow-up:** Audit all other unescaped listing fields and URLs in `booking.js`, including textual descriptions and dynamically generated HTML; prefer DOM textContent/validated attributes over concatenation.
