@@ -68,7 +68,9 @@ const style=document.createElement('style');
   const threadPreview=async t=>{const x=await api('booking_messages?conversation_id=eq.'+encodeURIComponent(t.id)+'&order=created_at.desc&limit=1&select=body,created_at');return x?.[0]||null;};
   const chatMarkup=(rows,myId)=>rows.length?rows.map(m=>'<div class="lw-chat-row '+(m.sender_id===myId?'mine':'')+'"><div class="lw-chat-bubble">'+safe(m.body)+'</div><span class="lw-chat-time">'+safe(fmt(m))+'</span></div>').join(''):'<div class="lw-chat-empty">No messages yet.<p>Say hello and start the conversation.</p></div>';
     if(owner){
+    let ownerInboxRequest=0;
     window.loadLoThreads=async function(email){
+      const request=++ownerInboxRequest;
       loCurrentUserEmail=email;
       const el=document.getElementById('lo-threads-container');
       try{
@@ -76,11 +78,12 @@ const style=document.createElement('style');
         const labels=await conversationLabels();
         const titles=rows.map(t=>threadTitle(t,labels));
         const previews=await Promise.all(rows.map(threadPreview));
+        if(request!==ownerInboxRequest)return;
         el.classList.add('lw-inbox');
         el.innerHTML=rows.length?rows.map((t,i)=>threadCard(t,titles[i],previews[i])).join(''):'<div class="lw-chat-empty">No conversations yet. Open a booking to message your guest.</div>';
         el.querySelectorAll('[data-conv]').forEach(b=>b.addEventListener('click',()=>window.openLoConversation(b.dataset.conv,b.dataset.title,'')));
         document.getElementById('lo-unread-badge').style.display='none';
-      }catch(e){el.textContent=e.message;}
+      }catch(e){if(request===ownerInboxRequest)el.textContent=e.message;}
     };
     window.openLoConversation=async function(id,subject,guestEmail){
       loCurrentConvId=id;
