@@ -300,3 +300,12 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **NOT TESTED:** Browser click-through, responsive widths 320–2560, keyboard/VoiceOver, real inventory search conversion, current final deployment and legal content adequacy.
 - **Coordination:** Designer should inspect footer consistency and visible social placeholders; Legal should confirm agreement terminology/contents; Hunter QA should verify footer navigation with browser; Growth to review actual catalog filters and conversion next.
 - **Release:** NO-GO. Production/main/real users/live payments untouched.
+
+
+## 2026-11-10 — Growth Research: honest social navigation and outbound link security
+- **FAIL (initial source audit):** Both homepage and listing catalog advertised Facebook, TikTok, and YouTube icons with `href="#"`; six dead controls misleadingly appeared actionable. Instagram opened in a new tab without explicit `rel` protections.
+- **PASS (staging source):** Removed six dead social controls (three per page), retained the known Instagram link and added `rel="noopener noreferrer"`. Commits: homepage `69bb3e5cf7d8955a313ac54a585a3d1c6d49bd88`, listings `00d44ba328b3942b3fe244f1b66f39024eddf5e3`.
+- **PASS (source re-fetch):** No Facebook/TikTok/YouTube placeholder links remain in those two pages; both Instagram links include the safe rel attributes.
+- **NOT TESTED:** Deployed page click-through, 320–2560px visual matrix, mobile touch, browser keyboard/zoom, actual catalog conversion and Core Web Vitals. Provider deployment must be checked separately.
+- **Coordination:** Designer should ensure footer spacing remains balanced with one icon; Legal/Growth should only add social profiles after verifying their genuine URLs; Hunter QA should test external navigation in browser.
+- **Release:** NO-GO; no main/production/live Stripe/customer changes.
