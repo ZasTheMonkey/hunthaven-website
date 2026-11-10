@@ -104,3 +104,11 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **NOT TESTED:** Map create/edit/save/reload UI, responsive browser widths, bookings, messaging, reviews, Stripe TEST.
 - **NOT VERIFIED:** Cloudflare Pages deployment; database migration does not prove a frontend deploy.
 - **NO-GO:** Further UI, validation, authorization and privacy review required.
+
+## 2026-11-10 — Interactive zone editor staging implementation
+- **PASS (source only):** New `sandbox-zone-editor.html` includes Leaflet map, polygon corner drawing, entry/parking markers, manual coordinate entry, draft undo/clear, save/reload/delete using `listing_access_zones`, and checks authenticated `listings.owner_id`. Code commit `0f723934bfcd32ca0a69af352f0024ee24fe89f5`.
+- **PASS (source only):** Added `Open access map` action to listing edit modal, passing listing UUID, commit `7cb0eff2e30382efcca7c5301c11ffe382dfecc1`. Independently re-fetched both files; map database calls and portal link present.
+- **LIMITATIONS / P0:** Polygon validity/self-intersection is not enforced in database; only basic JSON structure and size checks. Client checks coordinates and minimum polygon points. No map editing of existing zone geometry yet (delete/recreate only). External Leaflet and OpenStreetMap availability and CSP compatibility unverified. Exact zones remain owner-only, no hunter sharing.
+- **NOT TESTED:** Authenticated browser save/reload/delete, owner A vs B isolation, touch/keyboard/zoom at target widths, rendered deployment, Stripe TEST regression, reviews, messaging. No dedicated QA session was used.
+- **NOT VERIFIED:** Cloudflare deployment. A staging commit alone is not deployment proof.
+- **NO-GO** until actual browser E2E, server-side geometry validation, privacy/legal review and remaining P0 features pass.
