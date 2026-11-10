@@ -81,3 +81,16 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - Cloudflare build/deploy succeeded for exact implementation commit; canonical public listings page and updates-dialog behavior were smoke tested without form submission.
 - **Attorney review remains required** for privacy, communications consent, terms, waivers, insurance, host verification, refunds/cancellations, fee presentation, messaging retention, and Florida hunting/fishing obligations.
 - **Release status:** NO-GO. Authenticated E2E, Stripe TEST state handling, RLS/authorization, and mobile viewport evidence remain unavailable.
+
+
+## Homepage integrity update — November 9, 2026 at 11:29 PM ET
+
+- **Required legal handoff remains absent:** `docs/legal/website-compliance-handoff.md` was not present in the current branch tree.
+- **Implementation:** `93ae8e20413819cbc857fa32877663d355449d04` on sandbox staging only.
+- Removed eight hard-coded sample map listings and three named five-star early-access testimonials from the public homepage. Replaced the testimonial block with neutral, observable browse/compare/decide guidance.
+- Prevented opaque updates-form responses from being labeled as confirmed subscriptions. Both forms now retain the entered value and present a retry path when acceptance cannot be verified.
+- The existing `supabase/functions/notify-signup` function was reviewed but not changed or repurposed because its contract is an auth-signup webhook. No lead data, auth data, schema, RLS policy, payment code, binding policy, waiver, or legal term was changed.
+- Public browser smoke at 1363px rendered three database-backed cards and the revised section without horizontal overflow. Fabricated names were absent. Other requested widths and all authenticated tests remain NOT TESTED/BLOCKED.
+- Remaining legal P0s include homepage protection/waiver/insurance-style claims, privacy and communications consent for lead capture, access-zone location privacy, review moderation/reporting, review eligibility, fee/refund presentation, and Florida attorney approval.
+- Access-zone drawing and landowner reviews of hunters are **not implemented or legally approved** in this run. Any schema must enforce owner authorization, booking-based disclosure, one eligible review per completed booking, and moderation/reporting before launch.
+- **Release status: NO-GO.** Production, `main`, live Stripe, production Supabase, real users, and personal sessions were untouched.
