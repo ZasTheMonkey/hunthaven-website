@@ -153,6 +153,9 @@ const style=document.createElement('style');
         const id=convId||await openBooking(bookingId);
         if(currentConvId&&hunterComposer)hunterDrafts.set(currentConvId,hunterComposer.value);
         currentConvId=id;
+        // Booking cards live on the Bookings tab; reveal Messages before opening the thread.
+        // Otherwise the conversation is opened inside a hidden panel and the tap appears inert.
+        if(typeof switchDashTab==='function')switchDashTab('messages');
         if(hunterComposer)hunterComposer.value=hunterDrafts.get(id)||'';
         document.getElementById('conv-title').textContent=subject||'Booking conversation';
         document.getElementById('thread-list-view').style.display='none';
