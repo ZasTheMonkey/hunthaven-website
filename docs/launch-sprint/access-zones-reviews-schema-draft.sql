@@ -318,10 +318,38 @@ from public.listings
 where status = 'active';
 
 -- Review existing grants before enabling these lines.
--- The goal is to prevent direct anon/authenticated reads of sensitive listing
--- columns while allowing only the safe catalog view for public browsing.
-revoke select on table public.listings from anon;
+-- security_invoker requires the caller to have access to the referenced columns.
+-- Revoke broad table reads, then grant only the catalog columns needed by the view.
+-- This also constrains direct Data API reads to the same safe presentation fields.
+revoke select on table public.listings from anon, authenticated;
+grant select (
+  id,
+  created_at,
+  status,
+  state,
+  county,
+  acreage,
+  pricing_type,
+  price_per_day,
+  max_guests,
+  cleaning_fee,
+  min_stay,
+  activities,
+  description,
+  photo_urls,
+  allow_out_of_state,
+  video_url,
+  num_beds,
+  deer_activity,
+  hogs_active,
+  trail_cam_date
+) on table public.listings to anon, authenticated;
 grant select on table public.public_listing_catalog to anon, authenticated;
+
+-- IMPORTANT: existing authenticated owner screens that read street_address,
+-- parcel_boundary or allowed_zone directly from listings would lose that access.
+-- Before migration, move those fields to an owner-only private table or expose
+-- a separately reviewed owner API. Do not restore broad SELECT on listings.
 
 -- =====================================================================
 -- REQUIRED NEGATIVE / POSITIVE TESTS BEFORE APPLICATION UI WORK
