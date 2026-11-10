@@ -142,3 +142,31 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - Exact-SHA compilation/static checks passed. Cloudflare deployment `dcf8b405-2a63-45da-aa67-eb9accd819d5` succeeded. Browser smoke at 1363px confirmed three cards, working browse/landowner links, no signup form/dialog/dead controls and no horizontal overflow.
 - No legal terms, binding consent, booking/payment behavior or production content changed. `docs/legal/website-compliance-handoff.md` remains absent.
 - **Release remains NO-GO.** Access-zone privacy/authorization, hunter-review eligibility/moderation, authenticated QA, complete responsive coverage and Florida attorney approval remain unresolved.
+
+
+## 2026-11-10 04:50 ET — Sensitive access data and hunter-review controls
+
+**Status: partial mitigation; attorney and runtime authorization review still required.**
+
+### Implemented
+
+- Public `listings.html` no longer requests all listing columns. Commit `20be480945856fd3a8b9a85e80d61f27f024f2ec` uses an explicit allowlist and excludes owner contact information, street address, parcel boundary, and allowed-zone geometry.
+- A review-only, fail-closed schema design was added at `docs/launch-sprint/access-zones-reviews-schema-draft.sql` in commit `ac8d868148ed113ba92c9e4b3ba05e7acdcf8666`.
+- The draft proposes:
+  - owner-only editing for hunting, entry, and parking geometries;
+  - access for the booked hunter only after an eligible booking state;
+  - one owner review per completed booking;
+  - published-review visibility to the reviewed hunter;
+  - factual-text guidance, moderation state, and review reporting;
+  - a `security_invoker` public catalog view excluding sensitive access fields.
+
+### Important limitations
+
+- Client field minimization does **not** prevent direct Data API access. The current repository schema appears to grant public SELECT on active listings, including address/boundary-related columns. Server-side grants/RLS or a safe public view are required before sensitive zone data is stored.
+- The draft is not a migration and was not applied. It intentionally raises an exception and rolls back.
+- Booking status names, ownership columns, and schema relationships must be reconciled against the approved sandbox database before implementation.
+- Cross-owner denial, booked-hunter disclosure timing, review eligibility, one-review enforcement, reporting, deletion/appeal handling, and moderation have not been authenticated end-to-end tested.
+- Exact access coordinates should remain unavailable to anonymous visitors and unconfirmed users. Product copy must not promise property verification, safety, legal access, or background screening without substantiation.
+- Hunter-review wording, moderation procedure, retention, dispute/appeal rights, privacy disclosures, and deletion obligations require Florida attorney review before any binding policy is published.
+
+**Legal launch recommendation remains NO-GO.** No production data, legal terms, live payments, or production systems were changed.
