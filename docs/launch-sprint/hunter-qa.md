@@ -164,3 +164,13 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **BLOCKED (authenticated E2E):** No securely provisioned synthetic owner/hunter sessions and isolated payment/booking fixtures in this execution context. Did not exercise booking, messaging, cancellation, Stripe TEST payment/refund/webhooks, map save/reload, hunter review eligibility, or cross-owner RLS denial.
 - **NOT TESTED (browser):** Requested 320/375/390/430/768/1024/1280/1440/1920/2560px matrix, touch, keyboard, zoom, landscape and screen-reader behavior. No browser runner used.
 - **NO-GO** for production. No changes to application code, main, live website, production Supabase, live Stripe, or real accounts.
+
+
+## 2026-11-10 13:15 ET — Hunter QA follow-up: editor concurrency and draft loss
+- **PASS (coordination):** Re-read current hunter/landowner QA and the staging editor source before documenting. No shared editor changes to avoid conflicts with developer/landowner QA.
+- **FAIL / P1 (static):** Current `sandbox-zone-editor.html` blob `bdbb1edf3b52127bb285e6984073afd39d533308` still has zone-type change handler `setDrawing(false);points=[]` without a draft-retention/discard confirmation. Switching type loses active unsaved geometry. Evidence: exact source pattern verified true.
+- **RISK / P1 (static):** `save-all` checks `savingAll`, but single-zone `save.onclick` does not check it before inserting. Shared saving lock recommended, with runtime concurrency regression test. Source checks: {"draftLoss":true,"singleSaveMissingGuard":true,"saveAllGuard":true,"beforeUnload":true}. No duplicate write was attempted or observed.
+- **PASS (independent deployment metadata only):** Cloudflare Pages project `leasewild-sandbox` deployment `38e8087e-adb3-4296-a21f-ec875a2172c4` status `success`, created `2026-11-10T18:15:18Z`, commit `164b25598da3330189d024f55e1ad5e2c25b63e3`, branch `staging/leasewild-full-clone`, immutable URL `https://38e8087e.leasewild-sandbox.pages.dev`. Not proof of browser correctness or this docs commit deployment.
+- **BLOCKED:** Authenticated synthetic hunter/owner sessions, safe fixture provisioning, booking/cancellation, Stripe TEST checkout/refund/webhook, messaging, map save/reload, reviews, cross-owner RLS denials. Explicit testing authorization exists; credentials and isolated runtime fixtures do not.
+- **NOT TESTED:** Browser widths 320/375/390/430/768/1024/1280/1440/1920/2560, touch, keyboard, 200% zoom, orientation, screen reader. No browser harness executed.
+- **NO-GO:** Production release not approved. No main/live website/production Supabase/live Stripe/personal accounts touched.
