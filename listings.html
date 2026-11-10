@@ -174,6 +174,7 @@
     .section-label{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.14em;color:var(--color-text-faint);font-weight:600;margin-bottom:var(--space-3)}
     .section h2{font-size:var(--text-2xl);font-weight:800;letter-spacing:.02em;margin-bottom:var(--space-4)}
     .section-sub{font-size:var(--text-lg);color:var(--color-text-muted);max-width:52ch;margin-bottom:var(--space-10);line-height:1.5}
+    .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
     .listings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-5)}
     .listing-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);overflow:hidden;transition:all var(--transition);cursor:pointer}
     .listing-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:color-mix(in oklab,var(--color-primary) 30%,var(--color-border))}
@@ -365,13 +366,17 @@
           <option value="Duck">Duck</option>
         </select>
       </div>
-      <div class="listings-grid" id="listings-grid">
-        <div id="listings-loading" style="grid-column:1/-1;text-align:center;padding:var(--space-16);color:var(--color-text-muted)">
+      <p id="listings-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true">Loading available properties.</p>
+      <div class="listings-grid" id="listings-grid" aria-busy="true">
+        <div id="listings-loading" aria-hidden="true" style="grid-column:1/-1;text-align:center;padding:var(--space-16);color:var(--color-text-muted)">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin:0 auto var(--space-4);animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
           <p>Loading listings…</p>
         </div>
       </div>
-      <p id="filter-empty" style="display:none;text-align:center;padding:var(--space-8);color:var(--color-text-muted)">No listings match those filters yet — <a href="list-your-land.html" style="color:var(--color-accent);font-weight:700">be the first to list your land →</a></p>
+      <div id="filter-empty" style="display:none;text-align:center;padding:var(--space-8);color:var(--color-text-muted)">
+        <p id="filter-empty-message">No properties match those filters yet. Try another filter or browse again later.</p>
+        <button id="retry-listings" type="button" class="btn btn-primary" style="display:none;margin:var(--space-4) auto 0">Retry loading</button>
+      </div>
     </div>
   </section>
 
@@ -550,15 +555,35 @@
     }
   }
 
+  function setListingsStatus(message) {
+    var status = document.getElementById('listings-status');
+    if (status) status.textContent = message;
+  }
+
+  function showListingsMessage(message, isError) {
+    var empty = document.getElementById('filter-empty');
+    var copy = document.getElementById('filter-empty-message');
+    var retry = document.getElementById('retry-listings');
+    copy.textContent = message;
+    empty.style.display = 'block';
+    empty.setAttribute('role', isError ? 'alert' : 'status');
+    retry.style.display = isError ? 'inline-flex' : 'none';
+  }
+
   function renderListings(list) {
     var grid = document.getElementById('listings-grid');
+    grid.setAttribute('aria-busy', 'false');
     if (!list.length) {
       grid.innerHTML = '';
-      document.getElementById('filter-empty').style.display = 'block';
+      showListingsMessage('No properties match those filters yet. Try another filter or browse again later.', false);
+      setListingsStatus('No properties match the selected filters.');
       return;
     }
     document.getElementById('filter-empty').style.display = 'none';
+    document.getElementById('filter-empty').removeAttribute('role');
+    document.getElementById('retry-listings').style.display = 'none';
     grid.innerHTML = list.map(buildCard).join('');
+    setListingsStatus(list.length + (list.length === 1 ? ' property is' : ' properties are') + ' available.');
     // re-run fade-up
     grid.querySelectorAll('.fade-up').forEach(function(el){
       setTimeout(function(){ el.classList.add('visible'); }, 100);
@@ -586,30 +611,41 @@
   function filterSpecies(v){_fspecies=v;applyCardFilters();}
 
   // Load from Supabase on page load
-  (async function loadListings() {
+  async function loadListings() {
+    var grid = document.getElementById('listings-grid');
+    var loadingEl = document.getElementById('listings-loading');
+    grid.setAttribute('aria-busy', 'true');
+    if (loadingEl) loadingEl.style.display = 'block';
+    document.getElementById('filter-empty').style.display = 'none';
+    setListingsStatus('Loading available properties.');
+
     var { data, error } = await sbClient
       .from('listings')
       .select('id,created_at,status,state,county,acreage,pricing_type,price_per_day,max_guests,cleaning_fee,min_stay,activities,description,photo_urls,allow_out_of_state,video_url,num_beds,deer_activity,hogs_active,trail_cam_date')
       .eq('status','active')
       .order('created_at', { ascending: false });
 
-    var loadingEl = document.getElementById('listings-loading');
-    if (loadingEl) loadingEl.remove();
+    if (loadingEl) loadingEl.style.display = 'none';
+    grid.setAttribute('aria-busy', 'false');
 
     if (error) {
-      document.getElementById('filter-empty').style.display = 'block';
-      document.getElementById('filter-empty').innerHTML = 'Unable to load listings — please refresh the page. <a href="list-your-land.html" style="color:var(--color-accent);font-weight:700">Or list your land →</a>';
+      showListingsMessage('We could not load properties. Check your connection and try again.', true);
+      setListingsStatus('Properties could not be loaded. Retry loading.');
       return;
     }
     if (!data || !data.length) {
-      document.getElementById('filter-empty').style.display = 'block';
+      showListingsMessage('No active properties are available right now. Please check back soon.', false);
+      setListingsStatus('No active properties are available.');
       return;
     }
     allListings = data;
     renderListings(allListings);
     // Wire real listings into the map after load
     if (typeof updateMapWithRealListings === 'function') updateMapWithRealListings(allListings);
-  })();
+  }
+
+  document.getElementById('retry-listings').addEventListener('click', loadListings);
+  loadListings();
   </script>
     
   <!-- FOOTER -->
