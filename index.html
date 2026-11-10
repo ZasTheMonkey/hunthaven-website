@@ -149,6 +149,15 @@
     button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
     img,svg{display:block;max-width:100%}
     h1,h2,h3,h4{font-family:var(--font-display);line-height:1.1;text-wrap:balance}
+    :focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+    .skip-link{
+      position:fixed;top:10px;left:12px;z-index:100000;
+      padding:10px 14px;border-radius:var(--r-full);
+      background:var(--text);color:#fff;font-weight:700;
+      transform:translateY(-150%);transition:transform .18s ease;
+      box-shadow:var(--shadow-md);
+    }
+    .skip-link:focus{transform:translateY(0)}
 
     /* ─────────────────────────────────────────────
        NAV — DESKTOP
@@ -840,7 +849,11 @@
     /* Cards always visible — animation is a bonus not a visibility gate */
     #cards-grid .card{opacity:1;transform:none}
     @keyframes spin{to{transform:rotate(360deg)}}
-    @media(prefers-reduced-motion:reduce){.fade-up{opacity:1;transform:none}}
+    @media(prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}
+      *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+      .fade-up{opacity:1;transform:none}
+    }
 
     /* ─────────────────────────────────────────────
        CSS VAR ALIASES — for booking.js compatibility
@@ -1017,6 +1030,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 </head>
 <body><div style="position:sticky;top:0;z-index:99999;background:#f8d86a;color:#243b24;text-align:center;padding:7px;font:700 13px system-ui">LEASEWILD SANDBOX — TEST DATA ONLY</div>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <!-- ══════════════════════════════════════════
        NAV
@@ -1024,7 +1038,7 @@
   <nav class="nav" style="position:relative" id="main-nav">
     <div class="nav-inner">
       <!-- Logo -->
-      <a href="index.html" class="logo">
+      <a href="index.html" class="logo" aria-label="LeaseWild home">
         <svg width="36" height="36" viewBox="0 0 38 38" fill="none">
           <polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
           <ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/>
@@ -1033,7 +1047,7 @@
       </a>
 
       <!-- Center search pill (desktop) -->
-      <div class="nav-search" onclick="openSearchSheet()">
+      <button type="button" class="nav-search" onclick="openSearchSheet()" aria-label="Open property search">
         <div class="ns-pill">
           Where<span>Search properties</span>
         </div>
@@ -1043,10 +1057,10 @@
         <div class="ns-pill" style="border-right:none">
           Type<span>Hunt · Fish · Any</span>
         </div>
-        <button class="ns-btn" aria-label="Search">
+        <span class="ns-btn" aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        </button>
-      </div>
+        </span>
+      </button>
 
       <!-- Right side -->
       <div class="nav-right">
@@ -1104,7 +1118,7 @@
   <!-- ══════════════════════════════════════════
        HERO
   ══════════════════════════════════════════ -->
-  <section class="hero">
+  <section class="hero" id="main-content" tabindex="-1">
     <div class="hero-bg"></div>
     <div class="hero-trees"></div>
     <div class="hero-content">
@@ -1746,10 +1760,10 @@
     <h2>Bookings open July 1, 2026.</h2>
     <p>Join the waitlist and we'll notify you the day access opens. No spam, ever.</p>
     <form class="email-form" onsubmit="inlineSubmit(event)">
-      <input class="email-input" type="email" id="inline-email" placeholder="your@email.com" required />
+      <input class="email-input" type="email" id="inline-email" name="email" autocomplete="email" aria-label="Email address" placeholder="your@email.com" required />
       <button class="email-btn" type="submit" id="inline-btn">Join waitlist</button>
     </form>
-    <p id="inline-confirm" style="display:none;color:var(--green);font-weight:600;margin-top:14px">You're on the list — we'll be in touch.</p>
+    <p id="inline-confirm" role="status" aria-live="polite" style="display:none;color:var(--green);font-weight:600;margin-top:14px">You're on the list — we'll be in touch.</p>
   </div>
 
   <!-- ══════════════════════════════════════════
@@ -1983,28 +1997,28 @@
         <form onsubmit="submitWaitlist(event)">
           <div class="form-row">
             <div class="form-field">
-              <label>First name</label>
-              <input type="text" id="wl-first" required placeholder="First" />
+              <label for="wl-first">First name</label>
+              <input type="text" id="wl-first" name="firstName" autocomplete="given-name" required placeholder="First" />
             </div>
             <div class="form-field">
-              <label>Last name</label>
-              <input type="text" id="wl-last" placeholder="Last" />
+              <label for="wl-last">Last name</label>
+              <input type="text" id="wl-last" name="lastName" autocomplete="family-name" placeholder="Last" />
             </div>
           </div>
           <div class="form-field">
-            <label>Email</label>
-            <input type="email" id="wl-email" required placeholder="your@email.com" />
+            <label for="wl-email">Email</label>
+            <input type="email" id="wl-email" name="email" autocomplete="email" required placeholder="your@email.com" />
           </div>
           <div class="form-field">
-            <label>Phone</label>
-            <input type="tel" id="wl-phone" required placeholder="(555) 000-0000" />
+            <label for="wl-phone">Phone</label>
+            <input type="tel" id="wl-phone" name="phone" autocomplete="tel" inputmode="tel" required placeholder="(555) 000-0000" />
           </div>
           <div class="form-field">
-            <label>City, State</label>
-            <input type="text" id="wl-location" required placeholder="Tampa, FL" />
+            <label for="wl-location">City, State</label>
+            <input type="text" id="wl-location" name="location" autocomplete="address-level2" required placeholder="Tampa, FL" />
           </div>
           <button class="btn-submit" type="submit" id="wl-submit">Join waitlist</button>
-          <p id="wl-error" style="display:none;color:var(--danger);font-size:.78rem;text-align:center;margin-top:8px"></p>
+          <p id="wl-error" role="alert" aria-live="assertive" style="display:none;color:var(--danger);font-size:.78rem;text-align:center;margin-top:8px"></p>
         </form>
         <p class="modal-note">No spam. We'll only contact you when early access opens.</p>
       </div>
