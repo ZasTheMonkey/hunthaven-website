@@ -89,3 +89,10 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **BLOCKED:** No securely provisioned QA sessions for hunter/owner authenticated E2E, messaging/RLS, bookings, cancellation, reviews, map-zone save/reload or Stripe TEST. No real data or payments touched.
 - **NOT TESTED:** Browser rendering at 320/375/390/430/768/1024/1280/1440/1920px, zoom, touch/keyboard, and real-device Safari; no browser evidence available.
 - **NO-GO:** Production release remains blocked on verified critical workflows and authorization. This is source-only accessibility improvement, not functional E2E evidence.
+
+## 2026-11-10 04:46 ET — Hunter draft recipient isolation
+- **PASS (static source):** Compared latest hunter/landowner QA notes and bridge; hunter composer retained text across conversation switches, risking accidental delivery to the wrong landowner. Mirrored the existing owner per-conversation draft map, saving/restoring drafts on thread selection and clearing only the successful sending thread's unchanged draft. Code commit `beec180fc5651e8f4c070821dfa0e7756e2e888e`. Re-fetched source and checked hunter map, restore, successful-send clearing and owner protection. This is code inspection, not browser E2E.
+- **NOT VERIFIED (deployment):** No independent Cloudflare deployment result obtained for this code commit; GitHub commit alone does not prove deployment.
+- **BLOCKED:** Authenticated hunter/owner send/receive, RLS, booking/cancellation, Stripe TEST, map create/edit/reload and review eligibility/moderation lack securely provisioned QA sessions.
+- **NOT TESTED:** Responsive browser widths 320/375/390/430/768/1024/1280/1440/1920, 200% zoom, touch/keyboard, Safari and real-device checks. No browser harness executed.
+- **NO-GO:** Production launch remains blocked; sandbox branch only.
