@@ -274,6 +274,8 @@
         <h3 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-lg);letter-spacing:.01em">Messages <span id="lo-unread-badge" style="display:none;background:var(--color-accent);color:#fff;border-radius:99px;font-size:.7rem;padding:.1rem .45rem;margin-left:.3rem;font-weight:700;vertical-align:middle"></span></h3>
       </div>
 
+      <button type="button" id="lo-refresh-messages" onclick="refreshLandownerMessages()" style="margin:0 0 1rem;padding:.55rem .9rem;border:1px solid var(--color-border);border-radius:9px;background:var(--color-surface);color:var(--color-primary);font-weight:700;cursor:pointer">Refresh messages</button>
+
       <!-- Thread list -->
       <div id="lo-thread-list">
         <div id="lo-threads-container">
@@ -481,6 +483,22 @@
       }, 400);
     }
   }
+
+  // Refresh when returning to a suspended mobile browser tab; no logout required.
+  function refreshLandownerMessages() {
+    if (!loCurrentUserEmail || document.getElementById('dashboard').style.display === 'none') return;
+    Promise.resolve(loadLoThreads(loCurrentUserEmail)).catch(function(err) {
+      console.warn('Landowner inbox refresh failed:', err);
+    });
+    if (loCurrentConvId) Promise.resolve(loadLoMessages(loCurrentConvId)).catch(function(err) {
+      console.warn('Landowner message refresh failed:', err);
+    });
+  }
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) refreshLandownerMessages();
+  });
+  window.addEventListener('pageshow', function() { refreshLandownerMessages(); });
+  window.addEventListener('focus', function() { refreshLandownerMessages(); });
 
   function showStripeConnected() {
     document.getElementById('stripe-connect-banner').style.display = 'block';
