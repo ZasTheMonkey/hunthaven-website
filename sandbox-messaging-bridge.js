@@ -167,7 +167,7 @@ const style=document.createElement('style');
         el.innerHTML=chatMarkup(rows,data.session.user.id);
         if(nearBottom)el.scrollTop=el.scrollHeight;
         else el.scrollTop=previousTop+(el.scrollHeight-previousHeight);
-      }catch(e){if(currentConvId===id&&request===hunterMessageRequest)el.textContent=e.message;}
+      }catch(e){if(currentConvId===id&&request===hunterMessageRequest){el.setAttribute('role','alert');el.textContent='Unable to load messages. '+(e.message||'Please retry.');}}
     };
     window.sendMessage=async function(){
       const el=document.getElementById('compose-input'),btn=document.getElementById('send-btn'),body=el.value.trim();
