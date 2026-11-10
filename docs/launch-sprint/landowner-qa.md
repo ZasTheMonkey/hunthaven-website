@@ -34,3 +34,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **BLOCKED:** Authenticated owner/hunter E2E, cross-owner RLS negative tests, map zones save/reload, review eligibility/moderation, booking and Stripe TEST regressions require securely provisioned QA sessions and/or feature completion. No personal sessions used.
 - **NOT TESTED:** Real browser widths 320, 375, 390, 430, 768, 1024, 1280, 1440, 1920, ultrawide, 200% zoom, touch, keyboard, landscape/portrait. No browser automation was available this run.
 - **NO-GO:** Sandbox code improvement only; no production release authorized.
+
+## 2026-11-10 01:22 ET — Owner active-chat refresh ordering
+- **PASS (source):** Found another race separate from inbox list ordering: two concurrent `loadLoMessages(id)` calls for the same conversation could complete out of order, letting older content overwrite newer messages or show stale errors. Added owner-only `ownerMessageRequest` sequence guards to both success and error paths. Commit `f2a7736024a611152329f4d8f9118a4dec43723b`. Re-fetched the bridge and verified both guards, with hunter inbox path still present.
+- **PASS (deployment metadata):** Cloudflare Pages API returned `active` for exact code commit `f2a7736024a611152329f4d8f9118a4dec43723b`, deployment `5e05c857-5998-45da-a67f-f390d992e79c`, created `2026-11-10T06:21:45Z`. This does not verify browser execution.
+- **BLOCKED:** Authenticated cross-role messaging, actual send/receive/persistence, map zone ownership/geometry save-reload, hunter-review eligibility and moderation, Stripe TEST checkout and RLS negative testing remain unverified without safely provisioned sessions and/or implemented features.
+- **NOT TESTED:** Browser responsive widths 320,375,390,430,768,1024,1280,1440,1920, 200% zoom, real-device touch/keyboard and landscape. No automated browser evidence gathered this run.
+- **NO-GO:** Production launch is not approved. No production, personal sessions, real users or live payment operations touched.
