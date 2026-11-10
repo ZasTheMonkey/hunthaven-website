@@ -61,3 +61,13 @@ These are proposed identifiers, **not verified Auth users**. Gmail plus-addressi
 - **PASS:** cross-owner UPDATE/DELETE isolation at database RLS layer (simulated JWT, not browser sessions).
 - **FIX:** `sandbox-zone-editor.html` initialized `savedLayers=L.layerGroup()` then called `savedLayers.getBounds()`, which Leaflet LayerGroup does not implement. Changed to `L.featureGroup()`, which supports getBounds, in staging commit `e5cea173fbc7b383054980ca1c61e1f71d90694b`.
 - **PENDING:** actual browser map save/reload, mobile responsiveness and deployment verification; do not mark these passed based on source inspection.
+
+## Persistent sample map fixtures — 2026-11-10
+- Owner A draft listing `d626d2e9-d9a0-47a1-8433-fd04a3948b4e` now has three **QA ONLY** synthetic features (not real property boundaries):
+  - polygon `46c222f7-979a-406a-8986-12d35fa6e627`
+  - entry `e196625e-12b1-4429-876b-cf8d92908032`
+  - parking `4d5dae58-c353-4f03-9d6f-54f6805dff85`
+- Simulated authenticated Owner A SELECT saw all 3 features; simulated Owner B SELECT saw 0.
+- Staging `supabase-config.js` references sandbox project `kbkdfpmlyggfijkyjxoi` (public anon client; no secret value recorded).
+- Map editor Leaflet `L.featureGroup` bounds fix committed previously, but browser rendering and deployment still **unverified**.
+- Cleanup: remove the above three feature UUIDs before deleting the Owner A draft listing. Do not remove unrelated zones.
