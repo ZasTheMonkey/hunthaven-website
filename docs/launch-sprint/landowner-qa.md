@@ -145,3 +145,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **SECURITY ADVISORS:** Five RLS-enabled/no-policy tables, pg_net in public, three exposed authenticated SECURITY DEFINER messaging functions, and leaked-password protection disabled. Existing findings remain unresolved; evaluate dependencies before changing.
 - **BLOCKED:** No verified separate synthetic owner A, owner B, hunter credentials/session. Cannot truthfully mark cross-owner RLS, booking/review submission, UI touch/responsive, Stripe TEST, messaging E2E as passed.
 - **NO-GO:** Staging-only checks. No production deployment or live-account testing.
+
+## 2026-11-10 — Simulated signed-in RLS smoke test
+- **PASS (negative test, transaction rolled back):** SET LOCAL ROLE authenticated and simulated a nonexistent synthetic JWT sub `11111111-1111-4111-8111-111111111111`. `auth.uid()` matched synthetic identity; listing_access_zones SELECT returned zero; hunter_reviews SELECT returned zero; private review eligibility for fake booking/hunter returned false. No records written.
+- **Fixture inventory (counts only):** Sandbox contains 9 auth users, 3 listings, 2 lease_payments, and 0 listing_access_zones. No identities, emails, or credentials accessed.
+- **LIMITATION:** Zero visible zones/reviews is not proof of cross-owner isolation because the tables have no fixture records. Simulated JWT/role is not an actual browser login and does not validate login sessions or APIs.
+- **NEXT:** Provision two dedicated synthetic landowner accounts and a hunter through approved sandbox Auth workflow, seed distinct test listings/booking/payment state, then test positive and negative RLS, map UI, review form, messaging, and Stripe TEST end-to-end. Do not use any real user identity or production data.
+- **NO-GO:** Live environment unchanged.
