@@ -165,3 +165,20 @@ Competitor categories to benchmark in next run: LandTrust (experience/package di
 
 ### Verification boundaries
 GitHub report/source evidence only; sandbox public URL could not be fetched independently in this run. No deployment assertion for current HEAD, no browser/mobile/authenticated E2E or Stripe TEST execution. Production remains **NO-GO**. Do not touch production, `main`, real-user data or live payments.
+
+
+## 2026-11-10 05:11 ET — Growth handoff: accessible discovery feedback and catalog privacy
+
+### Coordination and evidence
+- Read latest staging commits through `e443e4fe268d8c381934cd6c1562f966d8df8807`, Hunter QA, Landowner QA, and Designer launch-readiness reports before editing. Hunter's latest draft-isolation code is `beec180fc5651e8f4c070821dfa0e7756e2e888e`; authenticated messaging remains untested.
+- Re-fetched staging `listings.html`: public Supabase catalog now explicitly selects presentation fields instead of `*`, matching Designer's documented privacy-minimization fix `20be480945856fd3a8b9a85e80d61f27f024f2ec`. This is **request-field minimization**, not proof that direct API reads cannot expose sensitive columns; server-side RLS/view grants need separate testing.
+- Static search of current `listings.html` found a dynamic `#listings-loading` region but **no literal `aria-live` attribute**. This does not establish a screen-reader failure; rendered announcements and focus behavior require browser/assistive-technology testing.
+
+### Prioritized implementable actions
+1. **P1 / accessible results feedback (Designer + QA):** provide a stable, visually restrained results-status element using `role=status` / `aria-live=polite` for loading-complete, result-count, no-match, and retry outcomes. Keep status concise; do not announce every card. On network failure show a distinguishable error and keyboard-operable Retry, not an empty-results message. Acceptance: source assertions for status transitions, keyboard and screen-reader smoke at 320/375/390px and 200% zoom; record actual screenshots/announcements before marking PASS. Impact: accessibility and search confidence hypothesized; no conversion uplift measured. Effort: S–M.
+2. **P1 / catalog security contract (Designer + Legal + QA):** before expanding fields, define a public read-only catalog view with approved presentation columns, explicit authorization for sensitive owner/location/zone data, and negative anonymous API tests. Do not rely on frontend field selection for confidentiality. Acceptance: synthetic sandbox-only tests prove denied reads of owner contact, exact parcel address, and access-zone geometry. Effort: M–L; potential impact high (privacy/security), not measured.
+3. **P2 / discoverability measurement (Growth):** with synthetic test listings only, record successful filter/search-to-card discovery and `listing_view/listings_view` by device width; segment zero-result searches without storing raw personally identifying queries. Only publish location landing pages for verified, authorized inventory. Effort: S–M; no SEO or conversion lift assumed.
+
+### Independent deployment and release boundary
+- Public sandbox `https://leasewild-sandbox.pages.dev/listings.html` fetch was attempted in this run and returned an inaccessible-tool error. **No independent public deployment verification** and no browser or mobile runtime test. Earlier Designer report verifies Cloudflare deployment metadata/browser at an earlier exact SHA, not current HEAD.
+- This update is documentation-only; no application, payments, database, production, or `main` changes. Authenticated E2E blocked without secure synthetic QA sessions. **Production NO-GO**.
