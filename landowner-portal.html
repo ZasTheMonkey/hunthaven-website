@@ -454,7 +454,13 @@
     loadLoThreads(user.email);
     checkStripeStatus(user);
     // Poll for new messages every 10 seconds
-    setInterval(function() { loadLoThreads(loCurrentUserEmail); if (loCurrentConvId) loadLoMessages(loCurrentConvId); }, 10000);
+    // Re-entering the dashboard must not create overlapping polling loops.
+    if (loPollInterval) clearInterval(loPollInterval);
+    loPollInterval = setInterval(function() {
+      if (document.hidden || !loCurrentUserEmail) return;
+      loadLoThreads(loCurrentUserEmail);
+      if (loCurrentConvId) loadLoMessages(loCurrentConvId);
+    }, 10000);
     // Handle stripe_connected redirect
     if (params.get('stripe_connected') === '1') {
       showStripeConnected();
