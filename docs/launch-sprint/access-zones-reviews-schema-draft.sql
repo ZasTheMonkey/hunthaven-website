@@ -227,6 +227,8 @@ create policy "Owners can review completed eligible bookings"
   to authenticated
   with check (
     reviewer_owner_id = (select auth.uid())
+    -- INSERT policy must enforce moderation; DEFAULT alone is bypassable.
+    and moderation_status = 'pending'
     and exists (
       select 1
       from public.bookings b
