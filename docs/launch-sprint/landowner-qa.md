@@ -173,3 +173,9 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - Direct HTTPS deployment probe `curl -IL --max-time 12 https://leasewild-sandbox.pages.dev/sandbox-zone-editor.html` failed with **curl (6) Could not resolve host** in current execution environment. **BLOCKED environment DNS**; not evidence that deployment is down.
 - **NOT TESTED** browser E2E drawing/save/reload, mobile widths 320–2560, keyboard/zoom, property verification, payment/webhooks, booking messaging, completed-booking review; no browser/session access used. Do not report these as passed.
 - Next: verify Cloudflare Pages deployment via provider API, then run authenticated browser E2E and viewport/accessibility checks when a browser-capable runner is available. No live/main changes.
+
+## 2026-11-10 10:11 ET — coordinated map-editor source QA
+- **PASS (source inspection):** Latest staging map editor already has distinct saved-zone colors (hunting area, entry, parking, trail) and a map drawing mode; another contributor had already implemented an optional coordinate disclosure.
+- **FIX (staging):** While updating optional manual coordinate accessibility, a concurrent edit caused duplicate nested `<details>`. Detected immediately on re-read and corrected to one disclosure with keyboard-accessible label. Final corrective commit `bb921785fcdee75e62e64473035bde6b5f42f4af` (initial `d47fa2ad21220984a6f68da3730f5be4ddba741e`). No changes to payment code.
+- **NOT TESTED:** browser save/reload, 320–2560 responsive rendering, keyboard/touch/zoom, verification, bookings, messages, reviews, live Cloudflare deployment. Source review is not E2E verification.
+- **Next:** run HTML validation and authenticated browser E2E against sandbox deployment, then review property-verification flows. Never merge/deploy main or live.
