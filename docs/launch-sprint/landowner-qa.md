@@ -131,3 +131,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **PASS (schema inspection):** `lease_payments` has participant SELECT RLS policy; `hunter_reviews` has owner/hunter SELECT and owner INSERT policies. `bookings` has RLS enabled but **no SELECT policies**.
 - **BLOCKER:** `review_eligible_owner_insert` joins `bookings` under caller permissions. With bookings RLS enabled and no SELECT policy, eligible inserts may be denied. Do not weaken booking RLS or claim successful submissions. A narrowly scoped reviewed server-side authorization strategy is needed that checks the authoritative booking state without exposing guest records.
 - **NOT TESTED:** Real authenticated booking list, review submission, RLS cross-owner negative tests, browser/mobile layout, Stripe TEST or Cloudflare deploy. Production untouched.
+
+## 2026-11-10 — Review booking RLS blocker addressed in sandbox
+- **PASS (migration):** Applied `sandbox_review_private_eligibility_check` on Supabase `kbkdfpmlyggfijkyjxoi` only. Replaced the `hunter_reviews` INSERT policy's direct `bookings` join with `leasewild_private.owner_can_review_booking(booking_id,hunter_id)`.
+- **Security design:** Private-schema `SECURITY DEFINER` function uses fixed empty search_path, explicit fully qualified table/function references, checks `auth.uid()` against payment owner and listing owner, checks hunter ID, confirmed booking, paid payment, checkout elapsed and excluded states. Returns boolean only. Schema usage and function execute granted to authenticated, revoked from anon/public. General `bookings` SELECT access remains unavailable to authenticated users.
+- **PASS (read-only negative check):** Calling function without an authenticated user using dummy UUIDs returned false.
+- **NOT TESTED:** Authenticated positive owner booking, wrong-owner/wrong-hunter negative cases, direct Data API access, real review INSERT and duplicate enforcement. Function is privileged and must be threat-model reviewed before launch.
+- **NOT VERIFIED:** Browser E2E, deploy, messaging, Stripe TEST. **NO-GO** remains.
