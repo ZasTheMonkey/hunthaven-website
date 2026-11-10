@@ -252,3 +252,9 @@ GitHub report/source evidence only; sandbox public URL could not be fetched inde
 - **PASS (staging source):** Commit `38576dda02b35a10b730318004aacb1f4749628b` enables trail save geometry and minimum-two-point validation; clarifies Entry/Parking tap-to-place point workflow and zone-type guidance. No payment or booking code touched.
 - **NOT TESTED:** Cloudflare deployment success, authenticated save/reload for trail, entry, parking, mobile touch/keyboard, cross-owner denial, and viewport matrix. Source/database constraint checks alone do not establish successful browser save.
 - **QA handoff:** Landowner QA should save and reload a trail, one entry point and one parking point with synthetic owner; Hunter QA should verify no unauthorized access; Designer should verify touch gestures and Cloudflare deployment. No production/main/live resources touched.
+
+
+## 2026-11-10 — Mobile map editor visual redesign
+- **PASS (GitHub source):** `f31d66dafdaa7a629f37e5bdcd088a15fe5e3d80` updates the owner map editor with satellite-first mobile layout (map above form at <=740px), compact property-map header, premium forest-green styling, accessible-sized controls, grouped action/save buttons, better visual hierarchy and legend. Existing map drawing, saved-zone, authorization and payment code preserved.
+- **NOT TESTED:** deployed Cloudflare HTML, actual iPhone Safari screenshots/touch, 320–2560px viewport matrix, VoiceOver, 200% zoom, authenticated zone save/reload. Source-level CSS presence is not responsive E2E evidence.
+- **Next:** Designer/Hunter/Landowner QA visually inspect map at 320/375/390/430/768/1024/1280/1440/1920/2560 widths; verify controls are usable with keyboard and touch and no overflow; check satellite imagery attribution and tile loading.
