@@ -38,15 +38,44 @@
   };
   const fmt=msg=>new Date(msg.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
   const showError=(e)=>{console.error('LeaseWild messaging:',e);alert(e.message||'Messaging is unavailable. Please retry.');};
-  if(owner){
+const style=document.createElement('style');
+  style.textContent=`
+  .lw-inbox{display:flex;flex-direction:column;gap:9px}
+  .lw-inbox-heading{font-size:1.15rem;font-weight:800;letter-spacing:-.025em;margin:0 0 12px;color:var(--color-text,#252822)}
+  .lw-message-thread{display:flex!important;align-items:center!important;gap:14px!important;width:100%!important;text-align:left!important;padding:15px!important;margin:0!important;border:1px solid var(--color-border,#ddd)!important;border-radius:17px!important;background:var(--color-surface,#fff)!important;color:var(--color-text,#222)!important;cursor:pointer!important;transition:background .15s,border-color .15s!important;min-height:82px}
+  .lw-message-thread:hover,.lw-message-thread:focus-visible{background:var(--color-bg,#f7f6f2)!important;border-color:#8da68a!important;outline-offset:2px}
+  .lw-avatar{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;border-radius:50%;background:#dce7d6;color:#29442d;font-weight:800;font-size:17px}
+  .lw-thread-body{min-width:0;flex:1}
+  .lw-thread-name{display:block;font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lw-thread-preview{display:block;margin-top:5px;font-size:13px;color:var(--color-text-muted,#777);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lw-thread-date{align-self:flex-start;white-space:nowrap;font-size:11px;color:var(--color-text-muted,#777)}
+  .lw-chat-messages{display:flex;flex-direction:column;gap:10px;padding:18px 8px;min-height:240px;max-height:55vh;overflow-y:auto;overscroll-behavior:contain}
+  .lw-chat-row{display:flex;flex-direction:column;align-items:flex-start;max-width:100%}
+  .lw-chat-row.mine{align-items:flex-end}
+  .lw-chat-bubble{max-width:min(84%,440px);padding:11px 15px;border-radius:18px 18px 18px 5px;background:var(--color-surface,#fff);border:1px solid var(--color-border,#ddd);color:var(--color-text,#222);line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap}
+  .lw-chat-row.mine .lw-chat-bubble{background:#365d41;color:#fff;border-color:#365d41;border-radius:18px 18px 5px 18px}
+  .lw-chat-time{font-size:11px;color:var(--color-text-muted,#777);margin:4px 5px 0}
+  .lw-chat-empty{text-align:center;padding:50px 15px;color:var(--color-text-muted,#777)}
+  #lo-compose,#compose-input{border-radius:16px!important;min-height:48px}
+  #lo-send-btn,#send-btn{border-radius:14px!important;min-height:48px}
+  @media(max-width:600px){.lw-message-thread{padding:13px!important}.lw-chat-messages{max-height:48vh}.lw-avatar{flex-basis:42px;width:42px;height:42px}}
+  `;
+  document.head.appendChild(style);
+  const initials=name=>name.split(/[\\s·,]+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join('');
+  const threadCard=(t,title,last)=>'<button type="button" class="lw-message-thread" data-conv="'+safe(t.id)+'" data-booking="'+safe(t.booking_id)+'" data-title="'+safe(title)+'"><span class="lw-avatar" aria-hidden="true">'+safe(initials(title))+'</span><span class="lw-thread-body"><span class="lw-thread-name">'+safe(title)+'</span><span class="lw-thread-preview">'+safe(last?.body||'Start a conversation')+'</span></span><span class="lw-thread-date">'+safe(last?new Date(last.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'')+'</span></button>';
+  const threadPreview=async t=>{try{const x=await messages(t.id);return x?.[x.length-1]||null;}catch(e){return null;}};
+  const chatMarkup=(rows,myId)=>rows.length?rows.map(m=>'<div class="lw-chat-row '+(m.sender_id===myId?'mine':'')+'"><div class="lw-chat-bubble">'+safe(m.body)+'</div><span class="lw-chat-time">'+safe(fmt(m))+'</span></div>').join(''):'<div class="lw-chat-empty">No messages yet.<p>Say hello and start the conversation.</p></div>';
+    if(owner){
     window.loadLoThreads=async function(email){
       loCurrentUserEmail=email;
       const el=document.getElementById('lo-threads-container');
       try{
         const rows=await list();
         const titles=await Promise.all(rows.map(threadTitle));
-        el.innerHTML=rows.length?rows.map((t,i)=>'<button type="button" class="lw-message-thread" data-conv="'+safe(t.id)+'" style="display:block;width:100%;text-align:left;padding:1rem;margin-bottom:.5rem;border:1px solid var(--color-border);border-radius:12px;background:var(--color-surface);color:var(--color-text);cursor:pointer">'+safe(titles[i])+'</button>').join(''):'<p>No messages yet. Open a booking to start a conversation.</p>';
-        el.querySelectorAll('[data-conv]').forEach(b=>b.addEventListener('click',()=>window.openLoConversation(b.dataset.conv,'Booking conversation','')));
+        const previews=await Promise.all(rows.map(threadPreview));
+        el.classList.add('lw-inbox');
+        el.innerHTML=rows.length?rows.map((t,i)=>threadCard(t,titles[i],previews[i])).join(''):'<div class="lw-chat-empty">No conversations yet. Open a booking to message your guest.</div>';
+        el.querySelectorAll('[data-conv]').forEach(b=>b.addEventListener('click',()=>window.openLoConversation(b.dataset.conv,b.dataset.title,'')));
         document.getElementById('lo-unread-badge').style.display='none';
       }catch(e){el.textContent=e.message;}
     };
@@ -63,7 +92,8 @@
       try{
         const rows=await messages(id), {data}=await sb.auth.getSession();
         if(loCurrentConvId!==id)return;
-        el.innerHTML=rows.length?rows.map(m=>'<div style="margin:.5rem 0;text-align:'+(m.sender_id===data.session.user.id?'right':'left')+'"><div style="display:inline-block;max-width:85%;padding:.7rem 1rem;border-radius:12px;background:var(--color-surface);border:1px solid var(--color-border);overflow-wrap:anywhere">'+safe(m.body)+'</div><div style="font-size:.7rem;color:var(--color-text-muted)">'+fmt(m)+'</div></div>').join(''):'<p>No messages yet. Say hello!</p>';
+        el.classList.add('lw-chat-messages');
+        el.innerHTML=chatMarkup(rows,data.session.user.id);
         el.scrollTop=el.scrollHeight;
       }catch(e){el.textContent=e.message;}
     };
@@ -82,8 +112,10 @@
       try{
         const rows=await list();
         const titles=await Promise.all(rows.map(threadTitle));
-        el.innerHTML=rows.length?rows.map((t,i)=>'<button type="button" class="thread-item" data-conv="'+safe(t.id)+'" data-booking="'+safe(t.booking_id)+'">'+safe(titles[i])+'</button>').join(''):'<div class="empty-state">No messages yet. Open a booking to message the landowner.</div>';
-        el.querySelectorAll('[data-conv]').forEach(b=>b.addEventListener('click',()=>window.openConversation(b.dataset.booking,null,'Booking conversation',b.dataset.conv)));
+        const previews=await Promise.all(rows.map(threadPreview));
+        el.classList.add('lw-inbox');
+        el.innerHTML=rows.length?rows.map((t,i)=>threadCard(t,titles[i],previews[i])).join(''):'<div class="lw-chat-empty">No conversations yet. Open a booking to message the landowner.</div>';
+        el.querySelectorAll('[data-conv]').forEach(b=>b.addEventListener('click',()=>window.openConversation(b.dataset.booking,null,b.dataset.title,b.dataset.conv)));
       }catch(e){el.textContent=e.message;}
     };
     window.loadUnreadCount=async function(){const b=document.getElementById('unread-badge');if(b)b.style.display='none';};
@@ -102,7 +134,8 @@
       try{
         const rows=await messages(id),{data}=await sb.auth.getSession();
         if(currentConvId!==id)return;
-        el.innerHTML=rows.length?rows.map(m=>'<div class="msg-wrap"><div class="msg-bubble '+(m.sender_id===data.session.user.id?'mine':'theirs')+'">'+safe(m.body)+'</div><div class="msg-meta">'+fmt(m)+'</div></div>').join(''):'<p>No messages yet. Say hello!</p>';
+        el.classList.add('lw-chat-messages');
+        el.innerHTML=chatMarkup(rows,data.session.user.id);
         el.scrollTop=el.scrollHeight;
       }catch(e){el.textContent=e.message;}
     };
