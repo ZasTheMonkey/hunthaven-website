@@ -33,8 +33,11 @@ function openListingDetail(l) {
       '</div>'
     : '<div style="height:180px;border-radius:12px;background:' + (isHunt ? 'linear-gradient(160deg,#2a4a30,#4a7040)' : 'linear-gradient(160deg,#0d2840,#2a90b0)') + '"></div>';
 
-  var videoHtml = l.video_url
-    ? '<div style="margin-top:.75rem"><video src="'+l.video_url+'" controls style="width:100%;border-radius:12px;max-height:220px"></video></div>'
+  // Only HTTPS video URLs are allowed in generated markup. Escape HTML attribute metacharacters.
+  var safeVideoUrl = typeof l.video_url === 'string' && /^https:\/\/[^\s"'<>]+$/i.test(l.video_url)
+    ? l.video_url.replace(/&/g, '&amp;') : '';
+  var videoHtml = safeVideoUrl
+    ? '<div style="margin-top:.75rem"><video src="'+safeVideoUrl+'" controls preload="metadata" playsinline style="width:100%;border-radius:12px;max-height:220px"></video></div>'
     : '';
 
   var details = [];
