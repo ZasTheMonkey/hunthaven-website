@@ -146,7 +146,7 @@ async function refresh(){
  (data||[]).forEach(z=>{
   const li=document.createElement('li'),title=document.createElement('span'),del=document.createElement('button');
   title.textContent=z.label+' ('+z.zone_type.replace('_',' ')+') ';del.textContent='Delete';del.className='secondary';del.setAttribute('aria-label','Delete '+z.label);
-  del.onclick=async()=>{if(!confirm('Delete this zone?'))return;del.disabled=true;const {error:e}=await client.from('listing_access_zones').delete().eq('id',z.id).eq('listing_id',id);if(e){message(e.message);del.disabled=false;}else{message('Zone deleted.');refresh();}};
+  del.onclick=async()=>{if(!confirm('Delete this zone?'))return;del.disabled=true;const {data:deleted,error:e}=await client.from('listing_access_zones').delete().eq('id',z.id).eq('listing_id',id).select('id');if(e){message('Delete failed: '+e.message);del.disabled=false;}else if(!deleted||deleted.length!==1){message('Zone was not deleted. Refresh and check your access before retrying.');del.disabled=false;await refresh();}else{message('Zone deleted.');await refresh();}};
   li.append(title,del);list.append(li);
   try{const colors={hunting_area:'#b46b20',parking:'#2563eb',entry:'#15803d',trail:'#8b5cf6'};const color=colors[z.zone_type]||'#2d5a27';const layer=L.geoJSON(z.geometry,{style:{color,weight:4},pointToLayer:(feature,latlng)=>L.circleMarker(latlng,{radius:9,color:'#fff',weight:3,fillColor:color,fillOpacity:1})}).addTo(savedLayers);layer.bindPopup(document.createTextNode(z.label));}catch(e){message('One saved zone could not be rendered.');}
  });
