@@ -9,7 +9,9 @@
       ...options,headers:{apikey:owner?SB_KEY:SB_ANON,Authorization:'Bearer '+data.session.access_token,
       'Content-Type':'application/json',...(options.headers||{})}});
     if(!response.ok) throw Error('Messaging request failed ('+response.status+').');
-    return response.status===204?null:response.json();
+    if (response.status===204 || options.headers?.Prefer==='return=minimal') return null;
+    const raw=await response.text();
+    return raw ? JSON.parse(raw) : null;
   };
   const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const openBooking=async id=>{
