@@ -54,3 +54,10 @@ These are proposed identifiers, **not verified Auth users**. Gmail plus-addressi
 - `ROLLBACK` performed; independent follow-up count confirmed `0` saved zones for Owner A fixture.
 - **PASS:** Owner A INSERT authorization; Owner B cross-owner SELECT isolation; cleanup.
 - **NOT TESTED:** Browser login, cross-owner UPDATE/DELETE, positive persistent map save/reload, payments, bookings through UI.
+
+## Cross-owner UPDATE/DELETE and map code inspection — 2026-11-10
+- Within a rolled-back transaction, simulated Owner A inserted an entry point on Owner A's draft listing. Switched to Owner B: UPDATE and DELETE targeting Owner A's zone returned zero affected rows. Switched back to Owner A: original label remained unchanged.
+- Follow-up query after rollback confirmed no persistent test zone.
+- **PASS:** cross-owner UPDATE/DELETE isolation at database RLS layer (simulated JWT, not browser sessions).
+- **FIX:** `sandbox-zone-editor.html` initialized `savedLayers=L.layerGroup()` then called `savedLayers.getBounds()`, which Leaflet LayerGroup does not implement. Changed to `L.featureGroup()`, which supports getBounds, in staging commit `e5cea173fbc7b383054980ca1c61e1f71d90694b`.
+- **PENDING:** actual browser map save/reload, mobile responsiveness and deployment verification; do not mark these passed based on source inspection.
