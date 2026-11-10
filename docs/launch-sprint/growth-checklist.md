@@ -357,3 +357,12 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **NOT TESTED:** Browser map rendering, map search, viewport widths, real inventory counts, screen reader/touch behavior. The existing map-search function may still imply precise map search; audit it next.
 - **Coordination:** Designer should add a polished state-summary map legend; Hunter QA should validate aggregate counts and no private location disclosure; Landowner QA should verify public/owner coordinate separation; Legal should review the accuracy of public location representations.
 - **Release:** NO-GO pending authenticated booking, messaging, payment and responsive tests. Main/live resources untouched.
+
+
+## 2026-11-10 18:08 ET — Growth Research: map discovery integrity
+- **FAIL (prior source):** Map filter buttons used `hunt`/`fish`, while inventory items used `hunting`/`fishing`; selecting either activity could display zero results. Map geocoding also compared searched coordinates to state-center markers using a 2.5-degree radius, falsely describing state summaries as nearby properties.
+- **PASS (staging source):** Commit `2fd11b98c1899e4e65dd6e943a846ee33783f44f` normalizes activity filter values and removes fictitious proximity calculations. Geocoding now only recenters the map; copy explicitly explains state-wide totals are not nearby property locations. No booking, Stripe, auth, or private coordinates touched.
+- **PASS (source re-fetch):** Confirmed normalized filter and absence of `const nearby = LISTINGS.filter`.
+- **NOT TESTED:** Browser geocoder results, activity clicks, real listing totals, 320–2560px visual/touch/keyboard/zoom, E2E booking.
+- **Handoffs:** Designer: mobile map controls/legend and empty-state polish. Hunter QA: test hunt/fish/all buttons and map search without misleading proximity. Landowner QA: confirm private location/zone isolation. Legal: audit public location and availability claims.
+- **Release:** NO-GO pending browser E2E and payment/messaging verification. Staging/sandbox only; never main/live.
