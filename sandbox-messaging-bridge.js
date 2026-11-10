@@ -114,17 +114,20 @@ const style=document.createElement('style');
       try{const id=await openBooking(bookingId);await window.openLoConversation(id,'Conversation with '+guestName,guestEmail);document.getElementById('messages-section').scrollIntoView({behavior:'smooth'});}catch(e){showError(e);}
     };
   }else{
+    let hunterInboxRequest=0;
     window.loadThreads=async function(){
+      const request=++hunterInboxRequest;
       const el=document.getElementById('threads-container');
       try{
         const rows=await list();
         const labels=await conversationLabels();
         const titles=rows.map(t=>threadTitle(t,labels));
         const previews=await Promise.all(rows.map(threadPreview));
+        if(request!==hunterInboxRequest)return;
         el.classList.add('lw-inbox');
         el.innerHTML=rows.length?rows.map((t,i)=>threadCard(t,titles[i],previews[i])).join(''):'<div class="lw-chat-empty">No conversations yet. Open a booking to message the landowner.</div>';
         el.querySelectorAll('[data-conv]').forEach(b=>b.addEventListener('click',()=>window.openConversation(b.dataset.booking,null,b.dataset.title,b.dataset.conv)));
-      }catch(e){el.textContent=e.message;}
+      }catch(e){if(request===hunterInboxRequest)el.textContent=e.message;}
     };
     window.loadUnreadCount=async function(){const b=document.getElementById('unread-badge');if(b)b.style.display='none';};
     window.openConversation=async function(bookingId,listingId,subject,convId){
