@@ -194,3 +194,13 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **BLOCKED:** No securely provisioned isolated synthetic authenticated hunter/owner sessions or complete TEST booking/payment fixtures; no booking, messaging, cancellation, Stripe TEST, review, zone persistence or cross-owner browser E2E performed.
 - **NOT TESTED:** Browser widths 320/375/390/430/768/1024/1280/1440/1920/2560, touch, keyboard, 200% zoom and screen reader. No browser runner used.
 - **NO-GO:** No live site, main, production database, real users or live Stripe accessed.
+
+
+## 2026-11-10 16:29 ET — Hunter QA staging regression audit
+- **PASS (source only):** Re-read shared zone editor blob `b8dd6f8f9e37d15c06748b54e9d57fc099edf1c8`. Both single-zone Save and Save All now check `savingAll||savingSingle`, resolving the previously identified missing mutual-exclusion guard in staging source. This does **not** establish runtime duplicate-write prevention.
+- **PASS (source only):** Zone-type switching prompts before discarding active unsaved geometry and restores the prior selector value on cancel; queued drafts are retained. Browser confirmation flow not exercised.
+- **FAIL / feature incomplete:** Editor explicitly states precise access coordinates are not available to hunters yet. Booking-gated hunter visibility of entry/parking and hunting boundaries cannot be marked complete; developer and legal teams should validate authorization and time-limited disclosure before exposing coordinates.
+- **BLOCKED (authenticated E2E):** Dedicated synthetic QA credentials/sessions and isolated TEST payment/booking fixtures remain unavailable in this execution. Checkout TEST, webhook/refund, cancellation, messaging, completed-booking reviews, and cross-role privacy denials were not run. This is a provisioning/runtime limitation, not a request for approval.
+- **NOT TESTED (browser):** 320/375/390/430/768/1024/1280/1440/1920/2560 widths, keyboard, touch, zoom and real-device accessibility. No browser runner was used.
+- **Deployment:** Exact current staging code commit and Cloudflare Pages deployment were not independently reconciled in this run; source PASS is not a deployment or browser PASS.
+- **Release gate:** NO-GO for production. No changes to application behavior, payments, main, live site, production data, or personal accounts.
