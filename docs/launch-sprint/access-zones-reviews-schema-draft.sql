@@ -29,6 +29,19 @@ end
 $draft_guard$;
 
 -- =====================================================================
+-- VERIFIED SANDBOX SCHEMA INSPECTION (2026-11-10; read-only):
+-- Supabase project kbkdfpmlyggfijkyjxoi is named leasewild-payment-testing.
+-- public.bookings has id, listing_id, check_in, check_out, status,
+-- but NO owner_id, hunter_id, or completed_at columns.
+-- public.lease_payments has booking_id, owner_id, guest_id, listing_id,
+-- checkin_at, checkout_at, payment_state; actual identity and eligibility
+-- must be checked against its authoritative lifecycle, not inferred.
+-- The proposed hunter_reviews INSERT policy below REFERENCES NONEXISTENT
+-- bookings columns and MUST NOT be executed unchanged.
+-- Owner-to-booking association and review eligibility need a reviewed join
+-- with lease_payments, including refunded/cancelled and payout edge cases.
+-- Do not modify existing payment tables to satisfy this draft.
+--
 -- PREREQUISITES TO VERIFY (names are assumptions, not established facts)
 -- =====================================================================
 -- public.listings:
