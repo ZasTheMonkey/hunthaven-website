@@ -348,3 +348,12 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **Coordination:** Designer/Hunter QA: test unknown, malformed, 0.5, 49.9, 50, 300.1, and 1,200 acres in cards and map popups, ensuring no “0 acres” or fabricated acreage. Legal: review acreage accuracy disclosures.
 - **Additional discovery risk for review:** `sbListingToMapItem` still scatters markers around state centers with `Math.random()`, rather than using verified property coordinates. This can mislead users about locations. Design a privacy-preserving approximate-location policy before replacing it; do not expose private entry/parking points.
 - **Release:** NO-GO. Staging/sandbox only, no production/main/live Stripe access.
+
+
+## 2026-11-10 — Public discovery map privacy and truthfulness
+- **FAIL (before):** `listings.html` created randomized lat/lng around state centers for every real listing. Even with a disclaimer, these looked like individual property pins and changed on reload.
+- **PASS (staging source):** `6145243f89402e6e19f557c7e82b06ad47c3ceb7` replaces random per-listing pins with one fixed state-center circle per state and an aggregate listing count. Public popups explicitly say they are not property locations; marker popups use DOM `textContent` rather than interpolating listing fields. State-unknown records are omitted from the map, not from the property catalog. No private owner coordinates or zones accessed.
+- **PASS (source re-fetch):** Verified grouped marker rendering and removal of random latitude generation.
+- **NOT TESTED:** Browser map rendering, map search, viewport widths, real inventory counts, screen reader/touch behavior. The existing map-search function may still imply precise map search; audit it next.
+- **Coordination:** Designer should add a polished state-summary map legend; Hunter QA should validate aggregate counts and no private location disclosure; Landowner QA should verify public/owner coordinate separation; Legal should review the accuracy of public location representations.
+- **Release:** NO-GO pending authenticated booking, messaging, payment and responsive tests. Main/live resources untouched.
