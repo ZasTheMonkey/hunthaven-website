@@ -76,17 +76,17 @@
       {
         "@type": "Question",
         "name": "How much does it cost to lease hunting land in Florida?",
-        "acceptedAnswer": {"@type": "Answer", "text": "Hunting land on LeaseWild starts at $10 per day. Guests pay a 20% service fee. Prices vary by acreage, game available, and season."}
+        "acceptedAnswer": {"@type": "Answer", "text": "Prices vary by property, permitted activities, dates, and host terms. Review the total displayed at checkout before confirming a booking."}
       },
       {
         "@type": "Question",
         "name": "Can I list my land for hunting leases in Florida?",
-        "acceptedAnswer": {"@type": "Answer", "text": "Yes. Landowners can list their property on LeaseWild for free with no approval wait. You keep 80% of every booking, set your own price, and stay in full control of your land."}
+        "acceptedAnswer": {"@type": "Answer", "text": "Landowners can explore listing their property, set their own availability and rules, and review applicable fees and approval requirements during onboarding."}
       },
       {
         "@type": "Question",
         "name": "What types of hunting are available on LeaseWild?",
-        "acceptedAnswer": {"@type": "Answer", "text": "LeaseWild offers private land access for deer hunting, wild hog hunting, turkey hunting, duck hunting, dove hunting, and freshwater fishing including bass, catfish, and more — all in Florida."}
+        "acceptedAnswer": {"@type": "Answer", "text": "Available activities vary by property. Browse current Florida listings and confirm permitted species and methods in the host's rules."}
       },
       {
         "@type": "Question",
@@ -1232,12 +1232,12 @@
 
       <!-- Desktop CTAs -->
       <div class="hero-btns">
-        <a class="btn-hero-primary" href="listings.html">Browse available properties</a>
+        <a class="btn-hero-primary" href="#listings-section" data-growth-event="homepage_browse_click">Browse available properties</a>
         <a class="btn-hero-secondary" href="list-your-land.html">List your land</a>
       </div>
 
       <div class="editorial-actions" aria-label="Explore LeaseWild">
-        <a href="listings.html" class="editorial-primary">Explore available land <span aria-hidden="true">↗</span></a>
+        <a href="#listings-section" class="editorial-primary" data-growth-event="homepage_browse_click">Explore available land <span aria-hidden="true">↗</span></a>
         <button type="button" class="editorial-secondary" onclick="openSearchSheet()">Search by activity or county <span aria-hidden="true">⌕</span></button>
       </div>
       <p class="editorial-footnote">FLORIDA FIRST <span aria-hidden="true">·</span> HUNTING &amp; FISHING ACCESS</p>
@@ -1427,8 +1427,8 @@
   <div style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
     <div class="section">
       <p class="section-eyebrow">How it works</p>
-      <h2>Book land like you book a hotel</h2>
-      <p class="section-sub">LeaseWild gives you Airbnb-style simplicity for private outdoor access — search, pick dates, pay, and show up.</p>
+      <h2>Find your next outdoor experience</h2>
+      <p class="section-sub">Browse real host-listed properties, compare access rules and availability, then follow the booking steps shown for each listing.</p>
       <div class="steps-grid">
         <div class="step fade-up">
           <div class="step-num">1</div>
@@ -1438,7 +1438,7 @@
         <div class="step fade-up">
           <div class="step-num">2</div>
           <h3>Pick your dates & book</h3>
-          <p>Select check-in and check-out dates, review the full pricing breakdown — daily rate + 20% service fee — and confirm with Stripe.</p>
+          <p>Review available dates, permitted activities, and the total checkout price before confirming a reservation.</p>
         </div>
         <div class="step fade-up">
           <div class="step-num">3</div>
@@ -2865,5 +2865,16 @@
   <!-- booking.js: openListingDetail, Stripe checkout, date pickers, promo codes -->
   <script src="fl-regulations.js"></script>
   <script src="booking.js?v=3"></script>
+
+  <script>
+    /* Privacy-conscious growth event bridge: no user identifiers, query text or coordinates. */
+    document.addEventListener('click',function(event){
+      var target=event.target.closest('[data-growth-event]');
+      if(!target)return;
+      var name=target.getAttribute('data-growth-event');
+      if(name!=='homepage_browse_click')return;
+      try{window.dispatchEvent(new CustomEvent('leasewild:growth',{detail:{event:name,page:'home'}}));}catch(e){}
+    });
+  </script>
 </body>
 </html>
