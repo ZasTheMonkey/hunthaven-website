@@ -89,7 +89,16 @@ const style=document.createElement('style');
         el.querySelectorAll('[data-conv]').forEach(b=>b.addEventListener('click',()=>window.openLoConversation(b.dataset.conv,b.dataset.title,'')));
         const unreadBadge=document.getElementById('lo-unread-badge');
         if(unreadBadge)unreadBadge.style.display='none';
-      }catch(e){if(request===ownerInboxRequest){el.setAttribute('role','alert');el.textContent='Unable to load conversations. '+(e.message||'Please retry.');}}
+      }catch(e){if(request===ownerInboxRequest){
+        el.setAttribute('role','alert');
+        el.replaceChildren();
+        const message=document.createElement('p');
+        message.textContent='Unable to load conversations. '+(e.message||'Please retry.');
+        const retry=document.createElement('button');
+        retry.type='button';retry.textContent='Retry loading conversations';
+        retry.addEventListener('click',()=>window.loadLoThreads(loCurrentUserEmail));
+        el.append(message,retry);
+      }}
     };
     window.openLoConversation=async function(id,subject,guestEmail){
       if(loCurrentConvId&&ownerComposer)ownerDrafts.set(loCurrentConvId,ownerComposer.value);
