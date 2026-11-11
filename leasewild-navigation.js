@@ -12,10 +12,29 @@ function init(){
  '</nav>';
  document.body.appendChild(nav);
  const btn=document.getElementById('lw-site-menu-toggle'),panel=document.getElementById('lw-site-menu-panel');
- function close(){panel.hidden=true;btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label','Open navigation menu')}
- btn.addEventListener('click',function(){const open=panel.hidden;panel.hidden=!open;btn.setAttribute('aria-expanded',String(open));btn.setAttribute('aria-label',open?'Close navigation menu':'Open navigation menu')});
- document.addEventListener('keydown',function(e){if(e.key==='Escape'){close();btn.focus()}});
- document.addEventListener('click',function(e){if(!nav.contains(e.target))close()});
+ function close(returnFocus){
+  if(panel.hidden)return;
+  panel.hidden=true;btn.setAttribute('aria-expanded','false');btn.setAttribute('aria-label','Open navigation menu');
+  if(returnFocus)btn.focus();
+ }
+ btn.addEventListener('click',function(){
+  if(!panel.hidden){close(true);return}
+  panel.hidden=false;btn.setAttribute('aria-expanded','true');btn.setAttribute('aria-label','Close navigation menu');
+  const first=panel.querySelector('a:not([hidden])');if(first)first.focus();
+ });
+ document.addEventListener('keydown',function(e){
+  if(panel.hidden)return;
+  if(e.key==='Escape'){e.preventDefault();close(true);return}
+  if(e.key!=='Tab')return;
+  const links=Array.from(panel.querySelectorAll('a')).filter(function(a){
+   return !a.closest('[hidden]')&&a.getClientRects().length>0;
+  });
+  const items=[btn].concat(links),first=items[0],last=items[items.length-1];
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+ });
+ document.addEventListener('click',function(e){if(!nav.contains(e.target))close(false)});
+ panel.addEventListener('click',function(e){if(e.target.closest('a'))close(false)});
  // Resolve the same sandbox session on every route, including portals using SB_URL/SB_ANON.
  // The prior implementation relied on globals absent from portal pages and silently showed Sign in.
  async function checkSession(){
