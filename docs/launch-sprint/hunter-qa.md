@@ -271,3 +271,11 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **NOT TESTED:** Deployed Cloudflare parity, actual browser race reproduction, screen reader, keyboard/touch/zoom, responsive widths 320/375/390/430/768/1024/1280/1440/1920/2560.
 - **BLOCKED (runtime prerequisites):** No secure sandbox-only authenticated sessions and Stripe TEST fixtures in this execution; synthetic hunter/owner messages, booking, checkout/refunds/webhooks, cancellations, review eligibility and cross-role RLS denial remain unexecuted. Authorization is granted; runtime prerequisites missing.
 - **Coordination:** Landowner QA should independently test delayed booking A/B and direct-inbox-switch scenarios. **NO-GO** production; main/live site, production Supabase, live Stripe and personal accounts untouched.
+
+
+## 2026-11-11 01:38 ET — Cross-conversation send-error isolation
+- **FAIL (source before fix):** Both hunter and landowner send handlers displayed a global error unconditionally after an awaited failed send. Switching from conversation A to B during a pending send from A could show an irrelevant error while viewing B.
+- **PASS (source after fix):** Commit `35b01fac8da01ed34295266f47111965c929109f` guards `showError(e)` with the captured sending conversation ID in both role handlers. Independently re-fetched bridge blob `121abefbf59de89cd86ae73ba3d170656d906a71` and verified both guards. No authentication, schema, checkout or payment code modified.
+- **NOT TESTED:** Cloudflare deployment parity, browser switching regression, responsive 320/375/390/430/768/1024/1280/1440/1920/2560px, touch, keyboard, zoom and screen reader.
+- **BLOCKED (runtime prerequisites):** Secure isolated synthetic authenticated sessions and Stripe TEST fixtures remain unavailable to this run. Booking, cancellation, messaging delivery, reviews, payment/refund/webhook and RLS negative E2E were not exercised; this is not an authorization issue.
+- **Handoff:** Developer and landowner QA should run send A -> switch B -> reject A, verifying no stale error and preserved B draft; also test failure in active A still reports error. **NO-GO production** pending runtime tests. Main/live site, production Supabase, live Stripe and real accounts untouched.
