@@ -15,7 +15,7 @@
   async function call(action){
    var session=(await db.auth.getSession()).data.session;
    if(!session)throw Error('Sign in to cancel.');
-   var r=await fetch(SUPABASE_URL+'/functions/v1/sandbox-outfitter-cancel',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+session.access_token},body:JSON.stringify({action:action,booking_id:bookingId})});
+   var r=await fetch('https://kbkdfpmlyggfijkyjxoi.supabase.co/functions/v1/sandbox-outfitter-cancel',{method:'POST',headers:{'Content-Type':'application/json',apikey:'sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm',Authorization:'Bearer '+session.access_token},body:JSON.stringify({action:action,booking_id:bookingId})});
    var data=await r.json();if(!r.ok)throw Error(data.error||'Cancellation unavailable');return data;
   }
   try{
