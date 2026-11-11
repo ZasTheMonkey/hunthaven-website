@@ -818,11 +818,7 @@
       <p class="pop-badge" style="color:${color};background:${badgeColor};display:inline-block;padding:2px 8px;border-radius:999px">${isHunt ? '🌲 Hunting' : '🎣 Fishing'}</p>
       <p class="pop-title">${escHtml(l.title)}</p>
       <p class="pop-meta">${escHtml(l.city)}${l.city && l.state ? ', ' : ''}${escHtml(l.state)}${l.acres ? ' &middot; '+escHtml(l.acres)+' acres' : ''} &middot; ${escHtml(Array.isArray(l.species) ? l.species.slice(0,3).join(', ') : l.species)}</p>
-      <p class="pop-price">${l.price ? ''<span style="font-size:13px;font-weight:400;color:#6b6656"> / '+escHtml(l.unit)+'</span>' : '<span style="font-size:13px;color:#6b6656">Contact for pricing</span>'}</p>
-      <button class="pop-btn${isHunt ? '' : ' water'}" onclick="document.getElementById('listings-grid')?.scrollIntoView({behavior:'smooth',block:'start'})">Browse listings</button>
-    </div>`;
-  }
-+escHtml(l.price)+'<span style="font-size:13px;font-weight:400;color:#6b6656"> / '+l.unit+'</span>' : '<span style="font-size:13px;color:#6b6656">Contact for pricing</span>'}</p>
+      <p class="pop-price">${l.price ? '$'+escHtml(l.price)+'<span style="font-size:13px;font-weight:400;color:#6b6656"> / '+escHtml(l.unit)+'</span>' : '<span style="font-size:13px;color:#6b6656">Contact for pricing</span>'}</p>
       <button class="pop-btn${isHunt ? '' : ' water'}" onclick="document.getElementById('listings-grid')?.scrollIntoView({behavior:'smooth',block:'start'})">Browse listings</button>
     </div>`;
   }
