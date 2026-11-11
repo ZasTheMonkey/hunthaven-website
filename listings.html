@@ -637,6 +637,8 @@
       return okType && okSize && okSpp;
     });
     renderListings(filtered);
+    // The map and cards must represent the same filtered inventory.
+    if (typeof updateMapWithRealListings === 'function') updateMapWithRealListings(filtered);
   }
 
   function setPressedGroup(selector, dataKey, value) {
@@ -692,9 +694,9 @@
       return;
     }
     allListings = data;
-    renderListings(allListings);
-    // Wire real listings into the map after load
-    if (typeof updateMapWithRealListings === 'function') updateMapWithRealListings(allListings);
+    // Preserve active filters after a retry or refreshed inventory fetch.
+    // This also keeps the map in sync with visible listing cards.
+    applyCardFilters();
   }
 
   document.getElementById('retry-listings').addEventListener('click', loadListings);
