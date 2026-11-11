@@ -49,3 +49,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
  .lw-mobile-item:focus-visible{outline:3px solid #3f7660;outline-offset:-3px}
  body{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}
 }
+
+/* Consistent top-right navigation for authenticated dashboards. */
+.lw-dash-menu{position:relative;flex:0 0 auto;margin-left:auto;z-index:950}
+.lw-dash-menu-button{display:grid;place-items:center;width:44px;height:44px;border:1px solid #dce5df;border-radius:12px;background:#fff;color:#183f35;cursor:pointer}
+.lw-dash-menu-links{position:absolute;right:0;top:calc(100% + 8px);width:min(290px,calc(100vw - 32px));max-height:65vh;overflow:auto;background:#fff;border:1px solid #dce5df;border-radius:14px;box-shadow:0 14px 42px rgba(0,0,0,.16);padding:8px}
+.lw-dash-menu-links[hidden]{display:none!important}
+.lw-dash-menu-links a{display:block;padding:13px 14px;color:#183f35;text-decoration:none;font-weight:600;border-radius:8px}
+.lw-dash-menu-links a:hover,.lw-dash-menu-links a:focus-visible{background:#eaf1eb}
+@media(max-width:600px){.dash-header{flex-wrap:wrap}.dash-nav{position:relative}.lw-dash-menu{align-self:flex-start}}
