@@ -143,9 +143,19 @@ const style=document.createElement('style');
         const previews=await Promise.all(rows.map(threadPreview));
         if(request!==hunterInboxRequest)return;
         el.classList.add('lw-inbox');
+        el.removeAttribute('role');
         el.innerHTML=rows.length?rows.map((t,i)=>threadCard(t,titles[i],previews[i])).join(''):'<div class="lw-chat-empty">No conversations yet. Open a booking to message the landowner.</div>';
         el.querySelectorAll('[data-conv]').forEach(b=>b.addEventListener('click',()=>window.openConversation(b.dataset.booking,null,b.dataset.title,b.dataset.conv)));
-      }catch(e){if(request===hunterInboxRequest)el.textContent=e.message;}
+      }catch(e){if(request===hunterInboxRequest){
+        el.setAttribute('role','alert');
+        el.replaceChildren();
+        const message=document.createElement('p');
+        message.textContent='Unable to load conversations. '+(e.message||'Please retry.');
+        const retry=document.createElement('button');
+        retry.type='button';retry.textContent='Retry loading conversations';
+        retry.addEventListener('click',()=>window.loadThreads());
+        el.append(message,retry);
+      }}
     };
     window.loadUnreadCount=async function(){const b=document.getElementById('unread-badge');if(b)b.style.display='none';};
     window.openConversation=async function(bookingId,listingId,subject,convId){
