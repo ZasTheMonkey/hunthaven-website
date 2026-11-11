@@ -752,7 +752,10 @@
   // Public map shows state-level discovery summaries, never invented property coordinates.
   // Individual property locations and private access zones belong in authorized booking views.
   function sbListingToMapItem(l) {
-    var state = String(l.state || 'FL').toUpperCase().trim();
+    var state = String(l.state || '').toUpperCase().trim();
+    // Missing/unknown states must never be presented as Florida inventory.
+    var stateAliases = {FLORIDA:'FL',TEXAS:'TX',MONTANA:'MT',GEORGIA:'GA',ALABAMA:'AL',TENNESSEE:'TN'};
+    state = stateAliases[state] || state;
     var center = STATE_CENTERS[state];
     if (!center) return null;
     return {
