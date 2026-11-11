@@ -264,3 +264,10 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **NOT TESTED:** Cloudflare deployment parity; browser race, touch/keyboard/zoom, and widths 320/375/390/430/768/1024/1280/1440/1920/2560.
 - **BLOCKED:** Secure sandbox synthetic auth and Stripe TEST fixtures unavailable; messaging, booking, checkout/refunds, cancellations, reviews, and privacy denial E2E unexecuted.
 - **Handoff:** Landowner QA/developer should check owner open-conversation race. Production NO-GO; no main/live or real accounts touched.
+
+## 2026-11-11 00:28 ET — Landowner booking-open race isolation (Hunter QA coordination)
+- **FAIL (static before fix):** `openLoConversationFromBooking` awaited `openBooking` without guarding its response; rapidly opening booking A then B could let A's delayed response replace B's selected chat. Direct inbox selection could also be overwritten by a delayed booking-open request.
+- **PASS (source after fix):** Added `ownerOpenRequest` generation counter, incremented on direct opens and booking opens, with stale-response and stale-scroll guards. Source re-fetched and verified. Code commit `e7e8c4e661e95bb57bd81d8e024d35cc1cbd6fb9`. No payment/schema/auth logic changed.
+- **NOT TESTED:** Deployed Cloudflare parity, actual browser race reproduction, screen reader, keyboard/touch/zoom, responsive widths 320/375/390/430/768/1024/1280/1440/1920/2560.
+- **BLOCKED (runtime prerequisites):** No secure sandbox-only authenticated sessions and Stripe TEST fixtures in this execution; synthetic hunter/owner messages, booking, checkout/refunds/webhooks, cancellations, review eligibility and cross-role RLS denial remain unexecuted. Authorization is granted; runtime prerequisites missing.
+- **Coordination:** Landowner QA should independently test delayed booking A/B and direct-inbox-switch scenarios. **NO-GO** production; main/live site, production Supabase, live Stripe and personal accounts untouched.
