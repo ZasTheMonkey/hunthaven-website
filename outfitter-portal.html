@@ -610,7 +610,12 @@
         }
         var existing = await outfitterMembership(user);
         if (existing) {
-          showSignupMsg(existing.email_verified_at ? 'Your Outfitter account already exists. Select Sign In.' : 'Your Outfitter registration is pending email confirmation. Check your inbox for the activation link.', 'success');
+          if (existing.email_verified_at) {
+            showSignupMsg('Your Outfitter account already exists. Select Sign In.', 'success');
+            return;
+          }
+          var resend = await sb.functions.invoke('portal-account-activation', {body:{account_type:'outfitter'}});
+          showSignupMsg(resend.data?.ok ? 'Outfitter activation email sent. Check your inbox.' : 'Your Outfitter registration is pending, but email delivery failed: ' + (resend.data?.error || resend.error?.message || 'Please contact support.'), resend.data?.ok ? 'success' : 'error');
           return;
         }
         var result = await sb.from('portal_accounts').insert({
