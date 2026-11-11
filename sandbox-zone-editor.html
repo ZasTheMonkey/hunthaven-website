@@ -92,11 +92,11 @@ let suppressMapClickUntil=0;
 let points=[],draftLayer=null,pendingZones=[],pendingLayers=L.featureGroup().addTo(map),savedLayers=L.featureGroup().addTo(map),owner=false,drawing=false,tracing=false,tracePointer=null;const drawButton=document.getElementById('draw-boundary'),drawHelp=document.getElementById('draw-help'),mapEl=document.getElementById('map');
 function message(s){status.textContent=s;}
 function valid(p){return Number.isFinite(p[0])&&Number.isFinite(p[1])&&Math.abs(p[0])<=90&&Math.abs(p[1])<=180;}
-function renderPending(){document.getElementById('save-all').disabled=!owner||(!pendingZones.length&&points.length<3);pendingLayers.clearLayers();pendingZones.forEach(z=>{if(z.points.length>=3)L.polygon(z.points,{color:'#477a54',weight:3,fillOpacity:.13}).addTo(pendingLayers);});document.getElementById('pending-count').textContent=pendingZones.length+' other draft zone(s)';}
+function renderPending(){document.getElementById('save-all').disabled=savingAll||savingSingle||!owner||(!pendingZones.length&&points.length<3);pendingLayers.clearLayers();pendingZones.forEach(z=>{if(z.points.length>=3)L.polygon(z.points,{color:'#477a54',weight:3,fillOpacity:.13}).addTo(pendingLayers);});document.getElementById('pending-count').textContent=pendingZones.length+' other draft zone(s)';}
 function renderDraft(){
  const kind=document.getElementById('zone-type').value;const hunting=kind==='hunting_area';document.getElementById('keep-zone').hidden=!hunting;document.getElementById('save-all').hidden=!hunting;document.getElementById('pending-count').hidden=!hunting;
- document.getElementById('save-all').disabled=!owner||(!pendingZones.length&&points.length<3);
- const t=document.getElementById('zone-type').value;save.disabled=!owner||(t==='hunting_area'?points.length<3:t==='trail'?points.length<2:points.length!==1);save.textContent=t==='entry'?'Save entry point':t==='parking'?'Save parking point':t==='trail'?'Save trail':'Save hunting boundary';
+ document.getElementById('save-all').disabled=savingAll||savingSingle||!owner||(!pendingZones.length&&points.length<3);
+ const t=document.getElementById('zone-type').value;save.disabled=savingAll||savingSingle||!owner||(t==='hunting_area'?points.length<3:t==='trail'?points.length<2:points.length!==1);save.textContent=t==='entry'?'Save entry point':t==='parking'?'Save parking point':t==='trail'?'Save trail':'Save hunting boundary';
  if(draftLayer)map.removeLayer(draftLayer);
  const type=document.getElementById('zone-type').value,polygon=type==='hunting_area',trail=type==='trail';
  if(points.length)draftLayer=polygon?L.polyline(points,{color:'#b46b20',weight:4}).addTo(map):trail?L.polyline(points,{color:'#8b5cf6',weight:5}).addTo(map):L.circleMarker(points[0],{radius:10,color:'#fff',weight:3,fillColor:type==='parking'?'#2563eb':'#15803d',fillOpacity:1}).addTo(map);
