@@ -134,8 +134,8 @@ function endTrace(e){
  if(!tracing||e.pointerId!==tracePointer)return;
  const p=tracePosition(e),last=points[points.length-1];if(valid([p.lat,p.lng])&&map.latLngToContainerPoint(last).distanceTo(map.latLngToContainerPoint(p))>=3&&points.length<100)points.push([p.lat,p.lng]);
  tracing=false;tracePointer=null;suppressMapClickUntil=Date.now()+500;setDrawing(false);
- if(points.length<(document.getElementById('zone-type').value==='trail'?2:3)){message('The stroke was too short. Trace a longer route or boundary.');return;}
- renderDraft();message((document.getElementById('zone-type').value==='trail'?'Trail':'Boundary')+' traced with '+points.length+' points. Review the '+(document.getElementById('zone-type').value==='trail'?'route':'outline')+' before saving.');
+ renderDraft();
+ if(points.length<(document.getElementById('zone-type').value==='trail'?2:3)){message('The stroke was too short. Captured points are kept; add points by tapping the map or trace again after reviewing the draft.');return;}message((document.getElementById('zone-type').value==='trail'?'Trail':'Boundary')+' traced with '+points.length+' points. Review the '+(document.getElementById('zone-type').value==='trail'?'route':'outline')+' before saving.');
 }
 mapEl.addEventListener('pointerup',endTrace);
 mapEl.addEventListener('pointercancel',e=>{if(!tracing||e.pointerId!==tracePointer)return;tracing=false;tracePointer=null;suppressMapClickUntil=Date.now()+500;setDrawing(false);renderDraft();message('Drawing interrupted; '+points.length+' captured point(s) kept as an unsaved draft. Continue with map taps or Undo, or clear it explicitly.');});
