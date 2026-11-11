@@ -1,53 +1,25 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>My Live Location | LeaseWild Hunter</title>
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>body{margin:0;background:#f5f1e8;color:#172a19;font:16px system-ui,sans-serif}header{padding:16px max(16px,env(safe-area-inset-left));background:#fff;border-bottom:1px solid #ddd}h1{font-size:1.35rem;margin:8px 0}p{line-height:1.5}a{color:#235a36}main{max-width:1100px;margin:auto;padding:16px}.controls{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}button{border:0;border-radius:10px;padding:13px 18px;background:#245c38;color:white;font-weight:700;font-size:1rem;cursor:pointer;min-height:44px}button:disabled{background:#777}button:focus-visible,a:focus-visible{outline:3px solid #bc6d16;outline-offset:3px}#map{height:min(65vh,680px);min-height:320px;border-radius:12px;border:1px solid #aaa}#status{min-height:2em;font-weight:600}.note{font-size:.9rem;color:#455446} @media(max-width:375px){main{padding:10px}#map{min-height:300px}}</style></head>
 <body><header><a href="guest-portal.html">← Hunter dashboard</a><h1>My live location</h1><p>See your current position while exploring. Your location stays on this device; LeaseWild does not upload or share it from this map.</p></header>
 <main><div class="controls"><button id="start" type="button">Show my location</button><button id="stop" type="button" disabled>Stop sharing with map</button><button id="center" type="button" disabled>Center on me</button></div><p id="status" role="status" aria-live="polite">Location is off. Select “Show my location” to grant permission.</p><div id="map" role="region" aria-label="Interactive map showing your live position when enabled"></div><p class="note">Requires HTTPS, GPS/location services, and browser permission. The 5-meter target is not guaranteed. The circle shows the device-reported uncertainty; software filtering cannot make GPS measurements more precise. Do not use this map alone to determine legal hunting boundaries, property access, or safe navigation. Location stops when you leave this page.</p></main>
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 (function(){
  const status=document.getElementById('status'),start=document.getElementById('start'),stop=document.getElementById('stop'),center=document.getElementById('center');
- if(!window.maplibregl){status.textContent='Map could not load. Check your connection and reload.';start.disabled=true;return;}
- const fallbackStyle={version:8,sources:{'osm-fallback':{type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OpenStreetMap contributors'}},layers:[{id:'osm-fallback',type:'raster',source:'osm-fallback'}]};
- const map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:[-81.1,28.9],zoom:8});
- let fallback=false,styleReady=false;
- function activateFallback(){
-  if(fallback)return;
-  fallback=true;loaded=false;styleReady=false;
-  status.textContent='Using backup map tiles. Location tracking remains available.';
-  map.setStyle(fallbackStyle);
- }
- const fallbackTimer=setTimeout(()=>{if(!styleReady)activateFallback();},9000);
- map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
- let watch=null,first=true,last=null,accuracyMeters=null,loaded=false;
- function circleGeo(lng,lat,radius){
-   const points=[],earth=6378137,latRad=lat*Math.PI/180,delta=radius/earth;
-   for(let i=0;i<=64;i++){const bearing=i*2*Math.PI/64;const lat2=Math.asin(Math.sin(latRad)*Math.cos(delta)+Math.cos(latRad)*Math.sin(delta)*Math.cos(bearing));const lon2=lng*Math.PI/180+Math.atan2(Math.sin(bearing)*Math.sin(delta)*Math.cos(latRad),Math.cos(delta)-Math.sin(latRad)*Math.sin(lat2));points.push([lon2*180/Math.PI,lat2*180/Math.PI]);}
-   return {type:'FeatureCollection',features:[{type:'Feature',geometry:{type:'Polygon',coordinates:[points]},properties:{}}]};
- }
- function dotGeo(){return {type:'FeatureCollection',features:last?[{type:'Feature',geometry:{type:'Point',coordinates:[last[1],last[0]]},properties:{}}]:[]};}
- function draw(){
-  if(!loaded)return;
-  map.getSource('hunter-point').setData(dotGeo());
-  map.getSource('hunter-accuracy').setData(last?circleGeo(last[1],last[0],accuracyMeters):{type:'FeatureCollection',features:[]});
- }
- map.on('style.load',function(){
-  loaded=true;styleReady=true;clearTimeout(fallbackTimer);
-  map.addSource('hunter-accuracy',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
-  map.addLayer({id:'hunter-accuracy-fill',type:'fill',source:'hunter-accuracy',paint:{'fill-color':'#1a6bdf','fill-opacity':0.12}});
-  map.addLayer({id:'hunter-accuracy-outline',type:'line',source:'hunter-accuracy',paint:{'line-color':'#1a6bdf','line-width':2}});
-  map.addSource('hunter-point',{type:'geojson',data:dotGeo()});
-  map.addLayer({id:'hunter-point-dot',type:'circle',source:'hunter-point',paint:{'circle-radius':9,'circle-color':'#1a6bdf','circle-stroke-color':'#ffffff','circle-stroke-width':3}});
-  draw();
- });
- map.on('error',function(event){
-  // Style/network errors may happen even when the map can render. Only fall back
-  // if the primary style never loaded; never overwrite an active GPS status.
-  if(!styleReady&&!fallback)activateFallback();
-  else if(fallback&&!loaded)status.textContent='Both map providers failed to load. Check your connection and retry.';
- });
- function reset(message){if(watch!==null){navigator.geolocation.clearWatch(watch);watch=null;}last=null;accuracyMeters=null;first=true;draw();start.disabled=false;stop.disabled=true;center.disabled=true;status.textContent=message;}
+ if(!window.L){status.textContent='Map library unavailable. Check your connection and reload.';start.disabled=true;return;}
+ const map=L.map('map',{zoomControl:true}).setView([28.9,-81.1],8);
+ const primary=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'});
+ const backup=L.tileLayer('https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors © CARTO'});
+ let backupActive=false,tileLoaded=false;
+ primary.on('tileload',()=>{tileLoaded=true;});
+ function useBackup(){if(backupActive||tileLoaded)return;backupActive=true;map.removeLayer(primary);backup.addTo(map);status.textContent='Trying backup map tiles…';}
+ primary.on('tileerror',useBackup);primary.addTo(map);
+ const timeout=setTimeout(useBackup,7000);
+ backup.on('tileload',()=>{clearTimeout(timeout);if(!last)status.textContent='Map ready. Select Show my location to start GPS.';});
+ let watch=null,marker=null,circle=null,first=true,last=null;
+ function reset(message){if(watch!==null){navigator.geolocation.clearWatch(watch);watch=null;}if(marker){map.removeLayer(marker);marker=null;}if(circle){map.removeLayer(circle);circle=null;}last=null;first=true;start.disabled=false;stop.disabled=true;center.disabled=true;status.textContent=message;}
  function error(e){reset(e.code===1?'Location permission denied. Enable browser location access to retry.':e.code===2?'Location unavailable. Check device location services.':'Location timed out. Try again outdoors.');}
  start.addEventListener('click',function(){
   if(!navigator.geolocation){status.textContent='Your browser does not support geolocation.';return;}
@@ -57,14 +29,18 @@
    const {latitude:lat,longitude:lng,accuracy}=pos.coords;
    if(!Number.isFinite(lat)||!Number.isFinite(lng)||!Number.isFinite(accuracy)||accuracy<=0)return;
    if(Date.now()-pos.timestamp>10000){status.textContent='Waiting for a fresh GPS reading…';return;}
-   last=[lat,lng];accuracyMeters=accuracy;draw();
-   if(first){map.jumpTo({center:[lng,lat],zoom:Math.max(map.getZoom(),16)});first=false;}
+   last=[lat,lng];
+   if(!marker)marker=L.circleMarker(last,{radius:9,color:'#fff',weight:3,fillColor:'#1a6bdf',fillOpacity:1}).addTo(map);
+   else marker.setLatLng(last);
+   if(!circle)circle=L.circle(last,{radius:accuracy,color:'#1a6bdf',weight:1,fillOpacity:.09}).addTo(map);
+   else circle.setLatLng(last).setRadius(accuracy);
+   if(first){map.setView(last,Math.max(map.getZoom(),16));first=false;}
    center.disabled=false;
    status.textContent=(accuracy<=5?'5-meter target met (device estimate). ':'GPS accuracy is limited; move outdoors for a better signal. ')+'Reported accuracy: '+accuracy.toFixed(1)+' m. Target: 5 m. Do not rely on GPS for property boundaries.';
   },error,{enableHighAccuracy:true,maximumAge:0,timeout:30000});
  });
  stop.addEventListener('click',()=>reset('Location stopped. Your position is no longer shown.'));
- center.addEventListener('click',()=>{if(last)map.jumpTo({center:[last[1],last[0]],zoom:Math.max(map.getZoom(),16)});});
- window.addEventListener('pagehide',()=>{if(watch!==null)navigator.geolocation.clearWatch(watch);});
+ center.addEventListener('click',()=>{if(last)map.setView(last,Math.max(map.getZoom(),16));});
+ window.addEventListener('pagehide',()=>{if(watch!==null)navigator.geolocation.clearWatch(watch);clearTimeout(timeout);});
 })();
 </script></body></html>
