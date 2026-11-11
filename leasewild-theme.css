@@ -78,39 +78,37 @@ html body #lw-site-menu-panel a:hover,html body #lw-site-menu-panel a:focus-visi
 html body #lw-site-menu-panel .lw-menu-heading{color:#596b61!important}
 html body #lw-site-menu-toggle{color-scheme:light!important;background:#fffdf7!important;color:#183f35!important}
 
-/* 2026-11-11: Approved "Your hunt. Your water." dark design system.
-   Shared stylesheet overrides page-local light and dark palettes. */
+
+/* Approved light LeaseWild design, matching the "Your hunt. Your water." homepage. */
 :root,[data-theme="light"],[data-theme="dark"]{
- color-scheme:dark;
- --green:#bce8de;--green-dk:#94bdae;--amber:#c58b4d;
- --bg:#202321;--surface:#252826;--surface2:#2b2e2b;--border:#3e4741;--divider:#39413c;
- --text:#eaf0eb;--muted:#a9b5ae;
- --color-bg:#202321;--color-surface:#252826;--color-surface-2:#2b2e2b;
- --color-surface-offset:#303632;--color-border:#3e4741;--color-divider:#39413c;
- --color-text:#eaf0eb;--color-text-muted:#a9b5ae;--color-text-faint:#91a199;
- --color-text-inverse:#202321;--color-primary:#bce8de;--color-primary-hover:#d2f4eb;
- --color-primary-light:#344e47;--color-accent:#c58b4d;--color-accent-hover:#dba46c;
- --color-accent-light:#453729;
- --shadow-sm:0 1px 4px rgba(0,0,0,.18);
- --shadow-md:0 10px 32px rgba(0,0,0,.26);
- --shadow-lg:0 18px 48px rgba(0,0,0,.34);
+ color-scheme:light;
+ --green:#173e32;--green-dk:#103126;--amber:#c58b4d;
+ --bg:#f8faf7;--surface:#ffffff;--surface2:#f3f7f3;--border:#d5ded7;--divider:#e1e8e1;
+ --text:#193d32;--muted:#63766b;
+ --color-bg:#f8faf7;--color-surface:#ffffff;--color-surface-2:#f3f7f3;
+ --color-surface-offset:#edf3ee;--color-border:#d5ded7;--color-divider:#e1e8e1;
+ --color-text:#193d32;--color-text-muted:#63766b;--color-text-faint:#768a7e;
+ --color-text-inverse:#ffffff;--color-primary:#173e32;--color-primary-hover:#285b49;
+ --color-primary-light:#e1efe8;--color-accent:#c58b4d;--color-accent-hover:#aa743d;
+ --color-accent-light:#f8efe4;
+ --shadow-sm:0 1px 4px rgba(22,54,41,.05);--shadow-md:0 10px 32px rgba(22,54,41,.09);
+ --shadow-lg:0 18px 48px rgba(22,54,41,.14);
 }
-html{color-scheme:dark}
+html{color-scheme:light}
 body{background:var(--color-bg);color:var(--color-text)}
-.nav,.dash-nav{background:#202321;border-color:#3e4741}
-.portal-card,.listing-card,.dash-card,.card,.modal-content{background:#2b2e2b;border-color:#3e4741;color:#eaf0eb}
-.btn-primary,.btn-accent,.send-btn{background:#bce8de;color:#202321}
-.btn-primary:hover,.btn-accent:hover,.send-btn:hover{background:#d2f4eb;color:#202321}
-.btn-ghost{border-color:#3e4741;color:#bce8de;background:#252826}
-.avatar{background:#bce8de;color:#202321}
-a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline-color:#bce8de}
-.lw-dash-menu-button,#lw-site-menu-toggle{background:#303632;color:#eaf0eb;border-color:#46524a}
-.lw-dash-menu-links,#lw-site-menu-panel{background:#252826;color:#eaf0eb;border-color:#46524a}
-.lw-dash-menu-links a,#lw-site-menu-panel a{color:#eaf0eb}
-.lw-dash-menu-links a:hover,#lw-site-menu-panel a:hover{background:#344e47}
-.lw-menu-heading{color:#a9b5ae}
-html body #lw-site-menu-panel{color-scheme:dark!important;background:#252826!important;color:#eaf0eb!important;border-color:#46524a!important}
-html body #lw-site-menu-panel a{color:#eaf0eb!important}
-html body #lw-site-menu-panel a:hover,html body #lw-site-menu-panel a:focus-visible{background:#344e47!important}
-html body #lw-site-menu-panel .lw-menu-heading{color:#a9b5ae!important}
-html body #lw-site-menu-toggle{color-scheme:dark!important;background:#303632!important;color:#eaf0eb!important;border-color:#46524a!important}
+.nav,.dash-nav{background:#f8faf7;border-color:#d5ded7}
+.portal-card,.listing-card,.dash-card,.card,.modal-content{background:#fff;border-color:#d5ded7;color:#193d32}
+.btn-primary,.btn-accent,.send-btn{background:#173e32;color:#fff}
+.btn-primary:hover,.btn-accent:hover,.send-btn:hover{background:#285b49;color:#fff}
+.btn-ghost{border-color:#d5ded7;color:#173e32;background:#fff}
+.avatar{background:#173e32;color:#fff}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline-color:#397b64}
+.lw-dash-menu-button,#lw-site-menu-toggle{background:#26352e;color:#fff;border-color:#44584d}
+.lw-dash-menu-links,#lw-site-menu-panel{background:#fff;color:#193d32;border-color:#d5ded7}
+.lw-dash-menu-links a,#lw-site-menu-panel a{color:#193d32}
+.lw-dash-menu-links a:hover,#lw-site-menu-panel a:hover{background:#e1efe8}
+html body #lw-site-menu-panel{color-scheme:light!important;background:#fff!important;color:#193d32!important;border-color:#d5ded7!important}
+html body #lw-site-menu-panel a{color:#193d32!important}
+html body #lw-site-menu-panel a:hover,html body #lw-site-menu-panel a:focus-visible{background:#e1efe8!important}
+html body #lw-site-menu-panel .lw-menu-heading{color:#63766b!important}
+html body #lw-site-menu-toggle{color-scheme:dark!important;background:#26352e!important;color:#fff!important;border-color:#44584d!important}
