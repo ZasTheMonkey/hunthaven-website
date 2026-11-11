@@ -256,3 +256,11 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **BLOCKED (runtime prerequisites):** Isolated authenticated synthetic sessions and verified Stripe TEST booking fixtures not provisioned to this execution; therefore checkout, refund, webhook, cancellations, messaging E2E, reviews and RLS denial tests were not executed. No additional approval required.
 - **NOT TESTED:** 320/375/390/430/768/1024/1280/1440/1920/2560px, touch and 200% zoom.
 - **Release gate: NO-GO.** No live website, main, production Supabase, live Stripe or personal accounts touched.
+
+## 2026-11-10 23:34 ET — Hunter open-conversation race
+- **FAIL (source):** Two rapid booking opens could resolve out of order, showing the older conversation.
+- **FIX:** Added hunter `hunterOpenRequest` guard after awaited `openBooking()` in `sandbox-messaging-bridge.js`, commit `845acc43d49c366c7ab694f46c9ba1f978683732`.
+- **PASS (source re-read):** Confirmed stale-response guard in staging.
+- **NOT TESTED:** Cloudflare deployment parity; browser race, touch/keyboard/zoom, and widths 320/375/390/430/768/1024/1280/1440/1920/2560.
+- **BLOCKED:** Secure sandbox synthetic auth and Stripe TEST fixtures unavailable; messaging, booking, checkout/refunds, cancellations, reviews, and privacy denial E2E unexecuted.
+- **Handoff:** Landowner QA/developer should check owner open-conversation race. Production NO-GO; no main/live or real accounts touched.
