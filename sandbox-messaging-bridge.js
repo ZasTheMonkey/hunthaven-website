@@ -124,7 +124,7 @@ const style=document.createElement('style');
         el.innerHTML=chatMarkup(rows,data.session.user.id);
         if(nearBottom)el.scrollTop=el.scrollHeight;
         else el.scrollTop=previousTop+(el.scrollHeight-previousHeight);
-      }catch(e){if(loCurrentConvId===id&&request===ownerMessageRequest){el.setAttribute('role','alert');el.textContent='Unable to load messages. '+(e.message||'Please retry.');}}
+      }catch(e){if(loCurrentConvId===id&&request===ownerMessageRequest){el.setAttribute('role','alert');el.replaceChildren();const notice=document.createElement('p');notice.textContent='Unable to load messages. '+(e.message||'Please retry.');const retry=document.createElement('button');retry.type='button';retry.textContent='Retry loading messages';retry.addEventListener('click',()=>window.loadLoMessages(id));el.append(notice,retry);}}
     };
     window.sendLoMessage=async function(){
       const el=document.getElementById('lo-compose'),btn=document.getElementById('lo-send-btn'),body=el.value.trim();
@@ -196,7 +196,7 @@ const style=document.createElement('style');
         el.innerHTML=chatMarkup(rows,data.session.user.id);
         if(nearBottom)el.scrollTop=el.scrollHeight;
         else el.scrollTop=previousTop+(el.scrollHeight-previousHeight);
-      }catch(e){if(currentConvId===id&&request===hunterMessageRequest){el.setAttribute('role','alert');el.textContent='Unable to load messages. '+(e.message||'Please retry.');}}
+      }catch(e){if(currentConvId===id&&request===hunterMessageRequest){el.setAttribute('role','alert');el.replaceChildren();const notice=document.createElement('p');notice.textContent='Unable to load messages. '+(e.message||'Please retry.');const retry=document.createElement('button');retry.type='button';retry.textContent='Retry loading messages';retry.addEventListener('click',()=>window.loadMessages(id));el.append(notice,retry);}}
     };
     window.sendMessage=async function(){
       const el=document.getElementById('compose-input'),btn=document.getElementById('send-btn'),body=el.value.trim();
