@@ -1,3 +1,12 @@
 /*
   Content-Security-Policy: connect-src 'self' https://kbkdfpmlyggfijkyjxoi.supabase.co wss://kbkdfpmlyggfijkyjxoi.supabase.co; form-action 'self'; frame-src 'self' https://checkout.stripe.com; base-uri 'self'
   X-Robots-Tag: noindex, nofollow
+
+/guest-portal.html
+  Cache-Control: no-store, max-age=0, must-revalidate
+
+/outfitter-portal.html
+  Cache-Control: no-store, max-age=0, must-revalidate
+
+/outfitter-booking-actions.js
+  Cache-Control: no-store, max-age=0, must-revalidate
