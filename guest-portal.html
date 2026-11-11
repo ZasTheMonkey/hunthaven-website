@@ -484,14 +484,27 @@
 
   async function signIn() {
     var email = document.getElementById('si-email').value.trim();
-    var pass  = document.getElementById('si-pass').value;
-    var btn   = document.getElementById('si-btn');
+    var pass = document.getElementById('si-pass').value;
+    var btn = document.getElementById('si-btn');
     if (!email || !pass) { showAuthMsg('Please enter email and password.','error'); return; }
+    if (!sb || !sb.auth) { showAuthMsg('Sign-in service did not load. Refresh the page and try again.','error'); return; }
     btn.disabled = true; btn.textContent = 'Signing in…';
-    var { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-    btn.disabled = false; btn.textContent = 'Sign In';
-    if (error) { showAuthMsg(error.message, 'error'); return; }
-    showDashboard(data.user);
+    showAuthMsg('Checking your sandbox login…','');
+    try {
+      var result = await Promise.race([
+        sb.auth.signInWithPassword({email:email,password:pass}),
+        new Promise(function(_,reject){setTimeout(function(){reject(new Error('Sign-in timed out. Check your connection and retry.'));},15000)})
+      ]);
+      if(result.error) throw result.error;
+      if(!result.data || !result.data.user) throw new Error('Sign-in returned no user. Please retry.');
+      showAuthMsg('Signed in. Loading your bookings…','');
+      await showDashboard(result.data.user);
+    } catch(e) {
+      console.error('Hunter sign-in failed:',e);
+      showAuthMsg(e && e.message ? e.message : 'Unable to sign in. Please try again.','error');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Sign In';
+    }
   }
 
   async function signUp() {
