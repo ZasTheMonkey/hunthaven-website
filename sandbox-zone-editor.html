@@ -167,6 +167,7 @@ document.getElementById('save-all').onclick=async()=>{
  if(savingAll||savingSingle)return;
  if(!owner||!id){message('Sign in as the listing owner before saving.');return;}
  if(document.getElementById('zone-type').value!=='hunting_area'){message('Switch to Hunting boundary to save hunting drafts.');return;}
+ const queuedCount=pendingZones.length;
  const all=pendingZones.map(z=>({points:z.points.map(p=>p.slice()),label:z.label,instructions:z.instructions}));
  if(points.length)all.push({points:points.map(p=>p.slice()),label:document.getElementById('zone-label').value.trim(),instructions:document.getElementById('zone-notes').value.trim()});
  if(!all.length){message('Draw a boundary first.');return;}
@@ -181,7 +182,7 @@ document.getElementById('save-all').onclick=async()=>{
    const {error}=await client.from('listing_access_zones').insert({listing_id:id,zone_type:'hunting_area',label:z.label,geometry:polygonGeometry(z.points),instructions:z.instructions||null});
    if(error){message(completed+' saved; boundary '+(i+1)+' failed: '+error.message+'. Remaining drafts are retained.');break;}
    completed++;
-   if(i<all.length-(points.length?1:0)){pendingZones.shift();}else{points=[];document.getElementById('zone-label').value='';document.getElementById('zone-notes').value='';}
+   if(i<queuedCount){const idx=pendingZones.findIndex(d=>JSON.stringify(d.points)===JSON.stringify(z.points)&&d.label===z.label&&d.instructions===z.instructions);if(idx!==-1)pendingZones.splice(idx,1);}else{const unchanged=document.getElementById('zone-type').value==='hunting_area'&&JSON.stringify(points)===JSON.stringify(z.points)&&document.getElementById('zone-label').value.trim()===z.label&&document.getElementById('zone-notes').value.trim()===z.instructions;if(unchanged){points=[];document.getElementById('zone-label').value='';document.getElementById('zone-notes').value='';}}
   }
   if(completed===all.length)message('All '+completed+' hunting boundaries saved.');
   if(completed)await refresh();
