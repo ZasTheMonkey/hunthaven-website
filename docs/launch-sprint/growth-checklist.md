@@ -398,3 +398,10 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - Handoff: Hunter QA to verify iOS/Android location permission and page-exit cleanup; Designer to check all viewport sizes and controls; Legal to review location disclosure, third-party tiles and terms; Landowner QA to confirm no private boundary/entry-point exposure. Do not mark production-ready without browser/device tests.
 
 - 2026-11-10 GPS refinement: hunter live map requests fresh fixes (`maximumAge:0`, high accuracy), rejects fixes older than 10s and invalid reported accuracy, displays 1m target vs actual device-reported uncertainty to 0.1m. Source commit `f265f9e2`. **NOT TESTED** real device 1m accuracy; cannot promise it without hardware/corrections. Hunter QA: test outdoors/indoors and permission denied on iOS/Android; Designer: small-screen status wrapping; Legal: avoid boundary safety claims.
+
+
+### MapLibre/OpenFreeMap pilot — 2026-11-10
+- PASS (source): `hunter-live-map.html` switched from Leaflet/OSM tiles to MapLibre GL JS 4.7.1 and OpenFreeMap Liberty style, preserving opt-in high-accuracy GPS watch, 5m device-reported target, 64-segment geodesic accuracy polygon, recenter/stop, no location database writes. Commit `f41b5212`.
+- NOT TESTED: actual browser render, OpenFreeMap tile/network availability, device GPS, iOS/Android WebGL support, keyboard/screen reader, widths 320–2560, visual regression.
+- Landowner zone editor intentionally unchanged (Leaflet + satellite layer) to protect polygon editing while piloting MapLibre. Do not replace satellite imagery without licensing verification and boundary drawing parity tests.
+- Handoffs: Hunter QA device GPS and permissions; Designer mobile/desktop visual and accessibility QA; Landowner QA zone drawing regression; Legal verify map attribution, tile-provider privacy, and commercial terms. Payments and bookings unchanged.
