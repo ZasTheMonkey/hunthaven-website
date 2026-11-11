@@ -389,3 +389,10 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **PASS (staging code):** Commit `526ee488390c657caf65667b7cea77686254d3c2` rejects missing/unsupported states from the map and normalizes six supported full state names to their abbreviations. Cards and private locations are unchanged; no database, booking, payment, or production changes.
 - **NOT TESTED:** Live browser map/count reconciliation, malformed-state synthetic fixtures, all requested mobile widths, keyboard and screen-reader behavior, booking conversion.
 - **Handoffs:** Hunter QA: synthetic missing-state, Florida, FL, and unsupported-state listings; verify map counts only supported known states. Landowner QA: validate state required on listing creation. Designer: provide transparent map legend and empty-state messaging. Legal: review state-level geographic claims. **Release NO-GO** until critical E2E tests pass.
+
+
+### Hunter live location map — 2026-11-10
+- PASS (source): Added `hunter-live-map.html` with opt-in `watchPosition`, GPS accuracy circle, recenter, stop, HTTPS/permission errors and page-exit cleanup. Added `My Live Map` link to `guest-portal.html`. Commits `2d7ec82c`, `0a7aa734`, `db993d13`.
+- Privacy: browser-only position; no database write or peer sharing. OpenStreetMap tile requests reveal viewed map tile regions to the tile provider, so avoid claiming fully offline/private map.
+- NOT TESTED: physical GPS updates, location-denied UI, Leaflet external asset loading, mobile viewport matrix 320–2560, screen reader and touch, authentication gating (standalone map currently accessible by URL, but contains no private booking data).
+- Handoff: Hunter QA to verify iOS/Android location permission and page-exit cleanup; Designer to check all viewport sizes and controls; Legal to review location disclosure, third-party tiles and terms; Landowner QA to confirm no private boundary/entry-point exposure. Do not mark production-ready without browser/device tests.
