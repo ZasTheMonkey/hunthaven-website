@@ -22,3 +22,29 @@ NOT TESTED in this coordination pass: authenticated cross-role UI messaging and 
 - REVIEW: No `outfitter_id` or `request_id` column exists in the inspected `booking_conversations` or `sandbox_threads` schemas. Outfitter message linkage and its UI path need explicit Designer/Hunter QA verification; do not assume outfitter↔hunter messaging works.
 - NOT TESTED: Authenticated synthetic hunter↔landowner and hunter↔outfitter message delivery, booking state transitions, persistence, unread counters, notification dispatch, privacy negative tests, UI mobile rendering, deletion/retention, and cleanup. No synthetic user credentials or browser session were provisioned in this run; no real records were altered.
 - Handoff: provision dedicated sandbox-only identities through approved Auth flow and run the complete matrix; record actual fixture IDs, redacted evidence and cleanup before PASS. Avoid test assertions using admin/service-role bypass, which would not exercise RLS.
+
+## Fresh transactional authenticated-role integration tests — immediate owner request
+
+Executed against verified sandbox Supabase project `kbkdfpmlyggfijkyjxoi`. Used synthetic `auth.users` rows (invalid.example addresses), synthetic bookings/conversations/listings, `SET LOCAL ROLE authenticated`, and distinct synthetic `request.jwt.claim.sub` per persona. **Every test ran inside BEGIN ... ROLLBACK**: no fixtures persisted and no real accounts were accessed. These are database/RLS integration tests, NOT actual browser, email, Realtime, or Stripe tests.
+
+### Landowner / hunter messaging
+- PASS: hunter inserted message under authenticated RLS; hunter sees 1 message.
+- PASS: owner inserted reply under authenticated RLS; owner sees 2 messages.
+- PASS: hunter sees owner's reply (2 messages).
+- PASS: unrelated third synthetic account sees 0 messages.
+- PASS: rollback completed; all synthetic fixtures removed.
+
+### Outfitter booking
+- PASS: hunter submitted `requested` booking against synthetic active outfitter listing under authenticated RLS.
+- PASS: outfitter updated same request to `accepted` under authenticated RLS.
+- PASS: hunter reads `accepted` status.
+- PASS: unrelated synthetic account reads 0 requests.
+- PASS: rollback completed; no persistent bookings or listings.
+
+### Still not tested
+- Outfitter↔hunter **messaging**: no verified dedicated outfitter message conversation route/schema yet.
+- Landowner booking approval/decline/cancel/expiry and Stripe capture/refund: no UI/API end-to-end test in this pass.
+- Actual browser messages, refresh/realtime, unread counts, notifications, responsive widths, real Auth token/session flow, and cross-role error UX.
+- Unauthorized INSERT impersonation and post-checkout conversation expiration negative cases.
+
+**Release status: NO-GO** pending browser and payment evidence. No production changes.
