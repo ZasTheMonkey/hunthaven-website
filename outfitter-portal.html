@@ -200,6 +200,10 @@
         <input type="password" id="su-pass" placeholder="Min 8 chars + 1 special character" autocomplete="new-password" />
       </div>
 
+      <div class="agree-row" style="margin-bottom:1rem">
+        <input type="checkbox" id="su-existing-login" />
+        <label for="su-existing-login">I already have a LeaseWild Hunter or Landowner login and want to create a separate Outfitter account using the same email and password.</label>
+      </div>
       <!-- Business info -->
       <div class="field"><label>Business / Guide Name *</label><input type="text" id="su-business" placeholder="Smith Guide Service" /></div>
       <div class="field">
@@ -571,17 +575,21 @@
       if (!document.getElementById('su-agree-platform').checked || !document.getElementById('su-agree-terms').checked) {
         showSignupMsg('Please accept both agreements.', 'error'); return;
       }
-      if (pass.length < 8 || !/[^A-Za-z0-9]/.test(pass)) {
+      if (!document.getElementById('su-existing-login').checked && (pass.length < 8 || !/[^A-Za-z0-9]/.test(pass))) {
         showSignupMsg('Password must be at least 8 characters and include a special character.', 'error'); return;
       }
       var btn = document.getElementById('su-btn');
       btn.disabled = true; btn.textContent = 'Creating account…';
       try {
-        // Reuse the same Supabase identity for an independently registered portal account.
-        // A correct password is required; no other role is created automatically.
-        var login = await sb.auth.signInWithPassword({email: email, password: pass});
+        // Registration is explicit. Signing in never enrolls a new role.
+        var existingLogin = document.getElementById('su-existing-login').checked;
         var user;
-        if (!login.error && login.data.user) {
+        if (existingLogin) {
+          var login = await sb.auth.signInWithPassword({ email: email, password: pass });
+          if (login.error || !login.data.user) {
+            showSignupMsg('Could not verify your existing LeaseWild login. Use the same email and password as your Hunter/Landowner account, or reset your password first. No Outfitter account was created.', 'error');
+            return;
+          }
           user = login.data.user;
         } else {
           var signup = await sb.auth.signUp({
@@ -592,8 +600,8 @@
             }
           });
           if (signup.error) { showSignupMsg(signup.error.message, 'error'); return; }
-          if (!signup.data.session) {
-            showSignupMsg('No Outfitter account has been created yet. If this is a new email, check your inbox for a confirmation link. If you already have a Hunter or Landowner account, use that account’s exact password here; reset it first if necessary.', 'error');
+          if (!signup.data.session || !signup.data.user || !signup.data.user.identities || !signup.data.user.identities.length) {
+            showSignupMsg('No Outfitter profile was created. If this email is new, confirm the email and return to complete registration. If you already have a LeaseWild login, check the existing-account box above and use that password.', 'error');
             return;
           }
           user = signup.data.user;
