@@ -230,3 +230,11 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **NOT TESTED:** Browser widths 320/375/390/430/768/1024/1280/1440/1920/2560, touch, keyboard, zoom, screen reader. No browser runner used.
 - **FAIL / known:** Unread badge feature remains disabled pending read-state/RLS design. Booking-gated precise boundary/entry/parking access and completed-booking reviews remain unverified.
 - **NO-GO production:** No main, live site, production Supabase, live Stripe or real customer sessions touched.
+
+## 2026-11-10 20:26 ET — Hunter chat alert recovery state
+- **FAIL (source before fix):** Hunter `loadMessages` set `role=alert` on message-fetch failure but did not clear it after a successful reload. This left a live-region role on the entire message transcript, risking noisy screen-reader announcements on later updates. Landowner message loading already removed the role on success.
+- **FIX (staging):** Added `el.removeAttribute('role')` to hunter successful message rendering, matching the owner implementation. Code commit `cf8c3cf528a83f2ba9ba88690ec9bf76c705f084`. Re-fetched staging source and verified the guard. **PASS (source only)**; screen-reader behavior remains **NOT TESTED**.
+- **NOT VERIFIED:** Cloudflare deployment parity with this commit; no provider deployment query performed this run. No browser runner or authenticated synthetic sessions used.
+- **BLOCKED (runtime):** Hunter/owner cross-role E2E, booking/cancellation, Stripe TEST checkout/refund/webhook, reviews and RLS negative tests still require isolated secure Auth sessions and payment fixtures. No production or personal accounts accessed.
+- **NOT TESTED:** Responsive 320/375/390/430/768/1024/1280/1440/1920/2560px, touch, keyboard, 200% zoom and screen-reader execution.
+- **NO-GO production:** Live site, main, production Supabase and live Stripe untouched.
