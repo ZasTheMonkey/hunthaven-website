@@ -197,10 +197,15 @@ save.onclick=async()=>{
  const type=document.getElementById('zone-type').value;
  if(type==='trail'&&!points.some((p,i)=>i>0&&(Math.abs(p[0]-points[0][0])>1e-8||Math.abs(p[1]-points[0][1])>1e-8))){message('Trail must connect two different locations. Move a point before saving.');return;}
  const label=document.getElementById('zone-label').value.trim();if(!label){message('Enter a zone label.');document.getElementById('zone-label').focus();return;}
+ const savedType=type,savedPoints=JSON.stringify(points),savedNotes=document.getElementById('zone-notes').value;
+ const savedGeometry=geometry();
  savingSingle=true;save.disabled=true;message('Saving zone…');
  try{
- const {error}=await client.from('listing_access_zones').insert({listing_id:id,zone_type:document.getElementById('zone-type').value,label,geometry:geometry(),instructions:document.getElementById('zone-notes').value.trim()||null});
- if(error)message('Save failed: '+error.message);else{points=[];document.getElementById('zone-label').value='';document.getElementById('zone-notes').value='';renderDraft();message('Zone saved. Other unsaved drafts remain on the map.');await refresh();}
+ const {error}=await client.from('listing_access_zones').insert({listing_id:id,zone_type:savedType,label,geometry:savedGeometry,instructions:savedNotes.trim()||null});
+ if(error)message('Save failed: '+error.message);else{
+  const unchanged=document.getElementById('zone-type').value===savedType&&JSON.stringify(points)===savedPoints&&document.getElementById('zone-label').value.trim()===label&&document.getElementById('zone-notes').value===savedNotes;
+  if(unchanged){points=[];document.getElementById('zone-label').value='';document.getElementById('zone-notes').value='';}
+  renderDraft();message(unchanged?'Zone saved. Other unsaved drafts remain on the map.':'Zone saved. Newer edits were preserved as an unsaved draft.');await refresh();}
  }catch(e){message('Save interrupted: '+e.message+'. Draft retained.');}
  finally{savingSingle=false;renderDraft();}
 };
