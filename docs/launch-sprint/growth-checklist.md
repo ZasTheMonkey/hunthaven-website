@@ -382,3 +382,10 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **NOT TESTED:** Actual geocoding network response/browser viewport, keyboard/touch, map controls at 320/375/390/430/768/1024/1280/1440/1920/2560px, booking conversion.
 - **Handoffs:** Hunter QA: geocode a Florida ZIP and confirm center persists; test filter after search. Designer: mobile geocode status/map legend and responsive map. Landowner QA: ensure private coordinates/zones remain inaccessible. Legal: state-level map summaries must not imply exact property locations.
 - **Release:** NO-GO pending actual browser E2E and checkout/messaging/permissions tests. Never deploy main/live.
+
+
+## 2026-11-10 21:45 ET — Growth: missing-state listings incorrectly mapped to Florida
+- **FAIL (source inspection):** `sbListingToMapItem()` defaulted a missing `state` to `FL`, falsely counting incomplete inventory as Florida listings. Full state names (e.g. `Florida`) were also silently omitted from the state-summary map.
+- **PASS (staging code):** Commit `526ee488390c657caf65667b7cea77686254d3c2` rejects missing/unsupported states from the map and normalizes six supported full state names to their abbreviations. Cards and private locations are unchanged; no database, booking, payment, or production changes.
+- **NOT TESTED:** Live browser map/count reconciliation, malformed-state synthetic fixtures, all requested mobile widths, keyboard and screen-reader behavior, booking conversion.
+- **Handoffs:** Hunter QA: synthetic missing-state, Florida, FL, and unsupported-state listings; verify map counts only supported known states. Landowner QA: validate state required on listing creation. Designer: provide transparent map legend and empty-state messaging. Legal: review state-level geographic claims. **Release NO-GO** until critical E2E tests pass.
