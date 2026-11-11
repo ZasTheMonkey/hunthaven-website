@@ -1117,49 +1117,19 @@ tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;fi
   }
 
   async function saveOutPromoCode() {
-    var code = document.getElementById('out-promo-code').value.trim();
-    var amount = parseFloat(document.getElementById('out-promo-amount').value);
-    var maxUses = parseInt(document.getElementById('out-promo-uses').value) || null;
-    var expires = document.getElementById('out-promo-expires').value || null;
-    var msg = document.getElementById('out-promo-msg');
-
-    if (!code) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Please enter a promo code.'; return; }
-    if (!amount || amount <= 0) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Please enter a valid discount amount.'; return; }
-    if (_outPromoType === 'percent' && amount > 100) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Percentage cannot exceed 100%.'; return; }
-
-    var session = await sb.auth.getSession();
-    var email = session.data.session ? session.data.session.user.email : '';
-
-    var payload = {
-      code: code,
-      discount_type: _outPromoType,
-      discount_amount: amount,
-      discount_pct: _outPromoType === 'percent' ? amount : 0,
-      listing_ids: [],
-      owner_email: email,
-      owner_role: 'outfitter',
-      max_uses: maxUses,
-      uses: 0,
-      active: true,
-      expires_at: expires
-    };
-
-    msg.style.display='block'; msg.style.color='var(--color-text-muted)'; msg.textContent='Saving…';
-
-    var r = await fetch(SUPABASE_URL + '/rest/v1/promo_codes', {
-      method: 'POST',
-      headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify(payload)
-    });
-
-    if (r.ok) {
-      msg.style.color = '#27ae60'; msg.textContent = 'Promo code created!';
-      setTimeout(function() { closeOutPromoModal(); loadPromoCodes('out'); }, 1200);
-    } else {
-      var err = await r.text();
-      msg.style.color = '#c0392b';
-      msg.textContent = err.includes('unique') ? 'That code already exists. Try a different one.' : 'Error saving code. Try again.';
-    }
+    const el=id=>document.getElementById(id),message=el('out-promo-msg');
+    const code=el('out-promo-code').value.trim().toUpperCase(),discount=Number(el('out-promo-amount').value);
+    const maxUses=el('out-promo-uses').value?Number(el('out-promo-uses').value):null,expires=el('out-promo-expires').value||null;
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){message.textContent='Sign in to create a code.';message.style.display='block';return}
+    const listingIds=[session.user.id];
+    if(!/^[A-Z0-9]{3,20}$/.test(code)||!Number.isFinite(discount)||discount<=0||(_outPromoType==='percent'&&discount>100)||listingIds.length!==1||(maxUses!==null&&(!Number.isInteger(maxUses)||maxUses<1))){message.textContent='Enter a valid code and discount, and select exactly one listing.';message.style.display='block';return}
+    message.style.display='block';message.textContent='Saving…';
+    const payload={code,discount_type:_outPromoType,discount_amount:discount,discount_pct:_outPromoType==='percent'?discount:0,listing_ids:listingIds,owner_id:session.user.id,owner_email:session.user.email,owner_role:'outfitter',max_uses:maxUses,uses:0,active:true,expires_at:expires};
+    const {error}=await sb.from('promo_codes').insert(payload);
+    if(error){message.textContent=error.code==='23505'?'That code already exists.':'Unable to create code: '+error.message;return}
+    message.textContent='Promo code created for your listing.';
+    setTimeout(()=>{closeOutPromoModal();loadPromoCodes('out')},700);
   }
 
   async function loadPromoCodes(role) {
@@ -1168,10 +1138,7 @@ tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;fi
     var session = await sb.auth.getSession();
     var email = session.data.session ? session.data.session.user.email : null;
     if (!email) return;
-    var res = await fetch(SUPABASE_URL + '/rest/v1/promo_codes?owner_email=eq.' + encodeURIComponent(email) + '&order=created_at.desc', {
-      headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON }
-    });
-    var codes = await res.json();
+    var {data:codes,error}=await sb.from('promo_codes').select('*').eq('owner_id',session.data.session.user.id).eq('owner_role','outfitter').order('created_at',{ascending:false});if(error){container.textContent='Could not load promo codes: '+error.message;return}codes=codes||[];
     if (!codes.length) {
       container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">No promo codes yet.</p>';
       return;
@@ -1189,14 +1156,7 @@ tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;fi
     }).join('');
   }
 
-  async function toggleOutPromoActive(id, currentActive) {
-    await fetch(SUPABASE_URL + '/rest/v1/promo_codes?id=eq.' + id, {
-      method: 'PATCH',
-      headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ active: !currentActive })
-    });
-    loadPromoCodes('out');
-  }
+  async function toggleOutPromoActive(id,currentActive){const {error}=await sb.from('promo_codes').update({active:!currentActive}).eq('id',id);if(error){alert(error.message);return}loadPromoCodes('out')}
   </script>
 
 
