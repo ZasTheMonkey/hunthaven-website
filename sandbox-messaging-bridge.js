@@ -143,7 +143,11 @@ const style=document.createElement('style');
         await window.openLoConversation(id,'Conversation with '+guestName,guestEmail);
         if(request+1!==ownerOpenRequest)return;
         document.getElementById('messages-section').scrollIntoView({behavior:'smooth'});
-      }catch(e){if(request===ownerOpenRequest||request+1===ownerOpenRequest)showError(e);}
+      }catch(e){
+        // A later open may have incremented the counter once; never attribute its error to this booking.
+        // The inner conversation loader renders its own current-request failure and retry control.
+        if(request===ownerOpenRequest)showError(e);
+      }
     };
   }else{
     let hunterInboxRequest=0;
