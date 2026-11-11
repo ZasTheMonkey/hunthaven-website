@@ -262,7 +262,8 @@
 
     /* ── MAP STYLES ─────────────────────────────────────── */
     @keyframes spin { to { transform: rotate(360deg); } }
-    [data-theme="light"] #hunt-map .leaflet-tile { filter: brightness(0.75) saturate(0.8); }
+    /* Use natural map tile colors for the unified light homepage theme. */
+    #hunt-map .leaflet-tile { filter: none; }
     .leaflet-popup-content-wrapper { border-radius: 12px !important; border: 1px solid var(--color-border); box-shadow: var(--shadow-lg) !important; }
     .leaflet-popup-content { margin: 0 !important; }
     .map-popup { padding: 14px 16px; min-width: 200px; }
