@@ -143,7 +143,7 @@ const style=document.createElement('style');
         await window.openLoConversation(id,'Conversation with '+guestName,guestEmail);
         if(request+1!==ownerOpenRequest)return;
         document.getElementById('messages-section').scrollIntoView({behavior:'smooth'});
-      }catch(e){if(request===ownerOpenRequest)showError(e);}
+      }catch(e){if(request+1===ownerOpenRequest)showError(e);}
     };
   }else{
     let hunterInboxRequest=0;
