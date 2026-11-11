@@ -1094,7 +1094,8 @@
       harvest_history: (document.querySelector('[name="harvest_history"]') || {}).value || null,
       hogs_active:     hogsOn,
       allowed_zone:  harvestLimitsJson,
-      status:        'active'
+      // New submissions require admin review; never publish directly from this form.
+      status:        'pending'
     });
     var { error } = await Promise.race([
       insertPromise,
