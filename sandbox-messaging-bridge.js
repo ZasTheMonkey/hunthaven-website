@@ -195,6 +195,9 @@ const style=document.createElement('style');
         document.getElementById('conv-title').textContent=subject||'Booking conversation';
         document.getElementById('thread-list-view').style.display='none';
         document.getElementById('conversation-view').style.display='block';
+        // Move keyboard/screen-reader focus into the newly revealed conversation.
+        const title=document.getElementById('conv-title');
+        if(title){title.setAttribute('tabindex','-1');title.focus({preventScroll:true});}
         await window.loadMessages(id);
       }catch(e){if(openRequest===hunterOpenRequest)showError(e);}
     };
