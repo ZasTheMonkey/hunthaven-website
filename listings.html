@@ -468,9 +468,10 @@
     var acts = (l.activities || []).join(' ').toLowerCase();
     var fish = FISH_KEYWORDS.some(function(k){ return acts.includes(k); });
     var hunt = ['deer','hog','turkey','duck','dove','quail','elk','bear'].some(function(k){ return acts.includes(k); });
-    if (fish && hunt) return 'hunting'; // mixed → show as hunting
+    if (fish && hunt) return 'both';
     if (fish) return 'fishing';
-    return 'hunting';
+    if (hunt) return 'hunting';
+    return 'unspecified'; // Never infer hunting permissions from missing activities.
   }
   function parseAcres(value) {
     // Unknown acreage must never be advertised as a property under 50 acres.
@@ -507,9 +508,8 @@
     var titleBase = l.county ? l.county + ' Private Land' : (l.state ? l.state + ' Private Land' : 'Private Land');
     var imageAlt = [titleBase, acreageLabel].filter(Boolean).join(' — ');
 
-    var mediaClass = type === 'fishing'
-      ? (Math.random() > .5 ? 'card-media-fish-1' : 'card-media-fish-2')
-      : (['card-media-hunt-1','card-media-hunt-2','card-media-hunt-3'][Math.floor(Math.random() * 3)]);
+    // Deterministic neutral placeholders: avoid random imagery implying property features.
+    var mediaClass = type === 'fishing' ? 'card-media-fish-1' : 'card-media-hunt-1';
 
     var photoUrl = safePhotoUrl(l.photo_urls && l.photo_urls[0]);
     var mediaContent = photoUrl
@@ -518,7 +518,9 @@
 
     var typeLabel = type === 'fishing'
       ? '<div class="card-type card-type-fish">Fishing</div>'
-      : '<div class="card-type card-type-hunt">Hunting</div>';
+      : type === 'hunting' ? '<div class="card-type card-type-hunt">Hunting</div>'
+      : type === 'both' ? '<div class="card-type card-type-hunt">Hunting &amp; Fishing</div>'
+      : '<div class="card-type card-type-hunt">Activities not specified</div>';
     var speciesTags = activities.slice(0, 4).map(escHtml).join(' &middot; ');
     var cleaningFee = Number(l.cleaning_fee);
     var cleanFee = Number.isFinite(cleaningFee) && cleaningFee > 0
@@ -623,8 +625,8 @@
       var acres = parseAcres(l.acreage);
       var spp   = (l.activities||[]).join(',');
       var okType   = _ftype==='all' ||
-        (_ftype==='hunting' && type==='hunting') ||
-        (_ftype==='fishing' && type==='fishing') ||
+        (_ftype==='hunting' && (type==='hunting' || type==='both')) ||
+        (_ftype==='fishing' && (type==='fishing' || type==='both')) ||
         (_ftype==='deerhigh' && (l.deer_activity==='high' || l.deer_activity==='very_high')) ||
         (_ftype==='hogsactive' && l.hogs_active===true);
       var okSize   = _fsize==='any' ||
