@@ -476,11 +476,8 @@
     }
   }
 
-  async function handleForgot() {
-    var email = document.getElementById('si-email').value.trim();
-    if (!email) { showMsg('Enter your email above first.','error'); return; }
-    await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://leasewild-sandbox.pages.dev/landowner-portal.html' });
-    showMsg('Password reset link sent to ' + email,'success');
+  function handleForgot() {
+    window.location.href = 'reset-password.html?role=landowner';
   }
 
   async function handleSignOut() {
