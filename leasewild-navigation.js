@@ -16,16 +16,28 @@ function init(){
  btn.addEventListener('click',function(){const open=panel.hidden;panel.hidden=!open;btn.setAttribute('aria-expanded',String(open));btn.setAttribute('aria-label',open?'Close navigation menu':'Open navigation menu')});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'){close();btn.focus()}});
  document.addEventListener('click',function(e){if(!nav.contains(e.target))close()});
- // Authenticated account links appear only after the sandbox auth SDK confirms a session.
+ // Resolve the same sandbox session on every route, including portals using SB_URL/SB_ANON.
+ // The prior implementation relied on globals absent from portal pages and silently showed Sign in.
  async function checkSession(){
   try{
-   if(typeof supabase==='undefined'||typeof SUPABASE_URL==='undefined'||typeof SUPABASE_ANON_KEY==='undefined')return;
-   const client=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+   if(typeof supabase==='undefined'||typeof supabase.createClient!=='function')return;
+   const url='https://kbkdfpmlyggfijkyjxoi.supabase.co';
+   const key='sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
+   const client=(typeof sb!=='undefined'&&sb&&sb.auth)?sb:supabase.createClient(url,key);
    const result=await client.auth.getSession();
-   if(result.data&&result.data.session){
-    const links=document.getElementById('lw-menu-signed-in');links.hidden=false;
+   const signedIn=!!(result.data&&result.data.session);
+   document.getElementById('lw-menu-signed-in').hidden=!signedIn;
+   const account=document.getElementById('lw-menu-account');
+   account.querySelector('.lw-menu-heading').textContent=signedIn?'Switch account area':'Account';
+   account.querySelectorAll('a').forEach(function(a){
+    a.textContent=a.textContent.replace(' / Sign in','');
+    if(!signedIn)a.textContent+=' / Sign in';
+   });
+   if(!nav.dataset.authListener){
+    nav.dataset.authListener='true';
+    client.auth.onAuthStateChange(function(){setTimeout(checkSession,0)});
    }
-  }catch(e){}
+  }catch(e){document.getElementById('lw-menu-signed-in').hidden=true}
  }
  checkSession();
 }
