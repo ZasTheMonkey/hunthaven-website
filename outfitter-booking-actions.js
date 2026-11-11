@@ -2,35 +2,43 @@
 (function(){
  function el(tag,text){var n=document.createElement(tag);if(text!=null)n.textContent=text;return n;}
  async function paidCancellationDialog(db,bookingId,onDone){
-  var overlay=el('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px';
-  var panel=el('section');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','Request trip cancellation');panel.style.cssText='background:#1b2c22;color:white;width:min(100%,520px);max-height:85vh;overflow:auto;padding:20px;border-radius:14px;font:16px system-ui';
-  var heading=el('h2','Request trip cancellation');panel.append(heading);
-  var close=el('button','Close');close.type='button';close.onclick=function(){overlay.remove()};panel.append(close);
-  var explanation=el('p','Your trip is paid. A cancellation request does not cancel the reservation or issue a refund. Refund eligibility must be reviewed before a Stripe TEST refund is processed.');panel.append(explanation);
-  var status=el('p','Checking request status…');status.setAttribute('role','status');panel.append(status);
-  var reason=el('textarea');reason.rows=3;reason.maxLength=2000;reason.placeholder='Why would you like to cancel?';reason.setAttribute('aria-label','Cancellation reason');reason.style.cssText='display:none;width:100%;padding:12px;border-radius:8px;color:#111';panel.append(reason);
-  var submit=el('button','Submit cancellation request');submit.type='button';submit.style.cssText='display:none;margin-top:12px;padding:12px 16px;background:#b6d5bc;color:#14251b;border:0;border-radius:8px;font-weight:bold';panel.append(submit);
+  var overlay=el('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px';
+  var panel=el('section');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','Cancel outfitter reservation');panel.style.cssText='box-sizing:border-box;background:#1b2c22;color:white;width:min(100%,520px);max-height:85dvh;overflow-y:auto;padding:24px;border-radius:16px;font:16px/1.5 system-ui';
+  var title=el('h2','Cancel Reservation');title.style.cssText='margin:0 0 10px;font-size:25px;line-height:1.2';panel.append(title);
+  var description=el('p','Review your reservation and cancellation terms.');description.style.margin='0 0 14px';panel.append(description);
+  var details=el('div');details.style.cssText='padding:14px;border:1px solid #607667;border-radius:10px;margin-bottom:14px';panel.append(details);
+  var policy=el('p','Checking cancellation policy…');policy.style.cssText='padding:14px;background:#31432f;border-radius:10px;margin-bottom:14px';panel.append(policy);
+  var status=el('p','');status.setAttribute('role','status');panel.append(status);
+  var confirm=el('button','Yes, cancel my reservation');confirm.type='button';confirm.style.cssText='display:none;width:100%;padding:14px 18px;margin-top:12px;border:0;border-radius:999px;background:#d94c44;color:white;font-weight:800;font-size:16px;min-height:48px';panel.append(confirm);
+  var close=el('button','Keep my reservation');close.type='button';close.style.cssText='display:block;width:100%;min-height:48px;padding:12px 16px;margin-top:12px;border:1px solid #a9b7ac;border-radius:999px;background:transparent;color:white;font-size:16px;font-weight:700';close.onclick=function(){overlay.remove()};panel.append(close);
   overlay.append(panel);document.body.append(overlay);close.focus();
-  async function check(){
-   var r=await db.from('outfitter_cancellation_requests').select('status,refund_status,requested_at').eq('booking_id',bookingId).maybeSingle();
-   if(r.error){status.textContent='Could not check cancellation status: '+r.error.message;return;}
-   if(r.data){status.textContent='Cancellation status: '+r.data.status.replace(/_/g,' ')+' · Refund: '+r.data.refund_status.replace(/_/g,' ')+'.';reason.style.display='none';submit.style.display='none';return;}
-   status.textContent='No cancellation request has been submitted.';
-   reason.style.display='block';submit.style.display='inline-block';
+  async function call(action){
+   var session=(await db.auth.getSession()).data.session;
+   if(!session)throw Error('Sign in to cancel.');
+   var r=await fetch(window.SUPABASE_URL+'/functions/v1/sandbox-outfitter-cancel',{method:'POST',headers:{'Content-Type':'application/json',apikey:window.SUPABASE_ANON_KEY,Authorization:'Bearer '+session.access_token},body:JSON.stringify({action:action,booking_id:bookingId})});
+   var data=await r.json();if(!r.ok)throw Error(data.error||'Cancellation unavailable');return data;
   }
-  submit.onclick=async function(){
-   var value=reason.value.trim();if(!value){status.textContent='Please enter a cancellation reason.';return;}
-   submit.disabled=true;status.textContent='Submitting request…';
-   var booking=await db.from('outfitter_booking_requests').select('hunter_id,outfitter_id,status,payment_status').eq('id',bookingId).single();
-   if(booking.error||!booking.data||booking.data.status!=='accepted'||booking.data.payment_status!=='paid'){status.textContent='This booking is not eligible for the paid cancellation request flow.';submit.disabled=false;return;}
-   var user=(await db.auth.getUser()).data.user;
-   if(!user||user.id!==booking.data.hunter_id){status.textContent='Only the booking hunter can request cancellation.';submit.disabled=false;return;}
-   var r=await db.from('outfitter_cancellation_requests').insert({booking_id:bookingId,hunter_id:user.id,outfitter_id:booking.data.outfitter_id,reason:value});
-   if(r.error){status.textContent=r.error.code==='23505'?'A cancellation request already exists.':'Could not submit request: '+r.error.message;await check();return;}
-   status.textContent='Cancellation request submitted. Your booking remains paid until review and any eligible refund are completed.';
-   reason.style.display='none';submit.style.display='none';if(onDone)onDone();
-  };
-  await check();
+  try{
+   var preview=await call('preview');
+   var b=preview.booking;
+   details.replaceChildren();
+   var date=el('p','Trip date: '+new Date(b.trip_date+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}));date.style.margin='0 0 6px';details.append(date);
+   var guests=el('p','Guests: '+b.guest_count);guests.style.margin='0 0 6px';details.append(guests);
+   var total=el('p','Booking total: '+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format((b.amount_cents||0)/100));total.style.margin=0;details.append(total);
+   policy.textContent=preview.refund_type==='full_refund'?'Under the 48-hour flexible policy, this Stripe TEST payment qualifies for a full refund.':'Under the 48-hour flexible policy, this trip is inside the 48-hour window and does not qualify for an automatic refund.';
+   if(preview.existing_request)status.textContent='Existing cancellation request: '+preview.existing_request.replace(/_/g,' ')+'. You can confirm cancellation below.';
+   confirm.style.display='block';
+   confirm.onclick=async function(){
+    confirm.disabled=true;confirm.textContent='Cancelling…';status.textContent='Processing cancellation and any eligible Stripe TEST refund…';
+    try{
+     var result=await call('cancel');
+     confirm.style.display='none';
+     title.textContent='Reservation Cancelled';
+     status.textContent=result.result==='full_refund_issued'?'Your reservation is cancelled and the full Stripe TEST refund was initiated.':'Your reservation is cancelled. No refund applies under the 48-hour policy.';
+     close.textContent='Done';if(onDone)onDone();
+    }catch(e){status.textContent=e.message;confirm.disabled=false;confirm.textContent='Yes, cancel my reservation';}
+   };
+  }catch(e){policy.textContent='Cancellation preview unavailable';status.textContent=e.message;}
  }
  function openDialog(db,bookingId,mode,paid,onDone){
   if(mode==='cancel'&&paid){paidCancellationDialog(db,bookingId,onDone);return;}
