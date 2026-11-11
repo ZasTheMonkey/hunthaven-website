@@ -357,6 +357,7 @@
         <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(event)" />
         <div id="photo-preview-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1rem"></div>
 
+<h4 style="margin:1.25rem 0 .5rem;font-family:var(--font-display)">Videos</h4><p style="font-size:var(--text-xs);color:var(--color-text-muted)">Upload up to 3 videos (MP4, MOV, WebM; 50 MB each). Videos will appear on your approved experience page.</p><input type="file" id="outfitter-video-input" accept="video/mp4,video/quicktime,video/webm" multiple onchange="handleOutfitterVideoUpload(event)" style="max-width:100%;margin:.7rem 0"/><div id="outfitter-video-preview" style="display:grid;gap:.75rem;margin-bottom:1rem"></div>
         <!-- Save button -->
         <div id="listing-msg" class="msg-box" style="margin-bottom:.75rem"></div>
         <div style="display:flex;gap:.75rem;flex-wrap:wrap">
@@ -967,6 +968,7 @@ tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;fi
         instagram: document.getElementById('lst-instagram').value.trim(),
         species: species,
         photos: currentListingPhotos || [],
+        videos: currentListingVideos || [],
         updated_at: new Date().toISOString()
       };
       var { error } = await sb.from('outfitter_listings').upsert(payload, { onConflict: 'user_id' });
@@ -983,6 +985,7 @@ tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;fi
     }
 
     var currentListingPhotos = [];
+    var currentListingVideos = [];
 
     function addPhotoPreview(url) {
       var grid = document.getElementById('photo-preview-grid');
@@ -1019,6 +1022,10 @@ tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;fi
       }
       event.target.value = '';
     }
+
+
+function renderOutfitterVideos(){const root=document.getElementById('outfitter-video-preview');if(!root)return;root.replaceChildren();for(const url of currentListingVideos){const wrap=document.createElement('div');wrap.style.cssText='border:1px solid var(--color-border);border-radius:12px;padding:.6rem';const video=document.createElement('video');video.src=url;video.controls=true;video.preload='metadata';video.playsInline=true;video.style.cssText='width:100%;max-height:240px;border-radius:8px;background:#111';const remove=document.createElement('button');remove.type='button';remove.textContent='Remove video';remove.style.cssText='display:block;margin-top:.5rem;padding:.5rem .8rem;border:1px solid #a33;color:#a33;border-radius:8px;background:transparent';remove.onclick=()=>{currentListingVideos=currentListingVideos.filter(x=>x!==url);renderOutfitterVideos()};wrap.append(video,remove);root.append(wrap)}}
+async function handleOutfitterVideoUpload(event){if(!currentUser){showListingMsg('Sign in before uploading videos.','error');return}const files=Array.from(event.target.files||[]);event.target.value='';if(currentListingVideos.length+files.length>3){showListingMsg('Maximum 3 videos per listing.','error');return}for(const file of files){if(!['video/mp4','video/quicktime','video/webm'].includes(file.type)||file.size>50*1024*1024){showListingMsg('Videos must be MP4, MOV, or WebM and under 50 MB.','error');continue}const ext=file.type==='video/mp4'?'mp4':file.type==='video/webm'?'webm':'mov';const path=currentUser.id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2)+'.'+ext;showListingMsg('Uploading '+file.name+'…','success');const {error}=await sb.storage.from('outfitter-videos').upload(path,file,{contentType:file.type,upsert:false});if(error){showListingMsg('Video upload failed: '+error.message,'error');continue}const {data}=sb.storage.from('outfitter-videos').getPublicUrl(path);currentListingVideos.push(data.publicUrl);renderOutfitterVideos();showListingMsg('Video uploaded. Select Save listing to publish your changes.','success')}}
 
     // ── INIT ─────────────────────────────────────────────────
     (async function() {
