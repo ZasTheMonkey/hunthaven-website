@@ -149,6 +149,37 @@
     .empty-state{text-align:center;padding:3rem 1rem}
     .empty-state svg{margin:0 auto 1rem;opacity:.3;display:block}
     .empty-state p{color:var(--color-text-muted);font-size:var(--text-sm);margin-bottom:1.25rem}
+    /* Shared premium sandbox appearance: match the dark marketplace visual language. */
+    :root,[data-theme="light"],[data-theme="dark"]{
+      color-scheme:dark;
+      --color-bg:#1b201d;--color-surface:#242a26;--color-surface-2:#292f2a;
+      --color-border:#48544c;--color-divider:#39443d;
+      --color-text:#e6eee7;--color-text-muted:#b4c3b8;--color-text-faint:#91a394;
+      --color-primary:#a8d7c6;--color-primary-hover:#c6eee0;--color-primary-light:#234638;
+      --color-accent:#c18a50;--color-accent-hover:#d6a56c;--color-danger-light:#512a2a;
+    }
+    .btn-primary,.send-btn,.avatar{color:#14271e}
+    .btn-accent{color:#1b211b}
+    .dash-tab:focus-visible,.portal-mob-tab:focus-visible,.btn-ghost:focus-visible,.btn-accent:focus-visible{
+      outline:3px solid var(--color-primary);outline-offset:3px
+    }
+    #dashboard{max-width:1100px;min-width:0}
+    .dash-tabs{gap:.25rem;max-width:100%}
+    .dash-tab{min-height:44px}
+    @media(max-width:600px){
+      body{padding:0 12px 82px}
+      .dash-nav{display:grid;grid-template-columns:1fr;gap:.85rem;padding:1rem 0}
+      .dash-actions{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:space-between}
+      .dash-actions .btn-accent{flex:1;text-align:center;min-width:0}
+      .dash-logo{width:max-content}
+      .dash-tabs{margin:1rem 0;gap:0}
+      .dash-tab{padding:.7rem .85rem;font-size:.9rem}
+      #dashboard{padding-bottom:2rem}
+      .portal-card{padding:1.5rem 1rem}
+      .compose-row{min-width:0}
+      .compose-input{min-width:0}
+    }
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
   </style>
 </head>
 <body><div style="position:sticky;top:0;z-index:99999;background:#f8d86a;color:#243b24;text-align:center;padding:7px;font:700 13px system-ui">LEASEWILD SANDBOX — TEST DATA ONLY</div>
