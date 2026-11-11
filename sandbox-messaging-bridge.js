@@ -139,6 +139,7 @@ const style=document.createElement('style');
   }else{
     let hunterInboxRequest=0;
     let hunterMessageRequest=0;
+    let hunterOpenRequest=0;
     const hunterDrafts=new Map();
     const hunterComposer=document.getElementById('compose-input');
     if(hunterComposer)hunterComposer.addEventListener('input',()=>{if(currentConvId)hunterDrafts.set(currentConvId,hunterComposer.value);});
@@ -168,8 +169,10 @@ const style=document.createElement('style');
     };
     window.loadUnreadCount=async function(){const b=document.getElementById('unread-badge');if(b)b.style.display='none';};
     window.openConversation=async function(bookingId,listingId,subject,convId){
+      const openRequest=++hunterOpenRequest;
       try{
         const id=convId||await openBooking(bookingId);
+        if(openRequest!==hunterOpenRequest)return;
         if(currentConvId&&hunterComposer)hunterDrafts.set(currentConvId,hunterComposer.value);
         currentConvId=id;
         // Booking cards live on the Bookings tab; reveal Messages before opening the thread.
