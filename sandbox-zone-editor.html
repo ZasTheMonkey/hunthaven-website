@@ -173,11 +173,18 @@ document.getElementById('save-all').onclick=async()=>{
  if(!all.length){message('Draw a boundary first.');return;}
  const bad=all.findIndex(z=>!validBoundary(z.points)||!z.label);
  if(bad!==-1){message('Draft '+(bad+1)+' needs a label and a valid boundary with at least three corners. Nothing saved.');return;}
- // Reject identical geometry within one batch before any inserts; duplicates can otherwise be saved twice.
+ // A polygon ring is unchanged by a different starting vertex or reversed winding.
+ // Normalize both directions so visually identical drafts cannot be inserted twice in one batch.
+ const canonicalRing=vertices=>{
+  const coords=vertices.map(p=>p.join(','));
+  if(coords.length>1&&coords[0]===coords[coords.length-1])coords.pop();
+  const rotations=arr=>arr.map((_,i)=>arr.slice(i).concat(arr.slice(0,i)).join(';'));
+  return rotations(coords).concat(rotations(coords.slice().reverse())).sort()[0];
+ };
  const geometryKeys=new Set();
  for(let i=0;i<all.length;i++){
-  const ring=all[i].points.map(p=>p.join(',')).join(';');
-  if(geometryKeys.has(ring)){message('Draft '+(i+1)+' repeats an earlier boundary. Remove the duplicate before saving. Nothing saved.');return;}
+  const ring=canonicalRing(all[i].points);
+  if(geometryKeys.has(ring)){message('Draft '+(i+1)+' repeats an earlier boundary, including reversed or rotated outlines. Remove the duplicate before saving. Nothing saved.');return;}
   geometryKeys.add(ring);
  }
  savingAll=true;const button=document.getElementById('save-all');button.disabled=true;save.disabled=true;
