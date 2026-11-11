@@ -467,8 +467,8 @@
   function getType(l) {
     var rawActivities = l && l.activities;
     var acts = (Array.isArray(rawActivities) ? rawActivities.join(' ') : (typeof rawActivities === 'string' ? rawActivities : '')).toLowerCase();
-    var fish = FISH_KEYWORDS.some(function(k){ return acts.includes(k); });
-    var hunt = ['deer','hog','turkey','duck','dove','quail','elk','bear'].some(function(k){ return acts.includes(k); });
+    var fish = FISH_KEYWORDS.concat(['fishing', 'fish']).some(function(k){ return acts.includes(k); });
+    var hunt = ['hunting','hunt','deer','hog','turkey','duck','dove','quail','elk','bear','waterfowl','upland game'].some(function(k){ return acts.includes(k); });
     if (fish && hunt) return 'both';
     if (fish) return 'fishing';
     if (hunt) return 'hunting';
