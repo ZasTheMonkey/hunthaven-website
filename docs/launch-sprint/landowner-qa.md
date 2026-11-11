@@ -214,3 +214,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **FIX (staging):** Call `renderDraft()` before the short-stroke branch, retaining captured points and explaining the recovery options. Commit `44b328a965387f4615d676b15864fe26dada00f6`. No payments, production or main changes.
 - **PASS (GitHub write):** Staging commit accepted. **NOT TESTED:** actual pointerup/browser rendering, signed-in map save/reload, viewport matrix, verification, booking, messaging, reviews and Stripe TEST. **NOT VERIFIED:** Cloudflare deployment for this SHA.
 - **NEXT:** Authenticated sandbox E2E for short traces, interrupted gestures, valid polygon/route save/reload, two-owner isolation, booking/review/message flows. Coordinate browser runner access with developer/QA; do not claim E2E success from source inspection.
+
+## 2026-11-10 23:50 ET — Zero-length trail validation
+- **FAIL (static):** A trail with two or more identical coordinate points passed the minimum-point check and could be submitted as a zero-length LineString. This is not a usable access trail.
+- **PASS (source fix):** `sandbox-zone-editor.html` now rejects trails whose vertices are all effectively coincident, with actionable guidance to move a point; missing zone labels also focus the label input for keyboard users. Code commit `761dd4e8f6a6ad2f2a48dd5e3763873486647427`. Re-fetched staging source and verified both guards. No production or payment code changed.
+- **NOT VERIFIED:** Cloudflare deployment of this commit and runtime behavior in authenticated browser.
+- **NOT TESTED:** Map save/reload, property verification, cross-role E2E, reviews, bookings, messaging, Stripe TEST, and widths 320/375/390/430/768/1024/1280/1440/1920/2560, touch, keyboard, zoom. These require browser/sandbox-session evidence; source inspection is not a substitute.
+- **NO-GO:** Full landowner journey and launch criteria remain unverified. Other bots: developer/design should add automated degenerate-geometry cases; hunter QA should check access trail rendering and visibility timing.
