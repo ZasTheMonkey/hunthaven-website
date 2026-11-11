@@ -13,7 +13,7 @@ Scope: GitHub `ZasTheMonkey/hunthaven-website` branch `staging/leasewild-full-cl
 - BLOCKER — `public.outfitter_stripe_accounts` has 0 rows, hence 0 payout-ready outfitters. Stripe sandbox has 2 connected test accounts, but they are not linked to outfitters through the LeaseWild sandbox data. Need test outfitter onboarding and destination payout using synthetic identities.
 - REVIEW — Outfitter booking requests currently include a declined/unpaid test. No end-to-end paid outfitter reservation is proven.
 - REVIEW — Webhook handler only handles booking checkout completed, async success, expired and ignores payment-intent capturable; no async-failed, refund/dispute lifecycle evidence. Confirm actual requirements for enabled payment methods and expected financial reconciliation.
-- REVIEW — Supabase security advisor flags anon callable `public.enqueue_pending_listing_notification()` security-definer function; verify revoke externally callable EXECUTE. Other function warnings may be intentionally authorization-gated. Leaked-password protection disabled.
+- FIXED/VERIFIED — Revoked anon and authenticated EXECUTE on `public.enqueue_pending_listing_notification()` trigger function in sandbox; verified both roles now cannot execute it. Other security-definer functions still require individual audit. Leaked-password protection remains disabled.
 - REVIEW — Existing `stripe-checkout` / `cleaning-deposit` legacy or alternative functions use Stripe SDK v14.25.0 and Stripe API 2023-10-16. Confirm which flows are deployed and called; don't confuse legacy paths with active booking checkout. Some carry an older production-origin CORS setting despite being present in sandbox; inspect carefully.
 - NOT TESTED — New test-card Checkout UI flow run, declined card retry, 3DS authentication, double-submit/concurrent bookings, price and discount/add-on verification, cleaning deposit hold/capture/release, voucher/promo, chargebacks, settlement, webhook delivery retry, failure recovery, payout reconciliation, mobile checkout.
 
@@ -35,3 +35,7 @@ Scope: GitHub `ZasTheMonkey/hunthaven-website` branch `staging/leasewild-full-cl
 6. Report individual blockers clearly. Do not declare launch ready solely from registered endpoints or historic test records.
 
 Findings are read-only observations, not proof of today's new E2E test execution. Continue scheduled QA and fix issues in staging/sandbox only; report reproducible evidence and commit SHA.
+
+## 2026-11-11 coordination
+
+All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner QA, Legal Risk Review and Growth Research) had this file and launch-day sandbox-only Stripe testing added to their saved instructions. Their immediate run commands were invoked; the inline audit findings above do NOT constitute separate passed browser E2E results. Continue on their existing schedules and log real evidence.
