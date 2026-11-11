@@ -1494,52 +1494,19 @@
   }
 
   async function savePromoCode() {
-    var code = document.getElementById('promo-code-input').value.trim();
-    var amount = parseFloat(document.getElementById('promo-amount-input').value);
-    var maxUses = parseInt(document.getElementById('promo-uses-input').value) || null;
-    var expires = document.getElementById('promo-expires-input').value || null;
-    var msg = document.getElementById('promo-modal-msg');
-
-    var checked = Array.from(document.querySelectorAll('#promo-listings-checkboxes input:checked')).map(function(c){return c.value;});
-
-    if (!code) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Please enter a promo code.'; return; }
-    if (!amount || amount <= 0) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Please enter a valid discount amount.'; return; }
-    if (_promoType === 'percent' && amount > 100) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Percentage cannot exceed 100%.'; return; }
-    if (!checked.length) { msg.style.display='block'; msg.style.color='#c0392b'; msg.textContent='Please select at least one listing.'; return; }
-
-    var session = await sb.auth.getSession();
-    var email = session.data.session ? session.data.session.user.email : '';
-
-    var payload = {
-      code: code,
-      discount_type: _promoType,
-      discount_amount: amount,
-      discount_pct: _promoType === 'percent' ? amount : 0,
-      listing_ids: checked,
-      owner_email: email,
-      owner_role: 'landowner',
-      max_uses: maxUses,
-      uses: 0,
-      active: true,
-      expires_at: expires
-    };
-
-    msg.style.display='block'; msg.style.color='var(--color-text-muted)'; msg.textContent='Saving…';
-
-    var r = await fetch(SB_URL + '/rest/v1/promo_codes', {
-      method: 'POST',
-      headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify(payload)
-    });
-
-    if (r.ok) {
-      msg.style.color = '#27ae60'; msg.textContent = 'Promo code created!';
-      setTimeout(function() { closePromoModal(); loadPromoCodes('lo'); }, 1200);
-    } else {
-      var err = await r.text();
-      msg.style.color = '#c0392b';
-      msg.textContent = err.includes('unique') ? 'That code already exists. Try a different one.' : 'Error saving code. Try again.';
-    }
+    const el=id=>document.getElementById(id),message=el('promo-modal-msg');
+    const code=el('promo-code-input').value.trim().toUpperCase(),discount=Number(el('promo-amount-input').value);
+    const maxUses=el('promo-uses-input').value?Number(el('promo-uses-input').value):null,expires=el('promo-expires-input').value||null;
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){message.textContent='Sign in to create a code.';message.style.display='block';return}
+    const listingIds=Array.from(document.querySelectorAll('#promo-listings-checkboxes input:checked')).map(x=>x.value);
+    if(!/^[A-Z0-9]{3,20}$/.test(code)||!Number.isFinite(discount)||discount<=0||(_promoType==='percent'&&discount>100)||listingIds.length!==1||(maxUses!==null&&(!Number.isInteger(maxUses)||maxUses<1))){message.textContent='Enter a valid code and discount, and select exactly one listing.';message.style.display='block';return}
+    message.style.display='block';message.textContent='Saving…';
+    const payload={code,discount_type:_promoType,discount_amount:discount,discount_pct:_promoType==='percent'?discount:0,listing_ids:listingIds,owner_id:session.user.id,owner_email:session.user.email,owner_role:'landowner',max_uses:maxUses,uses:0,active:true,expires_at:expires};
+    const {error}=await sb.from('promo_codes').insert(payload);
+    if(error){message.textContent=error.code==='23505'?'That code already exists.':'Unable to create code: '+error.message;return}
+    message.textContent='Promo code created for your listing.';
+    setTimeout(()=>{closePromoModal();loadPromoCodes('lo')},700);
   }
 
   async function loadPromoCodes(role) {
@@ -1549,10 +1516,7 @@
     var session = await sb.auth.getSession();
     var email = session.data.session ? session.data.session.user.email : null;
     if (!email) return;
-    var res = await fetch(SB_URL + '/rest/v1/promo_codes?owner_email=eq.' + encodeURIComponent(email) + '&order=created_at.desc', {
-      headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }
-    });
-    var codes = await res.json();
+    var {data:codes,error}=await sb.from('promo_codes').select('*').eq('owner_id',session.data.session.user.id).eq('owner_role','landowner').order('created_at',{ascending:false});if(error){container.textContent='Could not load promo codes: '+error.message;return}codes=codes||[];
     if (!codes.length) {
       container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">No promo codes yet. Create one to offer discounts on your listings.</p>';
       return;
@@ -1570,14 +1534,7 @@
     }).join('');
   }
 
-  async function togglePromoActive(id, currentActive, role) {
-    await fetch(SB_URL + '/rest/v1/promo_codes?id=eq.' + id, {
-      method: 'PATCH',
-      headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ active: !currentActive })
-    });
-    loadPromoCodes(role);
-  }
+  async function togglePromoActive(id,currentActive){const {error}=await sb.from('promo_codes').update({active:!currentActive}).eq('id',id);if(error){alert(error.message);return}loadPromoCodes('lo')}
 
   // Load promo codes when dashboard loads
   document.addEventListener('DOMContentLoaded', function() {
