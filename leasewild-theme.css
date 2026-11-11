@@ -32,3 +32,20 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
  .dash-tab{white-space:nowrap;flex-shrink:0}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Signed-in mobile nav uses the same five-item layout as the homepage. */
+.lw-unified-mobile-nav{display:none}
+@media(max-width:768px){
+ .portal-mob-bar{display:none!important}
+ .lw-unified-mobile-nav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:900;
+   height:calc(68px + env(safe-area-inset-bottom,0px));padding:0 8px env(safe-area-inset-bottom,0px);
+   background:rgba(255,255,255,.96);border-top:1px solid #e5e9e5;
+   box-shadow:0 -8px 32px rgba(25,44,35,.07);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+ .lw-mobile-item{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+   color:#617067;text-decoration:none;font-size:.65rem;font-weight:700;letter-spacing:.02em;min-height:44px}
+ .lw-mobile-item svg{width:24px;height:24px;flex-shrink:0}
+ .lw-mobile-item.active{color:#183f35}
+ .lw-mobile-item.active svg{background:#eaf1eb;box-sizing:content-box;padding:6px;border-radius:10px}
+ .lw-mobile-item:focus-visible{outline:3px solid #3f7660;outline-offset:-3px}
+ body{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+}
