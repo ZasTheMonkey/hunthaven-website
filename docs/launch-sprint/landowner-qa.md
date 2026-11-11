@@ -192,3 +192,11 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **FIX (staging):** Auto-queued drafts now preserve `label` and `instructions`; Keep draft requires a nonblank label and focuses the label input if missing. Commit `25af49d438c6d7be412e5bd3e43215dbc4ecfd9b`.
 - **PASS (source re-read):** Confirmed both replacements are present on staging. No database, payments, production or main changes.
 - **NOT TESTED:** Browser multi-draft save, deployment, mobile widths, authenticated login and review/messaging E2E. Coordination note for designer/hunter bots: do not drop metadata when moving active zone drafts to `pendingZones`.
+
+
+## 2026-11-10 21:15 ET — sandbox deployment and map editor source audit
+- **PASS (provider deployment metadata):** Cloudflare Pages project `leasewild-sandbox` latest deployment ID `0643b1fd-22f6-4a2a-a625-ab21917728fb` reports stage `deploy` **success** at `2026-11-11T02:14:01Z`, with Git SHA `5fd0dda23eb3bd9872d4414bbc3f7aa578a007e0`. This is the Pages project's `production` environment label, **not** leasewild.com; sandbox only.
+- **PASS (GitHub ref):** Staging branch HEAD read independently from GitHub is the same `5fd0dda23eb3bd9872d4414bbc3f7aa578a007e0` SHA at the time of inspection.
+- **PASS (source review only):** `sandbox-zone-editor.html` includes trail-specific labels, minimum-two-point trail handling, unsaved draft confirmation, delete affected-row check, pointercancel retention, and click suppression after tracing. This is not proof of runtime correctness.
+- **NOT TESTED:** Authenticated browser save/reload, synthetic owner/hunter journeys, property verification, messaging, reviews, Stripe TEST transactions, 320–2560px viewport, keyboard, touch and zoom. Cloudflare success does not prove any of these flows.
+- **Next:** Execute browser E2E with sandbox-only identities; verify two-owner access isolation, save/reload, review eligibility, message delivery and mobile map gestures. Preserve existing payments and do not touch live/main.
