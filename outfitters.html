@@ -166,6 +166,16 @@
 .experience-card__description{color:var(--color-text-muted);font-size:.86rem;line-height:1.4;margin:.35rem 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .experience-card__action{display:inline-block;margin-top:.8rem;color:var(--color-primary);font-weight:800;text-decoration:underline;text-underline-offset:3px;font-size:.86rem}
 @media(max-width:600px){#outfitter-directory{grid-template-columns:minmax(0,1fr);gap:1rem}.experience-card__media{aspect-ratio:16/9}.experience-card__body{padding:.95rem 1rem 1.1rem}.experience-card__title{font-size:1.17rem}}
+</style>
+<style>
+/* Growth QA 2026-11-11: preserve a usable mobile card and readable CTA in both themes. */
+#outfitter-directory .experience-card{display:flex;flex-direction:column;min-width:0;background:var(--color-surface-2)}
+#outfitter-directory .experience-card__media{display:block;aspect-ratio:16/10;overflow:hidden;background:var(--color-surface-offset)}
+#outfitter-directory .experience-card__media img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+#outfitter-directory .experience-card__body{display:flex;flex:1;flex-direction:column;min-width:0}
+#outfitter-directory .experience-card__action{display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin-top:auto;padding:.8rem 1rem;border-radius:10px;background:var(--color-primary);color:#fff!important;text-decoration:none;font-size:1rem;line-height:1.3;white-space:normal;text-align:center}
+#outfitter-directory .experience-card__action:focus-visible,#outfitter-directory .experience-card__media:focus-visible{outline:3px solid var(--color-accent);outline-offset:3px}
+@media(max-width:600px){#outfitter-directory .experience-card__media{aspect-ratio:16/10}#outfitter-directory .experience-card__heading{flex-wrap:wrap}}
 </style></head>
 <body>
   <script>
