@@ -192,7 +192,7 @@ const style=document.createElement('style');
         document.getElementById('thread-list-view').style.display='none';
         document.getElementById('conversation-view').style.display='block';
         await window.loadMessages(id);
-      }catch(e){showError(e);}
+      }catch(e){if(openRequest===hunterOpenRequest)showError(e);}
     };
     window.loadMessages=async function(id){
       const request=++hunterMessageRequest;
