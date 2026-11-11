@@ -1159,5 +1159,22 @@
   }
   </script>
 
+<section id="outfitter-trip-requests" style="max-width:1150px;margin:2rem auto;padding:1.5rem;background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:18px">
+<h2 style="font-family:var(--font-display);font-size:1.8rem">Trip booking requests</h2><p style="color:var(--color-text-muted)">Review customer requests for your Outfitter experiences. Accepting a request does not collect payment.</p>
+<button id="refresh-trip-requests" type="button" style="margin:1rem 0;padding:.75rem 1rem;background:var(--color-primary);color:white;border:0;border-radius:8px">Refresh requests</button>
+<div id="trip-requests-list" role="status">Sign in to see booking requests.</div></section>
+<script>
+(function(){
+const root=document.getElementById('trip-requests-list');const refresh=document.getElementById('refresh-trip-requests');
+function p(parent,value){const e=document.createElement('p');e.textContent=value;parent.append(e)}
+async function load(){try{const {data:{session}}=await sb.auth.getSession();if(!session){root.textContent='Sign in to your Outfitter account to view trip requests.';return}
+const {data,error}=await sb.from('outfitter_booking_requests').select('id,trip_date,guest_count,guest_name,contact_email,notes,status,created_at').eq('outfitter_id',session.user.id).order('created_at',{ascending:false}).limit(100);
+if(error)throw error;root.replaceChildren();if(!data.length){root.textContent='No trip requests yet.';return}
+for(const item of data){const card=document.createElement('article');card.style.cssText='padding:1rem;margin:.75rem 0;border:1px solid var(--color-border);border-radius:12px';const h=document.createElement('h3');h.textContent=item.guest_name+' · '+item.trip_date;card.append(h);p(card,item.guest_count+' guest(s) · '+item.status);p(card,'Contact: '+item.contact_email);if(item.notes)p(card,'Notes: '+item.notes);
+if(item.status==='requested'){for(const [label,status] of [['Accept request','accepted'],['Decline request','declined']]){const b=document.createElement('button');b.type='button';b.textContent=label;b.style.cssText='padding:.65rem 1rem;margin:.35rem;background:'+(status==='accepted'?'#28583e':'#8d4747')+';color:white;border:0;border-radius:8px';b.onclick=async()=>{if(!confirm(label+'? No payment will be collected.'))return;b.disabled=true;const {data:updated,error}=await sb.from('outfitter_booking_requests').update({status}).eq('id',item.id).eq('outfitter_id',session.user.id).eq('status','requested').select('id');if(error||!updated?.length){alert(error?.message||'Request was already reviewed.');b.disabled=false;return}load()};card.append(b)}}root.append(card)}
+}catch(e){root.textContent='Could not load trip requests: '+e.message}}
+refresh.onclick=load;document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});setTimeout(load,1000);
+})();
+</script>
 </body>
 </html>
