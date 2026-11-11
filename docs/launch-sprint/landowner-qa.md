@@ -207,3 +207,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **PASS (source re-read):** Confirmed reset is in the successful save branch and error branch still retains the draft. No payment or production code changed.
 - **NOT TESTED:** Browser confirmation of metadata reset, authenticated zone save/reload, touch/keyboard/zoom at 320/375/390/430/768/1024/1280/1440/1920/2560px, property verification, cross-role bookings/reviews/messaging, Stripe TEST. Cloudflare deployment of this SHA not yet verified.
 - **NEXT:** Validate metadata reset and zone save/reload with dedicated synthetic landowner login; test failure retention and cross-owner RLS. NO-GO until end-to-end verification.
+
+
+## 2026-11-10 22:54 ET — short-trace draft rendering
+- **FAIL (source inspection):** `endTrace()` could append its final coordinate and exit early for a short (<3 hunting / <2 trail) stroke without rerendering the draft. The captured coordinate count and displayed geometry could be stale until another interaction.
+- **FIX (staging):** Call `renderDraft()` before the short-stroke branch, retaining captured points and explaining the recovery options. Commit `44b328a965387f4615d676b15864fe26dada00f6`. No payments, production or main changes.
+- **PASS (GitHub write):** Staging commit accepted. **NOT TESTED:** actual pointerup/browser rendering, signed-in map save/reload, viewport matrix, verification, booking, messaging, reviews and Stripe TEST. **NOT VERIFIED:** Cloudflare deployment for this SHA.
+- **NEXT:** Authenticated sandbox E2E for short traces, interrupted gestures, valid polygon/route save/reload, two-owner isolation, booking/review/message flows. Coordinate browser runner access with developer/QA; do not claim E2E success from source inspection.
