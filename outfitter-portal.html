@@ -571,7 +571,7 @@
       if (!document.getElementById('su-agree-platform').checked || !document.getElementById('su-agree-terms').checked) {
         showSignupMsg('Please accept both agreements.', 'error'); return;
       }
-      if (!/^(?=.*[!@#$%^&*()_\\-+=\\[\\]{}|;:,.<>?]).{8,}$/.test(pass)) {
+      if (pass.length < 8 || !/[^A-Za-z0-9]/.test(pass)) {
         showSignupMsg('Password must be at least 8 characters and include a special character.', 'error'); return;
       }
       var btn = document.getElementById('su-btn');
