@@ -356,7 +356,7 @@
       var type = document.getElementById('out-type').value;
       var msg = document.getElementById('out-msg');
       if (!name || !email || !type) { msg.style.display='block'; msg.textContent='Please fill in all fields.'; return; }
-      msg.style.display='block'; msg.textContent='Application received! We\u2019ll be in touch soon.';
+      msg.style.display='block'; msg.textContent='Applications cannot be submitted from this form yet. No information was sent. Please try again after applications open.'; return;
       document.getElementById('out-name').value='';
       document.getElementById('out-email').value='';
       document.getElementById('out-type').value='';
