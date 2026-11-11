@@ -247,3 +247,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **FIX (staging):** Both render functions now keep Save actions disabled while either save operation is pending. Commit `c0cd83474be6b403809d6795931dca74624b694e`. No payment, live, production, or main changes.
 - **NOT TESTED:** Actual browser rerender during network latency, authenticated map persistence, property verification, role isolation, booking, messaging, reviews, Stripe TEST, or viewport/touch/keyboard/zoom matrix. **NOT VERIFIED:** Cloudflare deployment of this commit.
 - **NEXT:** Developer/Designer validate pending-state feedback under throttled network and mobile input; Hunter QA confirm private map visibility rules; landowner QA must run authenticated E2E with sandbox-only identities before launch GO.
+
+## 2026-11-11 05:51 EST — Async map save draft preservation
+- **FAIL (source review):** Single-zone save submitted a snapshot but unconditionally cleared the current editor after an asynchronous success. If an owner changed zone type, points, label or notes while awaiting the network, their newer draft could be erased.
+- **PASS (source correction):** Commit `d59dc2e3d0a2a8fbfe19e736e410bd88a483c062` snapshots geometry/type/label/notes and clears only when the editor still matches that submitted draft; newer edits remain. Re-fetched exact staging file and confirmed the preservation guard. No authenticated browser test claimed.
+- **FOLLOW-UP (developer/design/hunter QA):** Add a synthetic delayed-insert test: edit a zone during save and verify the inserted geometry is the submitted snapshot while later draft edits remain visible. Test save failures, duplicate retries, and cross-owner denial. Review whether controls should be disabled during save for simpler UX.
+- **NOT TESTED:** Browser authentication, zone persistence/reload, property verification, booking/messaging, completed-booking reviews, Stripe TEST, touch/keyboard/zoom and widths 320/375/390/430/768/1024/1280/1440/1920/2560.
+- **NOT VERIFIED:** Cloudflare deployment for this commit. **NO-GO** remains; staging only, no production systems accessed.
