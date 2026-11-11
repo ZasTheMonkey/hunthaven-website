@@ -198,7 +198,7 @@ save.onclick=async()=>{
  savingSingle=true;save.disabled=true;message('Saving zone…');
  try{
  const {error}=await client.from('listing_access_zones').insert({listing_id:id,zone_type:document.getElementById('zone-type').value,label,geometry:geometry(),instructions:document.getElementById('zone-notes').value.trim()||null});
- if(error)message('Save failed: '+error.message);else{points=[];renderDraft();message('Zone saved. Other unsaved drafts remain on the map.');await refresh();}
+ if(error)message('Save failed: '+error.message);else{points=[];document.getElementById('zone-label').value='';document.getElementById('zone-notes').value='';renderDraft();message('Zone saved. Other unsaved drafts remain on the map.');await refresh();}
  }catch(e){message('Save interrupted: '+e.message+'. Draft retained.');}
  finally{savingSingle=false;renderDraft();}
 };
