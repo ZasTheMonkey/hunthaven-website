@@ -61,7 +61,7 @@
     .btn-primary:disabled{opacity:.6;cursor:not-allowed}
     .msg-box{padding:.75rem 1rem;border-radius:var(--radius-md);font-size:var(--text-sm);margin-bottom:1rem;display:none}
     .msg-box.error{background:var(--color-danger-light);color:var(--color-danger);border:1px solid #f5c6c6;display:block}
-    .msg-box.success{background:var(--color-water-lt);color:var(--color-water);border:1px solid #9dd4dc;display:block}
+    .msg-box.msg-success{background:var(--color-water-lt);color:var(--color-water);border:1px solid #9dd4dc;display:block}\n    .msg-box.msg-error{background:var(--color-danger-light);color:var(--color-danger);border:1px solid #f5c6c6;display:block}\n    .msg-box.success{background:var(--color-water-lt);color:var(--color-water);border:1px solid #9dd4dc;display:block}
 
     /* Disclaimer box */
     .disclaimer-box{background:color-mix(in oklab,var(--color-water) 8%,transparent);border:1.5px solid color-mix(in oklab,var(--color-water) 30%,transparent);border-radius:var(--radius-lg);padding:1.25rem 1.25rem 1rem;margin-bottom:1.25rem}
@@ -575,18 +575,36 @@
       if (!passRe.test(pass)) {
         showSignupMsg('Password must be at least 8 characters and include at least 1 special character.','error'); return;
       }
-      var btn = document.getElementById('su-btn'); btn.disabled = true; btn.textContent = 'Creating account…';
-      var { data, error } = await sb.auth.signUp({
-        email, password: pass,
-        options: {
-          data: { full_name: first+' '+last, first_name: first, last_name: last, phone, role: 'outfitter', business_name: business, outfitter_type: type, license_number: license, city },
-          emailRedirectTo: 'https://leasewild-sandbox.pages.dev/outfitter-portal.html'
+      var btn = document.getElementById('su-btn');
+      btn.disabled = true; btn.textContent = 'Creating account…';
+      showSignupMsg('Checking your account…', 'success');
+      try {
+        var { data, error } = await sb.auth.signUp({
+          email, password: pass,
+          options: {
+            data: { full_name: first+' '+last, first_name: first, last_name: last, phone, role: 'outfitter', business_name: business, outfitter_type: type, license_number: license, city },
+            emailRedirectTo: 'https://leasewild-sandbox.pages.dev/outfitter-portal.html'
+          }
+        });
+        if (error) {
+          showSignupMsg(error.message, 'error');
+          return;
         }
-      });
-      btn.disabled = false; btn.textContent = 'Create Outfitter Account';
-      if (error) { showSignupMsg(error.message,'error'); return; }
-      doSwitchTab('signin');
-      showAuthMsg('Account created! Check your email for the confirmation link, then return here to sign in.', 'success');
+        // Supabase intentionally returns a fake user (empty identities) for repeated
+        // signups when email enumeration protection is enabled. Never claim success.
+        if (data && data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+          showSignupMsg('This email already has a LeaseWild account. Please use Sign In. Adding Outfitter access to an existing Hunter or Landowner account is not available yet.', 'error');
+          return;
+        }
+        doSwitchTab('signin');
+        document.getElementById('si-email').value = email;
+        showAuthMsg('Account registration submitted. Check your email for a confirmation link, then sign in.', 'success');
+      } catch (err) {
+        showSignupMsg('Registration could not be completed. Check your connection and try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Outfitter Account';
+      }
     }
 
     async function resetPassword() {
