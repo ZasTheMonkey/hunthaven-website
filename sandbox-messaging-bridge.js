@@ -180,6 +180,7 @@ const style=document.createElement('style');
         const rows=await messages(id),{data}=await sb.auth.getSession();
         if(currentConvId!==id||request!==hunterMessageRequest)return;
         el.classList.add('lw-chat-messages');
+        el.removeAttribute('role');
         if(!data?.session?.user?.id) throw Error('Please sign in again to view messages.');
         const nearBottom=el.scrollHeight-el.scrollTop-el.clientHeight<80;
         const previousHeight=el.scrollHeight,previousTop=el.scrollTop;
