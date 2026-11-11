@@ -656,6 +656,15 @@
           var details=document.createElement('p');details.style.cssText='margin:.65rem 0;overflow-wrap:anywhere';
           details.textContent=trip.guest_count+' guest(s) · '+(trip.amount_cents!=null?'$'+(Number(trip.amount_cents)/100).toFixed(2):'Amount confirmed at checkout');
           card.append(details);
+          if(trip.status==='accepted'){
+            var controls=document.createElement('div');controls.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-top:12px';
+            var msgBtn=document.createElement('button');msgBtn.type='button';msgBtn.textContent='Message outfitter';msgBtn.style.cssText='padding:10px;border-radius:8px;background:#b6d5bc;color:#14251b;border:0;font-weight:700';
+            msgBtn.onclick=function(){leasewildOutfitterBookingActions(sb,trip.id,'message',paid)};
+            controls.append(msgBtn);
+            var cancelBtn=document.createElement('button');cancelBtn.type='button';cancelBtn.textContent=paid?'Request cancellation / refund':'Cancel reservation';cancelBtn.style.cssText='padding:10px;border-radius:8px;background:transparent;color:inherit;border:1px solid #aaa;font-weight:700';
+            cancelBtn.onclick=function(){leasewildOutfitterBookingActions(sb,trip.id,'cancel',paid,loadBookings)};
+            controls.append(cancelBtn);card.append(controls);
+          }
           if(trip.status==='accepted'&&!paid){
             var link=document.createElement('a');link.href='outfitter-pay.html';link.textContent='Pay with Stripe TEST card';link.style.cssText='color:var(--color-accent);font-weight:700';card.append(link);
           }
@@ -921,6 +930,7 @@
  tick();setInterval(tick,30000);
 })();
 </script>
+<script src="outfitter-booking-actions.js"></script>
 <script src="sandbox-messaging-bridge.js" defer></script>
 <script src="/leasewild-navigation.js" defer></script>
 </body>
