@@ -354,3 +354,10 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **NOT TESTED (browser):** Actual focus movement with keyboard, screen reader, mobile Safari, and viewport matrix still require an executable sandbox browser session. Source check is not E2E.
 - **NOT TESTED (payments):** No Stripe TEST UI payment, webhook, refund, or authenticated synthetic booking performed this run; do not claim otherwise. No production or live/main resources touched.
 - **Handoff:** Developer/Designer should verify the conversation heading is visually appropriate and that heading focus is announced by assistive technology; Landowner QA owns corresponding owner-panel focus behavior.
+
+## 2026-11-11 12:19 EST — Hunter chat conversation-switch scroll regression
+- **FAIL (source reproduction):** `loadMessages` calculated near-bottom from the previously rendered thread. Switching from a long thread scrolled upward to another conversation could preserve the old scroll offset and open the new thread midway instead of at its latest message.
+- **FIX (staging):** Track `hunterRenderedConversationId`. On first render of a different conversation, scroll to bottom; on subsequent refreshes of the same conversation, preserve the existing near-bottom/reading-position behavior. Hunter path only, no Landowner QA code modified. Commit `76f90d81c4249f5152cafdf25b4a15a08529c817`.
+- **PASS (source):** New conversation detection and same-conversation scroll preservation verified by code inspection; no payment/schema changes.
+- **NOT TESTED:** Real browser scroll, viewport matrix 320–2560, keyboard/zoom, Stripe TEST checkout/decline/3DS/refunds, cross-role authenticated E2E. No payment IDs or screenshots because no transactions executed.
+- **Next:** Browser-test switching between two synthetic conversations after scrolling far upward; verify same-thread refresh preserves reading position and switching threads shows newest message. Production untouched.
