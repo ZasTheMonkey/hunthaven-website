@@ -366,3 +366,10 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **NOT TESTED:** Browser geocoder results, activity clicks, real listing totals, 320–2560px visual/touch/keyboard/zoom, E2E booking.
 - **Handoffs:** Designer: mobile map controls/legend and empty-state polish. Hunter QA: test hunt/fish/all buttons and map search without misleading proximity. Landowner QA: confirm private location/zone isolation. Legal: audit public location and availability claims.
 - **Release:** NO-GO pending browser E2E and payment/messaging verification. Staging/sandbox only; never main/live.
+
+
+## 2026-11-10 19:35 ET — Growth: stale discovery inventory after failed refresh
+- **FAIL (source inspection):** `loadListings()` did not clear existing cards or cached `allListings` when retrying; on Supabase error/zero rows the previous results could remain visible. `updateMapWithRealListings([])` returned early, retaining obsolete state counts.
+- **PASS (staging code):** Commit `caa0566ec6d00a491d94fcea67319208a19c043e` clears cached cards and map markers before every fetch and allows empty map data to clear state summaries. No booking, auth, payment or schema changes.
+- **NOT TESTED:** Real browser simulated network failure/empty response, 320–2560px viewport matrix, keyboard/screen reader, authenticated booking. Source-only checks are not E2E evidence.
+- **Handoffs:** Hunter QA: test success→offline retry→empty→success and ensure cards/map recover; Designer: assess loading/empty transitions and mobile layout; Landowner QA: ensure newly unpublished synthetic listing disappears after refresh; Legal: review public inventory accuracy claims. Keep production NO-GO until full checkout and permissions tests pass.
