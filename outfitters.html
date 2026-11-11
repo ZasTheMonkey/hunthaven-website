@@ -310,5 +310,32 @@
       document.getElementById('out-type').value='';
     }
   </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<script>
+(async function(){
+ const root=document.getElementById('outfitter-directory');
+ const status=document.getElementById('outfitter-directory-status');
+ const showStatus=(message)=>{root.replaceChildren();const p=document.createElement('p');p.style.color='var(--color-text-muted)';p.textContent=message;root.append(p)};
+ try{
+  if(!window.supabase||!window.SUPABASE_URL||!window.SUPABASE_ANON_KEY)throw new Error('Directory configuration unavailable');
+  const client=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+  const {data,error}=await client.from('outfitter_listings').select('title,bio,price,price_label,counties,species,photos').eq('status','active').order('updated_at',{ascending:false}).limit(60);
+  if(error)throw error;
+  if(!data||!data.length){showStatus('No approved outfitters are listed yet. Check back soon.');return}
+  root.replaceChildren();
+  for(const item of data){
+   const card=document.createElement('article');card.style.cssText='background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:1.25rem;overflow:hidden';
+   const photo=Array.isArray(item.photos)?item.photos.find(u=>typeof u==='string'&&u.startsWith('https://')):null;
+   if(photo){const img=document.createElement('img');img.src=photo;img.alt='Outfitter listing photo';img.loading='lazy';img.style.cssText='width:100%;height:190px;object-fit:cover;border-radius:var(--radius-md);margin-bottom:1rem';card.append(img)}
+   const h=document.createElement('h3');h.textContent=item.title||'Florida Outfitter';h.style.cssText='font-family:var(--font-display);font-size:1.5rem;margin-bottom:.5rem';card.append(h);
+   for(const val of [item.counties,item.bio,item.price!=null?'From 
+</html>
++Number(item.price).toLocaleString()+' '+(item.price_label||''):'']){if(!val)continue;const p=document.createElement('p');p.textContent=val;p.style.cssText='color:var(--color-text-muted);margin-top:.6rem;overflow-wrap:anywhere';card.append(p)}
+   root.append(card);
+  }
+ }catch(e){console.error('Outfitter directory load failed',e);showStatus('Unable to load outfitters right now. Please refresh the page.')}
+})();
+</script>
 </body>
 </html>
