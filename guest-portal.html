@@ -517,11 +517,8 @@
     switchTab('signin');
   }
 
-  async function resetPassword() {
-    var email = document.getElementById('si-email').value.trim();
-    if (!email) { showAuthMsg('Enter your email first.','error'); return; }
-    await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://leasewild-sandbox.pages.dev/guest-portal.html' });
-    showAuthMsg('Password reset email sent — check your inbox.','success');
+  function resetPassword() {
+    window.location.href = 'reset-password.html?role=hunter';
   }
 
   async function signOut() {
