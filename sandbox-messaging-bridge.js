@@ -100,7 +100,9 @@ const style=document.createElement('style');
         el.append(message,retry);
       }}
     };
+    let ownerOpenRequest=0;
     window.openLoConversation=async function(id,subject,guestEmail){
+      ++ownerOpenRequest;
       if(loCurrentConvId&&ownerComposer)ownerDrafts.set(loCurrentConvId,ownerComposer.value);
       loCurrentConvId=id;
       if(ownerComposer)ownerComposer.value=ownerDrafts.get(id)||'';
@@ -134,7 +136,14 @@ const style=document.createElement('style');
       try{await send(sendingConvId,body);if(loCurrentConvId===sendingConvId){if(el.value.trim()===body){el.value='';ownerDrafts.set(sendingConvId,'');}await window.loadLoMessages(sendingConvId);}}catch(e){showError(e);}finally{btn.disabled=false;}
     };
     window.openLoConversationFromBooking=async function(bookingId,listingId,guestName,guestEmail){
-      try{const id=await openBooking(bookingId);await window.openLoConversation(id,'Conversation with '+guestName,guestEmail);document.getElementById('messages-section').scrollIntoView({behavior:'smooth'});}catch(e){showError(e);}
+      const request=++ownerOpenRequest;
+      try{
+        const id=await openBooking(bookingId);
+        if(request!==ownerOpenRequest)return;
+        await window.openLoConversation(id,'Conversation with '+guestName,guestEmail);
+        if(request+1!==ownerOpenRequest)return;
+        document.getElementById('messages-section').scrollIntoView({behavior:'smooth'});
+      }catch(e){if(request===ownerOpenRequest)showError(e);}
     };
   }else{
     let hunterInboxRequest=0;
