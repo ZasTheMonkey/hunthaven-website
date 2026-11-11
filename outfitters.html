@@ -318,8 +318,8 @@
  const status=document.getElementById('outfitter-directory-status');
  const showStatus=(message)=>{root.replaceChildren();const p=document.createElement('p');p.style.color='var(--color-text-muted)';p.textContent=message;root.append(p)};
  try{
-  if(!window.supabase||!window.SUPABASE_URL||!window.SUPABASE_ANON_KEY)throw new Error('Directory configuration unavailable');
-  const client=window.supabase.createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+  if(!window.supabase||typeof SUPABASE_URL==='undefined'||typeof SUPABASE_ANON_KEY==='undefined')throw new Error('Directory configuration unavailable');
+  const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data,error}=await client.from('outfitter_listings').select('title,bio,price,price_label,counties,species,photos').eq('status','active').order('updated_at',{ascending:false}).limit(60);
   if(error)throw error;
   if(!data||!data.length){showStatus('No approved outfitters are listed yet. Check back soon.');return}
