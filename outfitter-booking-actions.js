@@ -1,7 +1,39 @@
 /* LeaseWild sandbox: outfitter booking actions, shared by hunter/outfitter portals. */
 (function(){
  function el(tag,text){var n=document.createElement(tag);if(text!=null)n.textContent=text;return n;}
+ async function paidCancellationDialog(db,bookingId,onDone){
+  var overlay=el('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px';
+  var panel=el('section');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','Request trip cancellation');panel.style.cssText='background:#1b2c22;color:white;width:min(100%,520px);max-height:85vh;overflow:auto;padding:20px;border-radius:14px;font:16px system-ui';
+  var heading=el('h2','Request trip cancellation');panel.append(heading);
+  var close=el('button','Close');close.type='button';close.onclick=function(){overlay.remove()};panel.append(close);
+  var explanation=el('p','Your trip is paid. A cancellation request does not cancel the reservation or issue a refund. Refund eligibility must be reviewed before a Stripe TEST refund is processed.');panel.append(explanation);
+  var status=el('p','Checking request status…');status.setAttribute('role','status');panel.append(status);
+  var reason=el('textarea');reason.rows=3;reason.maxLength=2000;reason.placeholder='Why would you like to cancel?';reason.setAttribute('aria-label','Cancellation reason');reason.style.cssText='display:none;width:100%;padding:12px;border-radius:8px;color:#111';panel.append(reason);
+  var submit=el('button','Submit cancellation request');submit.type='button';submit.style.cssText='display:none;margin-top:12px;padding:12px 16px;background:#b6d5bc;color:#14251b;border:0;border-radius:8px;font-weight:bold';panel.append(submit);
+  overlay.append(panel);document.body.append(overlay);close.focus();
+  async function check(){
+   var r=await db.from('outfitter_cancellation_requests').select('status,refund_status,requested_at').eq('booking_id',bookingId).maybeSingle();
+   if(r.error){status.textContent='Could not check cancellation status: '+r.error.message;return;}
+   if(r.data){status.textContent='Cancellation status: '+r.data.status.replace(/_/g,' ')+' · Refund: '+r.data.refund_status.replace(/_/g,' ')+'.';reason.style.display='none';submit.style.display='none';return;}
+   status.textContent='No cancellation request has been submitted.';
+   reason.style.display='block';submit.style.display='inline-block';
+  }
+  submit.onclick=async function(){
+   var value=reason.value.trim();if(!value){status.textContent='Please enter a cancellation reason.';return;}
+   submit.disabled=true;status.textContent='Submitting request…';
+   var booking=await db.from('outfitter_booking_requests').select('hunter_id,outfitter_id,status,payment_status').eq('id',bookingId).single();
+   if(booking.error||!booking.data||booking.data.status!=='accepted'||booking.data.payment_status!=='paid'){status.textContent='This booking is not eligible for the paid cancellation request flow.';submit.disabled=false;return;}
+   var user=(await db.auth.getUser()).data.user;
+   if(!user||user.id!==booking.data.hunter_id){status.textContent='Only the booking hunter can request cancellation.';submit.disabled=false;return;}
+   var r=await db.from('outfitter_cancellation_requests').insert({booking_id:bookingId,hunter_id:user.id,outfitter_id:booking.data.outfitter_id,reason:value});
+   if(r.error){status.textContent=r.error.code==='23505'?'A cancellation request already exists.':'Could not submit request: '+r.error.message;await check();return;}
+   status.textContent='Cancellation request submitted. Your booking remains paid until review and any eligible refund are completed.';
+   reason.style.display='none';submit.style.display='none';if(onDone)onDone();
+  };
+  await check();
+ }
  function openDialog(db,bookingId,mode,paid,onDone){
+  if(mode==='cancel'&&paid){paidCancellationDialog(db,bookingId,onDone);return;}
   var cover=el('div');cover.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px';
   var panel=el('section');panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label',mode==='cancel'?'Cancel outfitter booking':'Outfitter messages');panel.style.cssText='background:#1b2c22;color:#fff;width:min(100%,520px);max-height:85vh;overflow:auto;padding:20px;border-radius:14px;font:16px system-ui';
   var title=el('h2',mode==='cancel'?'Cancel reservation':'Messages about this trip');panel.append(title);
