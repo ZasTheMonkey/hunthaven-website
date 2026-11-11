@@ -373,3 +373,12 @@ Scope: staging branch and sandbox only. This is a quality target, not a spending
 - **PASS (staging code):** Commit `caa0566ec6d00a491d94fcea67319208a19c043e` clears cached cards and map markers before every fetch and allows empty map data to clear state summaries. No booking, auth, payment or schema changes.
 - **NOT TESTED:** Real browser simulated network failure/empty response, 320–2560px viewport matrix, keyboard/screen reader, authenticated booking. Source-only checks are not E2E evidence.
 - **Handoffs:** Hunter QA: test success→offline retry→empty→success and ensure cards/map recover; Designer: assess loading/empty transitions and mobile layout; Landowner QA: ensure newly unpublished synthetic listing disappears after refresh; Legal: review public inventory accuracy claims. Keep production NO-GO until full checkout and permissions tests pass.
+
+
+## 2026-11-10 20:36 ET — Growth Research: geocoded map viewport reset
+- **FAIL (source inspection):** `doMapSearch()` called `huntMap.setView()` to the searched location, then `plotListings(LISTINGS)` always called `fitBounds()` on state-summary markers. This immediately overrode the user's searched location, making geocoding appear broken.
+- **PASS (staging source):** Commit `82eabb64a69299922719ac6657e4152b8930eee3` adds a `preserveViewport` option to `plotListings`; successful geocoding now calls `plotListings(LISTINGS, true)` and retains the searched center. Initial map render and activity filters continue fitting state summaries normally. No database, booking, auth, Stripe or private coordinates changed.
+- **PASS (independent source re-fetch):** Confirmed optional parameter, guarded `fitBounds`, and geocode call on staging.
+- **NOT TESTED:** Actual geocoding network response/browser viewport, keyboard/touch, map controls at 320/375/390/430/768/1024/1280/1440/1920/2560px, booking conversion.
+- **Handoffs:** Hunter QA: geocode a Florida ZIP and confirm center persists; test filter after search. Designer: mobile geocode status/map legend and responsive map. Landowner QA: ensure private coordinates/zones remain inaccessible. Legal: state-level map summaries must not imply exact property locations.
+- **Release:** NO-GO pending actual browser E2E and checkout/messaging/permissions tests. Never deploy main/live.
