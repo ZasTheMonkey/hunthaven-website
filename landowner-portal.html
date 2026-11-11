@@ -81,6 +81,31 @@
     .badge-pending{background:#fff3e0;color:#b45309}
     .badge-live{background:#e8f5e9;color:#2d6a2d}
     .badge-review{background:#e8eaf6;color:#3949ab}
+    /* Shared dark marketplace visual system — aligned with hunter portal. */
+    :root,[data-theme="light"],[data-theme="dark"]{
+      color-scheme:dark;
+      --color-bg:#1b201d;--color-surface:#242a26;--color-surface-2:#292f2a;
+      --color-border:#48544c;--color-divider:#39443d;
+      --color-text:#e6eee7;--color-text-muted:#b4c3b8;
+      --color-primary:#a8d7c6;--color-primary-hover:#c6eee0;
+      --color-accent:#c18a50;--color-accent-hover:#d6a56c;
+      --shadow-md:0 4px 16px rgba(0,0,0,.3);--shadow-lg:0 16px 48px rgba(0,0,0,.4);
+    }
+    .btn-accent{color:#1b211b}
+    .btn-ghost,.btn-accent,a,button{min-height:44px}
+    a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--color-primary);outline-offset:3px}
+    #dashboard{width:100%;max-width:960px!important;min-width:0}
+    #dashboard .listing-card{background:var(--color-surface);border-color:var(--color-border)}
+    @media(max-width:600px){
+      body{padding:1rem 12px 90px}
+      .portal-card{padding:1.25rem 1rem;border-radius:1rem}
+      #dashboard{max-width:100%!important}
+      .dash-header{gap:1rem}
+      .dash-header>div{min-width:0;overflow-wrap:anywhere}
+      .dash-welcome{overflow-wrap:anywhere}
+      #dashboard .btn-accent{width:100%}
+    }
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
   </style>
 </head>
 <body><div style="position:sticky;top:0;z-index:99999;background:#f8d86a;color:#243b24;text-align:center;padding:7px;font:700 13px system-ui">LEASEWILD SANDBOX — TEST DATA ONLY</div>
