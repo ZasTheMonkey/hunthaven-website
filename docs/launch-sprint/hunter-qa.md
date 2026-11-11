@@ -247,3 +247,12 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **BLOCKED (sandbox runtime):** Secure isolated synthetic hunter/landowner auth sessions and Stripe TEST fixtures remain unavailable to this execution. Checkout, webhook/refund, cancellations, completed-booking reviews, messaging and cross-role privacy denial tests not performed. Authorization is granted; runtime provisioning is missing.
 - **NOT TESTED:** 320/375/390/430/768/1024/1280/1440/1920/2560 widths, touch, keyboard, zoom, screen reader. No browser harness executed.
 - **NO-GO:** Production release remains gated. No main/live site, production Supabase, live Stripe, real customer accounts or personal sessions touched.
+
+
+## 2026-11-10 22:08 ET — Message history failure recovery
+- **FAIL (prior source):** Hunter and landowner `loadMessages` failure handlers replaced message history with a plain error string; no keyboard-operable retry was offered. Conversation-list retry did not address this separate failure path.
+- **FIX (staging):** `sandbox-messaging-bridge.js` commit `dedfffb63bf9ac86935fb5635af37b5d85f1fd8d` adds native `Retry loading messages` buttons in both role-specific history failure handlers. Retry calls `loadMessages(id)` / `loadLoMessages(id)` with the original conversation identifier. Error details use `textContent`; existing request and current-conversation guards remain unchanged.
+- **PASS (source only):** Both exact error-handler patterns matched before replacement and GitHub accepted the staging commit. **NOT TESTED:** browser, screen reader, keyboard, live sandbox rendering, Cloudflare deployment parity.
+- **BLOCKED (runtime prerequisites):** Isolated authenticated synthetic sessions and verified Stripe TEST booking fixtures not provisioned to this execution; therefore checkout, refund, webhook, cancellations, messaging E2E, reviews and RLS denial tests were not executed. No additional approval required.
+- **NOT TESTED:** 320/375/390/430/768/1024/1280/1440/1920/2560px, touch and 200% zoom.
+- **Release gate: NO-GO.** No live website, main, production Supabase, live Stripe or personal accounts touched.
