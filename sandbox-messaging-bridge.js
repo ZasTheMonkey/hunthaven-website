@@ -133,7 +133,7 @@ const style=document.createElement('style');
       if(!body||!loCurrentConvId||btn.disabled)return;
       const sendingConvId=loCurrentConvId;
       btn.disabled=true;
-      try{await send(sendingConvId,body);if(loCurrentConvId===sendingConvId){if(el.value.trim()===body){el.value='';ownerDrafts.set(sendingConvId,'');}await window.loadLoMessages(sendingConvId);}}catch(e){showError(e);}finally{btn.disabled=false;}
+      try{await send(sendingConvId,body);if(loCurrentConvId===sendingConvId){if(el.value.trim()===body){el.value='';ownerDrafts.set(sendingConvId,'');}await window.loadLoMessages(sendingConvId);}}catch(e){if(loCurrentConvId===sendingConvId)showError(e);}finally{btn.disabled=false;}
     };
     window.openLoConversationFromBooking=async function(bookingId,listingId,guestName,guestEmail){
       const request=++ownerOpenRequest;
@@ -215,7 +215,7 @@ const style=document.createElement('style');
       if(!body||!currentConvId||btn.disabled)return;
       const sendingConvId=currentConvId;
       btn.disabled=true;
-      try{await send(sendingConvId,body);if(currentConvId===sendingConvId){if(el.value.trim()===body){el.value='';hunterDrafts.set(sendingConvId,'');}await window.loadMessages(sendingConvId);}}catch(e){showError(e);}finally{btn.disabled=false;}
+      try{await send(sendingConvId,body);if(currentConvId===sendingConvId){if(el.value.trim()===body){el.value='';hunterDrafts.set(sendingConvId,'');}await window.loadMessages(sendingConvId);}}catch(e){if(currentConvId===sendingConvId)showError(e);}finally{btn.disabled=false;}
     };
   }
 })();
