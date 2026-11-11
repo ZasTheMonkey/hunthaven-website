@@ -393,11 +393,11 @@
 <script>
 (function(){
 const root=document.getElementById('trip-requests-list'),refresh=document.getElementById('refresh-trip-requests'),tabs=document.getElementById('out-trip-tabs'),badge=document.getElementById('out-trip-count');let records=[],filter='all';
-function line(parent,label,value){const div=document.createElement('div');const strong=document.createElement('strong');strong.textContent=label;div.append(strong,document.createElement('br'),document.createTextNode(value||'—'));parent.append(div)}
+function line(parent,label,value){const div=document.createElement('div');div.style.cssText='min-width:0;overflow-wrap:anywhere;word-break:break-word';const strong=document.createElement('strong');strong.textContent=label;div.append(strong,document.createElement('br'),document.createTextNode(value||'—'));parent.append(div)}
 function render(){root.replaceChildren();const pending=records.filter(x=>x.status==='requested').length;badge.textContent=pending;badge.style.display=pending?'inline':'none';for(const b of tabs.querySelectorAll('button')){const selected=b.dataset.filter===filter;b.style.cssText='padding:.55rem .9rem;border:1px solid var(--color-border);border-radius:99px;background:'+(selected?'var(--color-primary)':'var(--color-surface-2)')+';color:'+(selected?'#fff':'var(--color-text)')+';font-weight:700;cursor:pointer'}
 const rows=records.filter(x=>filter==='all'||x.status===filter);if(!rows.length){const empty=document.createElement('p');empty.textContent=filter==='requested'?'No pending requests.':'No reservations in this category.';empty.style.cssText='padding:1.5rem;text-align:center;color:var(--color-text-muted);background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:12px';root.append(empty);return}
-for(const item of rows){const card=document.createElement('article');card.style.cssText='background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:.85rem;box-shadow:var(--shadow-sm)';const header=document.createElement('div');header.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap';const h=document.createElement('strong');h.textContent=item.guest_name||'Guest';const st=document.createElement('span');st.textContent=({requested:'Awaiting your approval',accepted:'Accepted — awaiting guest payment',declined:'Declined',cancelled:'Cancelled'})[item.status]||item.status;st.style.cssText='border-radius:99px;padding:.3rem .65rem;color:white;font-size:.75rem;font-weight:700;background:'+({requested:'#b97920',accepted:'#247343',declined:'#c0392b',cancelled:'#777'})[item.status];header.append(h,st);card.append(header);if(item.status==='accepted'){const payment=document.createElement('p');payment.textContent='Payment: '+(item.payment_status==='paid'?'Paid in Stripe TEST mode':'Not yet paid');card.append(payment)}
-const grid=document.createElement('div');grid.style.cssText='display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin:1rem 0;font-size:var(--text-sm);color:var(--color-text-muted)';line(grid,'Trip date',new Date(item.trip_date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}));line(grid,'Guests',String(item.guest_count));line(grid,'Email',item.contact_email);line(grid,'Booked',new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}));card.append(grid);if(item.notes){const notes=document.createElement('p');notes.textContent='Guest notes: '+item.notes;notes.style.cssText='padding:.75rem;background:var(--color-bg);border-radius:8px;overflow-wrap:anywhere';card.append(notes)}
+for(const item of rows){const card=document.createElement('article');card.style.cssText='background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:.85rem;box-shadow:var(--shadow-sm)';const header=document.createElement('div');header.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap';const h=document.createElement('strong');h.textContent=item.guest_name||'Guest';const st=document.createElement('span');st.textContent=({requested:'Awaiting your approval',accepted:item.payment_status==='paid'?'Accepted — Paid':'Accepted — awaiting guest payment',declined:'Declined',cancelled:'Cancelled'})[item.status]||item.status;st.style.cssText='border-radius:99px;padding:.3rem .65rem;color:white;font-size:.75rem;font-weight:700;background:'+({requested:'#b97920',accepted:'#247343',declined:'#c0392b',cancelled:'#777'})[item.status];header.append(h,st);card.append(header);if(item.status==='accepted'){const payment=document.createElement('p');payment.textContent='Payment: '+(item.payment_status==='paid'?'Paid in Stripe TEST mode':'Not yet paid');card.append(payment)}
+const grid=document.createElement('div');grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:1rem;margin:1rem 0;font-size:var(--text-sm);color:var(--color-text-muted)';line(grid,'Trip date',new Date(item.trip_date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}));line(grid,'Guests',String(item.guest_count));line(grid,'Email',item.contact_email);line(grid,'Booked',new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}));card.append(grid);if(item.notes){const notes=document.createElement('p');notes.textContent='Guest notes: '+item.notes;notes.style.cssText='padding:.75rem;background:var(--color-bg);border-radius:8px;overflow-wrap:anywhere';card.append(notes)}
 if(item.status==='requested'){const actions=document.createElement('div');actions.style.cssText='display:flex;flex-wrap:wrap;gap:.6rem';for(const [label,next,color] of [['Accept request','accepted','var(--color-primary)'],['Decline','declined','#a13d3d']]){const button=document.createElement('button');button.textContent=label;button.style.cssText='padding:.7rem 1rem;background:'+color+';color:#fff;border:0;border-radius:9px;font-weight:700;cursor:pointer';button.onclick=async()=>{if(!confirm(label+' for '+item.guest_name+'? The guest must pay separately after acceptance.'))return;button.disabled=true;const {data:{session}}=await sb.auth.getSession();if(!session){alert('Please sign in.');button.disabled=false;return}const {data,error}=await sb.from('outfitter_booking_requests').update({status:next}).eq('id',item.id).eq('outfitter_id',session.user.id).eq('status','requested').select('id');if(error||!data?.length){alert(error?.message||'Request already reviewed.');button.disabled=false;return}await load()};actions.append(button)}card.append(actions)}
 if(item.status==='accepted'||item.status==='requested'){
  const messageBtn=document.createElement('button');messageBtn.type='button';messageBtn.textContent='Message hunter';messageBtn.style.cssText='margin-top:12px;padding:10px 14px;border-radius:8px;background:#b6d5bc;color:#14251b;border:0;font-weight:700';
@@ -410,7 +410,12 @@ tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;fi
 })();
 </script>
     </div>
-    <!-- MESSAGES -->
+    <!-- OUTFITTER BOOKING CONVERSATIONS: distinct from landowner message threads -->
+    <section id="outfitter-booking-inbox" style="display:none;padding:16px 0" aria-label="Outfitter booking messages">
+      <h3 style="margin:0 0 12px">Outfitter trip conversations</h3>
+      <div id="outfitter-booking-inbox-list" role="status">Loading conversations…</div>
+    </section>
+        <!-- MESSAGES -->
     <div class="dash-panel" id="dpanel-messages">
       <div id="thread-list-view">
         <div class="thread-list" id="thread-list"><div class="empty-state"><p>No messages yet.</p></div></div>
@@ -735,12 +740,42 @@ tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;fi
       loadOutfitterListing(user.id);
     }
 
+    async function loadOutfitterBookingInbox() {
+      var panel=document.getElementById('outfitter-booking-inbox');
+      var list=document.getElementById('outfitter-booking-inbox-list');
+      if(!panel||!list||!sb)return;
+      panel.style.display='block';
+      list.textContent='Loading conversations…';
+      try {
+        var result=await sb.auth.getUser();
+        var user=result.data?.user;
+        if(!user){list.textContent='Sign in to view outfitter conversations.';return;}
+        var bookings=await sb.from('outfitter_booking_requests').select('id,guest_name,trip_date,status,payment_status').eq('outfitter_id',user.id).in('status',['accepted','requested']).order('trip_date',{ascending:false}).limit(100);
+        if(bookings.error)throw bookings.error;
+        list.replaceChildren();
+        if(!bookings.data?.length){list.textContent='No outfitter reservations to message yet.';return;}
+        var ids=bookings.data.map(function(b){return b.id});
+        var messages=await sb.from('outfitter_booking_messages').select('booking_id,created_at').in('booking_id',ids).order('created_at',{ascending:false}).limit(500);
+        if(messages.error)throw messages.error;
+        var counts={};(messages.data||[]).forEach(function(m){counts[m.booking_id]=(counts[m.booking_id]||0)+1});
+        bookings.data.sort(function(a,b){return (counts[b.id]||0)-(counts[a.id]||0)});
+        bookings.data.forEach(function(b){
+          var item=document.createElement('div');item.style.cssText='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border:1px solid var(--color-border);border-radius:12px;padding:14px;margin-bottom:10px';
+          var info=document.createElement('div');info.style.cssText='min-width:0;overflow-wrap:anywhere';
+          var name=document.createElement('strong');name.textContent=b.guest_name||'Guest';info.append(name);
+          var date=document.createElement('p');date.textContent=b.trip_date+' · '+(counts[b.id]||0)+' message(s)';date.style.margin='4px 0';info.append(date);item.append(info);
+          var button=document.createElement('button');button.type='button';button.textContent='Open conversation';button.style.cssText='padding:10px 14px;border:0;border-radius:8px;background:#b6d5bc;color:#14251b;font-weight:700';
+          button.onclick=function(){leasewildOutfitterBookingActions(sb,b.id,'message',b.payment_status==='paid')};item.append(button);list.append(item);
+        });
+      }catch(e){list.textContent='Unable to load outfitter conversations: '+e.message;}
+    }
+
     function switchDashTab(t) {
       ['listing','reservations','messages','promo','profile','settings'].forEach(function(x) {
         document.getElementById('dtab-'+x).classList.toggle('active', x===t);
         document.getElementById('dpanel-'+x).classList.toggle('active', x===t);
       });
-      if (t === 'messages') loadThreads();
+      if (t === 'messages') { loadThreads(); loadOutfitterBookingInbox(); }
       if (t === 'reservations') document.getElementById('refresh-trip-requests')?.click();
       if (t === 'promo') loadPromoCodes('out');
     }
