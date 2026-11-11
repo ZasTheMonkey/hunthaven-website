@@ -214,20 +214,13 @@
       </div>
     </div>
 
-    <!-- OUTFITTER LISTINGS (placeholder) -->
+    <!-- Approved outfitters only; pending applications are private. -->
     <p class="section-label">Directory</p>
     <h2 class="section-title">Florida Outfitters</h2>
-    <p class="section-sub">Verified outfitters coming soon. Apply below to be listed in our directory at launch.</p>
-
-    <div style="background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:3rem;text-align:center;margin-bottom:3rem">
-      <div style="width:64px;height:64px;border-radius:var(--radius-xl);background:color-mix(in oklab,var(--color-water) 12%,transparent);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
-        <svg width="30" height="30" fill="none" stroke="var(--color-water)" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-      </div>
-      <h3 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-lg);margin-bottom:.5rem">Outfitter listings coming soon</h3>
-      <p style="color:var(--color-text-muted);font-size:var(--text-sm);max-width:380px;margin:0 auto 1.5rem;line-height:1.6">We're building the outfitter directory now. If you're a licensed guide or outfitter in Florida, apply to be featured at launch.</p>
-      <button onclick="document.getElementById('apply-form').scrollIntoView({behavior:'smooth'})" style="padding:.7rem 1.75rem;border-radius:var(--radius-full);background:var(--color-water);color:#fff;border:none;font-family:var(--font-display);font-weight:800;font-size:var(--text-sm);cursor:pointer">Apply to be listed</button>
+    <p class="section-sub">Explore approved Florida hunting and fishing guides. New applications are reviewed before publication.</p>
+    <div id="outfitter-directory" aria-live="polite" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:1.25rem;margin-bottom:3rem">
+      <p id="outfitter-directory-status" style="color:var(--color-text-muted)">Loading approved outfitters…</p>
     </div>
-
     <!-- RULES -->
     <p class="section-label">Platform Rules</p>
     <h2 class="section-title">Outfitter Guidelines</h2>
