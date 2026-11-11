@@ -297,3 +297,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **REGRESSION (pending):** With synthetic owner account, try polygons with 2, 3, 100, and 101 corners via both Save and Save all; confirm 3/100 valid boundaries save/reload, invalid cases leave drafts intact, and Owner B cannot edit. Also exercise 320–2560 px responsive widths, keyboard, touch, 200% zoom.
 - **PAYMENT / AUTH E2E:** NOT TESTED this run: Stripe TEST card checkout, declines, 3DS, webhooks, refunds, bookings, reviews, verification, and messages. Requires authenticated interactive sandbox browser and isolated test identities; do not treat code inspection as payment evidence.
 - **DEPLOYMENT:** Cloudflare Pages deployment NOT VERIFIED. No live/main or production changes. Launch remains **NO-GO** pending real E2E verification.
+
+
+## 2026-11-11 12:51 ET — Queued hunting draft validation consistency
+- **FAIL (source-path review):** `Keep draft & draw another` accepted any three points, including zero-area/invalid polygons, and the automatic queue path on starting another trace likewise omitted `validBoundary`. Those drafts could later fail at Save all, creating an avoidable dead-end.
+- **FIX (staging):** Both queue paths now enforce the same 3–100-corner, finite-coordinate, nonzero-area predicate as Save all. Code commit `db412dff25893d516179c6fb1c69b6f61214327b`. This is a source-level correction, **not** an authenticated E2E PASS.
+- **TESTS PENDING:** In sandbox owner session, test collinear 3-point ring, valid triangle, invalid coordinate, 100/101 corners, queue/draw/save/reload, Owner B denial, interrupted saves, mobile widths 320–2560, keyboard/touch/200% zoom. Also pending: property verification, booking/reviews/messaging and real UI Stripe TEST success/decline/3DS/refund. No test-mode payment IDs or screenshots obtained in this run.
+- **DEPLOYMENT:** Cloudflare Pages exact commit parity NOT VERIFIED. Coordinate Developer on server idempotency, Hunter QA on coordinate privacy, Designer on queue error announcements and responsive layout, Legal on map visibility. **NO-GO** pending runtime verification; main/live/production untouched.
