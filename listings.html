@@ -835,7 +835,7 @@
   function plotListings(list, preserveViewport = false) {
     allMarkers.forEach(m => huntMap.removeLayer(m));
     allMarkers = [];
-    const filtered = list.filter(l => currentFilter === 'all' || l.type === (currentFilter === 'hunt' ? 'hunting' : currentFilter === 'fish' ? 'fishing' : currentFilter));
+    const filtered = list.filter(l => currentFilter === 'all' || l.type === 'both' || l.type === (currentFilter === 'hunt' ? 'hunting' : currentFilter === 'fish' ? 'fishing' : currentFilter));
     const byState = {};
     filtered.forEach(l => {
       if (!byState[l.state]) byState[l.state] = {lat:l.lat, lng:l.lng, count:0};
