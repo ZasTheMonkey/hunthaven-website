@@ -286,6 +286,20 @@
 
     <!-- MY LISTING -->
     <div class="dash-panel active" id="dpanel-listing">
+      <div id="outfitter-listing-summary" style="border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.5rem;background:var(--color-surface-2)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap">
+          <h3 id="out-summary-title" style="font-family:var(--font-display);font-size:var(--text-lg);margin:0">Your Outfitter listing</h3>
+          <span id="out-summary-status" style="border-radius:99px;padding:.3rem .7rem;background:#fff3d8;color:#815700;font-size:.8rem;font-weight:700">Loading</span>
+        </div>
+        <p id="out-summary-location" style="color:var(--color-text-muted);margin:.5rem 0"></p>
+        <p id="out-summary-species" style="color:var(--color-text-muted);margin:.3rem 0"></p>
+        <p id="out-summary-price" style="font-weight:700;margin:.5rem 0"></p>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem">
+          <button type="button" id="out-edit-listing" onclick="toggleOutfitterListingEditor(true)" style="padding:.65rem 1rem;background:#a47b4c;color:white;border:0;border-radius:9px;font-weight:700">Edit</button>
+          <a id="out-view-listing" href="outfitters.html" style="padding:.65rem 1rem;border:1px solid var(--color-border);border-radius:9px;color:var(--color-primary);font-weight:700;text-decoration:none">View listing</a>
+        </div>
+      </div>
+      <div id="outfitter-listing-editor" hidden>
       <!-- Listing status bar -->
       <div id="listing-status-bar" style="margin-bottom:.75rem"></div>
 
@@ -351,6 +365,7 @@
         </div>
       </div>
 
+      </div>
       <!-- Platform Rules reminder -->
       <div class="profile-section">
         <h3>Platform Rules Reminder</h3>
@@ -893,6 +908,7 @@ tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;fi
         .eq('user_id', userId)
         .maybeSingle();
 
+      updateOutfitterSummary(data);
       if (data) {
         document.getElementById('lst-title').value = data.title || '';
         document.getElementById('lst-bio').value = data.bio || '';
@@ -1184,5 +1200,10 @@ tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;fi
   </script>
 
 
-</body>
+<script>
+function toggleOutfitterListingEditor(open){const editor=document.getElementById('outfitter-listing-editor');if(!editor)return;editor.hidden=!open;if(open)editor.scrollIntoView({behavior:'smooth',block:'start'})}
+function updateOutfitterSummary(data){const $=id=>document.getElementById(id);if(!data){$('out-summary-title').textContent='Create your first Outfitter listing';$('out-summary-status').textContent='Not published';$('out-view-listing').hidden=true;toggleOutfitterListingEditor(true);return}const status=data.status||'pending';$('out-summary-title').textContent=data.title||'Your Outfitter listing';$('out-summary-location').textContent=data.counties||'Florida';$('out-summary-species').textContent=Array.isArray(data.species)?data.species.join(', '):'';$('out-summary-price').textContent=data.price!=null?'From 
+</html>
++Number(data.price).toLocaleString()+' '+(data.price_label||''):'';$('out-summary-status').textContent=({active:'Live',pending:'Pending',inactive:'Taken down'})[status]||status;$('out-summary-status').style.background=status==='active'?'#e8f5e9':'#fff3d8';$('out-summary-status').style.color=status==='active'?'#2d7a3a':'#815700';$('out-view-listing').hidden=status!=='active';$('out-view-listing').href='outfitter-experience.html?id='+encodeURIComponent(data.user_id);toggleOutfitterListingEditor(false)}
+</script></body>
 </html>
