@@ -520,7 +520,7 @@
     }
 
     async function outfitterMembership(user) {
-      var result = await sb.from('portal_accounts').select('account_type,verification_status').eq('user_id', user.id).eq('account_type','outfitter').maybeSingle();
+      var result = await sb.from('portal_accounts').select('account_type,verification_status,email_verified_at').eq('user_id', user.id).eq('account_type','outfitter').maybeSingle();
       if (result.error) throw result.error;
       return result.data;
     }
@@ -537,6 +537,10 @@
         var membership = await outfitterMembership(data.user);
         if (!membership) {
           showAuthMsg('Your email is registered, but you have not created an Outfitter account. Choose Create Account to register this separate role with the same email and password.', 'error');
+          return;
+        }
+        if (!membership.email_verified_at) {
+          showAuthMsg('Your Outfitter profile exists, but its separate email confirmation is still pending. Check your inbox for the Outfitter activation email.', 'error');
           return;
         }
         loadDashboard(data.user);
@@ -606,7 +610,7 @@
         }
         var existing = await outfitterMembership(user);
         if (existing) {
-          showSignupMsg('Your independent Outfitter account already exists. Select Sign In to access it.', 'success');
+          showSignupMsg(existing.email_verified_at ? 'Your Outfitter account already exists. Select Sign In.' : 'Your Outfitter registration is pending email confirmation. Check your inbox for the activation link.', 'success');
           return;
         }
         var result = await sb.from('portal_accounts').insert({
@@ -615,9 +619,14 @@
           city: city, phone: phone, verification_status: 'pending'
         });
         if (result.error) { showSignupMsg('Unable to create Outfitter profile: ' + result.error.message, 'error'); return; }
+        var sent = await sb.functions.invoke('portal-account-activation', {body:{account_type:'outfitter'}});
+        if (sent.error || !sent.data || !sent.data.ok) {
+          showSignupMsg('Your Outfitter registration is saved, but the confirmation email could not be sent. Please contact support before trying again. ' + (sent.data?.error || sent.error?.message || ''), 'error');
+          return;
+        }
         doSwitchTab('signin');
         document.getElementById('si-email').value = email;
-        showAuthMsg('Outfitter account created under your existing email! Your profile is pending verification. Sign in here to access your Outfitter dashboard.', 'success');
+        showAuthMsg('Outfitter registration submitted. Check your email for a separate Outfitter activation link before signing in.', 'success');
       } catch (err) {
         showSignupMsg('Registration failed: ' + (err.message || 'Please try again.'), 'error');
       } finally {
@@ -970,9 +979,13 @@
     (async function() {
       try {
         var { data } = await sb.auth.getSession();
-        if (data && data.session && await outfitterMembership(data.session.user)) {
-          loadDashboard(data.session.user);
+        if (data && data.session) {
+          var membership = await outfitterMembership(data.session.user);
+          if (membership && membership.email_verified_at) loadDashboard(data.session.user);
         }
+        var activation = new URLSearchParams(window.location.search).get('activation');
+        if (activation === 'success') showAuthMsg('Outfitter email confirmed! Sign in to access your Outfitter account.', 'success');
+        else if (activation) showAuthMsg('Activation link expired or invalid. Please contact support for a new confirmation link.', 'error');
       } catch (err) {
         showAuthMsg('Could not load Outfitter account. Please sign in again.', 'error');
       }
