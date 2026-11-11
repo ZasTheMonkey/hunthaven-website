@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Outfitter Checkout | LeaseWild Sandbox</title><style>:root{font-family:system-ui,sans-serif;background:#101c16;color:#f6f5ee}*{box-sizing:border-box}body{margin:0}main{max-width:760px;margin:40px auto;padding:16px}a{color:#b6e1b9}.card{background:#1b2c22;border:1px solid #3a5844;border-radius:16px;padding:22px;margin:16px 0}button{border:0;background:#86b79a;color:#0e2418;border-radius:10px;padding:12px 16px;font:inherit;font-weight:700;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}input{padding:12px;border-radius:8px;width:100%;margin:6px 0 12px;font:inherit}p{line-height:1.5}.muted{color:#c1d1c5}</style></head><body><main><a href="outfitters.html">← All outfitters</a><h1>Outfitter checkout</h1><p>Stripe TEST mode only. Pay for an accepted request; this is not a live purchase.</p><section id="login" class="card"><h2>Sign in</h2><input id="email" type="email" autocomplete="email" placeholder="Account email"><input id="password" type="password" autocomplete="current-password" placeholder="Password"><button id="signin">Sign in</button></section><p id="message" role="status"></p><div id="requests"></div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="supabase-config.js"></script><script>
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),$=id=>document.getElementById(id);
+const say=s=>$('message').textContent=s;
+$('signin').onclick=async()=>{const {error}=await db.auth.signInWithPassword({email:$('email').value,password:$('password').value});if(error)return say(error.message);$('password').value='';await load()};
+async function load(){
+ const {data:{session}}=await db.auth.getSession();$('login').hidden=!!session;$('requests').replaceChildren();
+ if(!session)return say('Sign in to view your outfitter requests.');
+ const {data,error}=await db.from('outfitter_booking_requests').select('id,trip_date,guest_count,status,payment_status,amount_cents,stripe_checkout_session_id').eq('hunter_id',session.user.id).order('created_at',{ascending:false}).limit(50);
+ if(error)return say('Could not load requests: '+error.message);
+ say(new URLSearchParams(location.search).get('payment')==='success'?'Returned from Stripe. Payment status updates after webhook verification; refresh to confirm.':'Only accepted requests can be paid.');
+ if(!data?.length)return say('You have no outfitter booking requests.');
+ for(const item of data){
+  const card=document.createElement('article');card.className='card';
+  const title=document.createElement('h2');title.textContent='Trip '+new Date(item.trip_date+'T12:00:00').toLocaleDateString();card.append(title);
+  const summary=document.createElement('p');summary.textContent=item.guest_count+' guest(s) • '+item.status+' • '+(item.payment_status||'unpaid');card.append(summary);
+  if(item.payment_status==='paid'){const done=document.createElement('p');done.textContent='Payment confirmed (Stripe TEST mode).';card.append(done)}
+  else if(item.status==='accepted'){
+   if(item.stripe_checkout_session_id){const note=document.createElement('p');note.textContent='Checkout already started. Contact support if you need a new link.';card.append(note)}
+   else{
+    const button=document.createElement('button');button.textContent='Pay securely with Stripe TEST card';card.append(button);
+    button.onclick=async()=>{button.disabled=true;say('Starting test checkout…');const {data:{session:active}}=await db.auth.getSession();if(!active){say('Sign in again.');button.disabled=false;return}
+    try{const res=await fetch(SUPABASE_URL+'/functions/v1/sandbox-outfitter-checkout',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+active.access_token},body:JSON.stringify({request_id:item.id})});const body=await res.json();if(!res.ok||!body.url)throw Error(body.error||'Checkout unavailable');location.assign(body.url)}catch(e){say(e.message);button.disabled=false}};
+   }
+  }
+  $('requests').append(card);
+ }
+}
+load();
+</script></body></html>
