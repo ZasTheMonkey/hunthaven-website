@@ -516,7 +516,7 @@
 
     function showAuthMsg(txt, type) {
       var el = document.getElementById('auth-msg');
-      el.textContent = txt; el.className = 'msg-box ' + type;
+      el.textContent = txt; el.className = 'msg-box ' + type; el.style.display = 'block';
     }
 
     async function outfitterMembership(user) {
@@ -593,7 +593,7 @@
           });
           if (signup.error) { showSignupMsg(signup.error.message, 'error'); return; }
           if (!signup.data.session) {
-            showSignupMsg('If this email is new, confirm it first, then return to Create Account with the same credentials. If you already use LeaseWild, enter your existing password.', 'success');
+            showSignupMsg('No Outfitter account has been created yet. If this is a new email, check your inbox for a confirmation link. If you already have a Hunter or Landowner account, use that account’s exact password here; reset it first if necessary.', 'error');
             return;
           }
           user = signup.data.user;
