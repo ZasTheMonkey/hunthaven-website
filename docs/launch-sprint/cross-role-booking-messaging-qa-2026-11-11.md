@@ -14,3 +14,11 @@ Hunter→Landowner; Landowner→Hunter; Hunter→Outfitter; Outfitter→Hunter; 
 
 ## Current status
 NOT TESTED in this coordination pass: authenticated cross-role UI messaging and booking journeys. This document is a task assignment, not evidence of passing tests.
+
+## Immediate execution — fresh read-only sandbox checks
+- PASS: All four existing QA automation run-now requests were accepted, but returned `Ready to run in this conversation` / inline execution, **not** independently completed background bot runs.
+- PASS: Verified project `kbkdfpmlyggfijkyjxoi` sandbox tables: `booking_conversations` 4 rows, `booking_messages` 6 rows, `outfitter_booking_requests` 2 rows, `sandbox_threads` 0 rows, `sandbox_thread_messages` 0 rows. These are historical records, not fresh delivered-message proof.
+- PASS (static policy review): `booking_messages` SELECT/INSERT policies restrict to conversation participants, sender ID must equal `auth.uid()`, and require `leasewild_sandbox_conversation_active`. `booking_conversations` SELECT similarly restricts participants; `outfitter_booking_requests` INSERT checks authenticated hunter, valid date and active outfitter; SELECT restricts hunter or outfitter. This is **not** a verified impersonation/negative-case test.
+- REVIEW: No `outfitter_id` or `request_id` column exists in the inspected `booking_conversations` or `sandbox_threads` schemas. Outfitter message linkage and its UI path need explicit Designer/Hunter QA verification; do not assume outfitter↔hunter messaging works.
+- NOT TESTED: Authenticated synthetic hunter↔landowner and hunter↔outfitter message delivery, booking state transitions, persistence, unread counters, notification dispatch, privacy negative tests, UI mobile rendering, deletion/retention, and cleanup. No synthetic user credentials or browser session were provisioned in this run; no real records were altered.
+- Handoff: provision dedicated sandbox-only identities through approved Auth flow and run the complete matrix; record actual fixture IDs, redacted evidence and cleanup before PASS. Avoid test assertions using admin/service-role bypass, which would not exercise RLS.
