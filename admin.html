@@ -6,7 +6,7 @@
 <main><h1>Listing approvals</h1><p class="muted">Review landowner and outfitter submissions. Changes affect sandbox listings only.</p>
 <p id="notice" role="status" aria-live="polite"></p>
 <section id="auth"><h2>Admin sign in</h2><form id="login"><label for="email">Admin email</label><input id="email" type="email" autocomplete="username" required><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><p><button type="submit">Sign in</button></p></form><p class="muted">Invited to the admin team? <a href="#activate" id="activate-link">Activate your admin account</a></p><form id="activate-form" hidden><h3>Activate admin access</h3><p class="muted">Use the email address your invitation was sent to. Verify your email before signing in.</p><label for="invite-email">Invited email</label><input id="invite-email" type="email" autocomplete="email" required><label for="invite-password">Choose a password (at least 12 characters)</label><input id="invite-password" type="password" autocomplete="new-password" minlength="12" required><p><button type="submit">Create my admin login</button></p><p><a href="#signin" id="signin-link">Back to sign in</a></p></form></section>
-<section id="dashboard"><div class="filters" role="group" aria-label="Listing status filter"><button data-filter="pending" aria-pressed="true">Pending</button><button data-filter="active" aria-pressed="false">Active</button><button data-filter="inactive" aria-pressed="false">Inactive</button><button data-filter="all" aria-pressed="false">All</button><button id="refresh" class="secondary">Refresh</button></div><p id="count"></p><h2>Landowner listings</h2><div id="landowners" class="grid"></div><h2>Outfitter listings</h2><div id="outfitters" class="grid"></div></section></main>
+<section id="dashboard"><div class="filters" role="group" aria-label="Listing status filter"><button data-filter="pending" aria-pressed="true">Pending</button><button data-filter="active" aria-pressed="false">Active</button><button data-filter="inactive" aria-pressed="false">Inactive</button><button data-filter="all" aria-pressed="false">All</button><button id="refresh" class="secondary">Refresh</button></div><p id="count"></p><h2>Landowner listings</h2><div id="landowners" class="grid"></div><h2>Outfitter listings</h2><div id="outfitters" class="grid"></div><section><h2>ID verification</h2><p class="muted">Sensitive documents are private and available to authorized reviewers only.</p><button id="load-identities" class="secondary">Refresh ID submissions</button><div id="identity-list" class="grid" style="margin-top:14px"></div></section></section></main>
 <script>
 'use strict';
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
@@ -20,7 +20,7 @@ function render(){let count=0;for(const [kind,element] of [['landowners','landow
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));render();}));
 document.getElementById('refresh').addEventListener('click',load);
 dashboard.addEventListener('click',async e=>{const b=e.target.closest('button[data-status]');if(!b||busy)return;const {kind,id,status}=b.dataset;if(!confirm((status==='active'?'Approve':'Reject / deactivate')+' this '+(kind==='outfitters'?'outfitter':'landowner')+' listing?'))return;busy=true;b.disabled=true;try{const {data,error}=await db.rpc('admin_set_listing_status',{p_kind:kind==='outfitters'?'outfitter':'landowner',p_id:id,p_status:status});if(error)throw error;if(!data)throw Error('No listing changed; refresh and try again.');say('Listing updated.');}catch(err){say('Could not update listing: '+err.message);}finally{busy=false;await load();}});
-document.getElementById('login').addEventListener('submit',async e=>{e.preventDefault();say('Signing in…');const {error}=await db.auth.signInWithPassword({email:document.getElementById('email').value,password:document.getElementById('password').value});document.getElementById('password').value='';if(error){say('Sign in failed: '+error.message);return;}showSignedIn(true);await load();});
+document.getElementById('login').addEventListener('submit',async e=>{e.preventDefault();say('Signing in…');const {error}=await db.auth.signInWithPassword({email:document.getElementById('email').value,password:document.getElementById('password').value});document.getElementById('password').value='';if(error){say('Sign in failed: '+error.message);return;}showSignedIn(true);await load();await loadIdentities();});
 const activateForm=document.getElementById('activate-form');
 function toggleActivation(open){activateForm.hidden=!open;document.getElementById('login').hidden=open;document.getElementById('activate-link').parentElement.hidden=open;}
 document.getElementById('activate-link').addEventListener('click',e=>{e.preventDefault();toggleActivation(true);});
@@ -28,6 +28,29 @@ document.getElementById('signin-link').addEventListener('click',e=>{e.preventDef
 const inviteEmail=new URLSearchParams(location.search).get('invite');
 if(inviteEmail){document.getElementById('invite-email').value=inviteEmail;toggleActivation(true);}
 activateForm.addEventListener('submit',async e=>{e.preventDefault();const email=document.getElementById('invite-email').value.trim().toLowerCase();const password=document.getElementById('invite-password').value;const allowed=['noah.safranski@leasewild.com','aidan.martin@leasewild.com'];if(!allowed.includes(email)){say('This email has not been invited. Contact the LeaseWild administrator.');return;}say('Creating account…');const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:location.origin+'/admin.html'}});document.getElementById('invite-password').value='';if(error){say('Account activation failed: '+error.message);return;}if(data.session){await db.auth.signOut();}say('Check your inbox for the verification link, then return here and sign in. Check spam if needed.');toggleActivation(false);document.getElementById('email').value=email;});
+
+async function loadIdentities(){
+const target=document.getElementById('identity-list');target.textContent='Loading verification submissions…';
+const {data,error}=await db.from('identity_verification_submissions').select('id,user_id,document_path,document_type,status,created_at,reviewed_at').order('created_at',{ascending:false}).limit(100);
+if(error){target.textContent='Unable to load ID submissions: '+error.message;return;}
+target.replaceChildren();
+if(!data.length){target.textContent='No ID verification submissions yet.';return;}
+for(const item of data){
+const card=document.createElement('article');card.className='card';
+const title=document.createElement('h3');title.textContent=item.document_type+' — '+item.status;card.append(title);
+const who=document.createElement('p');who.textContent='Account: '+item.user_id;card.append(who);
+const date=document.createElement('p');date.className='muted';date.textContent=new Date(item.created_at).toLocaleString();card.append(date);
+const open=document.createElement('button');open.className='secondary';open.textContent='View document securely';
+open.addEventListener('click',async()=>{const {data:signed,error:err}=await db.storage.from('identity-verification').createSignedUrl(item.document_path,60);if(err){say('Unable to view ID: '+err.message);return;}window.open(signed.signedUrl,'_blank','noopener,noreferrer');});
+card.append(open);
+if(item.status==='pending'){for(const [label,status] of [['Approve','approved'],['Reject','rejected']]){
+const btn=document.createElement('button');btn.textContent=label;btn.className=status==='rejected'?'danger':'';
+btn.style.margin='8px 6px 0 0';btn.addEventListener('click',async()=>{const notes=prompt('Optional review notes (do not copy ID numbers):')??'';if(!confirm(label+' this identity verification?'))return;btn.disabled=true;const {data:ok,error:err}=await db.rpc('admin_review_identity_verification',{p_id:item.id,p_status:status,p_notes:notes});if(err||!ok)say('Review failed: '+(err?.message||'Submission already reviewed'));else say('Verification '+status+'.');await loadIdentities();});card.append(btn);
+}}
+target.append(card);
+}
+}
+document.getElementById('load-identities').addEventListener('click',loadIdentities);
 document.getElementById('logout').addEventListener('click',async()=>{await db.auth.signOut();showSignedIn(false);records={landowners:[],outfitters:[]};say('Signed out.');});
-(async()=>{const {data}=await db.auth.getSession();showSignedIn(Boolean(data.session));if(data.session)await load();})();
+(async()=>{const {data}=await db.auth.getSession();showSignedIn(Boolean(data.session));if(data.session){await load();await loadIdentities();}})();
 </script></body></html>
