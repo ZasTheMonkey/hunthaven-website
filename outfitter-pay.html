@@ -7,7 +7,7 @@ async function load(){
  if(!session)return say('Sign in to view your outfitter requests.');
  const {data,error}=await db.from('outfitter_booking_requests').select('id,trip_date,guest_count,status,payment_status,amount_cents,stripe_checkout_session_id').eq('hunter_id',session.user.id).order('created_at',{ascending:false}).limit(50);
  if(error)return say('Could not load requests: '+error.message);
- say(new URLSearchParams(location.search).get('payment')==='success'?'Returned from Stripe. Payment status updates after webhook verification; refresh to confirm.':'Only accepted requests can be paid.');
+ say(new URLSearchParams(location.search).get('payment')==='success'?'Returned from Stripe. Payment status updates after webhook verification; refresh to confirm.':'Select an accepted request below to start Stripe TEST checkout.');
  if(!data?.length)return say('You have no outfitter booking requests.');
  for(const item of data){
   const card=document.createElement('article');card.className='card';
@@ -18,8 +18,21 @@ async function load(){
    if(item.stripe_checkout_session_id){const note=document.createElement('p');note.textContent='Checkout already started. Contact support if you need a new link.';card.append(note)}
    else{
     const button=document.createElement('button');button.textContent='Pay securely with Stripe TEST card';card.append(button);const notice=document.createElement('p');notice.className='muted';notice.textContent='SANDBOX ONLY: If the outfitter has not connected Stripe, this payment is processed as a platform-held test charge with no outfitter payout. Never use a real card.';card.append(notice);
-    button.onclick=async()=>{button.disabled=true;say('Starting test checkout…');const {data:{session:active}}=await db.auth.getSession();if(!active){say('Sign in again.');button.disabled=false;return}
-    try{const res=await fetch(SUPABASE_URL+'/functions/v1/sandbox-outfitter-checkout',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+active.access_token},body:JSON.stringify({request_id:item.id})});const body=await res.json();if(!res.ok||!body.url)throw Error(body.error||'Checkout unavailable');location.assign(body.url)}catch(e){say(e.message);button.disabled=false}};
+    button.onclick=async()=>{
+     button.disabled=true;say('Starting test checkout…');
+     try{
+      // Refresh the JWT before invoking the authenticated Edge Function. A cached
+      // Safari session may still render requests while its access token has expired.
+      const {data:refreshed,error:refreshError}=await db.auth.refreshSession();
+      const active=refreshed?.session;
+      if(refreshError||!active?.access_token){await db.auth.signOut();await load();throw Error('Your session expired. Please sign in again before paying.')}
+      const res=await fetch(SUPABASE_URL+'/functions/v1/sandbox-outfitter-checkout',{method:'POST',headers:{'Content-Type':'application/json',apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+active.access_token},body:JSON.stringify({request_id:item.id})});
+      const body=await res.json().catch(()=>({}));
+      if(res.status===401){await db.auth.signOut();await load();throw Error('Your login expired. Sign in again and retry checkout.')}
+      if(!res.ok||!body.url)throw Error(body.error||'Checkout unavailable (HTTP '+res.status+')');
+      location.assign(body.url);
+     }catch(e){say(e.message);button.disabled=false}
+    };
    }
   }
   $('requests').append(card);
