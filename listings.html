@@ -623,7 +623,7 @@
     var filtered = allListings.filter(function(l) {
       var type  = getType(l);
       var acres = parseAcres(l.acreage);
-      var spp   = (l.activities||[]).join(',');
+      var spp   = Array.isArray(l.activities) ? l.activities.join(',') : (typeof l.activities === 'string' ? l.activities : '');
       var okType   = _ftype==='all' ||
         (_ftype==='hunting' && (type==='hunting' || type==='both')) ||
         (_ftype==='fishing' && (type==='fishing' || type==='both')) ||
