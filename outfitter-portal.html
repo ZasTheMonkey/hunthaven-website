@@ -200,10 +200,6 @@
         <input type="password" id="su-pass" placeholder="Min 8 chars + 1 special character" autocomplete="new-password" />
       </div>
 
-      <div class="agree-row" style="margin-bottom:1rem">
-        <input type="checkbox" id="su-existing-login" />
-        <label for="su-existing-login">I already have a LeaseWild Hunter or Landowner login and want to create a separate Outfitter account using the same email and password.</label>
-      </div>
       <!-- Business info -->
       <div class="field"><label>Business / Guide Name *</label><input type="text" id="su-business" placeholder="Smith Guide Service" /></div>
       <div class="field">
@@ -575,23 +571,21 @@
       if (!document.getElementById('su-agree-platform').checked || !document.getElementById('su-agree-terms').checked) {
         showSignupMsg('Please accept both agreements.', 'error'); return;
       }
-      if (!document.getElementById('su-existing-login').checked && (pass.length < 8 || !/[^A-Za-z0-9]/.test(pass))) {
-        showSignupMsg('Password must be at least 8 characters and include a special character.', 'error'); return;
+      if (pass.length < 8) {
+        showSignupMsg('Password must be at least 8 characters.', 'error'); return;
       }
       var btn = document.getElementById('su-btn');
       btn.disabled = true; btn.textContent = 'Creating account…';
       try {
-        // Registration is explicit. Signing in never enrolls a new role.
-        var existingLogin = document.getElementById('su-existing-login').checked;
+        // Every portal profile requires explicit registration, regardless of whether
+        // the email already belongs to a different LeaseWild portal.
         var user;
-        if (existingLogin) {
-          var login = await sb.auth.signInWithPassword({ email: email, password: pass });
-          if (login.error || !login.data.user) {
-            showSignupMsg('Could not verify your existing LeaseWild login. Use the same email and password as your Hunter/Landowner account, or reset your password first. No Outfitter account was created.', 'error');
-            return;
-          }
+        var login = await sb.auth.signInWithPassword({ email: email, password: pass });
+        if (!login.error && login.data.user) {
           user = login.data.user;
         } else {
+          // Supabase does not reveal whether an email exists. Attempt new-user signup,
+          // but never treat an obfuscated repeated signup as successful registration.
           var signup = await sb.auth.signUp({
             email: email, password: pass,
             options: {
@@ -600,8 +594,12 @@
             }
           });
           if (signup.error) { showSignupMsg(signup.error.message, 'error'); return; }
-          if (!signup.data.session || !signup.data.user || !signup.data.user.identities || !signup.data.user.identities.length) {
-            showSignupMsg('No Outfitter profile was created. If this email is new, confirm the email and return to complete registration. If you already have a LeaseWild login, check the existing-account box above and use that password.', 'error');
+          if (!signup.data.user || !signup.data.user.identities || !signup.data.user.identities.length) {
+            showSignupMsg('This email may already have a LeaseWild login. Enter its existing password (or reset it using Sign In). No Outfitter account was created.', 'error');
+            return;
+          }
+          if (!signup.data.session) {
+            showSignupMsg('Please confirm your new email, then return and submit this Outfitter registration again. No Outfitter profile has been created yet.', 'success');
             return;
           }
           user = signup.data.user;
