@@ -2555,11 +2555,11 @@
     var iconM  = document.getElementById('mob-icon-messages');
     if (!label) return;
     if (loggedIn) {
-      label.textContent = 'Messages';
-      if (iconL) iconL.style.display = 'none';
-      if (iconM) iconM.style.display = '';
+      label.textContent = 'Account';
+      if (iconL) iconL.style.display = '';
+      if (iconM) iconM.style.display = 'none';
     } else {
-      label.textContent = 'Sign In';
+      label.textContent = 'Account';
       if (iconL) iconL.style.display = '';
       if (iconM) iconM.style.display = 'none';
     }
@@ -2635,11 +2635,11 @@
           if (!session) { window.location.href = 'guest-portal.html'; return; }
           _sb.from('listings').select('id').eq('email', session.user.email).limit(1).then(function(r) {
             window.location.href = (r.data && r.data.length > 0)
-              ? 'landowner-portal.html?tab=messages'
-              : 'guest-portal.html?tab=messages';
+              ? 'landowner-portal.html'
+              : 'guest-portal.html';
           });
         });
-      } catch(e) { window.location.href = 'guest-portal.html?tab=messages'; }
+      } catch(e) { window.location.href = 'guest-portal.html'; }
     } else {
       // Not logged in — go to login
       window.location.href = 'guest-portal.html';
