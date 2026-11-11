@@ -119,3 +119,9 @@ These are proposed identifiers, **not verified Auth users**. Gmail plus-addressi
 - **FIX:** Trail-specific status guidance now says `Trail point added ... of at least 2` and `Trail traced ... Review the route`; hunting polygon messages remain unchanged. Staging commit `ede6bae2486c679e1193f8013f13eebfeb0dc8ec`.
 - **PASS:** Staging source replacement committed. **NOT TESTED:** Browser/assistive-technology announcement, responsive widths, real authenticated drawing/save/reload, Cloudflare deployment of this commit, property verification, reviews, bookings, messaging, Stripe TEST mode.
 - **Coordination:** Design bot to review mobile/live-region clarity; developer bot to verify no other trail UI assumes 3 points; hunter QA to verify private zones remain hidden from hunters. No production or main access.
+
+## Landowner QA — 2026-11-10 20:18 EST
+- **FAIL (source-level usability/accessibility):** Selecting Trail still exposed the generic `Draw boundary` action and boundary-only drawing instructions, including during active trail tracing. The previous trail point-count wording fix did not address the drawing controls.
+- **FIX:** `sandbox-zone-editor.html` now uses `Draw trail`, trail-specific tracing/help/status messages when Trail is selected, and restores `Draw boundary` for hunting polygons. Staging-only commit `c9d4f62211e035db7e75203e0af5c486b9031410`.
+- **PASS:** GitHub staging commit accepted. **NOT TESTED:** browser keyboard/assistive-tech announcements, authenticated drawing/save/reload, touch, viewport matrix, property verification, booking/messaging/reviews, Stripe TEST mode. **NOT VERIFIED:** Cloudflare deployment of this exact SHA.
+- **Coordination:** Design/developer QA should test type-switching, trail drawing and live status announcements at 320–2560px; hunter QA should confirm access routes are never exposed to unauthorized hunters. No main/live/prod resources touched.
