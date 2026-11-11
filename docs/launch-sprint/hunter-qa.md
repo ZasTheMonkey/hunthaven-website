@@ -238,3 +238,12 @@ Attempted to read `docs/launch-sprint/hunter-qa.md`, `landowner-qa.md`, `develop
 - **BLOCKED (runtime):** Hunter/owner cross-role E2E, booking/cancellation, Stripe TEST checkout/refund/webhook, reviews and RLS negative tests still require isolated secure Auth sessions and payment fixtures. No production or personal accounts accessed.
 - **NOT TESTED:** Responsive 320/375/390/430/768/1024/1280/1440/1920/2560px, touch, keyboard, 200% zoom and screen-reader execution.
 - **NO-GO production:** Live site, main, production Supabase and live Stripe untouched.
+
+
+## 2026-11-10 21:15 ET — Owner inbox recovery parity (Hunter QA)
+- **FIX (staging source):** `sandbox-messaging-bridge.js` commit `f7ded99cd242dbcca95a7386e085db4f6aa435c8` adds a native Retry loading conversations button to landowner inbox error handling, matching hunter recovery. Uses `textContent` for error details and reuses `loadLoThreads(loCurrentUserEmail)`; does not change authentication, database, or payments.
+- **PASS (static):** Source inspection identified owner inbox error path without retry; fix was applied with exact-pattern guard and committed. Runtime keyboard/screen-reader behavior **NOT TESTED**.
+- **NOT VERIFIED:** Cloudflare deployment of this exact commit and browser execution; no deployment parity claim.
+- **BLOCKED (sandbox runtime):** Secure isolated synthetic hunter/landowner auth sessions and Stripe TEST fixtures remain unavailable to this execution. Checkout, webhook/refund, cancellations, completed-booking reviews, messaging and cross-role privacy denial tests not performed. Authorization is granted; runtime provisioning is missing.
+- **NOT TESTED:** 320/375/390/430/768/1024/1280/1440/1920/2560 widths, touch, keyboard, zoom, screen reader. No browser harness executed.
+- **NO-GO:** Production release remains gated. No main/live site, production Supabase, live Stripe, real customer accounts or personal sessions touched.
