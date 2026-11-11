@@ -641,12 +641,22 @@
           pill.textContent=paid?'Paid (Stripe TEST)':trip.status==='accepted'?'Accepted · payment pending':trip.status;
           pill.style.cssText='background:'+(paid?'#247343':trip.status==='declined'?'#b83232':'#86631d')+';color:white';top.append(pill);card.append(top);
           var details=document.createElement('p');details.style.cssText='margin:.65rem 0;overflow-wrap:anywhere';
-          details.textContent=trip.guest_count+' guest(s) · '+(trip.amount_cents!=null?'
-      container.innerHTML = '<p style="color:var(--color-danger);text-align:center;padding:1.5rem">Error loading bookings.</p>';
+          details.textContent=trip.guest_count+' guest(s) · '+(trip.amount_cents!=null?'$'+(Number(trip.amount_cents)/100).toFixed(2):'Amount confirmed at checkout');
+          card.append(details);
+          if(trip.status==='accepted'&&!paid){
+            var link=document.createElement('a');link.href='outfitter-pay.html';link.textContent='Pay with Stripe TEST card';link.style.cssText='color:var(--color-accent);font-weight:700';card.append(link);
+          }
+          section.append(card);
+        });
+        container.prepend(section);
+      }
+    } catch(e) {
+      console.error('Booking load failed',e);
+      container.textContent='Error loading bookings. Please refresh and try again.';
     }
   }
 
-  async function payApprovedBooking(id) {
+    async function payApprovedBooking(id) {
     try {
       var {data:{session}} = await sb.auth.getSession();
       if (!session) throw new Error('Sign in first');
