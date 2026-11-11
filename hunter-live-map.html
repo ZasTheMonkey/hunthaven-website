@@ -9,7 +9,16 @@
 (function(){
  const status=document.getElementById('status'),start=document.getElementById('start'),stop=document.getElementById('stop'),center=document.getElementById('center');
  if(!window.maplibregl){status.textContent='Map could not load. Check your connection and reload.';start.disabled=true;return;}
+ const fallbackStyle={version:8,sources:{'osm-fallback':{type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OpenStreetMap contributors'}},layers:[{id:'osm-fallback',type:'raster',source:'osm-fallback'}]};
  const map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:[-81.1,28.9],zoom:8});
+ let fallback=false,styleReady=false;
+ function activateFallback(){
+  if(fallback)return;
+  fallback=true;loaded=false;styleReady=false;
+  status.textContent='Using backup map tiles. Location tracking remains available.';
+  map.setStyle(fallbackStyle);
+ }
+ const fallbackTimer=setTimeout(()=>{if(!styleReady)activateFallback();},9000);
  map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
  let watch=null,first=true,last=null,accuracyMeters=null,loaded=false;
  function circleGeo(lng,lat,radius){
@@ -23,8 +32,8 @@
   map.getSource('hunter-point').setData(dotGeo());
   map.getSource('hunter-accuracy').setData(last?circleGeo(last[1],last[0],accuracyMeters):{type:'FeatureCollection',features:[]});
  }
- map.on('load',function(){
-  loaded=true;
+ map.on('style.load',function(){
+  loaded=true;styleReady=true;clearTimeout(fallbackTimer);
   map.addSource('hunter-accuracy',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
   map.addLayer({id:'hunter-accuracy-fill',type:'fill',source:'hunter-accuracy',paint:{'fill-color':'#1a6bdf','fill-opacity':0.12}});
   map.addLayer({id:'hunter-accuracy-outline',type:'line',source:'hunter-accuracy',paint:{'line-color':'#1a6bdf','line-width':2}});
@@ -32,7 +41,12 @@
   map.addLayer({id:'hunter-point-dot',type:'circle',source:'hunter-point',paint:{'circle-radius':9,'circle-color':'#1a6bdf','circle-stroke-color':'#ffffff','circle-stroke-width':3}});
   draw();
  });
- map.on('error',()=>{if(!loaded)status.textContent='Map tiles may be unavailable. Check your connection.';});
+ map.on('error',function(event){
+  // Style/network errors may happen even when the map can render. Only fall back
+  // if the primary style never loaded; never overwrite an active GPS status.
+  if(!styleReady&&!fallback)activateFallback();
+  else if(fallback&&!loaded)status.textContent='Both map providers failed to load. Check your connection and retry.';
+ });
  function reset(message){if(watch!==null){navigator.geolocation.clearWatch(watch);watch=null;}last=null;accuracyMeters=null;first=true;draw();start.disabled=false;stop.disabled=true;center.disabled=true;status.textContent=message;}
  function error(e){reset(e.code===1?'Location permission denied. Enable browser location access to retry.':e.code===2?'Location unavailable. Check device location services.':'Location timed out. Try again outdoors.');}
  start.addEventListener('click',function(){
