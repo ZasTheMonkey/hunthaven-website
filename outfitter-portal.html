@@ -410,13 +410,14 @@ tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;fi
 })();
 </script>
     </div>
+    <!-- MESSAGES -->
+    <div class="dash-panel" id="dpanel-messages">
     <!-- OUTFITTER BOOKING CONVERSATIONS: distinct from landowner message threads -->
     <section id="outfitter-booking-inbox" style="display:none;padding:16px 0" aria-label="Outfitter booking messages">
       <h3 style="margin:0 0 12px">Outfitter trip conversations</h3>
       <div id="outfitter-booking-inbox-list" role="status">Loading conversations…</div>
     </section>
-        <!-- MESSAGES -->
-    <div class="dash-panel" id="dpanel-messages">
+    
       <div id="thread-list-view">
         <div class="thread-list" id="thread-list"><div class="empty-state"><p>No messages yet.</p></div></div>
       </div>
