@@ -210,6 +210,11 @@
   <!-- DASHBOARD (shown after login) -->
   <div class="portal-card" id="dashboard" style="max-width:560px">
     <div class="dash-header">
+<div class="lw-dash-menu">
+<button type="button" class="lw-dash-menu-button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="lw-dash-menu-links" onclick="(function(b){const m=document.getElementById('lw-dash-menu-links');const open=m.hidden;b.setAttribute('aria-expanded',String(open));b.setAttribute('aria-label',open?'Close navigation menu':'Open navigation menu');m.hidden=!open})(this)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+<nav id="lw-dash-menu-links" class="lw-dash-menu-links" aria-label="Account navigation" hidden>
+<a href="index.html">Home</a><a href="listings.html">Browse land</a><a href="index.html?activity=hunt#listings-section">Hunting</a><a href="index.html?activity=fish#listings-section">Fishing</a><a href="guest-portal.html">Hunter account</a><a href="landowner-portal.html">Landowner account</a><a href="hunter-live-map.html">My live map</a>
+</nav></div>
       <div>
         <a href="index.html" class="logo-row" style="margin-bottom:.5rem">
           <svg width="28" height="28" viewBox="0 0 38 38" fill="none"><polyline points="4,9 11,29 19,15 27,29 34,9" fill="none" stroke="#c17f3a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="19" cy="10" rx="3.5" ry="5" fill="#2d5a27" transform="rotate(-5,19,10)"/></svg>
