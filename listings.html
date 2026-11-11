@@ -657,19 +657,27 @@
     // Clear stale results immediately; failed refreshes must not advertise old inventory.
     allListings = [];
     grid.replaceChildren();
+    // Keep the loading indicator attached: replaceChildren() previously detached it.
+    if (loadingEl) { grid.appendChild(loadingEl); loadingEl.style.display = 'block'; }
     if (typeof updateMapWithRealListings === 'function') updateMapWithRealListings([]);
-    if (loadingEl) loadingEl.style.display = 'block';
     document.getElementById('filter-empty').style.display = 'none';
     setListingsStatus('Loading available properties.');
 
-    var { data, error } = await sbClient
-      .from('listings')
-      .select('id,created_at,status,state,county,acreage,pricing_type,price_per_day,max_guests,cleaning_fee,min_stay,activities,description,photo_urls,allow_out_of_state,video_url,num_beds,deer_activity,hogs_active,trail_cam_date')
-      .eq('status','active')
-      .order('created_at', { ascending: false });
-
-    if (loadingEl) loadingEl.style.display = 'none';
-    grid.setAttribute('aria-busy', 'false');
+    var data, error;
+    try {
+      var response = await sbClient
+        .from('listings')
+        .select('id,created_at,status,state,county,acreage,pricing_type,price_per_day,max_guests,cleaning_fee,min_stay,activities,description,photo_urls,allow_out_of_state,video_url,num_beds,deer_activity,hogs_active,trail_cam_date')
+        .eq('status','active')
+        .order('created_at', { ascending: false });
+      data = response.data;
+      error = response.error;
+    } catch (networkError) {
+      error = networkError;
+    } finally {
+      if (loadingEl) loadingEl.style.display = 'none';
+      grid.setAttribute('aria-busy', 'false');
+    }
 
     if (error) {
       showListingsMessage('We could not load properties. Check your connection and try again.', true);
