@@ -2857,5 +2857,16 @@
       try{window.dispatchEvent(new CustomEvent('leasewild:growth',{detail:{event:name,page:'home'}}));}catch(e){}
     });
   </script>
+<script>
+/* Honor hunting/fishing destinations from the shared signed-in mobile nav. */
+window.addEventListener('load',function(){
+ const activity=new URLSearchParams(location.search).get('activity');
+ if(activity==='hunt'||activity==='fish'){
+   if(typeof filterCards==='function')filterCards(activity);
+   const target=document.getElementById('listings-section');
+   if(target)target.scrollIntoView({block:'start'});
+ }
+});
+</script>
 </body>
 </html>
