@@ -12,7 +12,7 @@ async function load(){
  for(const item of data){
   const card=document.createElement('article');card.className='card';
   const title=document.createElement('h2');title.textContent='Trip '+new Date(item.trip_date+'T12:00:00').toLocaleDateString();card.append(title);
-  const summary=document.createElement('p');summary.textContent=item.guest_count+' guest(s) • '+item.status+' • '+(item.payment_status||'unpaid');card.append(summary);
+  const summary=document.createElement('p');summary.textContent=item.guest_count+' guest(s) • '+item.status+' • '+(item.payment_status||'unpaid');card.append(summary);const amount=Number(item.amount_cents);const price=document.createElement('p');price.className='muted';price.textContent=Number.isSafeInteger(amount)&&amount>=0?'Recorded request amount: '+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(amount/100)+'. Review the final total and any applicable taxes in Stripe before paying.':'Price not yet confirmed. Review the final total in Stripe before paying.';card.append(price);
   if(item.payment_status==='paid'){const done=document.createElement('p');done.textContent='Payment confirmed (Stripe TEST mode).';card.append(done)}
   else if(item.status==='accepted'){
    if(item.stripe_checkout_session_id){const note=document.createElement('p');note.textContent='Checkout already started. Contact support if you need a new link.';card.append(note)}
