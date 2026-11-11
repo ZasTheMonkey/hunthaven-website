@@ -501,7 +501,7 @@
       var msg = document.getElementById('auth-msg');
       if (msg) msg.style.display = 'none';
     }
-    var sb = supabase.createClient('https://teohfzegpoxzimfsmviy.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw');
+    var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     var currentUser = null;
     var currentConvId = null;
     var msgPollTimer = null;
@@ -572,7 +572,7 @@
         email, password: pass,
         options: {
           data: { full_name: first+' '+last, first_name: first, last_name: last, phone, role: 'outfitter', business_name: business, outfitter_type: type, license_number: license, city },
-          emailRedirectTo: 'https://leasewild.com/outfitter-portal.html'
+          emailRedirectTo: 'https://leasewild-sandbox.pages.dev/outfitter-portal.html'
         }
       });
       btn.disabled = false; btn.textContent = 'Create Outfitter Account';
@@ -584,7 +584,7 @@
     async function resetPassword() {
       var email = document.getElementById('si-email').value.trim();
       if (!email) { showAuthMsg('Enter your email first.','error'); return; }
-      await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://leasewild.com/outfitter-portal.html' });
+      await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://leasewild-sandbox.pages.dev/outfitter-portal.html' });
       showAuthMsg('Password reset email sent — check your inbox.','success');
     }
 
@@ -979,7 +979,7 @@
 
   <script>
   var _outPromoType = 'percent';
-  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlb2hmemVncG94emltZnNtdml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NjU3NTQsImV4cCI6MjA5MjA0MTc1NH0.9AVp5qsV8MFLhRtYuMkgybubLBX7-lA_VC-hyA5HYRw';
+  var SUPABASE_ANON = SUPABASE_ANON_KEY;
 
   function openOutPromoModal() {
     document.getElementById('out-promo-modal').style.display = 'flex';
