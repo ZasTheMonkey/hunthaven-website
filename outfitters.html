@@ -316,7 +316,7 @@
  if(!root)return;
  function notice(text){root.replaceChildren();const p=document.createElement('p');p.style.color='var(--color-text-muted)';p.textContent=text;root.appendChild(p)}
  const timeout=setTimeout(()=>notice('The directory is taking too long to load. Please try again.'),12000);
- const url='https://kbkdfpmlyggfijkyjxoi.supabase.co/rest/v1/outfitter_listings?select=title,bio,price,price_label,counties,species,photos&status=eq.active&order=updated_at.desc&limit=60';
+ const url='https://kbkdfpmlyggfijkyjxoi.supabase.co/rest/v1/outfitter_listings?select=user_id,title,bio,price,price_label,counties,species,photos&status=eq.active&order=updated_at.desc&limit=60';
  const key='sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
  fetch(url,{headers:{'apikey':key,'Accept':'application/json'},cache:'no-store'}).then(async r=>{if(!r.ok)throw Error('Directory request '+r.status);return r.json()}).then(data=>{
  clearTimeout(timeout);
@@ -325,10 +325,10 @@
  for(const item of data){
  const card=document.createElement('article');card.style.cssText='background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:1.25rem;overflow:hidden';
  const photo=Array.isArray(item.photos)?item.photos.find(u=>typeof u==='string'&&u.startsWith('https://')):null;
- if(photo){const img=document.createElement('img');img.src=photo;img.alt='Outfitter listing photo';img.loading='lazy';img.style.cssText='width:100%;height:190px;object-fit:cover;border-radius:var(--radius-md);margin-bottom:1rem';card.append(img)}
+ if(photo){const img=document.createElement('img');img.src=photo;img.alt='Outfitter listing photo';img.loading='lazy';img.style.cssText='width:100%;height:230px;object-fit:cover;border-radius:var(--radius-md);margin-bottom:1rem';card.append(img)}
  const h=document.createElement('h3');h.textContent=item.title||'Florida Outfitter';h.style.cssText='font-family:var(--font-display);font-size:1.5rem;margin-bottom:.5rem';card.append(h);
  for(const value of [item.counties,item.bio,item.price!=null?'From $'+Number(item.price).toLocaleString()+' '+(item.price_label||''):'']){if(!value)continue;const p=document.createElement('p');p.textContent=value;p.style.cssText='color:var(--color-text-muted);margin-top:.6rem;overflow-wrap:anywhere';card.append(p)}
- root.append(card);
+ const link=document.createElement('a');link.href='outfitter-experience.html?id='+encodeURIComponent(item.user_id);link.textContent='View Experience';link.style.cssText='display:block;text-align:center;margin-top:1.1rem;padding:.85rem 1rem;background:var(--color-primary);color:white;text-decoration:none;font-weight:800;border-radius:var(--radius-md)';card.append(link);card.style.cssText='background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:1rem;overflow:hidden;box-shadow:0 6px 22px rgba(20,40,20,.08)';root.append(card);
  }
  }).catch(e=>{clearTimeout(timeout);console.error('Outfitter directory:',e);notice('Could not load outfitters (connection error). Please refresh.')});
 })();
