@@ -524,16 +524,24 @@
       var pass  = document.getElementById('si-pass').value;
       if (!email || !pass) { showAuthMsg('Please enter email and password.','error'); return; }
       var btn = document.getElementById('si-btn'); btn.disabled = true; btn.textContent = 'Signing in…';
-      var { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-      btn.disabled = false; btn.textContent = 'Sign In';
-      if (error) { showAuthMsg(error.message, 'error'); return; }
-      // Check role
-      var meta = data.user?.user_metadata || {};
-      if (meta.role && meta.role !== 'outfitter') {
-        showAuthMsg('This account is not an outfitter account. Please use the correct portal.', 'error');
-        await sb.auth.signOut(); return;
+      try {
+        var { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+        if (error) { showAuthMsg(error.message, 'error'); return; }
+        // Outfitter access must be granted through a verified membership, not editable user metadata.
+        // Until multi-role enrollment is available, never silently treat an existing hunter as an outfitter.
+        var meta = data.user?.user_metadata || {};
+        if (meta.role !== 'outfitter') {
+          await sb.auth.signOut();
+          showAuthMsg('Your login works, but this account is not enrolled as an Outfitter yet. Multi-role enrollment is being built. Your Hunter account is unchanged.', 'error');
+          return;
+        }
+        loadDashboard(data.user);
+      } catch (err) {
+        showAuthMsg('Unable to sign in right now. Please try again or check your connection.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
       }
-      loadDashboard(data.user);
     }
 
     function showSignupMsg(txt, type) {
