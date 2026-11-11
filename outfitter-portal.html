@@ -519,28 +519,31 @@
       el.textContent = txt; el.className = 'msg-box ' + type;
     }
 
+    async function outfitterMembership(user) {
+      var result = await sb.from('portal_accounts').select('account_type,verification_status').eq('user_id', user.id).eq('account_type','outfitter').maybeSingle();
+      if (result.error) throw result.error;
+      return result.data;
+    }
+
     async function signIn() {
       var email = document.getElementById('si-email').value.trim();
-      var pass  = document.getElementById('si-pass').value;
-      if (!email || !pass) { showAuthMsg('Please enter email and password.','error'); return; }
-      var btn = document.getElementById('si-btn'); btn.disabled = true; btn.textContent = 'Signing in…';
+      var pass = document.getElementById('si-pass').value;
+      if (!email || !pass) { showAuthMsg('Please enter email and password.', 'error'); return; }
+      var btn = document.getElementById('si-btn');
+      btn.disabled = true; btn.textContent = 'Signing in…';
       try {
         var { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
         if (error) { showAuthMsg(error.message, 'error'); return; }
-        // Outfitter access must be granted through a verified membership, not editable user metadata.
-        // Until multi-role enrollment is available, never silently treat an existing hunter as an outfitter.
-        var meta = data.user?.user_metadata || {};
-        if (meta.role !== 'outfitter') {
-          await sb.auth.signOut();
-          showAuthMsg('Your login works, but this account is not enrolled as an Outfitter yet. Multi-role enrollment is being built. Your Hunter account is unchanged.', 'error');
+        var membership = await outfitterMembership(data.user);
+        if (!membership) {
+          showAuthMsg('Your email is registered, but you have not created an Outfitter account. Choose Create Account to register this separate role with the same email and password.', 'error');
           return;
         }
         loadDashboard(data.user);
       } catch (err) {
-        showAuthMsg('Unable to sign in right now. Please try again or check your connection.', 'error');
+        showAuthMsg('Unable to verify your Outfitter account: ' + (err.message || 'Please try again.'), 'error');
       } finally {
-        btn.disabled = false;
-        btn.textContent = 'Sign In';
+        btn.disabled = false; btn.textContent = 'Sign In';
       }
     }
 
@@ -553,57 +556,66 @@
     }
 
     async function signUp() {
-      var first    = document.getElementById('su-first').value.trim();
-      var last     = document.getElementById('su-last').value.trim();
-      var phone    = document.getElementById('su-phone').value.trim();
-      var email    = document.getElementById('su-email').value.trim();
-      var pass     = document.getElementById('su-pass').value;
+      var first = document.getElementById('su-first').value.trim();
+      var last = document.getElementById('su-last').value.trim();
+      var phone = document.getElementById('su-phone').value.trim();
+      var email = document.getElementById('su-email').value.trim();
+      var pass = document.getElementById('su-pass').value;
       var business = document.getElementById('su-business').value.trim();
-      var type     = document.getElementById('su-type').value;
-      var license  = document.getElementById('su-license').value.trim();
-      var city     = document.getElementById('su-city').value.trim();
-      var agreeP   = document.getElementById('su-agree-platform').checked;
-      var agreeT   = document.getElementById('su-agree-terms').checked;
-
+      var type = document.getElementById('su-type').value;
+      var license = document.getElementById('su-license').value.trim();
+      var city = document.getElementById('su-city').value.trim();
       if (!first || !last || !phone || !email || !pass || !business || !type || !city) {
-        showSignupMsg('Please fill in all required fields.','error'); return;
+        showSignupMsg('Please fill in all required fields.', 'error'); return;
       }
-      if (!agreeP || !agreeT) {
-        showSignupMsg('You must agree to both the Platform Rules and Terms of Service to create an account.','error'); return;
+      if (!document.getElementById('su-agree-platform').checked || !document.getElementById('su-agree-terms').checked) {
+        showSignupMsg('Please accept both agreements.', 'error'); return;
       }
-      var passRe = /^(?=.*[!@#$%^&*()_\-+=\[\]{}|;:,.<>?]).{8,}$/;
-      if (!passRe.test(pass)) {
-        showSignupMsg('Password must be at least 8 characters and include at least 1 special character.','error'); return;
+      if (!/^(?=.*[!@#$%^&*()_\\-+=\\[\\]{}|;:,.<>?]).{8,}$/.test(pass)) {
+        showSignupMsg('Password must be at least 8 characters and include a special character.', 'error'); return;
       }
       var btn = document.getElementById('su-btn');
       btn.disabled = true; btn.textContent = 'Creating account…';
-      showSignupMsg('Checking your account…', 'success');
       try {
-        var { data, error } = await sb.auth.signUp({
-          email, password: pass,
-          options: {
-            data: { full_name: first+' '+last, first_name: first, last_name: last, phone, role: 'outfitter', business_name: business, outfitter_type: type, license_number: license, city },
-            emailRedirectTo: 'https://leasewild-sandbox.pages.dev/outfitter-portal.html'
+        // Reuse the same Supabase identity for an independently registered portal account.
+        // A correct password is required; no other role is created automatically.
+        var login = await sb.auth.signInWithPassword({email: email, password: pass});
+        var user;
+        if (!login.error && login.data.user) {
+          user = login.data.user;
+        } else {
+          var signup = await sb.auth.signUp({
+            email: email, password: pass,
+            options: {
+              data: {full_name: first + ' ' + last, first_name: first, last_name: last, phone: phone},
+              emailRedirectTo: 'https://leasewild-sandbox.pages.dev/outfitter-portal.html'
+            }
+          });
+          if (signup.error) { showSignupMsg(signup.error.message, 'error'); return; }
+          if (!signup.data.session) {
+            showSignupMsg('If this email is new, confirm it first, then return to Create Account with the same credentials. If you already use LeaseWild, enter your existing password.', 'success');
+            return;
           }
+          user = signup.data.user;
+        }
+        var existing = await outfitterMembership(user);
+        if (existing) {
+          showSignupMsg('Your independent Outfitter account already exists. Select Sign In to access it.', 'success');
+          return;
+        }
+        var result = await sb.from('portal_accounts').insert({
+          user_id: user.id, account_type: 'outfitter', display_name: first + ' ' + last,
+          business_name: business, outfitter_type: type, license_number: license,
+          city: city, phone: phone, verification_status: 'pending'
         });
-        if (error) {
-          showSignupMsg(error.message, 'error');
-          return;
-        }
-        // Supabase intentionally returns a fake user (empty identities) for repeated
-        // signups when email enumeration protection is enabled. Never claim success.
-        if (data && data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
-          showSignupMsg('This email already has a LeaseWild account. Please use Sign In. Adding Outfitter access to an existing Hunter or Landowner account is not available yet.', 'error');
-          return;
-        }
+        if (result.error) { showSignupMsg('Unable to create Outfitter profile: ' + result.error.message, 'error'); return; }
         doSwitchTab('signin');
         document.getElementById('si-email').value = email;
-        showAuthMsg('Account registration submitted. Check your email for a confirmation link, then sign in.', 'success');
+        showAuthMsg('Outfitter account created under your existing email! Your profile is pending verification. Sign in here to access your Outfitter dashboard.', 'success');
       } catch (err) {
-        showSignupMsg('Registration could not be completed. Check your connection and try again.', 'error');
+        showSignupMsg('Registration failed: ' + (err.message || 'Please try again.'), 'error');
       } finally {
-        btn.disabled = false;
-        btn.textContent = 'Create Outfitter Account';
+        btn.disabled = false; btn.textContent = 'Create Outfitter Account';
       }
     }
 
@@ -950,15 +962,13 @@
 
     // ── INIT ─────────────────────────────────────────────────
     (async function() {
-      var { data } = await sb.auth.getSession();
-      if (data && data.session) {
-        var meta = data.session.user.user_metadata || {};
-        if (meta.role && meta.role !== 'outfitter') {
-          // Wrong portal — silently ignore, show auth card
-          await sb.auth.signOut();
-          return;
+      try {
+        var { data } = await sb.auth.getSession();
+        if (data && data.session && await outfitterMembership(data.session.user)) {
+          loadDashboard(data.session.user);
         }
-        loadDashboard(data.session.user);
+      } catch (err) {
+        showAuthMsg('Could not load Outfitter account. Please sign in again.', 'error');
       }
     })();
   </script>
