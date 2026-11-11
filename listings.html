@@ -457,7 +457,7 @@
 
   const FISH_KEYWORDS = ['bass','fish','trout','catfish','bream','crappie','walleye','carp','perch','bluegill','pond','creek','lake','water'];
   function isHunting(l) {
-    var acts = (l.activities || []).join(' ').toLowerCase();
+    var acts = (Array.isArray(l.activities) ? l.activities.join(' ') : (typeof l.activities === 'string' ? l.activities : '')).toLowerCase();
     var hasFish = FISH_KEYWORDS.some(function(k){ return acts.includes(k); });
     var hasHunt = !hasFish || (l.activities||[]).some(function(a){
       return ['deer','hog','turkey','duck','dove','quail','elk','bear','pheasant'].some(function(k){ return a.toLowerCase().includes(k); });
@@ -486,7 +486,7 @@
   function buildCard(l) {
     var type = getType(l);
     var acres = parseAcres(l.acreage);
-    var activities = Array.isArray(l.activities) ? l.activities : [];
+    var activities = Array.isArray(l.activities) ? l.activities : (typeof l.activities === 'string' ? [l.activities] : []);
     var species = activities.join(',');
     var priceValue = Number(l.price_per_day);
     var priceLabel = 'Contact for pricing';
