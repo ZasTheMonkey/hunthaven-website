@@ -152,6 +152,7 @@ const style=document.createElement('style');
   }else{
     let hunterInboxRequest=0;
     let hunterMessageRequest=0;
+    let hunterRenderedConversationId=null;
     let hunterOpenRequest=0;
     const hunterDrafts=new Map();
     const hunterComposer=document.getElementById('compose-input');
@@ -210,9 +211,11 @@ const style=document.createElement('style');
         el.classList.add('lw-chat-messages');
         el.removeAttribute('role');
         if(!data?.session?.user?.id) throw Error('Please sign in again to view messages.');
-        const nearBottom=el.scrollHeight-el.scrollTop-el.clientHeight<80;
+        const newConversation=hunterRenderedConversationId!==id;
+        const nearBottom=newConversation||el.scrollHeight-el.scrollTop-el.clientHeight<80;
         const previousHeight=el.scrollHeight,previousTop=el.scrollTop;
         el.innerHTML=chatMarkup(rows,data.session.user.id);
+        hunterRenderedConversationId=id;
         if(nearBottom)el.scrollTop=el.scrollHeight;
         else el.scrollTop=previousTop+(el.scrollHeight-previousHeight);
       }catch(e){if(currentConvId===id&&request===hunterMessageRequest){el.setAttribute('role','alert');el.replaceChildren();const notice=document.createElement('p');notice.textContent='Unable to load messages. '+(e.message||'Please retry.');const retry=document.createElement('button');retry.type='button';retry.textContent='Retry loading messages';retry.addEventListener('click',()=>window.loadMessages(id));el.append(notice,retry);}}
