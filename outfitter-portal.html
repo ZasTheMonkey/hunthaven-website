@@ -577,8 +577,8 @@
       });
       btn.disabled = false; btn.textContent = 'Create Outfitter Account';
       if (error) { showSignupMsg(error.message,'error'); return; }
-      showSignupMsg('Account created! Check your email to confirm, then sign in.','success');
       doSwitchTab('signin');
+      showAuthMsg('Account created! Check your email for the confirmation link, then return here to sign in.', 'success');
     }
 
     async function resetPassword() {
