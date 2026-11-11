@@ -106,6 +106,24 @@
       #dashboard .btn-accent{width:100%}
     }
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  
+    /* LeaseWild unified light-modern theme — consistent on every reload. */
+    :root,[data-theme="light"],[data-theme="dark"]{
+      color-scheme:light;
+      --color-bg:#f7f9f7;--color-surface:#ffffff;--color-surface-2:#ffffff;
+      --color-surface-offset:#f0f5f1;--color-border:#dbe5df;--color-divider:#e5ece7;
+      --color-text:#172920;--color-text-muted:#566c60;--color-text-faint:#708579;
+      --color-text-inverse:#ffffff;--color-primary:#276344;--color-primary-hover:#1b5035;
+      --color-primary-light:#e4f2e9;--color-accent:#b77d42;--color-accent-hover:#98612c;
+      --color-accent-light:#fbf1e5;--color-water:#246c79;--color-water-light:#e4f4f6;
+      --shadow-sm:0 1px 3px rgba(19,49,31,.06);--shadow-md:0 8px 24px rgba(19,49,31,.08);
+      --shadow-lg:0 18px 44px rgba(19,49,31,.12);
+    }
+    body{background:var(--color-bg);color:var(--color-text)}
+    button:focus-visible,a:focus-visible{outline:3px solid #276344;outline-offset:3px}
+    .btn-accent{color:#ffffff}
+    .avatar{color:#ffffff}
+    .btn-primary,.send-btn{color:#ffffff}
   </style>
 </head>
 <body><div style="position:sticky;top:0;z-index:99999;background:#f8d86a;color:#243b24;text-align:center;padding:7px;font:700 13px system-ui">LEASEWILD SANDBOX — TEST DATA ONLY</div>
