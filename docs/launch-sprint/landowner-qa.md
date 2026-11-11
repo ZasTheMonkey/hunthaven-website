@@ -200,3 +200,10 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **PASS (source review only):** `sandbox-zone-editor.html` includes trail-specific labels, minimum-two-point trail handling, unsaved draft confirmation, delete affected-row check, pointercancel retention, and click suppression after tracing. This is not proof of runtime correctness.
 - **NOT TESTED:** Authenticated browser save/reload, synthetic owner/hunter journeys, property verification, messaging, reviews, Stripe TEST transactions, 320–2560px viewport, keyboard, touch and zoom. Cloudflare success does not prove any of these flows.
 - **Next:** Execute browser E2E with sandbox-only identities; verify two-owner access isolation, save/reload, review eligibility, message delivery and mobile map gestures. Preserve existing payments and do not touch live/main.
+
+## 2026-11-10 22:39 ET — single-zone metadata reset
+- **FAIL (source review):** After a successful single-zone save, the editor cleared geometry but retained the prior zone name and access instructions. A new entry/parking/trail/boundary could inadvertently inherit sensitive or incorrect notes.
+- **FIX (staging):** Clear label and instructions only after a successful single-zone INSERT; preserve both on failure so retries do not lose data. Commit `dc207071cee7e450b673599f48e7bc8b8be543d6`.
+- **PASS (source re-read):** Confirmed reset is in the successful save branch and error branch still retains the draft. No payment or production code changed.
+- **NOT TESTED:** Browser confirmation of metadata reset, authenticated zone save/reload, touch/keyboard/zoom at 320/375/390/430/768/1024/1280/1440/1920/2560px, property verification, cross-role bookings/reviews/messaging, Stripe TEST. Cloudflare deployment of this SHA not yet verified.
+- **NEXT:** Validate metadata reset and zone save/reload with dedicated synthetic landowner login; test failure retention and cross-owner RLS. NO-GO until end-to-end verification.
