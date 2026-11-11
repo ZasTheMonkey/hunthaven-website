@@ -39,3 +39,13 @@ Findings are read-only observations, not proof of today's new E2E test execution
 ## 2026-11-11 coordination
 
 All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner QA, Legal Risk Review and Growth Research) had this file and launch-day sandbox-only Stripe testing added to their saved instructions. Their immediate run commands were invoked; the inline audit findings above do NOT constitute separate passed browser E2E results. Continue on their existing schedules and log real evidence.
+
+## 2026-11-11 14:27 ET follow-up — fresh verification
+
+- CONFIRMED FAILURE: staging `outfitter-experience.html` states `Requests are not confirmed reservations. No payment is collected.` and submission message `No payment was taken.`; `outfitter-portal.html` displays `Accepted — payment not collected` and approval confirmation `No payment will be collected.` The current outfitter UI does **not** charge hunters. No end-to-end outfitter booking payout is possible until this is implemented and tested.
+- VERIFIED EXISTING STRIPE TEST CONNECT: `GET /v1/accounts` returns test connected account `acct_1TOJMRAO408zPcFQ`, `charges_enabled=true`, `payouts_enabled=true`, `capabilities.transfers=active`, and a Stripe test bank account. Four historic test transfers exist, including `tr_3UZrcCAO40Rp32aF1uRujzrX` for 10,970 cents. These are **not** fresh outfitter booking payout evidence.
+- CONFIRMED BLOCKER: sandbox `public.outfitter_stripe_accounts` contains zero rows, despite Stripe test connected account existing. Need a synthetic outfitter account linked through an authenticated onboarding flow; never insert someone else's Stripe account ID into a real user record.
+- CONFIRMED TAX BLOCKER: Stripe Tax settings `status=pending`, `head_office=null`, `missing_fields=[head_office]`, and no tax registrations. Need owner's actual business tax address and list of jurisdictions where the business is registered; do not fabricate. Fixed 6.5% code cannot be certified as correct for all marketplace products.
+- LIMITATION: no authenticated browser or test identity/session accessible in current tool session, so no fresh UI test-card completion. No fresh payment, payout or webhook event was created in this follow-up. Historic tests remain historical only. Maintain launch gate.
+
+**Implementation priority:** Add authenticated outfitter Checkout with TEST Stripe Connect destination charge/transfer, server-side price/tax/add-on/promo validation, webhook signature+idempotency and reservation state transitions; run real UI test card payment + refund, 3DS, declined card and payout reconciliation before launch. Do not change live site.
