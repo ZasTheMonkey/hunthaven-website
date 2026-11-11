@@ -275,6 +275,7 @@
 
     <div class="dash-tabs">
       <button class="dash-tab active" id="dtab-listing" onclick="switchDashTab('listing')">My Listing</button>
+      <button class="dash-tab" id="dtab-reservations" onclick="switchDashTab('reservations')">Reservations</button>
       <button class="dash-tab" id="dtab-messages" onclick="switchDashTab('messages')">
         Messages <span id="msg-badge" style="display:none;background:var(--color-accent);color:#fff;border-radius:var(--radius-full);font-size:.65rem;padding:.1rem .45rem;font-weight:700;margin-left:.3rem">!</span>
       </button>
@@ -365,6 +366,9 @@
       </div>
     </div>
 
+
+    <!-- RESERVATIONS -->
+    <div class="dash-panel" id="dpanel-reservations">
 <section id="outfitter-trip-requests" style="max-width:1150px;margin:2rem auto;padding:0 1rem">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem"><div><h2 style="font-family:var(--font-display);font-size:var(--text-xl);margin:0">Reservations <span id="out-trip-count" style="background:var(--color-accent);color:white;border-radius:99px;padding:.15rem .55rem;font:700 .75rem system-ui;display:none"></span></h2><p style="color:var(--color-text-muted);font-size:var(--text-sm)">Manage your reservations, guest details, and trip requests.</p></div><button id="refresh-trip-requests" type="button" style="padding:.65rem 1rem;background:var(--color-primary);color:#fff;border:0;border-radius:9px;font-weight:700">Refresh reservations</button></div>
 <div id="out-trip-tabs" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem"><button type="button" data-filter="requested">Pending</button><button type="button" data-filter="accepted">Accepted</button><button type="button" data-filter="declined">Declined</button><button type="button" data-filter="all">All</button></div>
@@ -383,6 +387,7 @@ async function load(){try{const {data:{session}}=await sb.auth.getSession();if(!
 tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;filter=b.dataset.filter;render()};refresh.onclick=load;document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});setTimeout(load,1000);
 })();
 </script>
+    </div>
     <!-- MESSAGES -->
     <div class="dash-panel" id="dpanel-messages">
       <div id="thread-list-view">
@@ -709,11 +714,12 @@ tabs.onclick=e=>{const b=e.target.closest('button[data-filter]');if(!b)return;fi
     }
 
     function switchDashTab(t) {
-      ['listing','messages','promo','profile','settings'].forEach(function(x) {
+      ['listing','reservations','messages','promo','profile','settings'].forEach(function(x) {
         document.getElementById('dtab-'+x).classList.toggle('active', x===t);
         document.getElementById('dpanel-'+x).classList.toggle('active', x===t);
       });
       if (t === 'messages') loadThreads();
+      if (t === 'reservations') document.getElementById('refresh-trip-requests')?.click();
       if (t === 'promo') loadPromoCodes('out');
     }
 
