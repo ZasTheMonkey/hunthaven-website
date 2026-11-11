@@ -636,6 +636,10 @@
     var grid = document.getElementById('listings-grid');
     var loadingEl = document.getElementById('listings-loading');
     grid.setAttribute('aria-busy', 'true');
+    // Clear stale results immediately; failed refreshes must not advertise old inventory.
+    allListings = [];
+    grid.replaceChildren();
+    if (typeof updateMapWithRealListings === 'function') updateMapWithRealListings([]);
     if (loadingEl) loadingEl.style.display = 'block';
     document.getElementById('filter-empty').style.display = 'none';
     setListingsStatus('Loading available properties.');
@@ -758,8 +762,7 @@
   }
 
   function updateMapWithRealListings(listings) {
-    if (!listings || !listings.length) return;
-    var mapped = listings.map(sbListingToMapItem).filter(Boolean);
+    var mapped = (Array.isArray(listings) ? listings : []).map(sbListingToMapItem).filter(Boolean);
     LISTINGS.length = 0;
     mapped.forEach(function(m){ LISTINGS.push(m); });
     if (huntMap) plotListings(LISTINGS);
