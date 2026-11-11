@@ -70,3 +70,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .lw-menu-heading{display:block;padding:8px 14px 4px;color:#617067;font-size:12px;letter-spacing:.07em;text-transform:uppercase;font-weight:700}
 .mob-bar,.portal-mob-bar,.lw-unified-mobile-nav,.lw-dash-menu,.mobile-menu-btn,#mob-menu-btn{display:none!important}
 @media(max-width:768px){body{padding-bottom:0!important}#lw-site-menu{top:calc(12px + env(safe-area-inset-top,0px));right:12px}}
+
+/* Keep the shared menu light across OS dark-mode preferences and page-specific themes. */
+html body #lw-site-menu-panel{color-scheme:light!important;background:#fffdf7!important;color:#183f35!important;border-color:#d9e5db!important}
+html body #lw-site-menu-panel a{color:#183f35!important;background:transparent}
+html body #lw-site-menu-panel a:hover,html body #lw-site-menu-panel a:focus-visible{background:#e8f3ed!important}
+html body #lw-site-menu-panel .lw-menu-heading{color:#596b61!important}
+html body #lw-site-menu-toggle{color-scheme:light!important;background:#fffdf7!important;color:#183f35!important}
