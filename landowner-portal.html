@@ -1225,11 +1225,27 @@
   })();
   </script>
 
+<style>
+#edit-modal{overscroll-behavior:contain}
+#edit-modal .lw-edit-dialog{box-sizing:border-box;scrollbar-gutter:stable;overscroll-behavior:contain}
+#edit-activities-grid label{min-height:42px;display:flex!important;align-items:center;gap:.55rem;line-height:1.35;overflow-wrap:anywhere}
+#edit-harvest-rows>div{min-width:0}
+#edit-harvest-rows input{max-width:100%;box-sizing:border-box}
+@media(min-width:769px){
+#edit-modal{align-items:center!important;padding:24px!important}
+#edit-modal .lw-edit-dialog{border-radius:18px!important;max-height:calc(100dvh - 48px)!important;padding:28px 34px 32px!important}
+}
+@media(max-width:600px){
+#edit-modal .lw-edit-dialog{max-height:95dvh!important;padding:20px 16px 28px!important}
+#edit-activities-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr))!important}
+}
+@media(max-width:380px){#edit-activities-grid{grid-template-columns:1fr!important}}
+</style>
   <!-- ── EDIT LISTING MODAL ──────────────────────────────────── -->
   <div id="edit-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center;padding:0" onclick="if(event.target===this)closeEditModal()">
-    <div style="background:var(--color-surface);border-radius:var(--radius-xl) var(--radius-xl) 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;padding:var(--space-6) var(--space-5) var(--space-8);box-shadow:0 -8px 40px rgba(0,0,0,.18)">
+    <div class="lw-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="lw-edit-title" style="background:var(--color-surface);border-radius:var(--radius-xl) var(--radius-xl) 0 0;width:100%;max-width:900px;max-height:92vh;overflow-y:auto;padding:var(--space-6) var(--space-5) var(--space-8);box-shadow:0 -8px 40px rgba(0,0,0,.18)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
-        <h2 style="font-size:var(--text-lg);font-weight:800;letter-spacing:.01em">Edit Listing</h2>
+        <h2 id="lw-edit-title" style="font-size:var(--text-lg);font-weight:800;letter-spacing:.01em">Edit Listing</h2>
         <button onclick="closeEditModal()" style="background:none;border:none;cursor:pointer;color:var(--color-text-muted);font-size:1.3rem;line-height:1;padding:4px">✕</button>
       </div>
 
@@ -1328,7 +1344,7 @@
       <!-- Activities -->
       <div style="margin-bottom:var(--space-4)">
         <label style="font-size:var(--text-xs);font-weight:700;display:block;margin-bottom:.75rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">What Can Be Hunted / Fished</label>
-        <div id="edit-activities-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.65rem .75rem">
+        <div id="edit-activities-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,205px),1fr));gap:.8rem 1rem">
           <!-- checkboxes injected by JS -->
         </div>
       </div>
