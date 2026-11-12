@@ -303,8 +303,8 @@
 
     <!-- APPLY FORM -->
     <div id="apply-form" style="background:var(--color-primary);border-radius:var(--radius-xl);padding:clamp(2rem,5vw,3.5rem);text-align:center;color:#fff">
-      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-xl);letter-spacing:.01em;margin-bottom:.75rem">Apply to be listed as an outfitter</h2>
-      <p style="color:rgba(255,255,255,.78);font-size:var(--text-base);margin-bottom:1.75rem;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6">We're accepting applications from licensed Florida outfitters now. No fee to apply — we'll reach out when the directory goes live.</p>
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-xl);letter-spacing:.01em;margin-bottom:.75rem">Outfitter applications — temporarily unavailable</h2>
+      <p style="color:rgba(255,255,255,.78);font-size:var(--text-base);margin-bottom:1.75rem;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6">Outfitter applications are temporarily unavailable through this form. Browse current experiences while we finish the application process.</p>
       <div id="apply-fields" style="max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:.75rem">
         <input id="out-name" type="text" placeholder="Business or guide name" style="padding:.8rem 1rem;border-radius:var(--radius-md);border:none;font-size:var(--text-sm);font-family:inherit;width:100%" />
         <input id="out-email" type="email" placeholder="Contact email" style="padding:.8rem 1rem;border-radius:var(--radius-md);border:none;font-size:var(--text-sm);font-family:inherit;width:100%" />
@@ -344,9 +344,6 @@
       var msg = document.getElementById('out-msg');
       if (!name || !email || !type) { msg.style.display='block'; msg.textContent='Please fill in all fields.'; return; }
       msg.style.display='block'; msg.textContent='Applications cannot be submitted from this form yet. No information was sent. Please try again after applications open.'; return;
-      document.getElementById('out-name').value='';
-      document.getElementById('out-email').value='';
-      document.getElementById('out-type').value='';
     }
   </script>
 <script>
@@ -370,9 +367,9 @@
  const body=document.createElement('div');body.className='experience-card__body';
  const heading=document.createElement('div');heading.className='experience-card__heading';
  const title=document.createElement('h3');title.className='experience-card__title';const titleLink=document.createElement('a');titleLink.href=href;titleLink.textContent=item.title||'Florida Outfitter';title.append(titleLink);heading.append(title);
- const price=document.createElement('div');price.className='experience-card__price';if(item.price!=null){const strong=document.createElement('strong');strong.textContent='$'+Number(item.price).toLocaleString();const unit=document.createElement('span');unit.textContent=item.price_label||'per trip';price.append(strong,unit)}else{price.textContent='Price on request'}heading.append(price);body.append(heading);
- const location=document.createElement('p');location.className='experience-card__location';location.textContent='⌖ '+(item.counties||'Florida');body.append(location);
- if(item.species?.length){const species=document.createElement('p');species.className='experience-card__species';species.textContent=item.species.join(' · ');body.append(species)}
+ const price=document.createElement('div');price.className='experience-card__price';if(item.price!=null&&Number.isFinite(Number(item.price))&&Number(item.price)>=0){const strong=document.createElement('strong');strong.textContent='$'+Number(item.price).toLocaleString();const unit=document.createElement('span');unit.textContent=item.price_label||'per trip';price.append(strong,unit)}else{price.textContent='Price on request'}heading.append(price);body.append(heading);
+ const location=document.createElement('p');location.className='experience-card__location';location.textContent='⌖ '+(typeof item.counties==='string'&&item.counties.trim()?item.counties:'Florida');body.append(location);
+ if(Array.isArray(item.species)&&item.species.length){const species=document.createElement('p');species.className='experience-card__species';species.textContent=item.species.join(' · ');body.append(species)}
  if(item.bio){const desc=document.createElement('p');desc.className='experience-card__description';desc.textContent=item.bio;body.append(desc)}
  const action=document.createElement('a');action.href=href;action.className='experience-card__action';action.textContent='View experience';body.append(action);
  card.append(media,body);root.append(card);
