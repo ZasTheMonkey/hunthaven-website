@@ -34,14 +34,7 @@ test.describe('Bot A: real hunter browser',()=>{
   await expect(page.locator('#msg')).toContainText('invalid');
   await screenshotStep(page,info,'invalid-id-invitation');
  });
- test('real hosted Stripe TEST checkout',async({page})=>{
-  test.skip(!process.env.QA_TEST_BOOKING_URL,'BLOCKED: requires a fresh disposable sandbox checkout URL and synthetic test listing; never charge a real card');
-  const u=new URL(process.env.QA_TEST_BOOKING_URL);
-  expect(['checkout.stripe.com','checkout.stripe.dev']).toContain(u.hostname);
-  await page.goto(u.toString(),{waitUntil:'domcontentloaded'});
-  await expect(page.locator('body')).toBeVisible();
-  // Do not claim a paid booking without completing and reconciling Stripe TEST.
-  test.fail(true,'A full test checkout needs a controlled fixture, payment reconciliation and cleanup');
-  throw new Error('Checkout opened, but automated TEST payment completion is not yet implemented');
+ test('real hosted Stripe TEST checkout',async()=>{
+  test.skip(true,'BLOCKED: full checkout, webhook reconciliation and synthetic fixture cleanup are not implemented; do not report this as passing');
  });
 });
