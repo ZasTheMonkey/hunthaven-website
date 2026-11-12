@@ -27,3 +27,12 @@ This file is owned by Hunter QA (Bot A). Bot B should own host/admin and Connect
 
 ## Next executable step
 In a graphical sandbox browser, navigate home → search → listing → synthetic login → select dates/guests → official Stripe TEST card hosted checkout → return to hunter reservations; capture timestamped screenshots and test-only session/intent IDs, then corroborate sandbox booking/webhook rows. Repeat decline, 3DS, cancellation/refund and two-account messaging. Do not declare PASS before executing.
+
+
+## 2026-11-12 03:15 ET — Hunter QA static regression and repair
+- **STATIC-ONLY FAIL reproduced:** `booking.js` native-date fallback contained `if(cinEl.value) const next=...`, which is invalid JavaScript grammar (a lexical declaration cannot be the single statement of an if without braces). This causes the entire booking script to fail parsing where loaded, not merely the fallback branch. This is a source-level defect, not browser reproduction.
+- **FIX COMMITTED:** `0b07cd2cac7c9237898589c3b90c1f3906471d64` on `staging/leasewild-full-clone`: return early on missing check-in and safely scope the `next` date variable before setting checkout minimum. No payment/backend logic modified.
+- **STATIC-ONLY PASS:** Independently re-fetched updated `booking.js` from staging (blob `6d7e1c5697eaf8d62b9dc72e10cbd629110e6141`) and parsed complete JavaScript with `new Function(source)` successfully. This does **not** prove runtime date-picker behavior.
+- **BROWSER ACCESS BLOCKED:** No graphical browser/computer-control tool available in this run; no actual navigation, Stripe TEST card, screenshot, Cloudflare deployment parity, or authenticated booking/notification/reconciliation verification. Need Work/computer environment or executable GitHub Actions browser harness with recorded run URL.
+- **Counters this run:** browser routes **0**; real-browser flows **0**; browser failures **0**; static defects **1**; code fixes **1**; real-browser retests **0**; test card transactions **0**; critical payment flows still **NOT TESTED**.
+- **Coordination:** Hunter QA owns `booking.js` syntax fix and this report. Developer/other QA roles should avoid conflicting booking.js edits until incorporating this commit; independently confirm Cloudflare sandbox deployment and real-browser checkout. Stripe Tax, Connect payout, tax/20% reconciliation, refunds, guest IDs, email delivery remain launch blockers. **NO-GO**. No main/live/production access.
