@@ -33,3 +33,11 @@ Deployment scope: `staging/leasewild-full-clone` / `leasewild-sandbox.pages.dev`
 - No government ID upload or email invitation is required for minors; collect only the minimum age information needed and protect minors' personal data.
 - If the supervising adult cancels or is rejected, the booking cannot proceed with the minor unless a replacement verified adult is assigned.
 - Do not imply adult supervision alone satisfies hunting license, hunter education, age, firearm, or state-specific legal requirements; verify relevant jurisdictional rules separately.
+
+## Primary account holder: one-time identity verification (owner update)
+- The primary booking holder completes government-issued ID verification once as part of account creation/onboarding, before their first hunting booking is finalized. Subsequent reservations reuse the approved account identity status; do not request a fresh ID per booking.
+- A pending, rejected, expired, or revoked verification is not approved; require remediation only when status is no longer valid. Identity approval does not replace booking-specific hunting eligibility or licenses.
+- Associate the booking with the authenticated account ID and read server-side verified identity status; never trust a client-provided `verified` flag.
+- Additional adult guests follow their own identity verification workflow. If an adult guest has a previously approved identity linked to their own authenticated account, reuse it rather than requesting repeated uploads; ensure the identity actually matches the invited guest.
+- Minors require no ID upload or email, but remain associated with an identified verified accompanying adult in the reservation.
+- Current code status: specification only; authenticated account-holder ID onboarding and server-side booking gate require E2E implementation and testing before claiming operational.
