@@ -109,3 +109,12 @@ All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner Q
 - **FIXED (source)** — Outfitter directory had a visibly disabled application heading but still presented name/email inputs and a clickable “Submit Application” control that could never persist leads. Removed the dead form and replaced it with an accessible 48px link to outfitter requirements. Commit `fd903b50`. No checkout or payment files touched.
 - **PASS (static inspection)** — Form controls and dead submission handler removed; HTML script open/close counts match (4 each). **NOT TESTED** — Browser conversion flow, all ten viewport widths, keyboard and zoom, and post-deployment visual inspection.
 - **NO-GO** — Existing Stripe Tax, Connect payout and test-payment reconciliation blockers remain; this change does not address payment readiness.
+
+
+## Growth Research — 2026-11-11 21:39 ET — directory claims and slow-response safety
+
+- FIXED (source verified): `outfitters.html` previously advertised *licensed* outfitters in the SEO description and a comparison card without per-outfitter licensing proof in the directory. Changed public claims to neutral experience language and added a reminder to confirm credentials before booking. Commit `c6c175caf09837ba654729aedd3bb9328fa19fc9`.
+- FIXED (source verified): directory previously used a 12-second timer that replaced the listing grid even if a fetch eventually succeeded. The fetch now uses AbortController and a specific timeout message, avoiding a late success/timeout race. Same commit.
+- PASS: Embedded JavaScript parsed successfully in static syntax checks; changes are limited to public directory content and fetch lifecycle, with no payment functions changed.
+- NOT TESTED: browser viewport matrix (320–2560 px), actual authenticated checkout, Stripe TEST card and payout reconciliation, mobile Safari visual evidence. Do not infer browser PASS from syntax checks.
+- NO-GO unchanged: Stripe Tax registration, payout-account linkage, refunds and end-to-end checkout proof remain required.
