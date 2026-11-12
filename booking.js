@@ -580,11 +580,7 @@ async function submitBookingStripe() {
   let additional_guests;
   try { additional_guests=collectBookingGuestRoster(); }
   catch(e){msg.style.display='block';msg.style.color='#c0392b';msg.textContent=e.message;return;}
-  if(guests>1){
-    msg.style.display='block';msg.style.color='#c0392b';
-    msg.textContent='Group booking ID invitations are not yet enabled on the secure server. Your guest details have not been submitted. Please wait until verification is available.';
-    return;
-  }
+  // Guest documentation is due before check-in, not a condition of booking.
   // Fail closed until the server validates promo discounts and returns a matching Stripe quote.
   // Never authorize a higher amount than the discount shown to the hunter.
   if (_appliedCode) {
@@ -607,7 +603,7 @@ async function submitBookingStripe() {
     const res = await fetch('https://kbkdfpmlyggfijkyjxoi.supabase.co/functions/v1/sandbox-booking-checkout', {
       method: 'POST',
       headers: {'Content-Type':'application/json', apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+session.access_token},
-      body: JSON.stringify({action:'request',listing_id:l.id, check_in, check_out, guests, trip_protection})
+      body: JSON.stringify({action:'request',listing_id:l.id, check_in, check_out, guests, additional_guests, trip_protection})
     });
     const data = await res.json();
     if (!res.ok || data.status !== 'authorization_pending' || !/^https:\/\/checkout\.stripe\.com\//.test(data.url || '')) throw new Error(data.error || 'Unable to authorize your card.');
