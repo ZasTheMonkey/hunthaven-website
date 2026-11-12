@@ -67,3 +67,10 @@ Deployment scope: `staging/leasewild-full-clone` / `leasewild-sandbox.pages.dev`
 - Deployed sandbox `sandbox-booking-checkout` v7 validating the complete additional guest roster and storing it before initiating Stripe TEST authorization; booking creation fails closed on roster storage failure.
 - IMPORTANT: browser `booking.js` still blocks group checkout pending secure ID invitation and upload workflow. Do not remove this guard until guest invitation, identity upload, admin review, and sandbox email delivery are complete and E2E tested.
 - NOT TESTED: synthetic end-to-end roster persistence and Stripe session creation; email worker requires secrets/allowlist/schedule; guest invitation/upload not implemented. Do not mark group checkout or email notifications as PASS.
+
+## OWNER OVERRIDE — documentation only, not a booking gate (2026-11-11)
+- The primary account holder may book and authorize Stripe TEST checkout even when additional adult guest IDs are not uploaded. Additional adult IDs are requested for reservation documentation only; never make ID approval a precondition to creating/approving a booking, and never auto-cancel or auto-refund because of missing guest documents.
+- Additional adult guest names/emails remain mandatory at booking. Send secure documentation-upload invitations after the reservation is successfully recorded, associate submissions with booking/guest in admin portal, and display outstanding statuses.
+- Minors: name and adult supervision required; no email or ID upload.
+- Guest documents must be uploaded before the reservation begins; owner previously selected 78 hours before check-in as an operational reminder/deadline. Clarify whether 78 hours remains the enforced documentation cutoff versus the new 'before reservation date' instruction. Neither timing should block initial booking.
+- The current browser checkout guard and any Terms text claiming verification is a precondition to booking are outdated; update before release. Sandbox email/ID upload workflow is not yet operational.
