@@ -207,7 +207,10 @@ function openListingDetail(l) {
         if (loadFailed) el.disabled=true;
       });
       cinEl.addEventListener('change',function(){
-        if(cinEl.value) const next=new Date(cinEl.value+'T12:00:00');next.setDate(next.getDate()+1);coutEl.min=[next.getFullYear(),String(next.getMonth()+1).padStart(2,'0'),String(next.getDate()).padStart(2,'0')].join('-');
+        if (!cinEl.value) return;
+        const next = new Date(cinEl.value + 'T12:00:00');
+        next.setDate(next.getDate() + 1);
+        coutEl.min = [next.getFullYear(), String(next.getMonth()+1).padStart(2,'0'), String(next.getDate()).padStart(2,'0')].join('-');
       });
       return;
     }
