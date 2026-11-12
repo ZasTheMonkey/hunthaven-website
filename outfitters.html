@@ -81,9 +81,9 @@
       .nav-divider{display:none}
       .mobile-menu-btn{display:flex}
       .btn-ghost,.btn-primary,.btn-accent{display:none!important}
-      .nav-links.nav-open{display:flex;flex-direction:column;align-items:flex-start;position:absolute;top:72px;left:0;right:0;background:var(--color-surface);border-bottom:1px solid var(--color-border);padding:1rem 1.5rem;gap:.75rem;z-index:200}
-      .nav-links.nav-open a{display:block;font-size:var(--text-base);padding:.25rem 0}
-      .nav-links.nav-open .nav-mob-cta{display:block}
+      
+      
+      
     }
 
     .hero{padding:clamp(3rem,8vw,6rem) clamp(1rem,4vw,3rem) clamp(2rem,5vw,3rem);text-align:center;border-bottom:1px solid var(--color-border)}
@@ -176,11 +176,9 @@
 #outfitter-directory .experience-card__action{display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin-top:auto;padding:.8rem 1rem;border-radius:10px;background:var(--color-primary);color:#fff!important;text-decoration:none;font-size:1rem;line-height:1.3;white-space:normal;text-align:center}
 #outfitter-directory .experience-card__action:focus-visible,#outfitter-directory .experience-card__media:focus-visible{outline:3px solid var(--color-accent);outline-offset:3px}
 @media(max-width:600px){#outfitter-directory .experience-card__media{aspect-ratio:16/10}#outfitter-directory .experience-card__heading{flex-wrap:wrap}}
-</style><link rel="stylesheet" href="/leasewild-theme.css?v=20261111-unified"></head>
+</style><link rel="stylesheet" href="/leasewild-theme.css?v=20261111-unified"><style id="lw-outfitter-light">html,body{color-scheme:light!important;background:#f8faf7!important;color:#193d32!important}.hero{background:#f7f9f6!important}.hero h1,.section-title{font-family:Georgia,'Times New Roman',serif!important;font-weight:500!important;letter-spacing:-.035em!important;color:#193d32!important}.outfitter-card,.notice-bar{background:#fff!important;border-color:#d5ded7!important;color:#193d32!important}.nav{background:#fff!important}.nav-links{display:none!important}.hero p,.section-sub{color:#63766b!important}</style></head>
 <body>
-  <script>
-    try { var t = localStorage.getItem('lw-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch(e){}
-  </script>
+  <script>document.documentElement.setAttribute("data-theme","light");</script>
 
   <nav class="nav">
     <div class="nav-inner">
@@ -198,14 +196,10 @@
         <a href="outfitter-portal.html" class="nav-mob-cta" style="color:var(--color-water);font-weight:600">Outfitter Login</a>
       </div>
       <div class="nav-actions">
-        <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
+        
         <a href="landowner-portal.html" class="btn btn-ghost">Landowner Login</a>
         <a href="outfitter-portal.html" class="btn btn-ghost" style="color:var(--color-water,#1a6b7a);border-color:var(--color-water,#1a6b7a)">Outfitter Login</a>
-        <button class="mobile-menu-btn" onclick="document.getElementById('nav-links').classList.toggle('nav-open')" aria-label="Menu">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-        </button>
+        
       </div>
     </div>
   </nav>
@@ -341,12 +335,7 @@
   </footer>
 
   <script>
-    function toggleTheme() {
-      var html = document.documentElement;
-      var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-theme', next);
-      try { localStorage.setItem('lw-theme', next); } catch(e) {}
-    }
+    function toggleTheme(){ document.documentElement.setAttribute("data-theme","light"); }
 
     function submitOutfitterApp() {
       var name = document.getElementById('out-name').value.trim();
