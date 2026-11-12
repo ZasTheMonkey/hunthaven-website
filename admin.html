@@ -52,8 +52,65 @@ if(inviteEmail){document.getElementById('invite-email').value=inviteEmail;toggle
 activateForm.addEventListener('submit',async e=>{e.preventDefault();const email=document.getElementById('invite-email').value.trim().toLowerCase();const password=document.getElementById('invite-password').value;const allowed=['noah.safranski@leasewild.com','aidan.martin@leasewild.com'];if(!allowed.includes(email)){say('This email has not been invited. Contact the LeaseWild administrator.');return;}say('Creating account…');const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:location.origin+'/admin.html'}});document.getElementById('invite-password').value='';if(error){say('Account activation failed: '+error.message);return;}if(data.session){await db.auth.signOut();}say('Check your inbox for the verification link, then return here and sign in. Check spam if needed.');toggleActivation(false);document.getElementById('email').value=email;});
 
 let reservationRows=[],selectedReservation=null;
-const fmtTime=v=>v?new Date(v).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'}):'Not recorded';
-const fmtMoney=v=>'
+const timeLabel=v=>v?new Date(v).toLocaleString():'Not recorded';
+const moneyLabel=v=>'USD '+Number(v||0).toFixed(2);
+function switchAdminTab(tab){
+ document.getElementById('listings-panel').hidden=tab!=='listings';
+ document.getElementById('reservations-panel').hidden=tab!=='reservations';
+ document.getElementById('identities-panel').hidden=tab!=='identities';
+ document.querySelectorAll('[data-admin-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.adminTab===tab)));
+ if(tab==='reservations')loadReservations();
+ if(tab==='identities')loadIdentities();
+}
+document.querySelectorAll('[data-admin-tab]').forEach(b=>b.addEventListener('click',()=>switchAdminTab(b.dataset.adminTab)));
+async function loadReservations(){
+ const label=document.getElementById('reservation-count');label.textContent='Loading reservations…';
+ const result=await db.rpc('sandbox_admin_reservations');
+ if(result.error){label.textContent='Unable to load reservations: '+result.error.message;return;}
+ reservationRows=Array.isArray(result.data)?result.data:[];renderReservations();
+ if(selectedReservation){const found=reservationRows.find(x=>x.id===selectedReservation);if(found)showReservation(found);}
+}
+function renderReservations(){
+ const query=document.getElementById('reservation-search').value.trim().toLowerCase();
+ const status=document.getElementById('reservation-status').value;
+ const rows=reservationRows.filter(r=>(status==='all'||r.status===status)&&[r.id,r.guest_name,r.guest_email,r.listing_title].some(x=>String(x||'').toLowerCase().includes(query)));
+ document.getElementById('reservation-count').textContent=rows.length+' of '+reservationRows.length+' reservations';
+ const list=document.getElementById('reservation-list');list.replaceChildren();
+ for(const r of rows){
+ const card=document.createElement('article');card.className='card';
+ const title=document.createElement('h3');title.textContent='Booking #'+r.id.slice(0,8).toUpperCase();card.append(title);
+ for(const value of [r.status,r.listing_title,r.guest_name,r.check_in+' to '+r.check_out,moneyLabel(r.total),timeLabel(r.created_at)]){const p=document.createElement('p');p.textContent=value||'—';card.append(p);}
+ const button=document.createElement('button');button.className='secondary';button.textContent='Open reservation folder';button.addEventListener('click',()=>{selectedReservation=r.id;showReservation(r);document.getElementById('reservation-detail').scrollIntoView({behavior:'smooth'});});card.append(button);list.append(card);
+ }
+ if(!rows.length)list.textContent='No matching reservations.';
+}
+document.getElementById('reservation-search').addEventListener('input',renderReservations);
+document.getElementById('reservation-status').addEventListener('change',renderReservations);
+document.getElementById('reservation-refresh').addEventListener('click',loadReservations);
+function showReservation(r){
+ const root=document.getElementById('reservation-detail');root.replaceChildren();
+ const card=document.createElement('section');card.className='card';card.style.marginTop='20px';root.append(card);
+ const title=document.createElement('h2');title.textContent='Reservation #'+r.id.slice(0,8).toUpperCase();card.append(title);
+ const section=(heading,entries)=>{
+ const h=document.createElement('h3');h.textContent=heading;card.append(h);
+ for(const pair of entries){const p=document.createElement('p');const strong=document.createElement('strong');strong.textContent=pair[0]+': ';p.append(strong,document.createTextNode(String(pair[1]??'—')));card.append(p);}
+ };
+ section('Booking',[['Full ID',r.id],['Status',r.status],['Property',r.listing_title],['Property ID',r.listing_id],['Check-in',r.check_in],['Check-out',r.check_out],['Nights',r.nights],['Guest count',r.guests],['Primary guest',r.guest_name],['Email',r.guest_email],['Phone',r.guest_phone],['Created',timeLabel(r.created_at)],['Approval deadline',timeLabel(r.approval_deadline)]]);
+ section('Payment',[['Nightly rate',moneyLabel(r.rate_per_night)],['Cleaning fee',moneyLabel(r.cleaning_fee)],['Service fee',moneyLabel(r.service_fee)],['Trip protection',moneyLabel(r.trip_protection)],['Discount',moneyLabel(r.discount_amt)],['Total',moneyLabel(r.total)],['Stripe checkout',r.has_stripe_session?'Created':'Not recorded'],['Payment reference',r.has_payment_intent?'Present':'Not recorded'],['Authorized at',timeLabel(r.authorization_created_at)],['Cancelled at',timeLabel(r.cancelled_at)]]);
+ for(const g of r.additional_guests||[])section('Additional guest',[['Name',g.name],['Type',g.is_minor?'Minor':'Adult'],['Email',g.email],['ID status',g.verification_status],['Document',g.has_document?'Stored privately':'Not uploaded'],['Added',timeLabel(g.added_at)]]);
+ for(const e of r.emails||[])section('Email notification',[['Type',e.event],['Recipient',e.recipient],['Status',e.status],['Queued',timeLabel(e.created_at)],['Sent',timeLabel(e.sent_at)],['Attempts',e.attempts]]);
+ section('Timeline',[['Created',timeLabel(r.created_at)],['Authorized',timeLabel(r.authorization_created_at)],['Approval deadline',timeLabel(r.approval_deadline)],['Cancelled',timeLabel(r.cancelled_at)]]);
+ const folders=['General','Payments','Guest IDs','Host Communication','Support','Incidents','Refunds'];
+ const h=document.createElement('h3');h.textContent='Internal case folders';card.append(h);
+ const folderSelect=document.createElement('select');for(const name of folders){const opt=document.createElement('option');opt.value=name;opt.textContent=name;folderSelect.append(opt);}card.append(folderSelect);
+ const notes=document.createElement('div');card.append(notes);
+ function showNotes(){notes.replaceChildren();const filtered=(r.admin_notes||[]).filter(n=>n.folder===folderSelect.value);for(const n of filtered){const p=document.createElement('p');p.textContent=timeLabel(n.created_at)+' — '+n.note;notes.append(p);}if(!filtered.length)notes.textContent='No notes in this folder.';}
+ folderSelect.addEventListener('change',showNotes);showNotes();
+ const form=document.createElement('form');const area=document.createElement('textarea');area.required=true;area.maxLength=2000;area.rows=3;area.placeholder='Internal note — do not enter ID numbers or card data';area.style.width='100%';const save=document.createElement('button');save.type='submit';save.textContent='Save timestamped note';form.append(area,save);card.append(form);
+ form.addEventListener('submit',async e=>{e.preventDefault();save.disabled=true;const result=await db.rpc('sandbox_admin_add_reservation_note',{p_booking:r.id,p_folder:folderSelect.value,p_note:area.value.trim()});save.disabled=false;if(result.error){say('Unable to save note: '+result.error.message);return;}say('Note saved.');await loadReservations();});
+ const close=document.createElement('button');close.className='secondary';close.textContent='Close folder';close.addEventListener('click',()=>{selectedReservation=null;root.replaceChildren();});card.append(close);
+}
+async function loadIdentities(){
 const target=document.getElementById('identity-list');target.textContent='Loading verification submissions…';
 const {data,error}=await db.from('identity_verification_submissions').select('id,user_id,document_path,document_type,status,created_at,reviewed_at').order('created_at',{ascending:false}).limit(100);
 if(error){target.textContent='Unable to load ID submissions: '+error.message;return;}
