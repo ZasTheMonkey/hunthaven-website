@@ -367,7 +367,7 @@
  const href='outfitter-experience.html?id='+encodeURIComponent(item.user_id);
  const media=document.createElement('a');media.className='experience-card__media';media.href=href;media.setAttribute('aria-label','View '+(item.title||'experience'));
  const photo=Array.isArray(item.photos)?item.photos.find(u=>typeof u==='string'&&u.startsWith('https://')):null;
- if(photo){const img=document.createElement('img');img.src=photo;img.alt=item.title||'Outfitter experience';img.loading='lazy';media.append(img)}else{media.textContent='LeaseWild experience'}
+ if(photo){const img=document.createElement('img');img.src=photo;img.alt=item.title||'Outfitter experience';img.loading='lazy';img.addEventListener('error',()=>{img.remove();media.textContent='LeaseWild experience';});media.append(img)}else{media.textContent='LeaseWild experience'}
  const body=document.createElement('div');body.className='experience-card__body';
  const heading=document.createElement('div');heading.className='experience-card__heading';
  const title=document.createElement('h3');title.className='experience-card__title';const titleLink=document.createElement('a');titleLink.href=href;titleLink.textContent=item.title||'Florida Outfitter';title.append(titleLink);heading.append(title);
