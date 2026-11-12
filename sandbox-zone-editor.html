@@ -160,7 +160,25 @@ async function refresh(){
  if(savedLayers.getLayers().length){try{map.fitBounds(savedLayers.getBounds().pad(.2),{maxZoom:15});}catch(e){}}
 }
 function polygonGeometry(vertices){const ring=vertices.map(p=>[p[1],p[0]]);ring.push(ring[0]);return {type:'Polygon',coordinates:[ring]};}
-function validBoundary(vertices){return vertices.length>=3&&vertices.length<=100&&vertices.every(valid)&&Math.abs(vertices.reduce((sum,p,i)=>{const q=vertices[(i+1)%vertices.length];return sum+p[1]*q[0]-q[1]*p[0];},0))>=1e-12;}
+function validBoundary(vertices){
+ if(vertices.length<3||vertices.length>100||!vertices.every(valid))return false;
+ const n=vertices.length,eps=1e-12;
+ const same=(a,b)=>Math.abs(a[0]-b[0])<eps&&Math.abs(a[1]-b[1])<eps;
+ // Reject duplicate vertices and self-crossing outlines before saving.
+ for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(same(vertices[i],vertices[j]))return false;
+ const cross=(a,b,c)=>(b[1]-a[1])*(c[0]-a[0])-(b[0]-a[0])*(c[1]-a[1]);
+ const between=(a,b,c)=>c[0]>=Math.min(a[0],b[0])-eps&&c[0]<=Math.max(a[0],b[0])+eps&&c[1]>=Math.min(a[1],b[1])-eps&&c[1]<=Math.max(a[1],b[1])+eps;
+ const intersects=(a,b,c,d)=>{
+  const abC=cross(a,b,c),abD=cross(a,b,d),cdA=cross(c,d,a),cdB=cross(c,d,b);
+  if(((abC>eps&&abD< -eps)||(abC< -eps&&abD>eps))&&((cdA>eps&&cdB< -eps)||(cdA< -eps&&cdB>eps)))return true;
+  return (Math.abs(abC)<=eps&&between(a,b,c))||(Math.abs(abD)<=eps&&between(a,b,d))||(Math.abs(cdA)<=eps&&between(c,d,a))||(Math.abs(cdB)<=eps&&between(c,d,b));
+ };
+ for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+  if(j===i+1||(i===0&&j===n-1))continue;
+  if(intersects(vertices[i],vertices[(i+1)%n],vertices[j],vertices[(j+1)%n]))return false;
+ }
+ return Math.abs(vertices.reduce((sum,p,i)=>{const q=vertices[(i+1)%n];return sum+p[1]*q[0]-q[1]*p[0];},0))>=eps;
+}
 let savingAll=false;
 let savingSingle=false;
 document.getElementById('save-all').onclick=async()=>{
