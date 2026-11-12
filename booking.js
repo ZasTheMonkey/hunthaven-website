@@ -487,7 +487,7 @@ function renderBookingGuestFields(){
     const supervision=document.createElement('label');supervision.style.cssText='display:none;align-items:flex-start;gap:8px;font-size:.83rem';
     const check=document.createElement('input');check.type='checkbox';check.dataset.guestSupervisor='';check.checked=existing[i]?.supervisor||false;
     supervision.append(check,document.createTextNode('I confirm this minor will be accompanied throughout the hunt by an adult age 18 or older in this reservation.'));
-    age.addEventListener('change',()=>{const minor=age.value==='minor';email.hidden=minor;email.style.display=minor?'none':'block';email.required=!minor;if(minor)email.value='';supervision.style.display=minor?'flex':'none';});
+    age.addEventListener('change',()=>{const minor=age.value==='minor';email.hidden=minor;email.style.setProperty('display',minor?'none':'block','important');email.disabled=minor;email.required=!minor;if(minor)email.value='';supervision.style.display=minor?'flex':'none';});
     for(const input of [name,age,email]){input.style.cssText='display:block;width:100%;min-width:0;box-sizing:border-box;padding:10px;margin:7px 0;border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface);color:var(--color-text)';row.append(input);}
     row.append(supervision);box.append(row);age.dispatchEvent(new Event('change'));
   }
