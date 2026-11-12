@@ -239,3 +239,9 @@ All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner Q
 - **PASS:** GitHub source update committed to staging. **FAIL (underlying architecture):** Directory and request records still use outfitter `user_id` rather than unique experience ID. Developer must implement per-listing links and server-validated listing identity before restoring multi-listing booking.
 - **NOT TESTED:** Cloudflare deployment, authenticated multi-listing browser reproduction, 320–2560 responsive matrix, Stripe TEST payment/webhook/refund/Connect reconciliation. No test cards, production accounts, or live site accessed this run.
 - **NO-GO:** Stripe Tax correctness, verified Connect transfer/payout, and full payment/refund evidence remain unproven. Coordinate with Developer/Hunter QA on identity and checkout; Legal on tax.
+
+
+## 2026-11-12 14:37 ET — Growth Research multi-listing directory safety
+- **SOURCE FIX:** `35dfee7b2972b931005ec2de08e103aa0f9ff62e` detects duplicate active `user_id` entries in the directory response and disables navigation/booking CTA for ambiguous experiences. This complements detail-page fail-closed protection. Affected cards remain visible with `Booking temporarily unavailable` rather than routing to a potentially wrong trip.
+- **PASS:** Staging GitHub commit accepted. **NOT TESTED:** browser fixture with two listings per outfitter, Cloudflare deployment, viewport matrix, Stripe TEST card/webhook/refund/Connect reconciliation. No database or payment operations performed.
+- **REMAINING P1:** Developer must migrate to unique listing identifiers across discovery/detail/booking, including server validation and legacy link handling; this mitigation deliberately does not restore multi-experience booking. **LAUNCH NO-GO** pending payment/tax/payout and identity E2E evidence. No production/main changes.
