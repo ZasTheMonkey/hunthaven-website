@@ -200,7 +200,24 @@
     .btn-primary,.send-btn{color:#ffffff}
   </style>
   <link rel="stylesheet" href="/leasewild-theme.css">
-<link rel="stylesheet" href="/leasewild-light-system.css?v=20261112-canonical"></head>
+<link rel="stylesheet" href="/leasewild-light-system.css?v=20261112-canonical">
+<style id="lw-hunter-mobile-header-fix">
+/* Keep the account header readable on narrow iPhone screens. */
+@media (max-width: 600px) {
+  html,body{max-width:100%;overflow-x:hidden}
+  #dashboard{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+  #dashboard .dash-nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 0}
+  #dashboard .dash-logo{min-width:0;max-width:calc(100% - 68px)}
+  #dashboard .dash-actions{display:flex;align-items:center;justify-content:flex-end;flex:1 1 100%;min-width:0;gap:10px;flex-wrap:nowrap}
+  #dashboard .dash-actions .btn-accent{display:none!important}
+  #dashboard .dash-actions .avatar{margin-left:auto;flex:0 0 40px}
+  #dashboard .dash-actions .btn-ghost{flex:0 0 auto;white-space:nowrap}
+  #dashboard .dash-tabs{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin}
+  #dashboard .dash-tab{flex:0 0 auto}
+  #dashboard .booking-card{min-width:0;overflow-wrap:anywhere}
+}
+</style>
+</head>
 <body><div style="position:sticky;top:0;z-index:99999;background:#f8d86a;color:#243b24;text-align:center;padding:7px;font:700 13px system-ui">LEASEWILD SANDBOX — TEST DATA ONLY</div>
 
   <!-- ── AUTH CARD ──────────────────────────────────────────── -->
