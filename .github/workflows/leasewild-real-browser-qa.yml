@@ -47,8 +47,8 @@ jobs:
       QA_STRIPE_TEST_READ_KEY: ${{ matrix.bot == 'payments' && secrets.QA_STRIPE_TEST_READ_KEY || '' }}
       QA_PAYMENT_HUNTER_PASSWORD: ${{ matrix.bot == 'payments' && secrets.QA_PAYMENT_HUNTER_PASSWORD || '' }}
       QA_PAYMENT_OWNER_PASSWORD: ${{ matrix.bot == 'payments' && secrets.QA_PAYMENT_OWNER_PASSWORD || '' }}
-      QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY: ${{ matrix.bot == 'payments' && secrets.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY || '' }}
-      QA_PAYMENT_LISTING_ID: ${{ matrix.bot == 'payments' && secrets.QA_PAYMENT_LISTING_ID || '' }}
+      QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY: ${{ matrix.bot == 'payments' && (vars.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY || secrets.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY) || '' }}
+      QA_PAYMENT_LISTING_ID: ${{ matrix.bot == 'payments' && (vars.QA_PAYMENT_LISTING_ID || secrets.QA_PAYMENT_LISTING_ID) || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
