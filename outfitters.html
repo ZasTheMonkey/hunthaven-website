@@ -332,7 +332,7 @@
 (function(){
  const root=document.getElementById('outfitter-directory');
  if(!root)return;
- function notice(text){root.replaceChildren();const p=document.createElement('p');p.style.color='var(--color-text-muted)';p.textContent=text;root.appendChild(p)}
+ function notice(text,retry){root.replaceChildren();const p=document.createElement('p');p.style.color='var(--color-text-muted)';p.textContent=text;root.appendChild(p);if(retry){const b=document.createElement('button');b.type='button';b.textContent='Try loading outfitters again';b.style.cssText='margin-top:12px;min-height:48px;padding:12px 20px;border-radius:999px;border:1px solid var(--color-border);background:var(--color-primary);color:#fff;font-weight:700;cursor:pointer';b.addEventListener('click',()=>location.reload());root.appendChild(b)}}
  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),12000);
  const url='https://kbkdfpmlyggfijkyjxoi.supabase.co/rest/v1/outfitter_listings?select=user_id,title,bio,price,price_label,counties,species,photos&status=eq.active&order=updated_at.desc&limit=60';
  const key='sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
@@ -351,12 +351,12 @@
  const title=document.createElement('h3');title.className='experience-card__title';const titleLink=document.createElement('a');titleLink.href=href;titleLink.textContent=item.title||'Florida Outfitter';title.append(titleLink);heading.append(title);
  const price=document.createElement('div');price.className='experience-card__price';if(item.price!=null&&Number.isFinite(Number(item.price))&&Number(item.price)>=0){const strong=document.createElement('strong');strong.textContent='$'+Number(item.price).toLocaleString();const unit=document.createElement('span');unit.textContent=item.price_label||'per trip';price.append(strong,unit)}else{price.textContent='Price on request'}heading.append(price);body.append(heading);
  const location=document.createElement('p');location.className='experience-card__location';location.textContent='⌖ '+(typeof item.counties==='string'&&item.counties.trim()?item.counties:'Florida');body.append(location);
- if(Array.isArray(item.species)&&item.species.length){const species=document.createElement('p');species.className='experience-card__species';species.textContent=item.species.join(' · ');body.append(species)}
- if(item.bio){const desc=document.createElement('p');desc.className='experience-card__description';desc.textContent=item.bio;body.append(desc)}
+ if(Array.isArray(item.species)&&item.species.some(v=>typeof v==='string'&&v.trim())){const species=document.createElement('p');species.className='experience-card__species';species.textContent=item.species.filter(v=>typeof v==='string'&&v.trim()).join(' · ');body.append(species)}
+ if(typeof item.bio==='string'&&item.bio.trim()){const desc=document.createElement('p');desc.className='experience-card__description';desc.textContent=item.bio;body.append(desc)}
  const action=document.createElement('a');action.href=href;action.className='experience-card__action';action.textContent='View experience';body.append(action);
  card.append(media,body);root.append(card);
  }
- }).catch(e=>{clearTimeout(timeout);console.error('Outfitter directory:',e);notice(e.name==='AbortError'?'The directory timed out. Please refresh and try again.':'Could not load outfitters (connection error). Please refresh.')});
+ }).catch(e=>{clearTimeout(timeout);console.error('Outfitter directory:',e);notice(e.name==='AbortError'?'The directory timed out. Please try again.':'Could not load outfitters (connection error). Please try again.',true)});
 })();
 </script>
 <script src="/leasewild-navigation.js?v=20261111-unified" defer></script></body>
