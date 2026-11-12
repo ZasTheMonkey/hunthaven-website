@@ -55,3 +55,9 @@ Deployment scope: `staging/leasewild-full-clone` / `leasewild-sandbox.pages.dev`
 - Deployed sandbox `sandbox-booking-webhook` v7: on successful test Stripe authorization -> `pending_approval`, queue an owner booking-request notification using listing contact email. No production code touched.
 - NOT TESTED: synthetic webhook-to-outbox end-to-end, provider delivery, retry worker, guest roster, secure guest ID invitation and admin review.
 - NOT OPERATIONAL: queued messages are not sent until a verified sandbox-only email delivery worker is implemented. Do not tell owner emails are fixed. Need confirm RESEND_API_KEY or equivalent sandbox provider and noreply@leasewild.com sender verification without exposing secrets.
+
+## Booking email worker deployed (2026-11-11)
+- Verified `leasewild.com` sender domain is enabled in Resend; no test message sent to real recipients.
+- Deployed sandbox-only `sandbox-booking-email-worker` v1. It processes pending owner request notifications via Resend with an idempotency key, booking/listing recipient revalidation, retry attempts, and a mandatory explicit sandbox recipient allowlist.
+- Required sandbox secrets: `RESEND_API_KEY`, `SANDBOX_EMAIL_WORKER_SECRET`, `SANDBOX_EMAIL_ALLOWLIST` (comma-separated dedicated synthetic inboxes). No secret-management action available in current Supabase connector; worker will fail closed until configured. Needs scheduler calling authenticated POST; do not expose worker secret in client code.
+- **NOT TESTED**: delivery, worker schedule, synthetic Stripe webhook enqueue, guest invitation and private ID upload. The worker only handles owner request emails, not guest ID invitations. Avoid emailing real customer/listing addresses in sandbox; use dedicated synthetic fixture listing contacts.
