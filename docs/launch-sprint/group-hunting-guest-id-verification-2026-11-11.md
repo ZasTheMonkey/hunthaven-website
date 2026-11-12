@@ -74,3 +74,10 @@ Deployment scope: `staging/leasewild-full-clone` / `leasewild-sandbox.pages.dev`
 - Minors: name and adult supervision required; no email or ID upload.
 - Guest documents must be uploaded before the reservation begins; owner previously selected 78 hours before check-in as an operational reminder/deadline. Clarify whether 78 hours remains the enforced documentation cutoff versus the new 'before reservation date' instruction. Neither timing should block initial booking.
 - The current browser checkout guard and any Terms text claiming verification is a precondition to booking are outdated; update before release. Sandbox email/ID upload workflow is not yet operational.
+
+## FINAL OWNER POLICY OVERRIDE — guest ID timing (2026-11-11)
+- Replace the earlier 78-hour guest ID deadline entirely. Each additional adult must upload the ID for reservation documentation **before the property's scheduled check-in/start time**, including reservations created within 72 hours of check-in. Use the property's IANA time zone and check-in time; do not use midnight by default when a check-in time is configured.
+- Booking and Stripe authorization remain allowed before additional adult ID submission. Do not automatically cancel, refund, or block checkout for missing additional guest ID. Display pending documentation to guest and admin, send invitations promptly, and record status. Do not imply an unverified adult is legally authorized to hunt merely because a booking exists.
+- Minors need no email or ID upload but must have adult supervision. The primary account holder's one-time identity record is reused.
+- The 72-hour guest cancellation/refund cutoff remains independent and unchanged. Existing Terms mentioning 78-hour verification or ID as a booking precondition are superseded and require revision before launch.
+- Implementation status: policy documented; secure invitation, ID upload, admin review, and group checkout still need end-to-end completion.
