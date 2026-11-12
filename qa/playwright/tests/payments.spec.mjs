@@ -68,9 +68,10 @@ test.describe('Stripe real hosted TEST checkout',()=>{
    }else{
     await expect(page).toHaveURL(/leasewild-sandbox\.pages\.dev/,{timeout:45000});
    }
-   // Declined/3DS screens can retain populated card fields; redact the inputs
-   // from artifacts while preserving visible result/error evidence.
-   await page.screenshot({path:info.outputPath(c.key+'-result.png'),fullPage:true,mask:[page.locator('input[autocomplete="cc-number"],input[name="cardnumber"],input[name="number"],input[autocomplete="cc-exp"],input[name="exp-date"],input[name="expiry"],input[autocomplete="cc-csc"],input[name="cvc"]')],maskColor:'#000000'});
+   // Only screenshot after a successful return to the LeaseWild sandbox.
+   // Stripe decline and 3DS pages may retain sensitive values inside iframes,
+   // which page-level input masks cannot reliably redact.
+   if(c.expected==='success')await page.screenshot({path:info.outputPath(c.key+'-result.png'),fullPage:true});
   });
  }
  for(const name of ['full_refund','partial_refund','cancellation_before_capture','cancellation_after_capture','duplicate_payment','promo_discount','tax','outfitter_addon','cleaning_deposit','payout']){
