@@ -41,3 +41,11 @@ Deployment scope: `staging/leasewild-full-clone` / `leasewild-sandbox.pages.dev`
 - Additional adult guests follow their own identity verification workflow. If an adult guest has a previously approved identity linked to their own authenticated account, reuse it rather than requesting repeated uploads; ensure the identity actually matches the invited guest.
 - Minors require no ID upload or email, but remain associated with an identified verified accompanying adult in the reservation.
 - Current code status: specification only; authenticated account-holder ID onboarding and server-side booking gate require E2E implementation and testing before claiming operational.
+
+## Adult guest verification deadline (owner update)
+- Additional adult guests must complete required ID verification no later than 78 hours before the property's scheduled hunt/stay check-in time, calculated in the property's IANA time zone (DST-aware).
+- Group reservations may be created before this deadline with adult guest verification pending; send invitations promptly and show a per-guest deadline and status in booking/admin portals.
+- If booking occurs within 78 hours of check-in, require any unverified additional adults to complete verification before booking confirmation/participation; do not imply a past deadline can be met.
+- At the deadline, flag outstanding adult verifications for admin handling and prohibit unverified adults from participating; do not automatically issue refunds or cancel paid reservations without a published, approved policy and safe Stripe workflow.
+- Reuse previously approved adult guest verification where identity matching is established. Minor guests require no ID or email but a verified accompanying adult.
+- NOT IMPLEMENTED: server-side deadline enforcement, invites, and ID review. Existing group checkout is temporarily disabled pending implementation.
