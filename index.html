@@ -1109,6 +1109,21 @@ body{background:#fff!important;color:#193d32!important}
 .cat-pill{background:#fff;color:#304c3c}
 .cat-pill.active{background:#183f35!important;color:#fff!important}
 </style><style id="lw-light-home-final">
+/* Browser-consistent homepage: ensure light theme is not dependent on external CSS cache. */
+html{color-scheme:light!important}
+body .hero,body .hero-bg{background:#f7f9f6!important}
+body .hero-bg{background-image:linear-gradient(120deg,#f6f9f5 0%,#fff 62%,#eaf1eb 100%)!important}
+body .hero-bg::before,body .hero-bg::after{display:none!important}
+body .hero h1{color:#193d32!important}
+body .hero h1 em{color:#3f7660!important}
+body .hero-sub{color:#52665a!important}
+body .editorial-primary{background:#193d32!important;color:#fff!important}
+body .editorial-secondary{background:#fff!important;color:#193d32!important}
+body .categories{background:#fff!important}
+body #cards-grid .card{display:block;width:100%;min-width:0}
+body #cards-grid .card-img{width:100%;aspect-ratio:16/9}
+@media(max-width:700px){body #cards-grid{grid-template-columns:minmax(0,1fr)!important}body #cards-grid .card-img{width:100%!important}}
+
 .editorial-actions{display:flex;gap:12px;flex-wrap:wrap;margin:30px 0 12px}
 .editorial-primary,.editorial-secondary{display:inline-flex;align-items:center;justify-content:space-between;gap:20px;min-height:56px;padding:16px 22px;border-radius:10px;font:700 14px system-ui,sans-serif;text-decoration:none;cursor:pointer}
 .editorial-primary span,.editorial-secondary span{font-size:21px;line-height:1}
