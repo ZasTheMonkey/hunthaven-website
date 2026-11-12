@@ -95,14 +95,14 @@ function openListingDetail(l) {
         '<div style="padding:1.25rem">' +
           noteHtml +
           '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.75rem">' +
-            '<div><label style="'+labelStyle+'">Check-in</label><input type="text" id="bk-checkin" placeholder="Select date" style="'+inputStyle+';cursor:pointer" /></div>' +
-            '<div><label style="'+labelStyle+'">Check-out</label><input type="text" id="bk-checkout" placeholder="Select date" style="'+inputStyle+';cursor:pointer" /></div>' +
+            '<div><label for="bk-checkin" style="'+labelStyle+'">Check-in</label><input type="text" id="bk-checkin" placeholder="Select date" style="'+inputStyle+';cursor:pointer" /></div>' +
+            '<div><label for="bk-checkout" style="'+labelStyle+'">Check-out</label><input type="text" id="bk-checkout" placeholder="Select date" style="'+inputStyle+';cursor:pointer" /></div>' +
           '</div>' +
           '<div id="bk-calendar-legend" style="display:flex;gap:1rem;font-size:.75rem;color:var(--color-text-muted);margin-bottom:.75rem;align-items:center">' +
             '<span style="display:flex;align-items:center;gap:.3rem"><span style="width:14px;height:14px;border-radius:3px;background:#22c55e;display:inline-block"></span>Available</span>' +
             '<span style="display:flex;align-items:center;gap:.3rem"><span style="width:14px;height:14px;border-radius:3px;background:#ef4444;display:inline-block"></span>Unavailable (booked or pending)</span>' +
           '</div>' +
-          '<div style="margin-bottom:.75rem"><label style="'+labelStyle+'">Guests</label>' +
+          '<div style="margin-bottom:.75rem"><label for="bk-guests" style="'+labelStyle+'">Guests</label>' +
           '<select id="bk-guests" aria-label="Number of guests" onchange="renderBookingGuestFields()" style="'+inputStyle+'">'+guestOpts+'</select></div>' +
           '<div id="bk-additional-guests" aria-live="polite" style="display:grid;gap:.75rem;margin-bottom:.75rem"></div>' +
           '<div id="bk-price-breakdown" style="display:none;background:var(--color-surface-offset);border-radius:8px;padding:.85rem;margin-bottom:.75rem;font-size:.85rem;flex-direction:column;gap:.4rem"></div>' +
@@ -111,7 +111,7 @@ function openListingDetail(l) {
             '<label for="bk-trip-protection" style="cursor:pointer;flex:1">Add trip protection <span style="color:var(--color-text-muted)">+$18.00</span></label>' +
           '</div>' +
           '<div style="margin-bottom:.75rem">' +
-            '<label style="'+labelStyle+'">Promo / Affiliate Code</label>' +
+            '<label for="bk-code" style="'+labelStyle+'">Promo / Affiliate Code</label>' +
             '<div style="display:flex;gap:.5rem">' +
               '<input type="text" id="bk-code" placeholder="Enter code" style="'+inputStyle+';flex:1;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()" />' +
               '<button type="button" onclick="applyCode()" id="bk-apply-btn" style="padding:.55rem .9rem;background:var(--color-accent);color:#fff;border:none;border-radius:var(--radius-md);font-weight:700;font-family:inherit;font-size:.85rem;cursor:pointer;white-space:nowrap">Apply</button>' +
@@ -202,12 +202,12 @@ function openListingDetail(l) {
     if (typeof flatpickr !== 'function') {
       [cinEl,coutEl].forEach(function(el){
         el.type='date';
-        el.min=new Date().toLocaleDateString('en-CA');
+        el.min=[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-');
         el.addEventListener('change',updateBookingPrice);
         if (loadFailed) el.disabled=true;
       });
       cinEl.addEventListener('change',function(){
-        if(cinEl.value) coutEl.min=new Date(new Date(cinEl.value+'T12:00:00').getTime()+86400000).toLocaleDateString('en-CA');
+        if(cinEl.value) const next=new Date(cinEl.value+'T12:00:00');next.setDate(next.getDate()+1);coutEl.min=[next.getFullYear(),String(next.getMonth()+1).padStart(2,'0'),String(next.getDate()).padStart(2,'0')].join('-');
       });
       return;
     }
