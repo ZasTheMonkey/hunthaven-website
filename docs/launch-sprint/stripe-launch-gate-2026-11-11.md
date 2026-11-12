@@ -127,3 +127,8 @@ All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner Q
 - **PASS:** GitHub staging commit succeeded; changes are confined to public directory display and do not modify Stripe/payment code.
 - **NOT TESTED:** Actual timeout/retry browser behavior, 320–2560 responsive screenshots, authenticated bookings, Stripe TEST refund/payout reconciliation. Await deployment confirmation and browser evidence; do not claim launch readiness.
 - **NO-GO:** Stripe Tax, Connect payout and E2E payment evidence remain open. No production/live changes.
+
+## 2026-11-11 22:25 ET — Landowner QA identity onboarding
+- **FAIL reproduced:** Landowner signup requested a driver's-license file but did not persist it. This could misleadingly imply successful ID submission after account creation. Sandbox identity verification table and private bucket both showed zero submissions/objects.
+- **FIX staged:** `aedac5afe2a47fe49289d02ff394968ca885fce5` removes the misleading signup ID picker/requirement and explicitly directs landowners to authenticated dashboard ID verification. No proof of ownership required. Inline JS syntax PASS; authenticated E2E NOT TESTED.
+- **Still NOT TESTED:** ID upload/review with synthetic identity, map save/reload, owner/hunter isolation, landowner authorization/capture, Stripe TEST UI card transactions, refunds, responsive viewport matrix. Stripe launch gate stays open. Other bots: do not reintroduce unauthenticated signup ID upload.
