@@ -879,7 +879,7 @@
     var { data, error } = await sb.from('listings').select('id,created_at,state,county,status,activities,street_address,description,price_per_day,cleaning_fee,acreage,min_stay,max_guests,num_beds,allow_out_of_state,photo_urls,video_url,deer_activity,hogs_active,trail_cam_date,harvest_history').eq('email', email).order('created_at', { ascending: false });
     if (error || !data?.length) {
       container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">No listings yet. Tap "Add New Listing" to get started.</p>';
-      document.getElementById('reservations-section').style.display = 'none';
+      loadReservations([]);
       return;
     }
     container.innerHTML = data.map(l => {
@@ -911,15 +911,13 @@
   async function loadReservations(listingIds) {
     var section = document.getElementById('reservations-section');
     var container = document.getElementById('reservations-container');
-    if (!listingIds || !listingIds.length) {
-      section.style.display = 'none';
-      return;
-    }
     section.style.display = 'block';
+    container.textContent = 'Loading reservations…';
 
     // Fetch all bookings for this landowner's listings
     var { data: { session } } = await sb.auth.getSession();
     if (!session) { container.textContent = 'Sign in to view requests.'; return; }
+    try {
     var response = await fetch(SB_URL + '/functions/v1/sandbox-booking-approval', {
       method: 'POST',
       headers: { 'Content-Type':'application/json', apikey:SB_KEY, Authorization:'Bearer '+session.access_token },
@@ -929,10 +927,8 @@
     var data = result.bookings || [];
     var error = !response.ok ? {message:result.error || 'Unable to load requests'} : null;
 
-    if (error || !data?.length) {
-      container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:1.5rem 0">No reservations yet.</p>';
-      return;
-    }
+    if (error) { container.textContent = 'Unable to load reservations: ' + error.message; return; }
+    if (!data?.length) { container.textContent = 'No reservations yet.'; return; }
 
     // Build a map of listing id → label
     var listingMap = {};
@@ -988,6 +984,7 @@
         </div>
       </div>`;
     }).join('');
+    } catch(e) { container.textContent = 'Unable to load reservations: ' + (e.message || 'Network error'); }
   }
 
   async function decideSandboxBooking(id, action) {
@@ -1589,6 +1586,6 @@
 <script src="sandbox-messaging-bridge.js" defer></script>
 <script src="/leasewild-navigation.js" defer></script>
 <script>
-function switchLoDashboardTab(tab){for(const name of ['listings','reservations','messages']){const panel=document.getElementById('lo-panel-'+name),button=document.getElementById('lo-tab-'+name);if(panel)panel.hidden=name!==tab;if(button)button.setAttribute('aria-selected',String(name===tab))}if(tab==='messages'&&typeof refreshLandownerMessages==='function')refreshLandownerMessages()}
+function switchLoDashboardTab(tab){for(const name of ['listings','reservations','messages']){const panel=document.getElementById('lo-panel-'+name),button=document.getElementById('lo-tab-'+name);if(panel)panel.hidden=name!==tab;if(button)button.setAttribute('aria-selected',String(name===tab))}if(tab==='messages'&&typeof refreshLandownerMessages==='function')refreshLandownerMessages();if(tab==='reservations'&&typeof loadReservations==='function')loadReservations([])}
 </script></body>
 </html>
