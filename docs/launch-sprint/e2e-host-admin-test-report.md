@@ -95,3 +95,10 @@
 - **Evidence:** STATIC-ONLY for source update. The new tests are **NOT TESTED** in a real browser: no graphical browser or GitHub Actions workflow-dispatch operation available in this execution environment. Browser pass/fail counts remain zero; no run URL, screenshots, traces or deployment result claimed. The tests do not yet cover authenticated polygon persistence or cross-owner isolation.
 - **Scheduling blocker:** The workflow remains on nondefault staging and its cron is not evidence of a staging execution. A staging-ref workflow_dispatch run with synthetic credentials is required; actual run logs must be checked before claiming pass.
 - **Accounting:** source test cases added 10; browser routes executed 0; browser E2E flows 0; payments/refunds/payouts initiated 0; runtime defects reproduced 0; runtime fixes verified 0; staging commits 1; production/main changes 0. **NO-GO** until authenticated host, financial, identity and security critical paths are proven.
+
+
+## 2026-11-12 11:09 EST — unauthenticated boundary write denial browser assertion added
+
+- **STATIC-ONLY:** Added a Playwright case that visits the deployed sandbox zone editor without credentials, adds three synthetic polygon coordinates through visible form controls, and asserts both Save zone and Save all remain disabled. Captures a screenshot when a real browser runner executes. Code commit `2ccd7c58b2675020f258db7de7e6a9bbe938430d` on staging only.
+- **Limitations:** Test source is committed but **NOT EXECUTED**; no real graphical browser, GitHub workflow-dispatch tool, run URL, screenshot, or confirmed Cloudflare deployment in this run. This is only a UI negative-case assertion and does not replace a server-side RLS cross-owner test or an authenticated owner save/reload test. No Stripe test payment, refund, or payout initiated.
+- **Accounting:** 1 browser test case added; 0 browser routes executed; 0 E2E flows executed; 0 runtime defects reproduced; 0 verified runtime fixes; 0 production/main changes. **Launch NO-GO** pending browser/payment/security/tax/identity evidence.
