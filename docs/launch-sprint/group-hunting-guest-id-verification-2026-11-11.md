@@ -61,3 +61,9 @@ Deployment scope: `staging/leasewild-full-clone` / `leasewild-sandbox.pages.dev`
 - Deployed sandbox-only `sandbox-booking-email-worker` v1. It processes pending owner request notifications via Resend with an idempotency key, booking/listing recipient revalidation, retry attempts, and a mandatory explicit sandbox recipient allowlist.
 - Required sandbox secrets: `RESEND_API_KEY`, `SANDBOX_EMAIL_WORKER_SECRET`, `SANDBOX_EMAIL_ALLOWLIST` (comma-separated dedicated synthetic inboxes). No secret-management action available in current Supabase connector; worker will fail closed until configured. Needs scheduler calling authenticated POST; do not expose worker secret in client code.
 - **NOT TESTED**: delivery, worker schedule, synthetic Stripe webhook enqueue, guest invitation and private ID upload. The worker only handles owner request emails, not guest ID invitations. Avoid emailing real customer/listing addresses in sandbox; use dedicated synthetic fixture listing contacts.
+
+## Group roster backend progress
+- Created sandbox-only `sandbox_booking_guests` table, RLS enabled and direct anon/authenticated access revoked. Guest rows have minor/adult constraints, adult email uniqueness, pending/exempt_minor status.
+- Deployed sandbox `sandbox-booking-checkout` v7 validating the complete additional guest roster and storing it before initiating Stripe TEST authorization; booking creation fails closed on roster storage failure.
+- IMPORTANT: browser `booking.js` still blocks group checkout pending secure ID invitation and upload workflow. Do not remove this guard until guest invitation, identity upload, admin review, and sandbox email delivery are complete and E2E tested.
+- NOT TESTED: synthetic end-to-end roster persistence and Stripe session creation; email worker requires secrets/allowlist/schedule; guest invitation/upload not implemented. Do not mark group checkout or email notifications as PASS.
