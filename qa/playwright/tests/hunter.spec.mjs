@@ -4,6 +4,16 @@ test.describe('Bot A: real hunter browser',()=>{
  for(const route of ['/', '/listings.html','/fishing.html','/outfitters.html','/pricing.html','/about.html','/howitworks.html','/terms.html','/privacy.html','/contact.html','/guest-portal.html','/sandbox-guest-id-upload.html']){
   test('open, render and screenshot '+route,async({page},info)=>{
    await visit(page,route);await checkNoRawScript(page);await checkOverflow(page);
+   if (route === '/terms.html') {
+    await expect(page.getByRole('heading', { level: 1, name: 'Terms & Legal' })).toBeVisible();
+    await expect(page.locator('.legal-section h2')).toHaveText([
+     'Terms of Service', 'Landowner Agreement', 'Guest Terms', 'Liability Waiver & Release', 'Privacy Policy',
+    ]);
+    for (const heading of await page.locator('.legal-section h2').all()) {
+     await expect(heading).toBeVisible();
+    }
+    await expect(page.locator('footer')).toBeVisible();
+   }
    await screenshotStep(page,info,'page-'+route.replace(/[^a-z0-9]/gi,'-'));
   });
  }
