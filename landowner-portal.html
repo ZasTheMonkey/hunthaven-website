@@ -423,6 +423,23 @@
     }
   }
 
+  async function handleSignIn() {
+    const email=document.getElementById('si-email').value.trim();
+    const password=document.getElementById('si-password').value;
+    const btn=document.getElementById('signin-btn');
+    if(!email||!password){showMsg('Enter your email and password.','error');return;}
+    btn.disabled=true;btn.textContent='Signing in…';showMsg('','');
+    try{
+      if(!sb)throw new Error('Unable to connect. Refresh the page and try again.');
+      const {data,error}=await sb.auth.signInWithPassword({email,password});
+      if(error)throw error;
+      if(!data?.user)throw new Error('Sign-in was not completed. Please try again.');
+      showDashboard(data.user);
+    }catch(e){
+      showMsg(e.message||'Sign-in failed. Please try again.','error');
+    }finally{btn.disabled=false;btn.textContent='Sign In';}
+  }
+
   function handleForgot() {
     window.location.href = 'reset-password.html?role=landowner';
   }
