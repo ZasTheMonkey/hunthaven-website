@@ -30,6 +30,9 @@ jobs:
           - bot: host
             browser: mobile-webkit
             project: host-mobile-webkit
+          - bot: payments
+            browser: chromium
+            project: payments-chromium
     defaults:
       run:
         working-directory: qa/playwright
@@ -43,6 +46,7 @@ jobs:
       QA_OUTFITTER_PASSWORD: ${{ secrets.QA_OUTFITTER_PASSWORD }}
       QA_ADMIN_EMAIL: ${{ secrets.QA_ADMIN_EMAIL }}
       QA_ADMIN_PASSWORD: ${{ secrets.QA_ADMIN_PASSWORD }}
+      QA_STRIPE_TEST_CHECKOUTS_JSON: ${{ secrets.QA_STRIPE_TEST_CHECKOUTS_JSON }}
     steps:
       - uses: actions/checkout@v4
         with:
