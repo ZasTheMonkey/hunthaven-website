@@ -197,7 +197,20 @@
  #outfitter-directory .experience-card,
  #outfitter-directory .experience-card__media img{transition:none!important;transform:none!important}
 }
-</style><link rel="stylesheet" href="/leasewild-theme.css?v=20261111-unified"><style id="lw-outfitter-light">html,body{color-scheme:light!important;background:#f8faf7!important;color:#193d32!important}.hero{background:#f7f9f6!important}.hero h1,.section-title{font-family:Georgia,'Times New Roman',serif!important;font-weight:500!important;letter-spacing:-.035em!important;color:#193d32!important}.outfitter-card,.notice-bar{background:#fff!important;border-color:#d5ded7!important;color:#193d32!important}.nav{background:#fff!important}.nav-links{display:none!important}.hero p,.section-sub{color:#63766b!important}</style><link rel="stylesheet" href="/leasewild-light-system.css?v=20261112-canonical"></head>
+</style><link rel="stylesheet" href="/leasewild-theme.css?v=20261111-unified"><style id="lw-outfitter-light">html,body{color-scheme:light!important;background:#f8faf7!important;color:#193d32!important}.hero{background:#f7f9f6!important}.hero h1,.section-title{font-family:Georgia,'Times New Roman',serif!important;font-weight:500!important;letter-spacing:-.035em!important;color:#193d32!important}.outfitter-card,.notice-bar{background:#fff!important;border-color:#d5ded7!important;color:#193d32!important}.nav{background:#fff!important}.nav-links{display:none!important}.hero p,.section-sub{color:#63766b!important}</style><link rel="stylesheet" href="/leasewild-light-system.css?v=20261112-canonical"><style id="lw-growth-directory-nav-fix">
+/* Growth QA: the page-level light-theme override must not hide all discovery links. */
+.nav .nav-links{display:flex!important;min-width:0}
+.nav .nav-links a{display:inline-flex!important;align-items:center;min-height:44px}
+.nav .nav-links .nav-mob-cta{display:none!important}
+.nav .nav-links a:focus-visible{outline:3px solid var(--color-accent);outline-offset:3px;border-radius:4px}
+@media(max-width:1024px){
+ .nav .nav-inner{height:auto;min-height:72px;flex-wrap:wrap;padding-top:.5rem;padding-bottom:.5rem}
+ .nav .nav-links{order:3;width:100%;overflow-x:auto;gap:1.1rem;white-space:nowrap;scrollbar-width:thin}
+ .nav .nav-links a:not(.nav-mob-cta){display:inline-flex!important}
+ .nav .nav-links .nav-mob-cta{display:inline-flex!important}
+ .nav .nav-actions{display:none!important}
+}
+</style></head>
 <body>
   <script>document.documentElement.setAttribute("data-theme","light");</script>
 
