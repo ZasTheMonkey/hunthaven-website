@@ -149,3 +149,9 @@ All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner Q
 - **FIXED (source):** Commit `7ee9b14ed9f4218dce33ebc1389f521175843438` changes visible hero text to neutral, credential-checking language, uses sandbox OG/Twitter image URLs, and adds a final scoped CSS override to show the full photograph without `cover` cropping. No payment code or production resources touched.
 - **PASS:** Embedded JavaScript static parse check; staging commit accepted. **DEPLOY PENDING:** Cloudflare deployment `7ee9b14` observed active at initialize stage. **NOT TESTED:** live rendered visual at 320/375/390/430/768/1024/1280/1440/1920/2560 px, keyboard/touch/zoom, actual Stripe TEST checkout/refund/webhook/payout reconciliation.
 - **NO-GO:** Stripe Tax registration, Connect payout accounts, booking/payment reconciliation, and refund E2E remain unresolved. Coordinate with payment and QA teams; do not infer production readiness from discovery fixes.
+
+### Growth Research — 2026-11-12 01:28 ET
+- FIXED IN SOURCE — `outfitters.html` guidance incorrectly asserted every outfitter must hold a Florida freshwater/saltwater guide license, irrespective of service. Replaced with activity-specific credential/permit requirements and guest verification guidance. Also corrected Twitter preview image URL to sandbox origin. Commit `92b9f12`.
+- PASS — GitHub staging file update accepted; original file SHA was verified before write.
+- NOT TESTED — Rendered Cloudflare deployment, real browser responsive matrix, social crawler preview, and credential accuracy for individual listings. No production changes or payment code edits.
+- NO-GO unchanged — Stripe TEST reconciliation, tax configuration, payout linkage and complete E2E payment/refund evidence remain outstanding.
