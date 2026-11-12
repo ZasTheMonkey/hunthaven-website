@@ -536,6 +536,13 @@ async function submitBookingStripe() {
     msg.textContent='Group booking ID invitations are not yet enabled on the secure server. Your guest details have not been submitted. Please wait until verification is available.';
     return;
   }
+  // Fail closed until the server validates promo discounts and returns a matching Stripe quote.
+  // Never authorize a higher amount than the discount shown to the hunter.
+  if (_appliedCode) {
+    msg.style.display = 'block'; msg.style.color = '#c0392b';
+    msg.textContent = 'Promo-code checkout is temporarily unavailable while secure discount validation is completed. Remove the code to continue without a discount; no payment has been started.';
+    return;
+  }
   _sandboxBookingCheckoutInFlight = true;
   btn.disabled = true; btn.textContent = 'Opening secure test authorization…';
   try {
