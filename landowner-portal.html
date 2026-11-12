@@ -183,24 +183,12 @@
         <label for="su-password">Password <span style="color:var(--color-text-muted);font-weight:400">(min 8 chars, 1 special character)</span></label>
         <input type="password" id="su-password" placeholder="••••••••" autocomplete="new-password" />
       </div>
-      <div class="field">
-        <label>Driver's License <span style="color:var(--color-text-muted);font-weight:400">(required)</span></label>
-        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:.5rem">Upload a photo or scan of your driver's license for identity verification.</p>
-        <div class="file-upload" id="license-zone">
-          <input type="file" id="license-input" accept="image/*,.pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2" />
-          <div id="license-zone-inner">
-            <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin:0 auto .4rem;color:var(--color-text-muted)"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <p style="font-size:var(--text-sm);font-weight:600;margin-bottom:.2rem">Tap to upload driver's license</p>
-            <p style="font-size:var(--text-xs);color:var(--color-text-muted)">JPG, PNG, or PDF</p>
-          </div>
-        </div>
-        <p class="file-upload-name" id="license-name"></p>
-      </div>
+      <p class="muted">After confirming your email and signing in, upload your photo ID in the Identity verification section of your dashboard. Account creation does not submit an ID or grant identity approval. No proof of property ownership is required.</p>
       <button class="btn-primary" id="signup-btn" onclick="handleSignUp()">Create Account</button>
       <p style="font-size:.82rem;color:var(--color-text-muted);text-align:center;margin-top:.85rem;line-height:1.65">By creating an account you agree to our <a href="terms.html" style="color:var(--color-primary)">Terms of Service</a> and <a href="terms.html#privacy" style="color:var(--color-primary)">Privacy Policy</a>.</p>
       <div class="security-note" style="margin-top:.75rem">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-        <span>Your driver's license and personal information is encrypted and stored securely. It is never shared with guests or third parties. Used only for identity verification.</span>
+        <span>Upload your ID only after signing in. ID documents are stored in private verification storage for authorized review, not shared with guests.</span>
       </div>
     </div>
 
@@ -379,51 +367,14 @@
     el.className = 'msg' + (type ? ' ' + type : '');
   }
 
-  // License file display
-  document.getElementById('license-input').addEventListener('change', function() {
-    var f = this.files[0];
-    var inner = document.getElementById('license-zone-inner');
-    var zone  = document.getElementById('license-zone');
-    var nameEl = document.getElementById('license-name');
-    if (!f) { return; }
-    zone.style.borderColor = 'var(--color-primary)';
-    zone.style.borderStyle = 'solid';
-    zone.style.background = 'var(--color-surface)';
-    nameEl.innerHTML = '';
-    if (f.type.startsWith('image/')) {
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        inner.innerHTML = '<img src="' + e.target.result + '" style="width:100%;max-height:150px;object-fit:contain;border-radius:8px;pointer-events:none" /><p style="font-size:13px;color:var(--color-primary);font-weight:700;margin-top:6px;pointer-events:none">✓ ' + f.name + '</p>';
-      };
-      reader.readAsDataURL(f);
-    } else {
-      inner.innerHTML = '<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 6px;color:var(--color-primary);pointer-events:none"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><p style="font-size:13px;font-weight:700;color:var(--color-primary);pointer-events:none">✓ ' + f.name + '</p><p style="font-size:11px;color:var(--color-text-muted);pointer-events:none">Tap to change</p>';
-    }
-  });
-
-  async function handleSignIn() {
-    var email = document.getElementById('si-email').value.trim();
-    var pass = document.getElementById('si-password').value;
-    if (!email || !pass) { showMsg('Please fill in all fields.','error'); return; }
-    var btn = document.getElementById('signin-btn');
-    btn.disabled = true; btn.textContent = 'Signing in…';
-    if (!sb) { showMsg('Connection error. Please refresh the page.','error'); btn.disabled=false; btn.textContent='Sign In'; return; }
-    var { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-    btn.disabled = false; btn.textContent = 'Sign In';
-    if (error) { showMsg(error.message, 'error'); return; }
-    showDashboard(data.user);
-  }
-
   async function handleSignUp() {
     var name  = document.getElementById('su-name').value.trim();
     var phone = document.getElementById('su-phone').value.trim();
     var email = document.getElementById('su-email').value.trim();
     var pass  = document.getElementById('su-password').value;
-    var licFile = document.getElementById('license-input').files[0];
     if (!name || !email || !pass) { showMsg('Please fill in all required fields.','error'); return; }
     if (pass.length < 8) { showMsg('Password must be at least 8 characters.','error'); return; }
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pass)) { showMsg('Password must include at least one special character (e.g. ! @ # $ %).','error'); return; }
-    if (!licFile) { showMsg('Please upload your driver\'s license.','error'); return; }
     var btn = document.getElementById('signup-btn');
     btn.disabled = true; btn.textContent = 'Creating account…';
 
