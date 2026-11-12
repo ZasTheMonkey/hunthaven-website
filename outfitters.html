@@ -182,6 +182,20 @@
 #outfitter-directory .experience-card:hover .experience-card__media img{transform:none}
 @media(max-width:600px){#outfitter-directory .experience-card__media{aspect-ratio:auto;min-height:150px}}
 </style><style>
+/* Growth QA: visible keyboard navigation and reduced-motion support. */
+#outfitter-directory a:focus-visible,
+#outfitter-directory button:focus-visible,
+.nav a:focus-visible,
+.footer-links a:focus-visible {
+  outline:3px solid var(--color-accent);
+  outline-offset:3px;
+}
+@media (prefers-reduced-motion:reduce) {
+  #outfitter-directory .experience-card,
+  #outfitter-directory .experience-card__media img,
+  .nav a {transition:none!important;transform:none!important}
+}
+</style><style>
 /* Growth QA: ensure missing and failed photographs have a legible, centered placeholder. */
 #outfitter-directory .experience-card__media.experience-card__placeholder{display:grid!important;place-items:center;min-height:180px;padding:1.5rem;text-align:center;font-weight:700;color:var(--color-text);overflow-wrap:anywhere}
 /* Growth QA: prevent narrow-screen overflow and honor reduced-motion preferences. */
