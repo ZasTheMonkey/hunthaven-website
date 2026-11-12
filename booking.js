@@ -103,7 +103,8 @@ function openListingDetail(l) {
             '<span style="display:flex;align-items:center;gap:.3rem"><span style="width:14px;height:14px;border-radius:3px;background:#ef4444;display:inline-block"></span>Unavailable (booked or pending)</span>' +
           '</div>' +
           '<div style="margin-bottom:.75rem"><label style="'+labelStyle+'">Guests</label>' +
-          '<select id="bk-guests" style="'+inputStyle+'">'+guestOpts+'</select></div>' +
+          '<select id="bk-guests" aria-label="Number of guests" onchange="renderBookingGuestFields()" style="'+inputStyle+'">'+guestOpts+'</select></div>' +
+          '<div id="bk-additional-guests" aria-live="polite" style="display:grid;gap:.75rem;margin-bottom:.75rem"></div>' +
           '<div id="bk-price-breakdown" style="display:none;background:var(--color-surface-offset);border-radius:8px;padding:.85rem;margin-bottom:.75rem;font-size:.85rem;flex-direction:column;gap:.4rem"></div>' +
           '<div id="bk-trip-protection-row" style="display:none;align-items:center;gap:.6rem;margin-bottom:.75rem;background:var(--color-surface-offset);border-radius:8px;padding:.7rem .85rem;font-size:.85rem">' +
             '<input type="checkbox" id="bk-trip-protection" onchange="updatePriceBreakdown()" style="width:16px;height:16px;accent-color:var(--color-primary);cursor:pointer" />' +
@@ -460,6 +461,54 @@ async function submitPreReservation() {
   }
 }
 
+
+// Additional hunting guests must be identified before submitting a booking request.
+function renderBookingGuestFields(){
+  const count=Number(document.getElementById('bk-guests')?.value||1);
+  const box=document.getElementById('bk-additional-guests');
+  if(!box)return;
+  const existing=[...box.querySelectorAll('[data-guest-row]')].map(row=>({
+    name:row.querySelector('[data-guest-name]')?.value||'',
+    age:row.querySelector('[data-guest-age]')?.value||'adult',
+    email:row.querySelector('[data-guest-email]')?.value||'',
+    supervisor:row.querySelector('[data-guest-supervisor]')?.checked||false
+  }));
+  box.replaceChildren();
+  for(let i=0;i<count-1;i++){
+    const row=document.createElement('fieldset');
+    row.dataset.guestRow=String(i);
+    row.style.cssText='border:1px solid var(--color-border);border-radius:12px;padding:12px;min-width:0';
+    const legend=document.createElement('legend');legend.textContent='Additional guest '+(i+1)+' — required';legend.style.fontWeight='700';row.append(legend);
+    const name=document.createElement('input');name.type='text';name.placeholder='Full legal name';name.setAttribute('aria-label','Guest '+(i+1)+' full legal name');name.dataset.guestName='';name.required=true;name.maxLength=120;name.value=existing[i]?.name||'';
+    const age=document.createElement('select');age.dataset.guestAge='';age.setAttribute('aria-label','Guest '+(i+1)+' age category');
+    for(const [v,label] of [['adult','18 or older'],['minor','Under 18']]){const opt=document.createElement('option');opt.value=v;opt.textContent=label;age.append(opt);}
+    age.value=existing[i]?.age||'adult';
+    const email=document.createElement('input');email.type='email';email.placeholder='Guest email for secure ID invitation';email.setAttribute('aria-label','Guest '+(i+1)+' email');email.dataset.guestEmail='';email.required=true;email.value=existing[i]?.email||'';
+    const supervision=document.createElement('label');supervision.style.cssText='display:none;align-items:flex-start;gap:8px;font-size:.83rem';
+    const check=document.createElement('input');check.type='checkbox';check.dataset.guestSupervisor='';check.checked=existing[i]?.supervisor||false;
+    supervision.append(check,document.createTextNode('I confirm this minor will be accompanied throughout the hunt by an adult age 18 or older in this reservation.'));
+    age.addEventListener('change',()=>{const minor=age.value==='minor';email.hidden=minor;email.required=!minor;supervision.style.display=minor?'flex':'none';});
+    for(const input of [name,age,email]){input.style.cssText='display:block;width:100%;min-width:0;box-sizing:border-box;padding:10px;margin:7px 0;border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface);color:var(--color-text)';row.append(input);}
+    row.append(supervision);box.append(row);age.dispatchEvent(new Event('change'));
+  }
+}
+function collectBookingGuestRoster(){
+  const count=Number(document.getElementById('bk-guests')?.value||1);
+  const rows=[...document.querySelectorAll('#bk-additional-guests [data-guest-row]')];
+  if(rows.length!==count-1)throw Error('Please enter all additional guests.');
+  const seen=new Set();
+  return rows.map((row,i)=>{
+    const name=row.querySelector('[data-guest-name]').value.trim();
+    const minor=row.querySelector('[data-guest-age]').value==='minor';
+    const email=row.querySelector('[data-guest-email]').value.trim().toLowerCase();
+    if(name.split(/\s+/).length<2)throw Error('Enter the full name of guest '+(i+1)+'.');
+    if(!minor&&(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||seen.has(email)))throw Error('Enter a unique valid email for guest '+(i+1)+'.');
+    if(minor&&!row.querySelector('[data-guest-supervisor]').checked)throw Error('Confirm adult supervision for minor guest '+(i+1)+'.');
+    if(!minor)seen.add(email);
+    return {full_name:name,is_minor:minor,...(!minor?{email}:{adult_supervision_confirmed:true})};
+  });
+}
+
 // ── Stripe Checkout ──────────────────────────────────────────
 // Checks site_settings.checkout_enabled before allowing payment.
 // If OFF → falls back to pre-reservation form.
@@ -478,6 +527,14 @@ async function submitBookingStripe() {
   msg.style.display = 'none';
   if (!check_in || !check_out) {
     msg.style.display = 'block'; msg.textContent = 'Choose your dates first.'; return;
+  }
+  let additional_guests;
+  try { additional_guests=collectBookingGuestRoster(); }
+  catch(e){msg.style.display='block';msg.style.color='#c0392b';msg.textContent=e.message;return;}
+  if(guests>1){
+    msg.style.display='block';msg.style.color='#c0392b';
+    msg.textContent='Group booking ID invitations are not yet enabled on the secure server. Your guest details have not been submitted. Please wait until verification is available.';
+    return;
   }
   _sandboxBookingCheckoutInFlight = true;
   btn.disabled = true; btn.textContent = 'Opening secure test authorization…';
