@@ -347,7 +347,7 @@
  root.replaceChildren();
  let rendered=0;
  for(const item of data){
- if(!item||typeof item.user_id!=='string'||!item.user_id.trim())continue;
+ if(!item||typeof item.user_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(item.user_id))continue;
  rendered++;
  const card=document.createElement('article');card.className='experience-card';
  const href='outfitter-experience.html?id='+encodeURIComponent(item.user_id);
