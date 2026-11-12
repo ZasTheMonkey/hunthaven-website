@@ -1,0 +1,38 @@
+/* LeaseWild canonical light visual system — homepage reference. Sandbox only. */
+:root,html[data-theme="dark"],html[data-theme="light"]{
+ color-scheme:light!important;
+ --bg:#f8faf7;--surface:#fff;--surface2:#f4f8f5;--text:#193d32;--muted:#63766b;--border:#d5ded7;
+ --green:#193d32;--green-dk:#123328;
+ --color-bg:#f8faf7;--color-surface:#fff;--color-surface-2:#f4f8f5;--color-surface-offset:#edf3ee;
+ --color-border:#d5ded7;--color-divider:#e1e8e1;--color-text:#193d32;
+ --color-text-muted:#63766b;--color-text-faint:#768a7e;--color-text-inverse:#fff;
+ --color-primary:#193d32;--color-primary-hover:#285b49;--color-primary-light:#e1efe8;
+ --color-accent:#c58b4d;--color-accent-hover:#aa743d;--color-accent-light:#f8efe4;
+ --shadow-md:0 10px 32px rgba(22,54,41,.09);--shadow-lg:0 18px 48px rgba(22,54,41,.14);
+}
+html,body{color-scheme:light!important}
+body{background:#f8faf7!important;color:#193d32!important}
+body .nav,body .dash-nav,body header:not(.hero):not(.card-header){background-color:#fff!important;color:#193d32;border-color:#d5ded7}
+body .hero{background-color:#f7f9f6!important;color:#193d32!important}
+body .hero-bg{background:linear-gradient(120deg,#f6f9f5 0%,#fff 62%,#eaf1eb 100%)!important}
+body .hero-bg::before,body .hero-bg::after{display:none!important}
+body .hero h1,body .hero h2{color:#193d32!important}
+body .hero h1 em{color:#3f7660!important}
+body .hero p,body .hero-sub{color:#52665a!important}
+body .section:not(.lw-dark-section){background-color:#fff;color:#193d32}
+body .card:not(.lw-dark-card),body .listing-card,body .portal-card,body .dash-card,body .outfitter-card,body .modal-content{
+ background-color:#fff!important;color:#193d32;border-color:#d5ded7!important;
+}
+body .btn-primary,body .editorial-primary,body .send-btn{background:#193d32!important;color:#fff!important}
+body .btn-primary:hover,body .editorial-primary:hover,body .send-btn:hover{background:#285b49!important}
+body .btn-ghost,body .editorial-secondary{background:#fff!important;color:#193d32!important;border-color:#cbd8ce!important}
+body .cat-pill.active,body .card-filter-btn.active{background:#193d32!important;color:#fff!important;border-color:#193d32!important}
+body .cat-pill:not(.active),body .card-filter-btn:not(.active){background:#fff;color:#193d32;border-color:#d5ded7}
+body input:not([type=checkbox]):not([type=radio]),body select,body textarea{background-color:#fff;color:#193d32;border-color:#cbd8ce}
+body input::placeholder,body textarea::placeholder{color:#718477}
+body #lw-site-menu-panel{background:#fff!important;color:#193d32!important}
+body #lw-site-menu-panel a{color:#193d32!important}
+body #lw-site-menu-toggle{background:#26352e!important;color:#fff!important}
+body #lw-site-menu-panel[hidden]{display:none!important}
+body .theme-btn{display:none!important}
+@media(max-width:768px){body .hero{min-height:0}body .nav-links.nav-open{background:#fff!important;color:#193d32!important}}
