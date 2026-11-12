@@ -7,7 +7,7 @@
   <link rel="apple-touch-icon" href="/favicon-192.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Florida Hunting & Fishing Outfitters | LeaseWild</title>
-  <meta name="description" content="Find licensed hunting and fishing outfitters in Florida on LeaseWild. Professional guides for deer, hog, duck, and bass fishing adventures across the state." />
+  <meta name="description" content="Explore hunting and fishing outfitter experiences listed in Florida on LeaseWild. Professional guides for deer, hog, duck, and bass fishing adventures across the state." />
   <meta name="keywords" content="hunting outfitters Florida, fishing guides Florida, licensed hunting guide Florida, Florida deer hunting outfitter, hog hunting guide Florida" />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="LeaseWild" />
@@ -249,7 +249,7 @@
           <h3 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-base)">Outfitters (Guide Services)</h3>
         </div>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:.6rem">
-          <li style="font-size:var(--text-sm);color:var(--color-text-muted);display:flex;gap:.5rem"><span style="color:var(--color-water);font-weight:700">✓</span> Fully guided experiences with a licensed guide</li>
+          <li style="font-size:var(--text-sm);color:var(--color-text-muted);display:flex;gap:.5rem"><span style="color:var(--color-water);font-weight:700">✓</span> Guided experiences offered by independent outfitters</li>
           <li style="font-size:var(--text-sm);color:var(--color-text-muted);display:flex;gap:.5rem"><span style="color:var(--color-water);font-weight:700">✓</span> Guide provides expertise, gear, and access</li>
           <li style="font-size:var(--text-sm);color:var(--color-text-muted);display:flex;gap:.5rem"><span style="color:var(--color-water);font-weight:700">✓</span> Listed and managed by the outfitter</li>
           <li style="font-size:var(--text-sm);color:var(--color-text-muted);display:flex;gap:.5rem"><span style="color:var(--color-water);font-weight:700">✓</span> NOT connected to land lease listings</li>
@@ -261,7 +261,7 @@
     <!-- Approved outfitters only; pending applications are private. -->
     <p class="section-label">Directory</p>
     <h2 class="section-title">Florida Outfitters</h2>
-    <p class="section-sub">Explore approved Florida hunting and fishing guides. New applications are reviewed before publication.</p>
+    <p class="section-sub">Explore active Florida outfitter experiences. Confirm guide credentials, licenses, and trip details before booking.</p>
     <div id="outfitter-directory" aria-live="polite">
       <p id="outfitter-directory-status" style="color:var(--color-text-muted)">Loading approved outfitters…</p>
     </div>
@@ -333,10 +333,10 @@
  const root=document.getElementById('outfitter-directory');
  if(!root)return;
  function notice(text){root.replaceChildren();const p=document.createElement('p');p.style.color='var(--color-text-muted)';p.textContent=text;root.appendChild(p)}
- const timeout=setTimeout(()=>notice('The directory is taking too long to load. Please try again.'),12000);
+ const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),12000);
  const url='https://kbkdfpmlyggfijkyjxoi.supabase.co/rest/v1/outfitter_listings?select=user_id,title,bio,price,price_label,counties,species,photos&status=eq.active&order=updated_at.desc&limit=60';
  const key='sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
- fetch(url,{headers:{'apikey':key,'Accept':'application/json'},cache:'no-store'}).then(async r=>{if(!r.ok)throw Error('Directory request '+r.status);return r.json()}).then(data=>{
+ fetch(url,{headers:{'apikey':key,'Accept':'application/json'},cache:'no-store',signal:controller.signal}).then(async r=>{if(!r.ok)throw Error('Directory request '+r.status);return r.json()}).then(data=>{
  clearTimeout(timeout);
  if(!Array.isArray(data)||!data.length){notice('No approved outfitters are listed yet.');return}
  root.replaceChildren();
@@ -356,7 +356,7 @@
  const action=document.createElement('a');action.href=href;action.className='experience-card__action';action.textContent='View experience';body.append(action);
  card.append(media,body);root.append(card);
  }
- }).catch(e=>{clearTimeout(timeout);console.error('Outfitter directory:',e);notice('Could not load outfitters (connection error). Please refresh.')});
+ }).catch(e=>{clearTimeout(timeout);console.error('Outfitter directory:',e);notice(e.name==='AbortError'?'The directory timed out. Please refresh and try again.':'Could not load outfitters (connection error). Please refresh.')});
 })();
 </script>
 <script src="/leasewild-navigation.js?v=20261111-unified" defer></script></body>
