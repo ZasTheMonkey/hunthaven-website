@@ -112,3 +112,26 @@ html body #lw-site-menu-panel a{color:#193d32!important}
 html body #lw-site-menu-panel a:hover,html body #lw-site-menu-panel a:focus-visible{background:#e1efe8!important}
 html body #lw-site-menu-panel .lw-menu-heading{color:#63766b!important}
 html body #lw-site-menu-toggle{color-scheme:dark!important;background:#26352e!important;color:#fff!important;border-color:#44584d!important}
+
+/* Unified light-only sandbox UI. This file is loaded after page-local styles. */
+html,html[data-theme],html[data-theme="dark"],html[data-theme="light"]{color-scheme:light!important}
+html body{background:#f8faf7;color:#193d32}
+html body .nav,html body .dash-nav{background:#fff!important;color:#193d32!important;border-color:#d5ded7!important}
+html body .nav a,html body .dash-nav a{color:#193d32}
+html body .hero:not(.lw-dark-hero){background:#f7f9f6;color:#193d32}
+html body .hero-bg-grid{display:none!important}
+html body .hero h1{color:#193d32}
+html body .hero-sub{color:#52665a}
+html body .section:not(.lw-dark-section){background:#fff;color:#193d32}
+html body .card-filter-btn.active{background:#173e32;color:#fff;border-color:#173e32}
+html body .card-filter-btn:not(.active){background:#fff;color:#193d32;border-color:#d5ded7}
+html body .listing-card,html body .portal-card{background:#fff;color:#193d32;border-color:#d5ded7}
+html body .card:not(.lw-dark-card){background:#fff;color:#193d32;border-color:#d5ded7}
+html body .muted{color:#63766b}
+html body main input:not([type="checkbox"]):not([type="radio"]),html body main textarea,html body main select{background:#fff;color:#193d32;border:1px solid #cbd8ce}
+html body main input::placeholder,html body main textarea::placeholder{color:#718477}
+html body main button:not(.theme-btn):not(.mobile-menu-btn):not(.lw-mobile-item){border-radius:10px}
+html body #lw-site-menu-panel[hidden]{display:none!important}
+html body #lw-site-menu-panel:not([hidden]){display:block!important}
+html body #lw-site-menu{z-index:1100}
+html body #lw-site-menu-toggle{background:#26352e!important;color:#fff!important}
