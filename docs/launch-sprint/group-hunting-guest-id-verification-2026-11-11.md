@@ -49,3 +49,9 @@ Deployment scope: `staging/leasewild-full-clone` / `leasewild-sandbox.pages.dev`
 - At the deadline, flag outstanding adult verifications for admin handling and prohibit unverified adults from participating; do not automatically issue refunds or cancel paid reservations without a published, approved policy and safe Stripe workflow.
 - Reuse previously approved adult guest verification where identity matching is established. Minor guests require no ID or email but a verified accompanying adult.
 - NOT IMPLEMENTED: server-side deadline enforcement, invites, and ID review. Existing group checkout is temporarily disabled pending implementation.
+
+## Notification repair progress (2026-11-11)
+- Created sandbox-only RLS-protected `sandbox_booking_email_outbox` with unique booking/event/recipient key and no anon/authenticated grants.
+- Deployed sandbox `sandbox-booking-webhook` v7: on successful test Stripe authorization -> `pending_approval`, queue an owner booking-request notification using listing contact email. No production code touched.
+- NOT TESTED: synthetic webhook-to-outbox end-to-end, provider delivery, retry worker, guest roster, secure guest ID invitation and admin review.
+- NOT OPERATIONAL: queued messages are not sent until a verified sandbox-only email delivery worker is implemented. Do not tell owner emails are fixed. Need confirm RESEND_API_KEY or equivalent sandbox provider and noreply@leasewild.com sender verification without exposing secrets.
