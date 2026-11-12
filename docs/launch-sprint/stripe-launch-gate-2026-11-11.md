@@ -170,3 +170,10 @@ All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner Q
 - **FIX COMMITTED (source):** `b359601892012a4069693d86ae1094a0626c7827` now only builds experience links for UUID-shaped user IDs. Empty-state messaging remains for zero valid results. This is a narrow reversible discovery fix; no payment code changed.
 - **PASS:** GitHub staging write accepted. **NOT TESTED:** Browser render/deployment confirmation, malformed-record integration test, viewport matrix, keyboard/touch/zoom, and Stripe TEST checkout/refund/Connect reconciliation this run. No synthetic payment or database mutation performed.
 - **LAUNCH GATE:** NO-GO pending documented payment/tax/payout evidence. Other teams retain checkout and booking E2E ownership; Growth Research retains discovery and conversion integrity.
+
+
+## 2026-11-12 04:40 ET — Growth Research mobile conversion CSS
+
+- **FIX COMMITTED (source-level):** `outfitters.html` contained a global `@media(max-width:768px)` rule hiding `.btn-ghost,.btn-primary,.btn-accent` with `display:none!important` across the whole document. This could suppress non-navigation conversion actions on mobile. Scoped the rule to `.nav` only; commit `e40649a1437fb01d6b817aee99e548d4c5df361c` on `staging/leasewild-full-clone`. Reversible single-selector change; no checkout/payment code touched.
+- **PASS:** Source comparison confirmed exactly one targeted selector replacement; GitHub commit succeeded. **NOT TESTED:** Actual deployed Cloudflare HTML and browser CTA visibility at 320/375/390/430/768 widths, keyboard and zoom. Do not infer deployed success from GitHub commit.
+- **NO-GO:** Stripe Tax classification/registration, verified Connect destination payout, cancellation/refund reconciliation and comprehensive payment UI E2E remain open. No Stripe test payment initiated in this run.
