@@ -435,9 +435,14 @@
 
   async function refreshLandownerIdentity(){
     const target=document.getElementById('lo-id-status');
+    const panel=document.getElementById('lo-identity-panel');
     const {data,error}=await sb.from('identity_verification_submissions').select('status,created_at').order('created_at',{ascending:false}).limit(1);
-    if(error){target.textContent='Unable to check verification status. Please retry later.';return;}
-    target.textContent=data?.length?'Latest ID submission: '+data[0].status+'.':'No ID submitted yet. Please upload your license below.';
+    if(error){panel.style.display='';target.textContent='Unable to check verification status. Please retry later.';return;}
+    const latest=data?.[0]?.status;
+    // Once approved, remove the entire upload prompt from the landowner dashboard.
+    panel.style.display=latest==='approved'?'none':'';
+    if(latest==='pending'){target.textContent='ID submitted. Pending admin review.';document.getElementById('lo-id-file').style.display='none';document.getElementById('lo-id-upload').style.display='none';}
+    else {target.textContent=latest==='rejected'?'ID verification was not approved. Please upload a new license.':'No ID submitted yet. Please upload your license below.';document.getElementById('lo-id-file').style.display='';document.getElementById('lo-id-upload').style.display='';}
   }
   async function uploadLandownerIdentity(){
     const status=document.getElementById('lo-id-status'),button=document.getElementById('lo-id-upload');
