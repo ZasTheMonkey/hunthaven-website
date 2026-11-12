@@ -334,3 +334,11 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 - **REVIEW:** Earlier report's three outfitter booking requests count is stale; the current count is four. Compare each paid request with Stripe TEST payment and transfer records before attributing payout success.
 - **NOT TESTED this run:** authenticated synthetic browser zone drawing/save/reload, owner B access denial, property verification, hunter reviews/messages, checkout card/decline/3DS, webhook replay, Stripe Connect payout, and 320–2560px responsive matrix. No new payment/refund initiated. No screenshot or runtime browser evidence available in this pass.
 - **COORDINATION:** Developer/Hunter QA should prioritize Connect destination-transfer and UI checkout proof; Landowner QA continues owner isolation, access-zone persistence and review eligibility; Legal retains tax/cancellation disclosure gate. **NO-GO**. No main/live deployment.
+
+
+## 2026-11-12 00:19 ET — Adult guest ID status integrity (sandbox)
+
+- **FAIL identified (code review):** Newly deployed `sandbox-guest-id-upload` Edge Function v1 set `sandbox_booking_guests.verification_status='approved'` immediately after a file upload. A document upload is **not** human or provider identity verification; this falsely labeled unreviewed ID as approved.
+- **FIX DEPLOYED:** Supabase isolated sandbox project `kbkdfpmlyggfijkyjxoi`, `sandbox-guest-id-upload` v2 now sets `verification_status='submitted'` and returns an explicit awaiting-review message. Existing pending guest record remains pending; no customer IDs accessed or uploaded. This is Edge Function deployment evidence, not browser E2E.
+- **REVIEW/P0:** An authorized reviewer workflow, private document read authorization, malware scanning/retention/deletion, reservation-local cutoff and identity decision audit are still unverified. No automated approval should be inferred from a successful upload.
+- **NOT TESTED:** Actual guest upload via browser, secure invitation email delivery, one-time token replay, cross-owner ID access denial, responsive 320–2560px, Stripe TEST card UI, owner map drawing/reload and hunter reviews. Do not claim these PASS. No production or live payment changes.
