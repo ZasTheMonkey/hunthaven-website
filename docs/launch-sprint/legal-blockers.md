@@ -35,3 +35,22 @@ Scope: repository `ZasTheMonkey/hunthaven-website`, branch `staging/leasewild-fu
 ## Release requirements
 
 Florida-licensed attorney review of terms, waiver, privacy, host agreement, insurance, cancellation/refund, user-generated reviews and relevant hunting/fishing rules; authenticated negative-case RLS tests; real sandbox-only Stripe TEST reconciliation; accessible acceptance flows; and documented responsive QA. Until these are evidenced, NO-GO. This report does not authorize applying the guarded SQL draft.
+
+
+## 2026-11-11 evening — payment/privacy legal source review (staging)
+
+**Scope/evidence:** Read the current staging versions of `docs/launch-sprint/stripe-launch-gate-2026-11-11.md`, `terms.html`, `privacy.html`, `outfitter-experience.html`, and `outfitter-portal.html` through GitHub. Source inspection only; no authenticated UI, Stripe mutation, or production access.
+
+| Area | Status | Evidence and required action |
+|---|---|---|
+| Outfitter paid checkout | REVIEW | `outfitter-experience.html` now correctly distinguishes availability request from payment and links to `outfitter-pay.html`; `outfitter-portal.html` marks accepted paid vs awaiting payment. This supersedes earlier blanket claim that the interface cannot offer checkout. No fresh UI payment proof from this legal review. |
+| Stripe TEST payment reconciliation | PASS (documented historical cross-system read only) | Shared launch gate records two $250 TEST PaymentIntents succeeded for outfitter bookings; both marked `platform_only_test=true`, without transfer_data/application_fee. They do **not** establish Connect transfer/payout readiness. |
+| Connect payout | FAIL (launch gate) | One linked synthetic Connect outfitter is now documented, superseding the earlier zero-linked-accounts finding. Its accepted $200 request was unpaid at the last recorded read. Require paid linked-outfitter test, transfer and payout reconciliation before launch. |
+| Cancellation | REVIEW | Shared report records a cancelled paid booking with zero refund under stored `no_refund` policy; Stripe charge remains succeeded. This is internally consistent with the stored decision, but **not** proof that the guest saw and accepted the 48-hour cutoff or that the correct local timezone was used. Preserve decision timestamp, check-in timezone, preview text, and consent evidence. |
+| Contractual waiver | FAIL (claim/evidence mismatch) | `terms.html` asserts a “digital liability waiver signed at checkout” and contains sweeping release/non-suit language. No verified affirmative signature/versioned consent audit was presented. Do not assert legally effective waiver or immunity until counsel reviews scope/enforceability and actual signed evidence. |
+| Outfitter eligibility | REVIEW | `outfitter-portal.html` signup asks users to confirm they hold an FWC license **or will obtain one before listing goes live**. Do not represent an outfitter as verified merely because this checkbox was checked. Confirm actual applicable licensing requirements with Florida counsel/FWC, then gate publication on appropriate verification. |
+| Privacy/retention | REVIEW | `privacy.html` says account-closure data deletion typically occurs within 90 days, subject to legal records; booking/message retention and legal holds need operational confirmation. Do not automatically delete booking messages at trip end without retention and incident-hold controls. |
+| Tax | FAIL (launch gate) | Shared Stripe Tax record shows pending configuration and no registrations; flat 6.5% tax logic is not validated across products/jurisdictions. Require real tax classification and registration advice; never fabricate registrations. |
+| Responsive/keyboard/zoom/cross-role | NOT TESTED | No browser/device session or authenticated synthetic identities available to this source-only review. Ten viewport widths, RLS negative cases, terms checkbox persistence, and cancellation modal accessibility remain unverified. |
+
+**P0 coordination:** Designer/Developer and Hunter QA: capture immutable checkout consent version/time/identity, verify policy preview before payment/cancellation, and complete linked-Connect Stripe TEST payout. Landowner QA: negative-case owner/other-owner boundary and review authorization. Growth: avoid implying waived liability, guaranteed insurance or completed refund without proof. Legal: require counsel to approve actual terms/waiver and tax classification. **NO-GO** remains; no live/main changes.
