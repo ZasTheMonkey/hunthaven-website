@@ -364,7 +364,7 @@ function updateBookingPrice() {
     '<div style="display:flex;justify-content:space-between"><span>$'+rate+' x '+nights+' night'+(nights>1?'s':'')+'</span><span>$'+(rate*nights).toFixed(2)+'</span></div>' +
     (cleaning ? '<div style="display:flex;justify-content:space-between"><span>Cleaning fee</span><span>$'+cleaning.toFixed(2)+'</span></div>' : '') +
     (tripProtection > 0 ? '<div style="display:flex;justify-content:space-between"><span>Trip protection</span><span>$18.00</span></div>' : '') +
-    '<div style="display:flex;justify-content:space-between"><span>Estimated tax (6.5% of nightly rate · sandbox)</span><span>
+    '<div style="display:flex;justify-content:space-between"><span>Estimated tax (6.5% of nightly rate · sandbox)</span><span>$'+estimatedTax.toFixed(2)+'</span></div>' +
     (discountAmt > 0 ? '<div style="display:flex;justify-content:space-between;color:var(--color-primary);font-weight:600"><span>Discount ('+discountLabel+')</span><span>−$'+discountAmt.toFixed(2)+'</span></div>' : '') +
     '<div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid var(--color-border);padding-top:.4rem;margin-top:.25rem"><span>Total</span><span>$'+total.toFixed(2)+'</span></div>';
 }
