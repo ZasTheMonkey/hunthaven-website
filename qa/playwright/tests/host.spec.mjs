@@ -24,6 +24,9 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
  test('unauthenticated visitor cannot save a drafted hunting boundary',async({page},info)=>{
   await visit(page,'/sandbox-zone-editor.html');
   await expect(page.locator('#save')).toBeDisabled();
+  // Coordinates are inside a collapsed <details>; expand it before human-like input.
+  await page.locator('summary').filter({hasText:'Optional: enter exact coordinates'}).click();
+  await expect(page.locator('#latitude')).toBeVisible();
   for(const [lat,lng] of [[29.02,-80.93],[29.021,-80.93],[29.021,-80.929]]){
    await page.locator('#latitude').fill(String(lat));
    await page.locator('#longitude').fill(String(lng));
