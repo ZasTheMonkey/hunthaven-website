@@ -366,12 +366,13 @@
 (function(){
  const root=document.getElementById('outfitter-directory');
  if(!root)return;
- function notice(text,retry){root.replaceChildren();const p=document.createElement('p');p.style.color='var(--color-text-muted)';p.textContent=text;root.appendChild(p);if(retry){const b=document.createElement('button');b.type='button';b.textContent='Try loading outfitters again';b.style.cssText='margin-top:12px;min-height:48px;padding:12px 20px;border-radius:999px;border:1px solid var(--color-border);background:var(--color-primary);color:#fff;font-weight:700;cursor:pointer';b.addEventListener('click',()=>location.reload());root.appendChild(b)}}
+ function notice(text,retry){root.setAttribute('aria-busy','false');root.replaceChildren();const p=document.createElement('p');p.style.color='var(--color-text-muted)';p.textContent=text;root.appendChild(p);if(retry){const b=document.createElement('button');b.type='button';b.textContent='Try loading outfitters again';b.style.cssText='margin-top:12px;min-height:48px;padding:12px 20px;border-radius:999px;border:1px solid var(--color-border);background:var(--color-primary);color:#fff;font-weight:700;cursor:pointer';b.addEventListener('click',()=>location.reload());root.appendChild(b)}}
+ root.setAttribute('role','status');root.setAttribute('aria-live','polite');root.setAttribute('aria-busy','true');
  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),12000);
  const url='https://kbkdfpmlyggfijkyjxoi.supabase.co/rest/v1/outfitter_listings?select=user_id,title,bio,price,price_label,counties,species,photos&status=eq.active&order=updated_at.desc&limit=60';
  const key='sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
  fetch(url,{headers:{'apikey':key,'Accept':'application/json'},cache:'no-store',signal:controller.signal}).then(async r=>{if(!r.ok)throw Error('Directory request '+r.status);return r.json()}).then(data=>{
- clearTimeout(timeout);
+ clearTimeout(timeout);root.setAttribute('aria-busy','false');
  if(!Array.isArray(data)||!data.length){notice('No approved outfitters are listed yet.');return}
  root.replaceChildren();
  let rendered=0;
