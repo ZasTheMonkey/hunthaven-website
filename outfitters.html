@@ -181,6 +181,20 @@
 #outfitter-directory .experience-card__media img{width:100%;height:auto;max-height:440px;object-fit:contain;object-position:center;transform:none}
 #outfitter-directory .experience-card:hover .experience-card__media img{transform:none}
 @media(max-width:600px){#outfitter-directory .experience-card__media{aspect-ratio:auto;min-height:150px}}
+</style><style>
+/* Growth QA: prevent narrow-screen overflow and honor reduced-motion preferences. */
+#outfitter-directory .experience-card__heading{min-width:0;flex-wrap:wrap}
+#outfitter-directory .experience-card__title{min-width:0;overflow-wrap:anywhere}
+#outfitter-directory .experience-card__price{white-space:normal;overflow-wrap:anywhere}
+#outfitter-directory .experience-card__location,
+#outfitter-directory .experience-card__species{overflow-wrap:anywhere}
+#outfitter-directory .experience-card__media:focus-visible,
+#outfitter-directory .experience-card__title a:focus-visible,
+#outfitter-directory .experience-card__action:focus-visible{outline:3px solid var(--color-accent);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+ #outfitter-directory .experience-card,
+ #outfitter-directory .experience-card__media img{transition:none!important;transform:none!important}
+}
 </style><link rel="stylesheet" href="/leasewild-theme.css?v=20261111-unified"><style id="lw-outfitter-light">html,body{color-scheme:light!important;background:#f8faf7!important;color:#193d32!important}.hero{background:#f7f9f6!important}.hero h1,.section-title{font-family:Georgia,'Times New Roman',serif!important;font-weight:500!important;letter-spacing:-.035em!important;color:#193d32!important}.outfitter-card,.notice-bar{background:#fff!important;border-color:#d5ded7!important;color:#193d32!important}.nav{background:#fff!important}.nav-links{display:none!important}.hero p,.section-sub{color:#63766b!important}</style><link rel="stylesheet" href="/leasewild-light-system.css?v=20261112-canonical"></head>
 <body>
   <script>document.documentElement.setAttribute("data-theme","light");</script>
