@@ -39,3 +39,16 @@
 **Coordination:** Bot B owns host/admin journeys; Bot A owns hunter checkout. Avoid overlapping edits. This report adds evidence classification only, with no changes to checkout or shared app files.
 
 **Release decision: NO-GO.** No production/main changes. No Stripe charges or synthetic records created this run.
+
+
+## 2026-11-12 02:15 EST — source evidence and QA documentation correction
+
+**Scope:** staging-only GitHub source review; no browser, authenticated synthetic accounts, Stripe TEST checkout or live inbox was available in this run. No production resources touched. **Evidence type: STATIC-ONLY.**
+
+- Reviewed current `qa/playwright/tests/host.spec.mjs`: eight host/admin route render-and-screenshot cases plus three authenticated login/tab scenarios (landowner, outfitter, admin). Authenticated cases require `QA_LANDOWNER_*`, `QA_OUTFITTER_*`, `QA_ADMIN_*` synthetic secrets; no map save/reload, cross-owner denial, hunter review, reservation approval, email receipt, payout or refund assertions are implemented here. **NOT TESTED** in browser.
+- Reviewed `qa/playwright/tests/payments.spec.mjs`: four hosted Stripe TEST card scenarios require fresh per-case `QA_STRIPE_TEST_CHECKOUTS_JSON` fixtures; ten financial scenarios (refunds, cancellation, duplicate, promo, tax, outfitter add-on, cleaning deposit, payout) are explicitly skipped. **No new payment executed.**
+- Reviewed `sandbox-zone-editor.html`: markup contains hunting-area polygon, entry point, parking point and trail controls, coordinate entry and mobile layout rules. This confirms **source presence only**, not that a synthetic owner can save, refresh and reload geometry or that authorization is secure.
+- Corrected misleading `qa/playwright/README.md` statement that testers already run hourly and inaccurate four-job count. Actual workflow defines **five jobs** and staging-only schedule is not evidence of execution. Documentation correction commit: `f3c76cb99a45a990cf7a8c4a6c6a93e7f5088d30`.
+- Historical Stripe launch-gate initial claim of **zero** linked outfitter payout accounts is superseded by its later 2026-11-11 16:38 ET sandbox database observation of **one** linked synthetic test outfitter. Do not repeat zero as a current verified count; re-query sandbox before a new assertion. A linked account alone is not a tested payout.
+
+**This run:** real browser routes 0; real browser E2E flows 0; test-card payments 0; verified runtime bug fixes 0; documentation corrections 1; deployment verification NOT TESTED; critical financial/identity/security flows BLOCKED or NOT TESTED pending real execution. **NO-GO** until browser, Stripe TEST, sandbox database and email evidence are reconciled.
