@@ -63,3 +63,14 @@
 **RLS policy inspection (database metadata only):** `listing_access_zones` SELECT/INSERT/UPDATE/DELETE policies restrict authenticated users to listings where `owner_id=auth.uid()`; UPDATE has both USING and WITH CHECK. This is positive policy configuration evidence, not a real cross-account denial test. Authenticated map drawing/save/reload, role isolation and payments remain **NOT TESTED** in a real browser this run.
 
 **This run:** real-browser routes 0; real-browser flows 0; Stripe test-card payments 0; source-level geometry fix 1; four direct JS validation checks; Cloudflare sandbox deployment 1 successful; database aggregate/read-only checks 3; live inbox delivery unverified. **NO-GO** until actual browser payment, booking, email and authorization E2E evidence exists. Do not touch GitHub main, live domain, production database or live Stripe.
+
+
+## 2026-11-12 06:33 EST — host QA execution gate recheck
+
+**Evidence type: STATIC-ONLY; browser and Stripe TEST UI NOT TESTED.** Re-fetched the current staging host Playwright spec, zone editor and real-browser workflow. The workflow has five jobs (hunter Chromium/WebKit, host Chromium/WebKit, payments Chromium), and the host spec has eight unauthenticated route screenshots plus three credential-gated login/tab cases. It does **not** contain executable assertions for owner-drawn polygon save/reload, owner isolation, completed-booking hunter reviews, booking approval or email delivery. The sandbox zone editor source includes hunting polygon, entry, parking and trail controls; presence is not proof of functional persistence or security.
+
+**Execution blocker:** The workflow's `schedule` trigger cannot run hourly solely from a workflow file on nondefault staging; its `if: github.ref == 'refs/heads/staging/leasewild-full-clone'` also prevents default-branch scheduled jobs from running. Manual `workflow_dispatch` against the staging ref or a separate authorized staging dispatcher is required. No supported GitHub Actions dispatch/run-list capability or graphical browser was available to this run, so no actual workflow run ID or browser trace could be obtained. Do not count the YAML configuration as a completed test.
+
+**Priority next work:** Obtain a real staging-ref workflow-dispatch run with synthetic QA secrets and fresh TEST Checkout fixtures; verify checkout/session/PaymentIntent/webhook/booking/email reconciliation; add host authenticated assertions for polygon save/reload and cross-owner denial; then test review eligibility and booking messaging. Coordinate fixture IDs with Hunter QA. Never introduce production secrets or push workflow fixes to main without authorization.
+
+**Accounting:** 3 current staging source files reviewed; 0 real-browser routes; 0 completed E2E flows; 0 Stripe TEST payments; 0 verified runtime fixes; 0 sandbox deployments in this run. No live or production resources accessed. **NO-GO.**
