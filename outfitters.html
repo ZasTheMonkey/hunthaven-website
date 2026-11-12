@@ -182,6 +182,8 @@
 #outfitter-directory .experience-card:hover .experience-card__media img{transform:none}
 @media(max-width:600px){#outfitter-directory .experience-card__media{aspect-ratio:auto;min-height:150px}}
 </style><style>
+/* Growth QA: ensure missing and failed photographs have a legible, centered placeholder. */
+#outfitter-directory .experience-card__media.experience-card__placeholder{display:grid!important;place-items:center;min-height:180px;padding:1.5rem;text-align:center;font-weight:700;color:var(--color-text);overflow-wrap:anywhere}
 /* Growth QA: prevent narrow-screen overflow and honor reduced-motion preferences. */
 #outfitter-directory .experience-card__heading{min-width:0;flex-wrap:wrap}
 #outfitter-directory .experience-card__title{min-width:0;overflow-wrap:anywhere}
@@ -367,7 +369,7 @@
  const href='outfitter-experience.html?id='+encodeURIComponent(item.user_id);
  const media=document.createElement('a');media.className='experience-card__media';media.href=href;media.setAttribute('aria-label','View '+(item.title||'experience'));
  const photo=Array.isArray(item.photos)?item.photos.find(u=>typeof u==='string'&&u.startsWith('https://')):null;
- if(photo){const img=document.createElement('img');img.src=photo;img.alt=item.title||'Outfitter experience';img.loading='lazy';img.addEventListener('error',()=>{img.remove();media.textContent='LeaseWild experience';});media.append(img)}else{media.textContent='LeaseWild experience'}
+ if(photo){const img=document.createElement('img');img.src=photo;img.alt=item.title||'Outfitter experience';img.loading='lazy';img.addEventListener('error',()=>{img.remove();media.classList.add('experience-card__placeholder');media.textContent='LeaseWild experience';});media.append(img)}else{media.classList.add('experience-card__placeholder');media.textContent='LeaseWild experience'}
  const body=document.createElement('div');body.className='experience-card__body';
  const heading=document.createElement('div');heading.className='experience-card__heading';
  const title=document.createElement('h3');title.className='experience-card__title';const titleLink=document.createElement('a');titleLink.href=href;titleLink.textContent=item.title||'Florida Outfitter';title.append(titleLink);heading.append(title);
