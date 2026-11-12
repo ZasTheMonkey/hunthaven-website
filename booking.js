@@ -224,6 +224,55 @@ function openListingDetail(l) {
     fpOut = flatpickr(coutEl, Object.assign({}, fpConfig, {
       onChange: function() { updateBookingPrice(); }
     }));
+    // Refresh availability on calendar interaction, so cancelled reservations free up
+    // without requiring a full page reload. Fail closed on service errors.
+    let lastAvailabilityRefresh=Date.now();
+    let availabilityRefreshing=false;
+    async function refreshBookingAvailability(){
+      if(availabilityRefreshing||Date.now()-lastAvailabilityRefresh<2500)return;
+      if(document.getElementById('listing-detail-modal')?.style.display==='none')return;
+      availabilityRefreshing=true;
+      lastAvailabilityRefresh=Date.now();
+      try{
+        const response=await fetch(SUPABASE_URL+'/functions/v1/sandbox-listing-availability?listing_id='+encodeURIComponent(l.id)+'&_='+Date.now(),{
+          headers:{apikey:SUPABASE_ANON_KEY},cache:'no-store'
+        });
+        if(!response.ok)throw new Error('Availability request failed');
+        const result=await response.json();
+        if(!Array.isArray(result.ranges))throw new Error('Invalid availability response');
+        const freshUnavailable=new Set(),freshPending=[];
+        for(const range of result.ranges){
+          const current=new Date(range.start+'T00:00:00Z'),end=new Date(range.end+'T00:00:00Z');
+          if(!Number.isFinite(current.getTime())||!Number.isFinite(end.getTime()))throw new Error('Invalid booking dates');
+          for(let n=0;current<end&&n<366;n++,current.setUTCDate(current.getUTCDate()+1)){
+            const date=current.toISOString().slice(0,10);
+            freshUnavailable.add(date);
+            if(range.type==='pending')freshPending.push(date);
+          }
+        }
+        unavailable=freshUnavailable;
+        pendingDates=freshPending;
+        fpIn.set('disable',Array.from(unavailable));
+        fpOut.set('disable',Array.from(unavailable));
+        fpIn.redraw();fpOut.redraw();
+        const chosen=[cinEl.value,coutEl.value].filter(Boolean);
+        if(chosen.some(d=>unavailable.has(d))){
+          fpIn.clear();fpOut.clear();
+          const warning=document.getElementById('bk-msg');
+          if(warning){warning.style.display='block';warning.textContent='Availability changed. Please select new dates.';}
+        }
+      }catch(e){
+        console.warn('Unable to refresh booking availability',e);
+        fpIn.set('disable',[()=>true]);fpOut.set('disable',[()=>true]);
+        const warning=document.getElementById('bk-msg');
+        if(warning){warning.style.display='block';warning.textContent='Could not verify current availability. Please retry.';}
+      }finally{availabilityRefreshing=false;}
+    }
+    cinEl.addEventListener('focus',refreshBookingAvailability);
+    coutEl.addEventListener('focus',refreshBookingAvailability);
+    fpIn.config.onOpen.push(refreshBookingAvailability);
+    fpOut.config.onOpen.push(refreshBookingAvailability);
+
   }
 
   document.getElementById('listing-detail-content').innerHTML =
