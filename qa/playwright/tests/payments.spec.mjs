@@ -53,8 +53,10 @@ test.describe('Stripe real hosted TEST checkout',()=>{
    expect(fixture.synthetic).toBe(true);
    await page.goto(u.toString(),{waitUntil:'domcontentloaded'});
    await expect(page.locator('body')).toBeVisible();
+   // Capture the hosted checkout before entering any card details. Never persist
+   // screenshots of populated payment fields in CI artifacts, even for TEST cards.
+   await page.screenshot({path:info.outputPath(c.key+'-pre-card.png'),fullPage:true});
    await fillCard(page,c.card);
-   await page.screenshot({path:info.outputPath(c.key+'-filled.png'),fullPage:true});
    const pay=page.getByRole('button',{name:/pay|authorize|submit|book|confirm/i}).last();
    await expect(pay).toBeVisible();
    await pay.click();
@@ -66,7 +68,9 @@ test.describe('Stripe real hosted TEST checkout',()=>{
    }else{
     await expect(page).toHaveURL(/leasewild-sandbox\.pages\.dev/,{timeout:45000});
    }
-   await page.screenshot({path:info.outputPath(c.key+'-result.png'),fullPage:true});
+   // Declined/3DS screens can retain populated card fields; redact the inputs
+   // from artifacts while preserving visible result/error evidence.
+   await page.screenshot({path:info.outputPath(c.key+'-result.png'),fullPage:true,mask:[page.locator('input[autocomplete="cc-number"],input[name="cardnumber"],input[name="number"],input[autocomplete="cc-exp"],input[name="exp-date"],input[name="expiry"],input[autocomplete="cc-csc"],input[name="cvc"]')],maskColor:'#000000'});
   });
  }
  for(const name of ['full_refund','partial_refund','cancellation_before_capture','cancellation_after_capture','duplicate_payment','promo_discount','tax','outfitter_addon','cleaning_deposit','payout']){
