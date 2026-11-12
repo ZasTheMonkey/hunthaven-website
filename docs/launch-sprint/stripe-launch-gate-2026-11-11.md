@@ -163,3 +163,10 @@ All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner Q
 - **PASS:** GitHub commit accepted; inline JavaScript parsed successfully with `new Function`.
 - **NOT TESTED:** Browser rendering with malformed synthetic rows, Cloudflare deployment completion, responsive matrix, authenticated Stripe TEST reconciliation. Do not interpret source validation as E2E PASS.
 - **NO-GO:** Stripe Tax registration, Connect payout linkage, refund/cancellation reconciliation and end-to-end checkout evidence remain open.
+
+## 2026-11-12 03:52 ET — Growth Research identifier validation
+
+- **FAIL (source inspection):** Directory previously accepted any nonempty `outfitter_listings.user_id`, potentially rendering broken experience links for malformed IDs.
+- **FIX COMMITTED (source):** `b359601892012a4069693d86ae1094a0626c7827` now only builds experience links for UUID-shaped user IDs. Empty-state messaging remains for zero valid results. This is a narrow reversible discovery fix; no payment code changed.
+- **PASS:** GitHub staging write accepted. **NOT TESTED:** Browser render/deployment confirmation, malformed-record integration test, viewport matrix, keyboard/touch/zoom, and Stripe TEST checkout/refund/Connect reconciliation this run. No synthetic payment or database mutation performed.
+- **LAUNCH GATE:** NO-GO pending documented payment/tax/payout evidence. Other teams retain checkout and booking E2E ownership; Growth Research retains discovery and conversion integrity.
