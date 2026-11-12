@@ -464,7 +464,9 @@ async function submitPreReservation() {
 // Checks site_settings.checkout_enabled before allowing payment.
 // If OFF → falls back to pre-reservation form.
 // If ON  → saves booking as 'pending_payment' then redirects to Stripe.
+let _sandboxBookingCheckoutInFlight = false;
 async function submitBookingStripe() {
+  if (_sandboxBookingCheckoutInFlight) return;
   const l = _currentListing;
   const btn = document.getElementById('bk-btn');
   const msg = document.getElementById('bk-msg');
@@ -477,6 +479,7 @@ async function submitBookingStripe() {
   if (!check_in || !check_out) {
     msg.style.display = 'block'; msg.textContent = 'Choose your dates first.'; return;
   }
+  _sandboxBookingCheckoutInFlight = true;
   btn.disabled = true; btn.textContent = 'Opening secure test authorization…';
   try {
   // Re-check the entire stay, not just the check-in and check-out dates.
@@ -500,6 +503,7 @@ async function submitBookingStripe() {
     msg.style.display = 'block'; msg.style.color = '#c0392b';
     msg.textContent = e.message || 'Sandbox checkout failed.';
   } finally {
+    _sandboxBookingCheckoutInFlight = false;
     btn.disabled = false; btn.innerHTML = 'Request Booking — No Charge Yet &rarr;';
   }
 }
