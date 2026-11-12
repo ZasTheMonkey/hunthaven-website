@@ -130,9 +130,11 @@ function openListingDetail(l) {
   async function initDatePickers() {
     // Sandbox-only availability: never query the live database.
     var bookedDates = [], pendingDates = [], unavailable = new Set(), loadFailed = false;
+    var availabilityAbort = new AbortController();
+    var availabilityTimeout = setTimeout(function(){ availabilityAbort.abort(); }, 5000);
     try {
       var res = await fetch(SUPABASE_URL + '/functions/v1/sandbox-listing-availability?listing_id=' + encodeURIComponent(l.id), {
-        headers: { 'apikey': SUPABASE_ANON_KEY }, cache:'no-store'
+        headers: { 'apikey': SUPABASE_ANON_KEY }, cache:'no-store', signal:availabilityAbort.signal
       });
       if (!res.ok) throw new Error('Availability service unavailable');
       var payload = await res.json();
@@ -153,6 +155,8 @@ function openListingDetail(l) {
       if(warning){warning.style.display='block';warning.textContent='Availability is temporarily unavailable. Please try again later.';}
       var requestButton=document.getElementById('bk-btn');
       if(requestButton)requestButton.disabled=true;
+    } finally {
+      clearTimeout(availabilityTimeout);
     }
     var fpConfig = {
       minDate: 'today',
@@ -193,7 +197,20 @@ function openListingDetail(l) {
     }
     if (!cinEl || !coutEl) { console.warn('bk-checkin/bk-checkout not found'); return; }
 
-    var fpOut; // declared first so fpIn's onChange closure can reference it
+    // A native date picker is preferable to a text-only field if the calendar CDN fails.
+    if (typeof flatpickr !== 'function') {
+      [cinEl,coutEl].forEach(function(el){
+        el.type='date';
+        el.min=new Date().toLocaleDateString('en-CA');
+        el.addEventListener('change',updateBookingPrice);
+        if (loadFailed) el.disabled=true;
+      });
+      cinEl.addEventListener('change',function(){
+        if(cinEl.value) coutEl.min=new Date(new Date(cinEl.value+'T12:00:00').getTime()+86400000).toLocaleDateString('en-CA');
+      });
+      return;
+    }
+        var fpOut; // declared first so fpIn's onChange closure can reference it
     var fpIn = flatpickr(cinEl, Object.assign({}, fpConfig, {
       onChange: function(dates, str) {
         if (dates[0] && fpOut) {
@@ -234,9 +251,10 @@ function openListingDetail(l) {
     if (typeof flatpickr !== 'undefined') {
       initDatePickers();
     } else {
-      // Flatpickr not yet loaded — wait for it
+      // Wait briefly for the calendar library; then use native date controls.
+      var fpTries=0;
       var fpWait = setInterval(function() {
-        if (typeof flatpickr !== 'undefined') {
+        if (typeof flatpickr === 'function' || ++fpTries >= 30) {
           clearInterval(fpWait);
           initDatePickers();
         }
