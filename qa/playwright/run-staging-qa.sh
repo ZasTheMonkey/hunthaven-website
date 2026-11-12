@@ -8,7 +8,7 @@ export CI=1
 umask 077
 mkdir -p artifacts
 if ! command -v node >/dev/null; then echo "BLOCKED: Node.js 22+ is required" >&2; exit 2; fi
-if ! curl --fail --silent --show-error --location --max-time 20 --output /dev/null "$QA_BASE_URL"; then
+if ! curl --fail --silent --show-error --max-time 20 --output /dev/null "$QA_BASE_URL"; then
   echo "BLOCKED: cannot reach sandbox from this runner; no browser PASS is established" >&2
   exit 3
 fi
@@ -19,6 +19,6 @@ npx playwright test "$@"
 status=$?
 set -e
 echo "Browser test exit code: $status"
-echo "Evidence: qa/playwright/artifacts/ (HTML, JSON, JUnit, screenshots, traces, video)"
+echo "Evidence: qa/playwright/artifacts/ (HTML, JSON, JUnit, screenshots, traces and video for non-payment projects)"
 echo "Skipped cases and absent synthetic fixtures are NOT passes. Reconcile Stripe TEST against sandbox DB separately."
 exit "$status"

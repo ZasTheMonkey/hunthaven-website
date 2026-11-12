@@ -9,13 +9,9 @@ export async function visit(page,route) {
  return response;
 }
 export async function screenshotStep(page,testInfo,name){
- const dimensions=await page.evaluate(()=>({height:Math.max(document.documentElement.scrollHeight,document.body?.scrollHeight||0),width:document.documentElement.scrollWidth}));
- // Browser engines cannot screenshot a single bitmap dimension above 32767px.
- // Preserve full-page screenshots where possible; for exceptionally long pages
- // capture a viewport image instead of failing the underlying page-render test.
- const fullPage=dimensions.height<=32000&&dimensions.width<=32000;
- await page.screenshot({path:testInfo.outputPath(name+'.png'),fullPage});
- if(!fullPage) console.log(`Screenshot capped to viewport for oversized page (${dimensions.width}x${dimensions.height})`);
+ // Mobile WebKit can exceed its bitmap limit after scaling long pages.
+ const fullPage = testInfo.project.name !== 'hunter-mobile-webkit' && testInfo.project.name !== 'host-mobile-webkit';
+ await page.screenshot({ path: testInfo.outputPath(name + '.png'), fullPage, scale: 'css' });
 }
 export async function checkNoRawScript(page) {
  const visible=await page.locator('body').innerText();

@@ -1,7 +1,5 @@
 name: LeaseWild real-browser QA (sandbox only)
 on:
-  schedule:
-    - cron: '17 * * * *'
   workflow_dispatch:
 permissions:
   contents: read
@@ -46,11 +44,15 @@ jobs:
       QA_OUTFITTER_PASSWORD: ${{ secrets.QA_OUTFITTER_PASSWORD }}
       QA_ADMIN_EMAIL: ${{ secrets.QA_ADMIN_EMAIL }}
       QA_ADMIN_PASSWORD: ${{ secrets.QA_ADMIN_PASSWORD }}
-      QA_STRIPE_TEST_CHECKOUTS_JSON: ${{ secrets.QA_STRIPE_TEST_CHECKOUTS_JSON }}
+      QA_STRIPE_TEST_READ_KEY: ${{ matrix.bot == 'payments' && secrets.QA_STRIPE_TEST_READ_KEY || '' }}
+      QA_PAYMENT_HUNTER_PASSWORD: ${{ matrix.bot == 'payments' && secrets.QA_PAYMENT_HUNTER_PASSWORD || '' }}
+      QA_PAYMENT_OWNER_PASSWORD: ${{ matrix.bot == 'payments' && secrets.QA_PAYMENT_OWNER_PASSWORD || '' }}
+      QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY: ${{ matrix.bot == 'payments' && secrets.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY || '' }}
+      QA_PAYMENT_LISTING_ID: ${{ matrix.bot == 'payments' && secrets.QA_PAYMENT_LISTING_ID || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: staging/leasewild-full-clone
+          ref: ${{ github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:

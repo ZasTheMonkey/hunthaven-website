@@ -15,6 +15,8 @@
 - Legal Risk Review -> docs/launch-sprint/legal-blockers.md: consent, waivers, privacy, insurance, claims, Florida laws; lawyer approval blockers.
 - Growth Research -> docs/launch-sprint/growth-checklist.md: truthful booking messaging, SEO, listing discovery, conversion.
 
+Payment checkout and reconciliation are tracked in the [payment browser QA handoff](payment-browser-qa.md).
+
 ## Known launch blockers / verification needed
 1. Dedicated hunter-qa@leasewild.test and landowner-qa@leasewild.test Auth users confirmed with passwords; secure automation credential/session provisioning NOT verified. Full authenticated E2E remains BLOCKED.
 2. Stripe TEST authorization/capture/refund/expiry and Connect payout need complete evidence-based reconciliation.
