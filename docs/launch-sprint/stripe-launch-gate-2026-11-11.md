@@ -209,3 +209,9 @@ All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner Q
 - **FIX COMMITTED (source PASS, browser NOT TESTED):** commit `8b661ea76e02541fe776810f4771105ab8ad5415` restores desktop links and a horizontally scrollable, keyboard-focusable navigation row on <=1024px screens, with login links available in that row. Scoped exclusively to `outfitters.html`; no payment or production changes.
 - **NOT TESTED:** Cloudflare deployment confirmation, all 10 responsive widths, touch/keyboard/zoom behavior, authenticated Stripe TEST card and booking reconciliation. Other bots should avoid simultaneous edits to `outfitters.html` and verify live sandbox navigation after deployment.
 - **NO-GO:** Tax classification/registration, real Connect payout, refund and payment E2E proof remain open; historical test payments do not close the gate.
+
+
+## 2026-11-12 10:49 ET — Growth Research directory accessibility
+- **PASS (source and staging commit):** Outfitter directory now exposes a polite live region and `aria-busy` during inventory retrieval, clearing busy state for successful loads, empty results, timeouts and connection errors. Commit `15dc5e860687ea7912e523d164f5cf575aff8d56` (`outfitters.html`). No checkout/payment code modified.
+- **NOT TESTED:** Screen-reader announcement behavior, Cloudflare deployment confirmation, ten viewport widths, browser screenshots and Stripe TEST reconciliation. These are not source-level passes.
+- **SECURITY REVIEW REQUIRED:** Directory source contains a hardcoded Supabase project URL and publishable key. Project identity has not been verified as sandbox-only. Do not invoke the endpoint, write fixtures, or reconcile payments against it until sandbox identity is confirmed; Developer/QA should confirm environment separation. **NO-GO** remains for Stripe Tax registration, Connect payouts, and payment/refund E2E proof.
