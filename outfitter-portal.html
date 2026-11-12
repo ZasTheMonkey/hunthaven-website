@@ -149,7 +149,7 @@
     .empty-state{text-align:center;padding:3rem 1rem}
     .empty-state p{color:var(--color-text-muted);font-size:var(--text-sm);margin-bottom:1.25rem}
   </style>
-<style>#portal-mob-bar,.portal-mob-bar{display:none!important}body{padding-bottom:0!important}</style><link rel="stylesheet" href="/leasewild-theme.css?v=20261111-light"></head>
+<style>#portal-mob-bar,.portal-mob-bar{display:none!important}body{padding-bottom:0!important}</style><link rel="stylesheet" href="/leasewild-theme.css?v=20261111-unified"></head>
 <body>
 
   <!-- ── AUTH CARD ──────────────────────────────────────────── -->
@@ -1242,5 +1242,5 @@ function updateOutfitterSummary(data){
 }
 async function changeOutfitterListingStatus(status){if(!currentUser)return;if(!confirm(status==='inactive'?'Take down this listing? Existing requests will remain visible.':'Submit this listing for approval again?'))return;const {error}=await sb.from('outfitter_listings').update({status,updated_at:new Date().toISOString()}).eq('user_id',currentUser.id);if(error){alert('Unable to update listing: '+error.message);return}const {data}=await sb.from('outfitter_listings').select('*').eq('user_id',currentUser.id).maybeSingle();updateOutfitterSummary(data)}
 </script><script src="outfitter-booking-actions.js"></script>
-</body>
+<script src="/leasewild-navigation.js?v=20261111-unified" defer></script></body>
 </html>
