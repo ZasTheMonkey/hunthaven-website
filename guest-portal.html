@@ -85,10 +85,13 @@
     .avatar{width:40px;height:40px;border-radius:50%;background:var(--color-primary);display:grid;place-items:center;color:#fff;font-weight:800;font-size:1rem;flex-shrink:0;font-family:var(--font-display)}
 
     /* Dash tabs */
-    .dash-tabs{display:flex;gap:0;border-bottom:2px solid var(--color-border);margin:1.25rem 0;overflow-x:auto;scrollbar-width:none}
+    .dash-tabs{display:flex;gap:0;border-bottom:2px solid var(--color-border);margin:1.25rem 0;overflow-x:auto;scrollbar-width:none;max-width:100%;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;overscroll-behavior-x:contain}
     .dash-tabs::-webkit-scrollbar{display:none}
     .dash-tab{padding:.6rem 1.1rem;font-weight:600;font-size:var(--text-sm);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--color-text-muted);background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all .15s;white-space:nowrap}
     .dash-tab.active{color:var(--color-primary);border-bottom-color:var(--color-primary)}
+    .dash-tab{flex:0 0 auto;scroll-snap-align:start}
+    .dash-tab:focus-visible{outline:2px solid var(--color-primary);outline-offset:-3px}
+    @media(max-width:500px){.dash-tab{padding:.7rem .85rem;font-size:.85rem}}
     .dash-panel{display:none}.dash-panel.active{display:block}
 
     /* Booking cards */
@@ -727,7 +730,10 @@
       }
     } catch(e) {
       console.error('Booking load failed',e);
-      container.textContent='Error loading bookings. Please refresh and try again.';
+      container.replaceChildren();
+      var errorText=document.createElement('p');errorText.setAttribute('role','alert');errorText.textContent='Bookings could not be loaded. Please try again.';
+      var retry=document.createElement('button');retry.type='button';retry.className='btn-ghost';retry.textContent='Retry loading bookings';retry.style.marginTop='1rem';retry.onclick=function(){container.textContent='Loading your bookings…';loadBookings();};
+      container.append(errorText,retry);
     }
   }
 
