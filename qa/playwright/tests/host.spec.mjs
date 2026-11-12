@@ -7,6 +7,20 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    await screenshotStep(page,info,'page-'+route.replace(/[^a-z0-9]/gi,'-'));
   });
  }
+ // Browser-executed responsive map workspace smoke checks. These are not evidence until a runner executes them.
+ for (const width of [320,375,390,430,768,1024,1280,1440,1920,2560]) {
+  test('zone editor controls and overflow at '+width+'px',async({page},info)=>{
+   await page.setViewportSize({width,height:900});
+   await visit(page,'/sandbox-zone-editor.html');
+   await expect(page.locator('#zone-type')).toBeVisible();
+   await expect(page.locator('#draw-boundary')).toBeVisible();
+   await expect(page.locator('#save')).toBeAttached();
+   await expect(page.locator('#map')).toBeVisible();
+   await checkNoRawScript(page);
+   await checkOverflow(page);
+   await screenshotStep(page,info,'zone-editor-'+width+'px');
+  });
+ }
  test('human fills landowner login',async({page},info)=>{
   await visit(page,'/landowner-portal.html');
   const creds=requireSyntheticCredentials('QA_LANDOWNER');
