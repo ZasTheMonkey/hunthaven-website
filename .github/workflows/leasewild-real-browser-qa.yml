@@ -1,0 +1,67 @@
+name: LeaseWild real-browser QA (sandbox only)
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: leasewild-browser-qa
+  cancel-in-progress: false
+jobs:
+  browser-qa:
+    if: github.ref == 'refs/heads/staging/leasewild-full-clone'
+    name: ${{ matrix.bot }} — ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - bot: hunter
+            browser: chromium
+            project: hunter-chromium
+          - bot: hunter
+            browser: mobile-webkit
+            project: hunter-mobile-webkit
+          - bot: host
+            browser: chromium
+            project: host-chromium
+          - bot: host
+            browser: mobile-webkit
+            project: host-mobile-webkit
+    defaults:
+      run:
+        working-directory: qa/playwright
+    env:
+      QA_BASE_URL: https://leasewild-sandbox.pages.dev
+      QA_HUNTER_EMAIL: ${{ secrets.QA_HUNTER_EMAIL }}
+      QA_HUNTER_PASSWORD: ${{ secrets.QA_HUNTER_PASSWORD }}
+      QA_LANDOWNER_EMAIL: ${{ secrets.QA_LANDOWNER_EMAIL }}
+      QA_LANDOWNER_PASSWORD: ${{ secrets.QA_LANDOWNER_PASSWORD }}
+      QA_OUTFITTER_EMAIL: ${{ secrets.QA_OUTFITTER_EMAIL }}
+      QA_OUTFITTER_PASSWORD: ${{ secrets.QA_OUTFITTER_PASSWORD }}
+      QA_ADMIN_EMAIL: ${{ secrets.QA_ADMIN_EMAIL }}
+      QA_ADMIN_PASSWORD: ${{ secrets.QA_ADMIN_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: staging/leasewild-full-clone
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium webkit
+      - name: Interact with real sandbox browser
+        run: npx playwright test --project=${{ matrix.project }}
+      - name: Upload screenshots, video, traces and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: leasewild-${{ matrix.bot }}-${{ matrix.browser }}-${{ github.run_id }}
+          path: qa/playwright/artifacts/
+          retention-days: 14
+          if-no-files-found: warn
