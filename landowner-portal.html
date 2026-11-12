@@ -1257,6 +1257,25 @@
 #edit-activities-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr))!important}
 }
 @media(max-width:380px){#edit-activities-grid{grid-template-columns:1fr!important}}
+
+/* Desktop listing editor: wider readable canvas and uncluttered controls. */
+#edit-modal .lw-edit-dialog{width:min(96vw,1100px)!important;max-width:1100px!important;min-width:0}
+#edit-modal .lw-edit-dialog>div:first-child{position:sticky;top:-28px;z-index:3;background:var(--color-surface);padding:12px 0;border-bottom:1px solid var(--color-border)}
+#edit-modal #edit-activities-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;column-gap:20px!important;row-gap:10px!important}
+#edit-modal #edit-activities-grid label{min-width:0;padding:5px 0;font-size:.95rem}
+#edit-modal #edit-harvest-rows>div{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(120px,190px)!important;align-items:center;gap:16px!important}
+#edit-modal #edit-harvest-rows input{width:100%!important;min-width:0}
+#edit-modal #edit-save-btn{position:sticky;bottom:0;z-index:3;box-shadow:0 -8px 18px var(--color-surface);min-height:48px}
+@media(max-width:800px){
+ #edit-modal .lw-edit-dialog{width:100%!important;max-width:100%!important}
+ #edit-modal #edit-activities-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #edit-modal #edit-harvest-rows>div{grid-template-columns:minmax(0,1fr) minmax(100px,150px)!important}
+}
+@media(max-width:460px){
+ #edit-modal #edit-activities-grid{grid-template-columns:1fr!important}
+ #edit-modal #edit-harvest-rows>div{grid-template-columns:minmax(0,1fr) 112px!important;gap:8px!important}
+}
+
 </style>
   <!-- ── EDIT LISTING MODAL ──────────────────────────────────── -->
   <div id="edit-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center;padding:0" onclick="if(event.target===this)closeEditModal()">
