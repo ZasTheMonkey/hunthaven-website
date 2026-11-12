@@ -256,3 +256,10 @@ All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner Q
 - **SOURCE FIX / PASS:** `outfitters.html` now explains why cards for outfitters with multiple experiences cannot currently be booked, instead of only displaying an unexplained disabled CTA. Code commit `a438862d2249c21eb71f7ede8270017a7c47d39f`. Scoped to directory presentation; no payment code touched.
 - **P1 OPEN:** Unique experience IDs still need to flow through directory, detail, booking, and checkout. Directory duplicate detection examines only its capped 60-row response, so it is not a substitute for server-validated identity. Developer/Hunter QA should own coordinated identity fix and Stripe TEST reconciliation.
 - **PASS:** GitHub staging source update. **NOT TESTED:** Cloudflare deployment, browser rendering, 320/375/390/430/768/1024/1280/1440/1920/2560 viewport matrix, keyboard/touch/zoom, Stripe TEST charge/refund/webhook/Connect reconciliation. **NO-GO** remains for launch; no production/main changes.
+
+
+## 2026-11-12 17:31 ET — Growth Research capped-directory transparency
+- **PASS (source change):** `outfitters.html` now displays a clear notice when its 60-row query cap is reached, instead of implying the displayed experiences are the complete inventory. Staging code commit `02f338214b20a8b192aa048e0bf01f4f71c5bce6`. No payment or database changes.
+- **OPEN P1:** Duplicate detection remains limited to the returned 60 records, so a listing outside the response could share an outfitter ID. The unique listing-ID fix must be implemented across directory, detail, booking, and checkout; this informational change is not a booking-integrity fix.
+- **NOT TESTED:** Cloudflare deployment confirmation, rendered 60-result state, 320–2560 responsive matrix, keyboard/touch/zoom, Stripe TEST payment/refund/webhook/Connect reconciliation. Sandbox Supabase identity still needs independent confirmation before accessing data.
+- **LAUNCH GATE:** **NO-GO** until tax/Connect payout and full payment/refund evidence are verified. No main/live/production changes.
