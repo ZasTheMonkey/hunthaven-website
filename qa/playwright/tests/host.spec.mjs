@@ -21,6 +21,19 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    await screenshotStep(page,info,'zone-editor-'+width+'px');
   });
  }
+ test('unauthenticated visitor cannot save a drafted hunting boundary',async({page},info)=>{
+  await visit(page,'/sandbox-zone-editor.html');
+  await expect(page.locator('#save')).toBeDisabled();
+  for(const [lat,lng] of [[29.02,-80.93],[29.021,-80.93],[29.021,-80.929]]){
+   await page.locator('#latitude').fill(String(lat));
+   await page.locator('#longitude').fill(String(lng));
+   await page.locator('#add-point').click();
+  }
+  await expect(page.locator('#draft-count')).toContainText('3 draft point');
+  await expect(page.locator('#save')).toBeDisabled();
+  await expect(page.locator('#save-all')).toBeDisabled();
+  await screenshotStep(page,info,'unauthenticated-boundary-save-denied');
+ });
  test('human fills landowner login',async({page},info)=>{
   await visit(page,'/landowner-portal.html');
   const creds=requireSyntheticCredentials('QA_LANDOWNER');
