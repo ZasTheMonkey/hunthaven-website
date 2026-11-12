@@ -375,12 +375,15 @@
  clearTimeout(timeout);root.setAttribute('aria-busy','false');
  if(!Array.isArray(data)||!data.length){notice('No approved outfitters are listed yet.');return}
  root.replaceChildren();
+ // User-level detail links cannot distinguish multiple active experiences.
+ const counts=new Map();for(const x of data){if(x&&typeof x.user_id==='string')counts.set(x.user_id,(counts.get(x.user_id)||0)+1)}
  let rendered=0;
  for(const item of data){
  if(!item||typeof item.user_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(item.user_id))continue;
  rendered++;
  const card=document.createElement('article');card.className='experience-card';
- const href='outfitter-experience.html?id='+encodeURIComponent(item.user_id);
+ const ambiguous=(counts.get(item.user_id)||0)>1;
+ const href=ambiguous?'#outfitter-directory':'outfitter-experience.html?id='+encodeURIComponent(item.user_id);
  const media=document.createElement('a');media.className='experience-card__media';media.href=href;media.setAttribute('aria-label','View '+(item.title||'experience'));
  const photo=Array.isArray(item.photos)?item.photos.find(u=>typeof u==='string'&&u.startsWith('https://')):null;
  if(photo){const img=document.createElement('img');img.src=photo;img.alt=item.title||'Outfitter experience';img.loading='lazy';img.addEventListener('error',()=>{img.remove();media.classList.add('experience-card__placeholder');media.textContent='LeaseWild experience';});media.append(img)}else{media.classList.add('experience-card__placeholder');media.textContent='LeaseWild experience'}
@@ -391,7 +394,7 @@
  const location=document.createElement('p');location.className='experience-card__location';location.textContent='⌖ '+(typeof item.counties==='string'&&item.counties.trim()?item.counties:'Florida');body.append(location);
  if(Array.isArray(item.species)&&item.species.some(v=>typeof v==='string'&&v.trim())){const species=document.createElement('p');species.className='experience-card__species';species.textContent=item.species.filter(v=>typeof v==='string'&&v.trim()).join(' · ');body.append(species)}
  if(typeof item.bio==='string'&&item.bio.trim()){const desc=document.createElement('p');desc.className='experience-card__description';desc.textContent=item.bio;body.append(desc)}
- const action=document.createElement('a');action.href=href;action.className='experience-card__action';action.textContent='View experience';body.append(action);
+ const action=document.createElement('a');action.href=href;action.className='experience-card__action';action.textContent=ambiguous?'Booking temporarily unavailable':'View experience';if(ambiguous){action.removeAttribute('href');action.setAttribute('aria-disabled','true');action.style.cssText='pointer-events:none;opacity:.65;cursor:not-allowed';media.removeAttribute('href');media.setAttribute('aria-disabled','true');titleLink.removeAttribute('href');titleLink.setAttribute('aria-disabled','true')}body.append(action);
  card.append(media,body);root.append(card);
  }
  if(!rendered)notice('No bookable outfitter experiences are available right now.');
