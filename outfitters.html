@@ -345,7 +345,10 @@
  clearTimeout(timeout);
  if(!Array.isArray(data)||!data.length){notice('No approved outfitters are listed yet.');return}
  root.replaceChildren();
+ let rendered=0;
  for(const item of data){
+ if(!item||typeof item.user_id!=='string'||!item.user_id.trim())continue;
+ rendered++;
  const card=document.createElement('article');card.className='experience-card';
  const href='outfitter-experience.html?id='+encodeURIComponent(item.user_id);
  const media=document.createElement('a');media.className='experience-card__media';media.href=href;media.setAttribute('aria-label','View '+(item.title||'experience'));
@@ -361,6 +364,7 @@
  const action=document.createElement('a');action.href=href;action.className='experience-card__action';action.textContent='View experience';body.append(action);
  card.append(media,body);root.append(card);
  }
+ if(!rendered)notice('No bookable outfitter experiences are available right now.');
  }).catch(e=>{clearTimeout(timeout);console.error('Outfitter directory:',e);notice(e.name==='AbortError'?'The directory timed out. Please try again.':'Could not load outfitters (connection error). Please try again.',true)});
 })();
 </script>
