@@ -100,7 +100,47 @@ function showReservation(r){
  for(const g of r.additional_guests||[])section('Additional guest',[['Name',g.name],['Type',g.is_minor?'Minor':'Adult'],['Email',g.email],['ID status',g.verification_status],['Document',g.has_document?'Stored privately':'Not uploaded'],['Added',timeLabel(g.added_at)]]);
  for(const e of r.emails||[])section('Email notification',[['Type',e.event],['Recipient',e.recipient],['Status',e.status],['Queued',timeLabel(e.created_at)],['Sent',timeLabel(e.sent_at)],['Attempts',e.attempts]]);
  section('Timeline',[['Created',timeLabel(r.created_at)],['Authorized',timeLabel(r.authorization_created_at)],['Approval deadline',timeLabel(r.approval_deadline)],['Cancelled',timeLabel(r.cancelled_at)]]);
- const folders=['General','Payments','Guest IDs','Host Communication','Support','Incidents','Refunds'];
+ const idHeader=document.createElement('h3');idHeader.textContent='ID Photos & Documents — Private reservation folder';card.append(idHeader);
+const idPanel=document.createElement('div');idPanel.className='case-entry';idPanel.textContent='Loading ID documents…';card.append(idPanel);
+(async()=>{
+ const result=await db.rpc('sandbox_admin_reservation_ids',{p_booking:r.id});
+ if(!card.isConnected)return;
+ idPanel.replaceChildren();
+ if(result.error){idPanel.textContent='Unable to load ID documents: '+result.error.message;return;}
+ const data=result.data||{};
+ const addSection=(heading,docs)=>{
+ const h=document.createElement('h4');h.textContent=heading;idPanel.append(h);
+ if(!docs.length){const p=document.createElement('p');p.textContent='No ID document on file.';idPanel.append(p);return;}
+ for(const doc of docs){
+ const box=document.createElement('div');box.className='case-entry';
+ const info=document.createElement('p');info.textContent=(doc.name||doc.document_type||'ID document')+' · '+(doc.status||'pending')+' · '+timeLabel(doc.created_at);box.append(info);
+ if(doc.document_path){
+ const open=document.createElement('button');open.className='secondary';open.textContent='View private ID photo';
+ open.addEventListener('click',async()=>{
+ open.disabled=true;
+ try{
+ const signed=await db.storage.from('identity-verification').createSignedUrl(doc.document_path,60);
+ if(signed.error||!signed.data?.signedUrl)throw signed.error||Error('Secure preview unavailable');
+ const dialog=document.createElement('div');dialog.className='preview-backdrop';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');
+ const panel=document.createElement('div');panel.className='preview-panel';
+ const close=document.createElement('button');close.textContent='Close private ID';close.className='secondary';
+ const viewer=document.createElement(doc.document_path.toLowerCase().endsWith('.pdf')?'iframe':'img');
+ viewer.src=signed.data.signedUrl;viewer.style.cssText='display:block;width:100%;max-height:70dvh;object-fit:contain;border:0;margin-top:12px';viewer.alt='Private identity document';
+ const dismiss=()=>{dialog.remove();open.focus();};
+ close.addEventListener('click',dismiss);dialog.addEventListener('click',e=>{if(e.target===dialog)dismiss();});
+ panel.append(close,viewer);dialog.append(panel);document.body.append(dialog);close.focus();
+ setTimeout(()=>{if(dialog.isConnected)dismiss();},55000);
+ }catch(err){say('Unable to open private ID: '+err.message);}
+ finally{open.disabled=false;}
+ });box.append(open);
+ }else{const p=document.createElement('p');p.textContent='Awaiting ID upload';box.append(p);}
+ idPanel.append(box);
+ }
+ };
+ addSection('Account holder — ID from account registration',data.account_holder||[]);
+ addSection('Additional adult guest IDs',data.additional_adults||[]);
+})().catch(err=>{idPanel.textContent='ID documents unavailable: '+err.message;});
+const folders=['General','Payments','Guest IDs','Host Communication','Support','Incidents','Refunds'];
  const h=document.createElement('h3');h.textContent='Internal case folders';card.append(h);
  const folderSelect=document.createElement('select');for(const name of folders){const opt=document.createElement('option');opt.value=name;opt.textContent=name;folderSelect.append(opt);}card.append(folderSelect);
  const notes=document.createElement('div');card.append(notes);
