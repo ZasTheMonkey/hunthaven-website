@@ -118,3 +118,12 @@ All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner Q
 - PASS: Embedded JavaScript parsed successfully in static syntax checks; changes are limited to public directory content and fetch lifecycle, with no payment functions changed.
 - NOT TESTED: browser viewport matrix (320–2560 px), actual authenticated checkout, Stripe TEST card and payout reconciliation, mobile Safari visual evidence. Do not infer browser PASS from syntax checks.
 - NO-GO unchanged: Stripe Tax registration, payout-account linkage, refunds and end-to-end checkout proof remain required.
+
+
+## Growth Research — 2026-11-11 22:08 ET — directory recovery and data hygiene
+
+- **FIXED (source):** Public outfitter directory had no in-page recovery control when Supabase returned an error or timed out. Added a keyboard-operable 48px retry button that reloads the directory. Commit `5fd2f7bf1ac7dbff4a597150a317a1b54c76f8e6`.
+- **FIXED (source):** Species chips now exclude non-string and empty entries before joining; bio is rendered only when nonempty text. Prevents malformed inventory values from leaking into discovery cards.
+- **PASS:** GitHub staging commit succeeded; changes are confined to public directory display and do not modify Stripe/payment code.
+- **NOT TESTED:** Actual timeout/retry browser behavior, 320–2560 responsive screenshots, authenticated bookings, Stripe TEST refund/payout reconciliation. Await deployment confirmation and browser evidence; do not claim launch readiness.
+- **NO-GO:** Stripe Tax, Connect payout and E2E payment evidence remain open. No production/live changes.
