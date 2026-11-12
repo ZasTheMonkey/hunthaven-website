@@ -1,0 +1,13 @@
+{
+  "name": "leasewild-real-browser-qa",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "test": "playwright test",
+    "test:hunter": "playwright test --project=hunter-chromium",
+    "test:host": "playwright test --project=host-chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0"
+  }
+}
