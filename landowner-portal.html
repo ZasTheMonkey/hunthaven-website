@@ -1018,24 +1018,22 @@
   }
 
   async function cancelReservation(bookingId, guestName, checkin) {
-    // Check 48-hour rule
-    var cin = new Date(checkin + 'T00:00:00');
-    var now = new Date();
-    var hoursUntilCheckin = (cin - now) / (1000 * 60 * 60);
-    var refundMsg = hoursUntilCheckin >= 48
-      ? 'The guest will receive a full refund when payments go live.'
-      : 'Check-in is less than 48 hours away — no refund applies under the flexible policy.';
-    if (!confirm('Cancel reservation for ' + guestName + '?\n\n' + refundMsg + '\n\nProceed?')) return;
-    var { error } = await sb.from('bookings').update({
-      status: 'cancelled',
-      cancelled_at: new Date().toISOString(),
-      cancelled_by: 'landowner'
-    }).eq('id', bookingId);
-    if (error) { alert('Error: ' + error.message); return; }
-    loadReservations(null); // refresh
-    // Reload reservations with current listing ids
-    var { data } = await sb.from('listings').select('id').eq('email', currentUserEmail);
-    if (data) loadReservations(data.map(l => l.id));
+    try {
+      var {data:{session}}=await sb.auth.getSession();
+      if(!session)throw new Error('Sign in to cancel this reservation.');
+      const endpoint=SB_URL+'/functions/v1/sandbox-booking-cancel';
+      const headers={'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+session.access_token};
+      const previewResponse=await fetch(endpoint,{method:'POST',headers,body:JSON.stringify({action:'preview',booking_id:bookingId})});
+      const preview=await previewResponse.json();
+      if(!previewResponse.ok)throw new Error(preview.error||'Unable to check cancellation terms');
+      const policy=preview.refund_type==='release_hold'?'The test card authorization will be released.':preview.refund_type==='full_refund'?'A full Stripe TEST refund will be requested.':'The cancellation policy indicates no refund.';
+      if(!confirm('Cancel reservation for '+guestName+'?\\n\\n'+policy+'\\n\\nProceed?'))return;
+      const response=await fetch(endpoint,{method:'POST',headers,body:JSON.stringify({action:'cancel',booking_id:bookingId})});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||'Cancellation failed');
+      await loadReservations([]);
+      alert('Reservation cancelled. '+(result.result==='full_refund_issued'?'Stripe TEST refund issued.':result.result==='authorization_released'?'Test card hold released.':''));
+    }catch(e){alert('Cancellation not completed: '+(e.message||'Unknown error'));}
   }
 
   async function toggleListing(id, newStatus) {
