@@ -155,3 +155,11 @@ All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner Q
 - PASS — GitHub staging file update accepted; original file SHA was verified before write.
 - NOT TESTED — Rendered Cloudflare deployment, real browser responsive matrix, social crawler preview, and credential accuracy for individual listings. No production changes or payment code edits.
 - NO-GO unchanged — Stripe TEST reconciliation, tax configuration, payout linkage and complete E2E payment/refund evidence remain outstanding.
+
+
+### Growth Research — 2026-11-12 02:21 ET — outfitter detail navigation integrity
+- **FAIL (source):** Directory linked every active record using `outfitter-experience.html?id=` plus `user_id` without checking identity. A malformed active record missing `user_id` would create a broken `id=undefined`/`id=null` detail link.
+- **FIXED IN SOURCE:** Skip active records lacking a nonblank string `user_id`, and display a truthful empty state if no navigable records remain. Staging commit `3610dbe7141c632a9990bd82cd541743bcd04107`. No payment code or sandbox data modified.
+- **PASS:** GitHub commit accepted; inline JavaScript parsed successfully with `new Function`.
+- **NOT TESTED:** Browser rendering with malformed synthetic rows, Cloudflare deployment completion, responsive matrix, authenticated Stripe TEST reconciliation. Do not interpret source validation as E2E PASS.
+- **NO-GO:** Stripe Tax registration, Connect payout linkage, refund/cancellation reconciliation and end-to-end checkout evidence remain open.
