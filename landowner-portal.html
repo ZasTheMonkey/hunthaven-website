@@ -225,6 +225,13 @@
       <button class="btn-ghost" onclick="handleSignOut()">Sign Out</button>
     </div>
 
+    <section id="lo-identity-panel" style="padding:1rem;border:1px solid var(--color-border);border-radius:12px;margin:1rem 0">
+      <h3 style="margin:0 0 .5rem">Identity verification</h3>
+      <p id="lo-id-status" role="status">Checking verification status…</p>
+      <label for="lo-id-file" style="display:block;margin:.5rem 0">Upload your driver's license securely (JPG, PNG, WebP, or PDF; maximum 10 MB)</label>
+      <input id="lo-id-file" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf" />
+      <button type="button" id="lo-id-upload" class="btn-ghost" onclick="uploadLandownerIdentity()" style="margin:.65rem 0">Submit ID for review</button>
+    </section>
     <style>.lw-account-tabs{display:flex;gap:.45rem;overflow-x:auto;margin:0 0 1.25rem;border-bottom:2px solid var(--color-border);padding-bottom:.35rem}.lw-account-tab{flex:1;min-width:0;padding:.7rem .45rem;border:0;border-radius:9px;background:transparent;color:var(--color-text-muted);font:700 var(--text-sm) inherit;cursor:pointer}.lw-account-tab[aria-selected="true"]{background:var(--color-primary);color:#fff}.lw-account-panel[hidden]{display:none!important}@media(max-width:430px){.lw-account-tab{font-size:.85rem;padding:.7rem .3rem}}</style>
 <div class="lw-account-tabs" role="tablist" aria-label="Landowner dashboard"><button class="lw-account-tab" type="button" role="tab" id="lo-tab-listings" aria-controls="lo-panel-listings" aria-selected="true" onclick="switchLoDashboardTab('listings')">Listings</button><button class="lw-account-tab" type="button" role="tab" id="lo-tab-reservations" aria-controls="lo-panel-reservations" aria-selected="false" onclick="switchLoDashboardTab('reservations')">Reservations</button><button class="lw-account-tab" type="button" role="tab" id="lo-tab-messages" aria-controls="lo-panel-messages" aria-selected="false" onclick="switchLoDashboardTab('messages')">Messages</button></div>
 <div class="lw-account-panel" id="lo-panel-listings" role="tabpanel" aria-labelledby="lo-tab-listings"><a href="list-your-land.html" class="btn-accent" style="display:block;text-align:center;margin-bottom:1rem">+ Add New Listing</a>
@@ -438,23 +445,10 @@
         return;
       }
 
-      // Upload license in background (non-blocking)
-      btn.textContent = 'Uploading license…';
-      try {
-        var uid = data.user?.id || Date.now();
-        var ext = licFile.name.split('.').pop().toLowerCase();
-        var licensePath = 'licenses/' + uid + '/license.' + ext;
-        await Promise.race([
-          sb.storage.from('listing-photos').upload(licensePath, licFile, { cacheControl:'3600', upsert:true }),
-          new Promise(r => setTimeout(r, 10000)) // 10s max for upload
-        ]);
-      } catch(uploadErr) {
-        console.warn('License upload failed silently:', uploadErr);
-        // Don't block the user — account was created, license can be uploaded later
-      }
-
+      // Email confirmation may be required before private storage uploads are authorized.
+      // Never put identity documents in public listing-photo storage or silently ignore errors.
       btn.disabled=false; btn.textContent='Create Account';
-      showMsg('Account created! Check your email to confirm, then sign in below.','success');
+      showMsg('Account created! Confirm your email, then sign in to upload your ID securely from the dashboard.','success');
       document.getElementById('si-email').value = email;
 
       // Log to Google Sheets ID Verification tab
@@ -488,6 +482,33 @@
     document.getElementById('auth-card').style.display = 'block';
   }
 
+  async function refreshLandownerIdentity(){
+    const target=document.getElementById('lo-id-status');
+    const {data,error}=await sb.from('identity_verification_submissions').select('status,created_at').order('created_at',{ascending:false}).limit(1);
+    if(error){target.textContent='Unable to check verification status. Please retry later.';return;}
+    target.textContent=data?.length?'Latest ID submission: '+data[0].status+'.':'No ID submitted yet. Please upload your license below.';
+  }
+  async function uploadLandownerIdentity(){
+    const status=document.getElementById('lo-id-status'),button=document.getElementById('lo-id-upload');
+    const file=document.getElementById('lo-id-file').files[0];
+    if(!file){status.textContent='Select a license file first.';return;}
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    const types={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',pdf:'application/pdf'};
+    if(!types[ext]||file.size>10*1024*1024||file.size===0){status.textContent='Use a JPG, PNG, WebP, or PDF file under 10 MB.';return;}
+    button.disabled=true;status.textContent='Uploading securely…';
+    try{
+      const {data:{user},error:authError}=await sb.auth.getUser();
+      if(authError||!user)throw Error('Sign in again before uploading.');
+      const path=user.id+'/'+crypto.randomUUID()+'.'+ext;
+      const uploaded=await sb.storage.from('identity-verification').upload(path,file,{contentType:types[ext],upsert:false});
+      if(uploaded.error)throw uploaded.error;
+      const saved=await sb.from('identity_verification_submissions').insert({user_id:user.id,document_path:path,document_type:'drivers_license',status:'pending'});
+      if(saved.error){await sb.storage.from('identity-verification').remove([path]);throw saved.error;}
+      document.getElementById('lo-id-file').value='';
+      status.textContent='ID submitted securely. Pending admin review.';
+    }catch(err){status.textContent='Upload failed: '+(err.message||'Please try again.');}
+    finally{button.disabled=false;}
+  }
   function showDashboard(user) {
     // If redirected here from list-your-land, send them straight there
     var params = new URLSearchParams(window.location.search);
@@ -501,6 +522,7 @@
     var name = user.user_metadata?.full_name || user.email;
     document.getElementById('dash-welcome').textContent = 'Welcome, ' + name.split(' ')[0];
     loadListings(user.email);
+    refreshLandownerIdentity();
     // Restore the same Edit Listing modal after returning from the access map.
     var editReturnId = params.get('editListing');
     if (editReturnId && /^[0-9a-f-]{36}$/i.test(editReturnId)) {
