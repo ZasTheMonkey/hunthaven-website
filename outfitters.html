@@ -305,18 +305,7 @@
     <div id="apply-form" style="background:var(--color-primary);border-radius:var(--radius-xl);padding:clamp(2rem,5vw,3.5rem);text-align:center;color:#fff">
       <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-xl);letter-spacing:.01em;margin-bottom:.75rem">Outfitter applications — temporarily unavailable</h2>
       <p style="color:rgba(255,255,255,.78);font-size:var(--text-base);margin-bottom:1.75rem;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6">Outfitter applications are temporarily unavailable through this form. Browse current experiences while we finish the application process.</p>
-      <div id="apply-fields" style="max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:.75rem">
-        <input id="out-name" type="text" placeholder="Business or guide name" style="padding:.8rem 1rem;border-radius:var(--radius-md);border:none;font-size:var(--text-sm);font-family:inherit;width:100%" />
-        <input id="out-email" type="email" placeholder="Contact email" style="padding:.8rem 1rem;border-radius:var(--radius-md);border:none;font-size:var(--text-sm);font-family:inherit;width:100%" />
-        <select id="out-type" style="padding:.8rem 1rem;border-radius:var(--radius-md);border:none;font-size:var(--text-sm);font-family:inherit;width:100%;background:#fff;color:#1a1a12">
-          <option value="">Type of outfitter</option>
-          <option value="hunting">Hunting guide</option>
-          <option value="fishing">Fishing guide</option>
-          <option value="both">Both hunting & fishing</option>
-        </select>
-        <button onclick="submitOutfitterApp()" style="padding:.85rem;border-radius:var(--radius-full);background:#fff;color:var(--color-primary);font-family:var(--font-display);font-weight:800;font-size:var(--text-base);border:none;cursor:pointer;transition:opacity .18s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">Submit Application</button>
-        <p id="out-msg" style="font-size:var(--text-xs);color:rgba(255,255,255,.7);margin-top:.25rem;display:none"></p>
-      </div>
+      <a href="outfitter-terms.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:.85rem 1.5rem;border-radius:999px;background:#fff;color:var(--color-primary);font-weight:800;text-decoration:none">Review outfitter requirements</a>
     </div>
   </div>
 
@@ -337,14 +326,7 @@
   <script>
     function toggleTheme(){ document.documentElement.setAttribute("data-theme","light"); }
 
-    function submitOutfitterApp() {
-      var name = document.getElementById('out-name').value.trim();
-      var email = document.getElementById('out-email').value.trim();
-      var type = document.getElementById('out-type').value;
-      var msg = document.getElementById('out-msg');
-      if (!name || !email || !type) { msg.style.display='block'; msg.textContent='Please fill in all fields.'; return; }
-      msg.style.display='block'; msg.textContent='Applications cannot be submitted from this form yet. No information was sent. Please try again after applications open.'; return;
-    }
+
   </script>
 <script>
 (function(){
