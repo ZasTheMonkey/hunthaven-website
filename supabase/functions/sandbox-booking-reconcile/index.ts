@@ -52,17 +52,36 @@ Deno.serve(async (request) => {
 
   const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' });
   const session = await stripe.checkout.sessions.retrieve(input.session_id);
-  if (session.livemode || session.id !== booking.stripe_session_id || session.status !== 'complete' ||
+  if (session.livemode || session.id !== booking.stripe_session_id ||
       session.metadata?.booking_id !== booking.id || session.client_reference_id !== booking.id ||
-      session.payment_status !== 'unpaid' || session.amount_total !== Math.round(Number(booking.total) * 100) ||
-      !session.payment_intent) {
+      session.payment_status !== 'unpaid' || session.amount_total !== Math.round(Number(booking.total) * 100)) {
     return respond({ error: 'Stripe authorization could not be verified' }, 409);
+  }
+  if (session.status === 'open' && !session.payment_intent) {
+    return respond({ booking: { id: booking.id, status: booking.status }, stripe_status: 'checkout_open' }, 202);
+  }
+  if (!session.payment_intent) {
+    return respond({ error: 'Stripe authorization is no longer active' }, 409);
   }
   const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent.id;
   const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
-  if (intent.livemode || intent.status !== 'requires_capture' || intent.capture_method !== 'manual' ||
-      intent.amount !== Math.round(Number(booking.total) * 100) ||
-      intent.amount_capturable !== Math.round(Number(booking.total) * 100)) {
+  if (intent.livemode || intent.capture_method !== 'manual' ||
+      intent.amount !== Math.round(Number(booking.total) * 100)) {
+    return respond({ error: 'Card authorization is not ready for approval' }, 409);
+  }
+  if (['requires_action', 'processing', 'requires_confirmation'].includes(intent.status)) {
+    return respond({ booking: { id: booking.id, status: booking.status }, stripe_status: intent.status }, 202);
+  }
+  if (intent.status !== 'requires_capture') {
+    return respond({ error: 'Card authorization is not ready for approval' }, 409);
+  }
+  if (session.status === 'open') {
+    return respond({ booking: { id: booking.id, status: booking.status }, stripe_status: 'checkout_open' }, 202);
+  }
+  if (session.status !== 'complete') {
+    return respond({ error: 'Stripe authorization is no longer active' }, 409);
+  }
+  if (intent.amount_capturable !== Math.round(Number(booking.total) * 100)) {
     return respond({ error: 'Card authorization is not ready for approval' }, 409);
   }
 
