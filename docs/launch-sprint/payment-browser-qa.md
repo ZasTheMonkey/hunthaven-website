@@ -37,3 +37,5 @@ The official 3DS TEST card completed through the hosted browser using keyboard a
 The Connect case charged 20,000 cents, applied a 4,000-cent platform fee, transferred to the linked TEST account, then fully refunded the charge, fully reversed the transfer and fully refunded the application fee. Supabase request `b79f5764-51d2-4023-90d2-1621992a6368` reconciled to `cancelled/refunded`.
 
 Receipt inbox delivery, a paid external-bank payout and partial refund remain explicit skips. These are not passes.
+
+Post-run cleanup restored the exact synthetic outfitter listing `SANDBOX TEST ONLY — Guided Outfitter Checkout` to `inactive` at 2026-11-13 16:02 ET so it is not public sandbox inventory. A future Connect run must explicitly activate that exact fixture for the test window and restore it afterward.
