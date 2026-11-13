@@ -98,7 +98,9 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
   await page.locator('#si-email').fill(creds.email);
   await page.locator('#si-password').fill(creds.password);
   await page.locator('#signin-btn').click();
-  await expect(page.locator('#lo-id-file')).toBeAttached({timeout:20000});
+  // A hidden dashboard already contains the ID upload input before login; attached is not proof of authentication.
+  await expect(page.locator('#dashboard')).toBeVisible({timeout:20000});
+  await expect(page.locator('#auth-card')).toBeHidden();
   await screenshotStep(page,info,'landowner-signed-in');
  });
  test('human fills outfitter login',async({page},info)=>{
