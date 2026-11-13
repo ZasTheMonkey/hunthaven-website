@@ -225,3 +225,12 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - No legal terms were silently changed and no production or live-payment resource was touched.
 
 **Legal release recommendation remains NO-GO.**
+
+
+## Synthetic inventory and payment evidence boundary — November 13, 2026 at 4:58 PM ET
+
+- Sandbox-only code now temporarily activates the exact validated synthetic outfitter listing for the Connect test and forces it back to `inactive` in nested cleanup. The attached result and independent sandbox database query confirmed `inactive` with zero unsettled accepted/paid QA fixtures after run `43514846824`.
+- The run verified implemented TEST-mode success, decline, insufficient-funds, 3DS, retry, capture, refund and 20% Connect fee/transfer behavior. It does **not** approve disclosures, tax treatment, cancellation language, payout timing, partial refunds, cleaning deposits, promotions, access-coordinate privacy, reviews moderation, or any binding policy.
+- No legal terms were changed, and no production or live-payment resource was touched.
+
+**Legal release recommendation remains NO-GO.** Florida attorney approval, Stripe Tax registration/classification, delivered receipt, paid external-bank payout, partial refund, access-zone authorization and review-moderation evidence remain open.
