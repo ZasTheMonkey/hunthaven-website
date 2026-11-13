@@ -214,18 +214,21 @@ async function authorize3ds(page) {
   }, { timeout: 30_000, message: 'Stripe test challenge in frames: ' + page.frames().map(frame => new URL(frame.url() || 'about:blank').origin).join(', ') }).toBe(true);
 }
 
-async function waitForBooking(headers, bookingId, status) {
+async function waitForBooking(headers, bookingId, status, timeout = 30_000) {
   let booking;
   await expect.poll(async () => {
     const result = await bookingCall(headers, 'approval', { action: 'hunter_list' });
     booking = result.bookings?.find(row => row.id === bookingId);
     return booking?.status;
-  }, { timeout: 30_000 }).toBe(status);
+  }, { timeout }).toBe(status);
   return booking;
 }
 
 async function reconcileAuthorization(headers, bookingId, sessionId) {
-  const booking = await waitForBooking(headers, bookingId, 'pending_approval');
+  // 3DS completion can reach the signed webhook at the edge of the default
+  // polling window. Preserve the state assertion, but allow webhook delivery
+  // enough time before declaring a payment failure.
+  const booking = await waitForBooking(headers, bookingId, 'pending_approval', 60_000);
   const session = await stripe('checkout/sessions/' + sessionId);
   expect(session.status).toBe('complete');
   expect(session.payment_status).toBe('unpaid');
