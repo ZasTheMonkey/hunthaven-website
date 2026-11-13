@@ -102,3 +102,9 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - **PASS (independent GitHub source re-fetch):** Verified `controller.abort(),30000` in staging source after commit.
 - **NOT TESTED:** Real slow-network timing, Cloudflare deployment, sandbox inventory, ten viewport widths, keyboard/screen reader, Stripe TEST cards/webhooks/refunds/Connect reconciliation. This is a source fix, not deployed E2E evidence.
 - **OPEN / NO-GO:** Pagination remains capped at 600, and directory navigation still uses outfitter user IDs rather than unique experience IDs. Developer/Hunter QA own identity and payment flows; Growth owns discovery. Stripe Tax and Connect payout plus financial reconciliation remain unverified.
+
+## 2026-11-13 12:25 ET — Directory pagination tie ordering
+- **PASS (source commit):** `41feb3adebc7ddc3952963e18dcb56afc5232ead` adds `user_id.asc` as a secondary sort after `updated_at.desc` for directory pagination. This reduces nondeterministic page ordering when multiple outfitters have the same update timestamp. Scoped to the public directory query; no payment or database changes.
+- **LIMITATION:** `user_id` is not unique per experience; multiple experiences from one outfitter with identical `updated_at` remain tied. A stable unique experience ID and keyset pagination are still required. This change is not proof of complete inventory or correct booking identity.
+- **NOT TESTED:** Actual inventory with timestamp ties, deployed Cloudflare response, 10 viewport sizes, Stripe TEST payments/refunds/webhooks/payout reconciliation.
+- **NO-GO:** Keep existing booking ambiguity safeguards. Developer/Hunter QA own unique experience identity and payments; Legal owns Stripe Tax classification. No main/live deployment.
