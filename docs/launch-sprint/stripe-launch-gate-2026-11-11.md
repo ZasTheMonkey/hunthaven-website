@@ -283,3 +283,9 @@ All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner Q
 - BLOCKED — partial refund: approve and implement a supported staging path and amount rule. Use a fresh captured TEST payment, verify the exact partial amount and retained balance in Stripe and Supabase, and verify applicable Connect transfer/application-fee reversals and idempotency. Deployed cancellation functions implement hold release and full-or-no-refund policies.
 
 Staging QA commit `3cd6998098b8033906eec827ebfeaf25d8056313` restores runner-supplied fixture identities and gives each skip its own prerequisite. [Retest run 43454247616](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43454247616). **Launch remains NO-GO.**
+
+### 2026-11-13 retest result
+
+[Run 43454247616, attempt 1](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43454247616/attempts/1), payment job `131985017073`, commit `3cd6998098b8033906eec827ebfeaf25d8056313`: **5 passed, 1 failed, 3 skipped**. Both host and both hunter jobs succeeded. [Payment artifact 14052812608](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43454247616/artifacts/14052812608).
+
+The 3DS case received HTTP 200 from Stripe confirmation, but the booking stayed `authorization_pending` for the 60-second assertion. Read-only sandbox reconciliation found booking `ae8240cf-891b-4d67-bc59-1968823151a5` cancelled by test cleanup, with no stored PaymentIntent or authorization timestamp. The preceding staging run `43453897743`, job `131982886090`, showed the same assertion failure. Compare the test Checkout Session, PaymentIntent and Stripe event delivery for the failed fixture to determine whether the challenge finished and the webhook transitioned the booking. **NO-GO.**
