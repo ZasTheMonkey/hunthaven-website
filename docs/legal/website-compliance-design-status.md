@@ -189,3 +189,11 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - Public listings filter cleanup `2756c02a5dd93a9802e8068fb6deca4647412473` removed unsupported Last Minute/Hot Spots controls and now exposes selection state; this reduces misleading presentation but does not establish inventory accuracy.
 
 **Legal/security recommendation remains NO-GO.** Access-coordinate disclosure, owner-private data architecture, review moderation/appeals/retention, authenticated authorization, missing legal handoff, and Florida attorney approval remain unresolved.
+
+## Access-area mapping update — November 12, 2026 at 8:50 PM ET
+
+- Sandbox-only mapping now supports `entry_area` and `parking_area` polygons in addition to point markers. PostGIS validation enforces Polygon geometry, valid coordinates and bounded point counts. Owner-scoped RLS was preserved; no public or hunter access was added.
+- Client copy continues to state that exact access coordinates are private to the listing owner. The UI retains the warning that map outlines are not legal surveys.
+- Rollback-only synthetic tests verified valid areas are accepted and wrong Point geometry is rejected for an area; no synthetic identity, listing or zone remained afterward.
+- Legal approval is still required for when confirmed hunters may see exact access geometry, when that access expires after cancellation/checkout, retention for disputes/safety, location-consent language and reliance disclaimers. `docs/legal/website-compliance-handoff.md` remains absent.
+- **Legal release recommendation remains NO-GO.** This technical capability is not approval of any binding term, waiver, safety claim or production disclosure policy.

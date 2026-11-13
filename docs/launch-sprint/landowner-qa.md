@@ -156,6 +156,14 @@ NO-GO for claims of complete messaging reliability until authenticated cross-rol
 ## 2026-11-10 — Review INSERT negative RLS test
 - **PASS:** Under `SET LOCAL ROLE authenticated` with synthetic JWT sub `11111111-1111-4111-8111-111111111111`, attempted direct INSERT into `hunter_reviews` with invented booking/hunter IDs and a 5-star rating. Database returned PostgreSQL 42501: `new row violates row-level security policy for table "hunter_reviews"`. Transaction failed; no review inserted.
 - **LIMITATION:** Negative RLS test only, not a real Supabase Auth browser session. Positive owner review, cross-owner with real seeded bookings, browser/mobile flows and Stripe TEST remain blocked until dedicated synthetic Auth identities and fixtures exist.
+
+## 2026-11-12 20:50 ET — Entry and parking access areas
+
+- **PASS (sandbox migration):** Applied `sandbox_entry_parking_access_areas` only to confirmed project `kbkdfpmlyggfijkyjxoi` (`leasewild-payment-testing`). `listing_access_zones` now accepts `entry_area` and `parking_area` as PostGIS-validated polygons while preserving owner-scoped RLS and the existing point, hunting-boundary and trail types.
+- **PASS (transactional database checks):** Inserted synthetic Auth/listing fixtures plus one entry-area and one parking-area polygon inside a transaction, then rolled the transaction back. Read-back confirmed both the synthetic identity and zones were absent. A second rollback-only negative test confirmed `entry_area` with Point geometry is rejected by the table constraint.
+- **PASS (static source):** `sandbox-zone-editor.html` exposes distinct point/area controls, traces entry/parking polygons with touch or pointer input, validates the polygon client-side, and renders saved areas in the established green/blue map palette. `landowner-portal.html` now accurately describes both access points and access areas. Inline JavaScript compilation and `git diff --check` pass.
+- **NOT TESTED:** Authenticated browser save/reload/edit/delete for the new area types, pointer/touch drawing on a physical device, hunter disclosure, and the 320–2560 viewport matrix. Exact coordinates remain owner-only; no booked-hunter read policy was added.
+- **NO-GO:** Access-coordinate disclosure timing, cancellation/expiry revocation, legal retention language and authenticated cross-role browser evidence remain release gates. Production and live resources were not touched.
 - **LIVE:** No production changes.
 
 ## 2026-11-10 recurring landowner QA follow-up

@@ -479,3 +479,15 @@ The sandbox homepage/listings work now relies on real inventory, avoids fabricat
 5. Execute the requested 320–1920px, zoom, touch, orientation, and real-device matrix.
 
 Production, `main`, live Stripe, production Supabase, real users, and personal sessions remained untouched.
+
+## 2026-11-12 20:50 ET — Access-area capability and current payment evidence
+
+**Decision: NO-GO.** The sandbox now supports owner-drawn entry and parking areas in addition to points, hunting boundaries and trails. Exact access geometry remains owner-only and no production release is authorized.
+
+- **PASS — sandbox database:** migration `sandbox_entry_parking_access_areas`; rollback-only positive polygon and wrong-geometry negative checks completed without retained fixtures.
+- **PASS — source/static:** map editor and landowner copy updated; executable inline scripts parse and patch whitespace checks pass.
+- **PASS — deployment before this change:** Cloudflare independently showed commit `a01d7de95932d4f23dc6737bc6f4d36a11c69c17` deployed successfully as deployment `b60d308c-f91a-4ffd-9a9c-4425b7ac5cc6`. Deployment of the access-area commit must be verified separately after push.
+- **PARTIAL / FAIL — real Stripe TEST browser run `43346765660`:** generic-decline card case passed; success, insufficient-funds, 3DS and retry failed. Four advanced gates were skipped. The four failed synthetic bookings were cancelled by cleanup and had no stored PaymentIntent in `public.bookings`; therefore this run is not payment-launch evidence. See the GitHub Actions run and uploaded artifact for exact sessions and traces.
+- **NOT TESTED:** authenticated area create/save/reload/delete, hunter access-window visibility, full responsive matrix, message regression, completed-booking review positive path, Connect transfer/payout and Stripe Tax readiness.
+
+Production, `main`, live Stripe, production Supabase, real users and personal sessions were untouched.
