@@ -166,7 +166,10 @@ async function enterCard(page, sessionId, card) {
     'Stripe card form or payment method selector');
   if (await ready.evaluate(element => element.tagName !== 'INPUT')) await ready.click();
   const number = await findCheckoutControl(page, frame => frame.locator(cardNumber), 15_000, 'Stripe card number field');
-  await number.fill(card);
+  await number.fill('');
+  await number.pressSequentially(card, { delay: 35 });
+  await expect(number).toHaveValue(new RegExp('^' + card.match(/.{4}/g).join('\\s*') + '$'));
+  await number.press('Tab');
   const field = selector => findCheckoutControl(page, frame => frame.locator(selector), 15_000, 'Stripe field ' + selector);
   await (await field('input[name="cardExpiry"],input[autocomplete="cc-exp"]')).fill('12' + String(new Date().getUTCFullYear() + 3).slice(-2));
   await (await field('input[name="cardCvc"],input[autocomplete="cc-csc"]')).fill('123');
