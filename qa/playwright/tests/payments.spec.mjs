@@ -187,6 +187,11 @@ async function enterCard(page, sessionId, card) {
   const submit = await findCheckoutControl(page, frame => frame.getByRole('button', { name: /^(?:pay|authorize)(?:\s+\$[\d.,]+)?$/i }),
     15_000, 'Stripe Checkout submit button');
   await submit.click();
+  const invalid = await number.evaluate(element => ({
+    ariaInvalid: element.getAttribute('aria-invalid') === 'true',
+    valid: element.validity.valid,
+  }));
+  console.log('Stripe card field after submit', invalid);
 }
 
 async function authorize3ds(page) {
@@ -271,6 +276,17 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
     });
     if (!uuid.test(created.booking_id || '')) throw new Error('Sandbox checkout did not return a booking ID');
     const bookingId = evidence.bookingId = created.booking_id;
+    const stripeResponses = [];
+    page.on('response', response => {
+      const request = response.request();
+      const target = new URL(response.url());
+      if (target.origin === 'https://api.stripe.com' && request.method() === 'POST') {
+        const endpoint = target.pathname.endsWith('/confirm') ? 'confirm' : target.pathname.split('/')[2];
+        if (['confirm', 'payment_methods', 'payment_pages', 'payment_intents', 'tokens'].includes(endpoint)) {
+          stripeResponses.push({ endpoint, status: response.status() });
+        }
+      }
+    });
     let checkoutVerified = false;
     try {
       const session = await verifiedCheckout(created.url, bookingId);
@@ -344,6 +360,7 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
           }
         }
       } finally {
+        console.log('Stripe sandbox payment responses', JSON.stringify(stripeResponses));
         await info.attach('payment-identifiers', { body: JSON.stringify(evidence, null, 2), contentType: 'application/json' });
       }
     }
