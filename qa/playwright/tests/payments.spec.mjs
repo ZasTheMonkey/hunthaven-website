@@ -26,6 +26,10 @@ const owner = {
   id: '7bdc7bf0-ad2d-436c-b4ad-425765ba9d48',
   password: process.env.QA_PAYMENT_OWNER_PASSWORD,
 };
+const connectFixture = {
+  outfitterId: '0c9ed01e-8c96-4a35-b0db-a8ed34322e11',
+  accountId: 'acct_1TOJMRAO408zPcFQ',
+};
 const stripeKey = process.env.QA_STRIPE_TEST_READ_KEY;
 const publicKey = process.env.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY;
 const listingId = process.env.QA_PAYMENT_LISTING_ID?.toLowerCase();
@@ -72,6 +76,12 @@ function bookingCall(headers, endpoint, body) {
   return json(database + '/functions/v1/sandbox-booking-' + endpoint, {
     method: 'POST', headers, body: JSON.stringify(body),
   }, 'Sandbox booking ' + endpoint + ' / ' + body.action);
+}
+
+function sandboxFunction(headers, name, body) {
+  return json(database + '/functions/v1/' + name, {
+    method: 'POST', headers, body: JSON.stringify(body),
+  }, 'Sandbox function ' + name);
 }
 
 async function preflight() {
@@ -391,6 +401,89 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
   });
 }
 
-for (const name of ['receipt email delivery', '20% commission', 'connected-account transfer and payout readiness', 'partial refund']) {
+test('20% commission and connected-account transfer / real Stripe TEST card entry', async ({ page }, info) => {
+  const { hunterHeaders } = credentials;
+  const tripDate = new Date(Date.now() + 45 * 86_400_000).toISOString().slice(0, 10);
+  const created = await sandboxFunction(hunterHeaders, 'sandbox-outfitter-qa-fixture', { action: 'create', trip_date: tripDate });
+  const requestId = created.fixture?.id;
+  if (!uuid.test(requestId || '')) throw new Error('Disposable Connect QA fixture was not created');
+  const evidence = { scenario: 'outfitter_connect_20_percent', requestId, stripeAccount, connectedAccountId: connectFixture.accountId };
+
+  const checkout = await sandboxFunction(hunterHeaders, 'sandbox-outfitter-checkout', { request_id: requestId });
+  expect(checkout.request_id).toBe(requestId);
+  expect(checkout.amount_cents).toBe(20_000);
+  expect(checkout.platform_fee_cents).toBe(4_000);
+  expect(checkout.currency).toBe('usd');
+  expect(checkout.platform_only_test).toBe(false);
+  const verified = new URL(checkout.url);
+  const sessionId = checkoutPath.exec(verified.pathname)?.[1];
+  expect(verified.origin).toBe(checkoutOrigin);
+  expect(sessionId).toMatch(/^cs_test_[A-Za-z0-9]+$/);
+  evidence.sessionId = sessionId;
+
+  const sessionBefore = await stripe('checkout/sessions/' + sessionId);
+  expect(sessionBefore.livemode).toBe(false);
+  expect(sessionBefore.amount_total).toBe(20_000);
+  expect(sessionBefore.metadata?.outfitter_booking_request_id).toBe(requestId);
+  expect(sessionBefore.metadata?.platform_only_test).toBe('false');
+
+  await page.route('**/*', route => {
+    const request = route.request();
+    const target = new URL(request.url());
+    if (request.isNavigationRequest() && request.frame() === page.mainFrame() &&
+        ![origin, checkoutOrigin, 'https://hooks.stripe.com'].includes(target.origin)) return route.abort();
+    return route.continue();
+  });
+  await page.goto(checkout.url, { waitUntil: 'domcontentloaded' });
+  await enterCard(page, sessionId, cards.success);
+  await expect(page).toHaveURL(target => target.origin === origin &&
+    target.pathname.replace(/\.html$/, '') === '/outfitter-pay' &&
+    target.searchParams.get('session_id') === sessionId, { timeout: 45_000 });
+
+  let row;
+  await expect.poll(async () => {
+    const rows = await json(database + '/rest/v1/outfitter_booking_requests?id=eq.' + requestId +
+      '&select=id,outfitter_id,hunter_id,status,payment_status,amount_cents,stripe_payment_intent_id',
+    { headers: hunterHeaders }, 'Outfitter payment reconciliation');
+    row = rows[0];
+    return row?.payment_status;
+  }, { timeout: 60_000 }).toBe('paid');
+  expect(row.outfitter_id).toBe(connectFixture.outfitterId);
+  expect(row.hunter_id).toBe(hunter.id);
+  expect(row.status).toBe('accepted');
+  expect(row.amount_cents).toBe(20_000);
+
+  const session = await stripe('checkout/sessions/' + sessionId);
+  evidence.paymentIntentId = session.payment_intent;
+  const intent = await stripe('payment_intents/' + session.payment_intent + '?expand[]=latest_charge');
+  expect(intent.livemode).toBe(false);
+  expect(intent.status).toBe('succeeded');
+  expect(intent.amount_received).toBe(20_000);
+  expect(intent.application_fee_amount).toBe(4_000);
+  expect(intent.transfer_data?.destination).toBe(connectFixture.accountId);
+  expect(intent.latest_charge?.application_fee).toMatch(/^fee_[A-Za-z0-9]+$/);
+  expect(intent.latest_charge?.transfer).toMatch(/^tr_[A-Za-z0-9]+$/);
+  evidence.applicationFeeId = intent.latest_charge.application_fee;
+  evidence.transferId = intent.latest_charge.transfer;
+  evidence.chargeId = intent.latest_charge.id;
+
+  const preview = await sandboxFunction(hunterHeaders, 'sandbox-outfitter-cancel', { action: 'preview', booking_id: requestId });
+  expect(preview.refund_type).toBe('full_refund');
+  const cancelled = await sandboxFunction(hunterHeaders, 'sandbox-outfitter-cancel', { action: 'cancel', booking_id: requestId });
+  expect(cancelled.result).toBe('full_refund_issued');
+  await expect.poll(async () => {
+    const rows = await json(database + '/rest/v1/outfitter_booking_requests?id=eq.' + requestId +
+      '&select=status,payment_status', { headers: hunterHeaders }, 'Outfitter cancellation reconciliation');
+    return rows[0]?.status + '/' + rows[0]?.payment_status;
+  }, { timeout: 30_000 }).toBe('cancelled/refund_pending');
+  const refunds = await stripe('refunds?payment_intent=' + intent.id);
+  expect(refunds.data).toHaveLength(1);
+  expect(refunds.data[0].amount).toBe(20_000);
+  expect(refunds.data[0].status).toBe('succeeded');
+  evidence.refundId = refunds.data[0].id;
+  await info.attach('connect-payment-identifiers', { body: JSON.stringify(evidence, null, 2), contentType: 'application/json' });
+});
+
+for (const name of ['receipt email delivery', 'connected-account bank payout readiness', 'partial refund']) {
   test(name, () => test.skip(true, 'BLOCKED: requires dedicated inbox or a supported Connect/partial-refund flow and its own reconciliation'));
 }
