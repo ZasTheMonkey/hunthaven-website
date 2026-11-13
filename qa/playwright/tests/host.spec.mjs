@@ -108,7 +108,9 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
   await page.locator('#si-email').fill(creds.email);
   await page.locator('#si-pass').fill(creds.password);
   await page.locator('#si-btn').click();
-  // The pre-login HTML already contains dashboard/listing text. Require the actual authenticated dashboard to become visible.\n  await expect(page.locator('#dashboard')).toBeVisible({timeout:20000});\n  await expect(page.locator('#panel-signin')).toBeHidden();
+  // The pre-login HTML already contains dashboard/listing text. Require the actual authenticated dashboard to become visible.
+  await expect(page.locator('#dashboard')).toBeVisible({timeout:20000});
+  await expect(page.locator('#panel-signin')).toBeHidden();
   await screenshotStep(page,info,'outfitter-signed-in');
  });
  test('admin logs in and clicks Reservations and ID verification tabs',async({page},info)=>{
