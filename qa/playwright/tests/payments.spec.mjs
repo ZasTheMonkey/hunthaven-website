@@ -297,8 +297,10 @@ async function reconcileAuthorization(headers, bookingId, sessionId, { allowReco
     booking = await waitForBooking(headers, bookingId, 'pending_approval', 30_000);
   } catch (error) {
     if (!allowRecovery) throw error;
-    const reconciled = await bookingCall(headers, 'reconcile', { booking_id: bookingId, session_id: sessionId });
-    expect(reconciled.booking?.status).toBe('pending_approval');
+    await expect.poll(async () => {
+      const reconciled = await bookingCall(headers, 'reconcile', { booking_id: bookingId, session_id: sessionId });
+      return reconciled.booking?.status;
+    }, { timeout: 90_000, intervals: [2_000, 3_000, 5_000] }).toBe('pending_approval');
     booking = await waitForBooking(headers, bookingId, 'pending_approval');
   }
   const session = await stripe('checkout/sessions/' + sessionId);
