@@ -79,3 +79,9 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - **PASS (source commit):** `008f6c9e513a060d46014ecacf88e8a553e8c2ff` adds a separate count of temporarily unbookable outfitter experiences to the directory result summary. Before this, a visitor could see “N experiences shown” without knowing that some cards cannot be opened because the same outfitter owns multiple active experiences. The fail-closed booking guard remains unchanged. No payment, API, database, main, or production changes.
 - **NOT TESTED:** Deployed Cloudflare browser rendering, real sandbox inventory, screen-reader behavior, ten responsive viewport widths, Stripe TEST cards/refunds/webhooks/Connect payout reconciliation. Static code verification is not browser evidence.
 - **FAIL / P1:** Directory still queries a maximum of 60 records and routes by outfitter `user_id`, not unique experience ID. Developer/Hunter QA own identity migration and authenticated payment E2E; Growth Research owns discovery presentation. Stripe Tax classification and full payout/refund proof remain launch blockers. **NO-GO.**
+
+## 2026-11-13 08:50 ET — Directory pagination safety
+- PASS (source commit `f80b21cc84c3db1a769f66015e477541cd8b84b8`): Fetches sequential 60-row pages up to 600 before checking duplicate outfitter user IDs. Partial/failed fetch or exceeding cap fails closed, preventing ambiguous booking links based on incomplete inventory. No payment code touched.
+- PASS (independent re-fetch): Confirmed pagination, fail-closed cap and removed obsolete 60-row warning.
+- NOT TESTED: Cloudflare deployment, actual inventory, ten viewport widths, accessibility browser tests, Stripe TEST payments/refunds/webhooks/Connect payouts.
+- NO-GO: Unique experience IDs still needed. Tax and end-to-end payment/payout evidence remain open. Developer/Hunter QA own identity and checkout; Growth owns discovery.
