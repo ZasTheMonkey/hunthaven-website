@@ -3,7 +3,9 @@ on:
   workflow_dispatch:
   push:
     branches: [staging/leasewild-full-clone]
-    paths: [.github/workflows/leasewild-real-browser-qa.yml]
+    paths:
+      - .github/workflows/leasewild-real-browser-qa.yml
+      - qa/playwright/tests/payments.spec.mjs
 permissions:
   contents: read
 concurrency:
