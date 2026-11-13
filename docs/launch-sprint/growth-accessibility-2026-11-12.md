@@ -32,3 +32,9 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - **PASS (staging source commit):** `53478ddca7eb20f3040c74c7d517a98a37125eff` adds a visible, screen-reader-readable count of valid outfitter experience cards. This avoids leaving visitors guessing whether the directory loaded all results; existing capped-inventory warning remains. No database, payment, or production changes.
 - **NOT TESTED:** Browser screen reader, actual responsive viewport matrix, Cloudflare deployment, Stripe TEST reconciliation. No claim of E2E success.
 - **P1 / NO-GO:** Unique listing identity remains unresolved, 60-row cap can omit additional experiences, Stripe Tax and Connect payout plus full checkout/refund proof remain open. Developer/Hunter QA retain booking/payment responsibility. Verify sandbox database identity before fixtures.
+
+
+## 2026-11-12 23:09 ET — Ambiguous experience cards are no longer fake links
+- **PASS (staging source):** Commit `df46d73b0c59b1b35da138047d21be1df0355bfe` changes the directory's multi-experience safety state to render noninteractive media/title/CTA elements instead of anchor elements with removed `href` and `aria-disabled`. This removes misleading link semantics from a deliberately unavailable booking path while preserving the explanation. Single-experience cards still use normal links. Source re-fetched and conditionals confirmed.
+- **NOT TESTED:** Deployed Cloudflare browser behavior, keyboard/screen-reader semantics, ten viewport widths, and Stripe TEST reconciliation. No database, checkout, or payment changes.
+- **OPEN / NO-GO:** Stable unique listing IDs, complete inventory beyond 60 records, sandbox Supabase identity verification, Stripe Tax/Connect payouts, and end-to-end checkout/refund evidence. Developer/Hunter QA own booking/payment changes; Growth owns directory presentation. No main/live changes.
