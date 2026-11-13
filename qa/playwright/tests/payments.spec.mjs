@@ -475,7 +475,7 @@ test('20% commission and connected-account transfer / real Stripe TEST card entr
     const rows = await json(database + '/rest/v1/outfitter_booking_requests?id=eq.' + requestId +
       '&select=status,payment_status', { headers: hunterHeaders }, 'Outfitter cancellation reconciliation');
     return rows[0]?.status + '/' + rows[0]?.payment_status;
-  }, { timeout: 30_000 }).toBe('cancelled/refund_pending');
+  }, { timeout: 30_000 }).toBe('cancelled/refunded');
   const refunds = await stripe('refunds?payment_intent=' + intent.id);
   expect(refunds.data).toHaveLength(1);
   expect(refunds.data[0].amount).toBe(20_000);
