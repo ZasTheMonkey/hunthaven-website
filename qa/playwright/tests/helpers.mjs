@@ -41,7 +41,7 @@ export async function screenshotStep(page,testInfo,name){
   const filename = tile === 0 ? name : `${name}-part-${tile + 1}`;
   await page.screenshot({
    path: testInfo.outputPath(filename + '.png'),
-   fullPage: true,
+   fullPage: false,
    scale: 'css',
    clip: { x: 0, y, width: clipWidth, height: Math.min(height - y, maxSide) },
   });
