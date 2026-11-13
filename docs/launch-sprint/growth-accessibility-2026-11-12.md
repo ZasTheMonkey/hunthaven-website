@@ -108,3 +108,9 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - **LIMITATION:** `user_id` is not unique per experience; multiple experiences from one outfitter with identical `updated_at` remain tied. A stable unique experience ID and keyset pagination are still required. This change is not proof of complete inventory or correct booking identity.
 - **NOT TESTED:** Actual inventory with timestamp ties, deployed Cloudflare response, 10 viewport sizes, Stripe TEST payments/refunds/webhooks/payout reconciliation.
 - **NO-GO:** Keep existing booking ambiguity safeguards. Developer/Hunter QA own unique experience identity and payments; Legal owns Stripe Tax classification. No main/live deployment.
+
+
+## 2026-11-13 13:00 ET — Full-width directory error and retry states
+- **PASS (staging source):** Commit `b94872bf91f7ff4ed6ca4c79980510bcc1662270` makes directory error/empty/status paragraphs span all grid columns and aligns the retry button to the beginning of its own full-width grid row. Previously the error paragraph and retry button each occupied a listing-card column, making a failed load resemble broken listing cards at desktop widths. Independently re-fetched staging source and verified both CSS declarations. Reversible change confined to `outfitters.html`; no checkout or database changes.
+- **NOT TESTED:** Cloudflare deployment, real failed-network fixture, browser screenshots at 320/375/390/430/768/1024/1280/1440/1920/2560, keyboard/zoom, Stripe TEST charges/refunds/webhooks/Connect payout reconciliation. Source verification is not a deployed browser PASS.
+- **OPEN / NO-GO:** Unique outfitter experience identity, 600-record discovery ceiling, Stripe Tax registration/classification, Connect payout proof and complete E2E checkout/refund evidence. Developer/Hunter QA own booking and payment fixes; Growth owns public discovery UI. No main/live changes.
