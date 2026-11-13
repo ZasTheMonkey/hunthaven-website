@@ -176,10 +176,12 @@ async function enterCard(page, sessionId, card) {
     if (await name.isVisible()) await name.fill('LeaseWild Synthetic QA');
     const country = optional('select[name="billingCountry"],select[autocomplete="country"]');
     if (await country.isVisible()) await country.selectOption('US');
-    const zip = optional('input[name="billingPostalCode"],input[autocomplete="postal-code"]');
+    const zip = frame.getByRole('textbox', { name: /^(ZIP|postal) code$/i }).filter({ visible: true }).first();
     if (await zip.isVisible()) await zip.fill('32801');
+    const save = frame.getByRole('checkbox', { name: 'Save my information for faster checkout' });
+    if (await save.isVisible() && await save.isChecked()) await save.uncheck();
   }
-  const submit = await findCheckoutControl(page, frame => frame.getByRole('button', { name: /^(pay|authorize)(?:\s|$)/i }),
+  const submit = await findCheckoutControl(page, frame => frame.getByRole('button', { name: /^(?:pay|authorize)(?:\s+\$[\d.,]+)?$/i }),
     15_000, 'Stripe Checkout submit button');
   await submit.click();
 }
