@@ -5,7 +5,9 @@ on:
     branches: [staging/leasewild-full-clone]
     paths:
       - .github/workflows/leasewild-real-browser-qa.yml
-      - qa/playwright/tests/payments.spec.mjs
+      - qa/playwright/tests/**
+      - qa/playwright/playwright.config.*
+      - qa/playwright/package.json
 permissions:
   contents: read
 concurrency:
@@ -13,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   browser-qa:
-    if: github.ref == 'refs/heads/staging/leasewild-full-clone'
+    if: github.ref == 'refs/heads/staging/leasewild-full-clone' && (github.event_name == 'workflow_dispatch' || matrix.bot != 'payments')
     name: ${{ matrix.bot }} — ${{ matrix.browser }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
@@ -54,7 +56,7 @@ jobs:
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium webkit
       - name: Interact with real sandbox browser
-        if: matrix.bot != 'payments' && github.event_name == 'workflow_dispatch'
+        if: matrix.bot != 'payments'
         env:
           QA_HUNTER_EMAIL: ${{ secrets.QA_HUNTER_EMAIL }}
           QA_HUNTER_PASSWORD: ${{ secrets.QA_HUNTER_PASSWORD }}
