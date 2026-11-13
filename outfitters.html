@@ -396,7 +396,7 @@
  if(!root)return;
  function notice(text,retry){root.setAttribute('aria-busy','false');root.replaceChildren();const p=document.createElement('p');p.style.color='var(--color-text-muted)';p.textContent=text;p.setAttribute('role','status');root.appendChild(p);if(retry){const b=document.createElement('button');b.type='button';b.textContent='Try loading outfitters again';b.style.cssText='margin-top:12px;min-height:48px;padding:12px 20px;border-radius:999px;border:1px solid var(--color-border);background:var(--color-primary);color:#fff;font-weight:700;cursor:pointer';b.addEventListener('click',()=>location.reload());root.appendChild(b)}}
  root.setAttribute('aria-busy','true');
- const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),12000);
+ const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),30000);
  const url='https://kbkdfpmlyggfijkyjxoi.supabase.co/rest/v1/outfitter_listings?select=user_id,title,bio,price,price_label,counties,species,photos&status=eq.active&order=updated_at.desc';
  const key='sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
  // Fetch all pages before calculating per-outfitter ambiguity; partial inventory is unsafe.
