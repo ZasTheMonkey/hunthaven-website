@@ -114,3 +114,9 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - **PASS (staging source):** Commit `b94872bf91f7ff4ed6ca4c79980510bcc1662270` makes directory error/empty/status paragraphs span all grid columns and aligns the retry button to the beginning of its own full-width grid row. Previously the error paragraph and retry button each occupied a listing-card column, making a failed load resemble broken listing cards at desktop widths. Independently re-fetched staging source and verified both CSS declarations. Reversible change confined to `outfitters.html`; no checkout or database changes.
 - **NOT TESTED:** Cloudflare deployment, real failed-network fixture, browser screenshots at 320/375/390/430/768/1024/1280/1440/1920/2560, keyboard/zoom, Stripe TEST charges/refunds/webhooks/Connect payout reconciliation. Source verification is not a deployed browser PASS.
 - **OPEN / NO-GO:** Unique outfitter experience identity, 600-record discovery ceiling, Stripe Tax registration/classification, Connect payout proof and complete E2E checkout/refund evidence. Developer/Hunter QA own booking and payment fixes; Growth owns public discovery UI. No main/live changes.
+
+
+## 2026-11-13 14:55 ET — Directory live-region deduplication
+- PASS (GitHub source): commit `2b267bd4c2e3becaad0566647a469a83f4688fb7` removes a nested `role=status` from the dynamic experience-count paragraph. The directory's existing parent live region continues to announce changes. Source independently re-fetched; no booking/payment logic touched.
+- NOT TESTED: screen-reader announcements in a real browser, responsive widths, Cloudflare deployment, actual sandbox inventory, Stripe TEST transactions/refunds/payouts.
+- NO-GO: unique experience identifiers, scalable discovery, Stripe Tax review and full checkout/Connect reconciliation remain open. Developer/Hunter QA own booking identity and payments; Growth owns public directory accessibility.
