@@ -16,14 +16,14 @@ const cards = {
   three_ds: '4000002500003155',
 };
 const hunter = {
-  email: 'zachschmitt32@gmail.com',
-  id: '7d582821-90a3-49e6-84cf-8ee344d840f3',
+  email: process.env.QA_PAYMENT_HUNTER_EMAIL,
+  id: process.env.QA_PAYMENT_HUNTER_ID,
   signupRole: 'guest',
   password: process.env.QA_PAYMENT_HUNTER_PASSWORD,
 };
 const owner = {
-  email: 'roamquestlx@gmail.com',
-  id: '7bdc7bf0-ad2d-436c-b4ad-425765ba9d48',
+  email: process.env.QA_PAYMENT_OWNER_EMAIL,
+  id: process.env.QA_PAYMENT_OWNER_ID,
   password: process.env.QA_PAYMENT_OWNER_PASSWORD,
 };
 const connectFixture = {
@@ -89,6 +89,10 @@ async function preflight() {
     throw new Error('BLOCKED: payment QA requires the canonical LeaseWild sandbox URL');
   }
   const missing = Object.entries({
+    QA_PAYMENT_HUNTER_EMAIL: hunter.email,
+    QA_PAYMENT_HUNTER_ID: hunter.id,
+    QA_PAYMENT_OWNER_EMAIL: owner.email,
+    QA_PAYMENT_OWNER_ID: owner.id,
     QA_PAYMENT_HUNTER_PASSWORD: hunter.password,
     QA_PAYMENT_OWNER_PASSWORD: owner.password,
     QA_STRIPE_TEST_READ_KEY: stripeKey,
@@ -96,6 +100,12 @@ async function preflight() {
     QA_PAYMENT_LISTING_ID: listingId,
   }).filter(([, value]) => !value).map(([name]) => name);
   if (missing.length) throw new Error('BLOCKED: missing ' + missing.join(', '));
+  if (!uuid.test(hunter.id) || !uuid.test(owner.id) || hunter.id === owner.id ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(hunter.email) ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(owner.email) ||
+      hunter.email.toLowerCase() === owner.email.toLowerCase()) {
+    throw new Error('BLOCKED: distinct synthetic QA hunter and owner email/UUID fixtures are required');
+  }
   if (!/^rk_test_[A-Za-z0-9]+$/.test(stripeKey) || !/^sb_publishable_[\w-]+$/.test(publicKey)) {
     throw new Error('BLOCKED: a restricted Stripe TEST key and sandbox publishable key are required');
   }
