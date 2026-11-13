@@ -534,3 +534,16 @@ Production, `main`, live Stripe, production Supabase, real users and personal se
 - **STILL SKIPPED / NOT PROVEN:** receipt inbox delivery, explicit 20% commission accounting, connected-account transfer/payout readiness and partial refund. Stripe Tax registration/classification, promo/add-on/cleaning-deposit economics, duplicate submission, webhook replay/idempotency and role-specific outfitter payout remain launch gates.
 
 The passing run used only the isolated LeaseWild sandbox, synthetic identities and Stripe TEST mode. It does not authorize production deployment or establish tax/legal readiness.
+
+## 2026-11-13 15:57 ET — Payment gate update
+
+**Decision: NO-GO, with the implemented browser payment matrix now PASS.**
+
+- **PASS:** [run 43505786846](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43505786846) completed all four host/hunter Chromium/mobile-WebKit jobs and the Stripe TEST payment job. Payment result: **6 passed, 3 explicit skips, 0 failed**.
+- **PASS:** hosted success, decline, insufficient-funds, authenticated 3DS and retry paths; booking authorization, capture, cancellation and full refund reconciled.
+- **PASS:** the synthetic outfitter flow enforced a 20% fee on a $200 TEST charge, transferred to the linked TEST account, and on cancellation fully reversed the transfer and refunded both the charge and $40 application fee. Supabase is `cancelled/refunded`.
+- **PASS:** Supabase Edge functions `sandbox-booking-reconcile` v2 and `sandbox-outfitter-qa-fixture` v2 are active. Cloudflare deployment `bef03174-42dd-405a-8539-3f503b4336a2` succeeded for branch head `89b7e98fa58a82c78d14bcfeef4cef539518af26`.
+- **SKIPPED / OPEN:** delivered receipt inbox, external-bank payout and partial refund.
+- **NO-GO remains:** Stripe Tax registrations/classification, promo/add-on/cleaning-deposit economics, duplicate/replay/idempotency, authenticated owner map save/reload and cross-owner denial, completed-booking hunter-review moderation/reporting, and Florida attorney approval.
+
+No production deployment was requested or performed.
