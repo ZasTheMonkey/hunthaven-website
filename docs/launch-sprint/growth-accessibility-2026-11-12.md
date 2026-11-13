@@ -16,3 +16,9 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - **PASS (static verification pending separate read):** This is a narrow response-handling change only; it does not imply backend availability.
 - **NOT TESTED:** Browser reproduction of malformed responses, Cloudflare deployment, responsive widths, screen readers, Stripe TEST cards/refunds/Connect reconciliation.
 - **OPEN / NO-GO:** Unique listing identity, 60-row cap, Stripe Tax and complete payout/payment proof remain unresolved. Confirm Supabase sandbox identity before any API fixtures.
+
+
+## 2026-11-12 20:07 ET — Incomplete directory records
+- **PASS (staging source change):** Commit `205ed7398656a40a4afe055b622667fd9c457c40` distinguishes all-invalid directory results from genuinely empty inventory and provides retry; mixed valid/invalid responses show a visible note about omitted incomplete records. Previously malformed records were silently skipped and all-invalid responses implied there were no bookable experiences. No payments or database code touched.
+- **NOT TESTED:** Actual malformed fixture browser reproduction, Cloudflare deployment, 10-width responsive matrix, authenticated inventory, Stripe TEST payments/webhooks/refunds/Connect reconciliation. Source change alone is not E2E proof.
+- **P1 / NO-GO:** Unique listing identity remains unresolved; 60-row directory cap can miss duplicate outfitter experiences. Sandbox Supabase identity needs verification before synthetic database testing. Stripe Tax, Connect payout and payment/refund reconciliation gates remain open. Developer/Hunter QA own identity/payment remediation; Growth Research owns directory regression.
