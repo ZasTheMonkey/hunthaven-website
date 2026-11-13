@@ -39,3 +39,14 @@ The Connect case charged 20,000 cents, applied a 4,000-cent platform fee, transf
 Receipt inbox delivery, a paid external-bank payout and partial refund remain explicit skips. These are not passes.
 
 Post-run cleanup restored the exact synthetic outfitter listing `SANDBOX TEST ONLY — Guided Outfitter Checkout` to `inactive` at 2026-11-13 16:02 ET so it is not public sandbox inventory. A future Connect run must explicitly activate that exact fixture for the test window and restore it afterward.
+
+## Synthetic listing lifecycle regression fix — November 13, 2026 at 4:58 PM ET
+
+- **Reproduced:** run `43511127313` passed the authenticated 3DS case but the Connect case failed before Checkout because the exact synthetic outfitter listing was correctly `inactive`.
+- **Fixed:** commits `84aac3673b58954d83035dc80046e97461437328` and `ec64704fc70e19b85ced674e167bcb3919b9aae1` make the server-authorized fixture helper temporarily activate only the validated `SANDBOX TEST ONLY` listing, enter cleanup before fixture creation, and force the listing back to `inactive` even when setup or payment assertions fail. Supabase Edge `sandbox-outfitter-qa-fixture` v3 is active.
+- **Verified:** workflow [43514846824](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43514846824), payment job `132194067461`, exact commit `ec64704fc70e19b85ced674e167bcb3919b9aae1`: **6 passed, 3 explicit skips, 0 failed**. Host Chromium/mobile WebKit were **25 passed, 3 skipped** each; hunter Chromium/mobile WebKit were **24 passed, 2 skipped** each.
+- **Connect evidence:** request `54234812-1162-4a9f-9bbf-5d8439764e56`, TEST PaymentIntent `pi_3UbSTGAO40Rp32aF0IKdm0XI`, application fee `fee_1UbSTJAO408zPcFQvGn9mlaz`, transfer `tr_3UbSTGAO40Rp32aF0vcjVXwa`, charge `ch_3UbSTGAO40Rp32aF0mNfC1ux`, refund `re_3UbSTGAO40Rp32aF0saolpmL`.
+- **3DS evidence:** booking `5a2ba231-4a13-4dee-8723-018012805268`, TEST PaymentIntent `pi_3UbSShAO40Rp32aF1OCXLzSd`, event `evt_1UbSSkAO40Rp32aFj0ZYr2Ia`; keyboard challenge completion, `authenticated`, `requires_capture`, zero pending webhook deliveries, booking `pending_approval` before cleanup.
+- **Cleanup proof:** attached result reported `listing_status: inactive` and `unsettled_paid_fixtures: 0`; an independent sandbox database query confirmed the exact listing is `inactive` and zero accepted/paid synthetic Connect fixtures remain.
+- **Artifact:** `14080940933`, SHA-256 `e6cb3d44723bf5395a304d160f6ad1b72279a9d36852a947b9dc6b9910d4e00c`.
+- **Still BLOCKED / SKIPPED:** delivered receipt inbox, external-bank payout and partial refund. A hard runner termination can still bypass browser-level cleanup; the listing is fail-closed between completed runs, but a TTL/lease would be needed to eliminate that residual case.
