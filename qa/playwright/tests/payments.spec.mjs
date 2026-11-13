@@ -270,12 +270,13 @@ async function captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intentId
 async function waitForGuestPortalReturn(page, sessionId) {
   try {
     await expect(page).toHaveURL(target => target.origin === origin &&
-      target.pathname === '/guest-portal.html' && target.searchParams.get('session_id') === sessionId,
+      target.pathname.replace(/\.html$/, '') === '/guest-portal' &&
+      target.searchParams.get('session_id') === sessionId,
     { timeout: 30_000 });
   } catch {
     const target = new URL(page.url());
     throw new Error('Stripe TEST payment reconciled but hosted Checkout did not return to the sandbox guest portal; final page: ' +
-      target.origin + target.pathname);
+      target.origin + target.pathname + '; session_id present: ' + target.searchParams.has('session_id'));
   }
 }
 
