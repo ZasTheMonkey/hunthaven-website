@@ -151,3 +151,12 @@
 **Next independent evidence required:** network-enabled Codespaces/Work runner executes `hunter-mobile-webkit` Terms screenshot test against the deployed sandbox, then the host/admin suite with synthetic role credentials and fresh Stripe TEST Checkout fixtures. Record exact run URL/artifacts and Stripe TEST-to-Supabase reconciliation. No manual card entry should be requested from the owner.
 
 **This run:** GitHub staging files reviewed 3 (screenshot helper, host spec, shared QA report); deployed browser routes 0; authenticated E2E flows 0; new TEST card payments/refunds/payouts 0; verified deployed fixes 0; deployments 0. Main, live website, production Supabase and live Stripe untouched. **Launch NO-GO.**
+
+
+## 2026-11-12 19:54 EST — WebKit screenshot harness correction (staging only)
+
+**STATIC-ONLY FIX:** Re-inspected `qa/playwright/tests/helpers.mjs` and found the newer tile/clip screenshot implementation still passed `fullPage: true` alongside an explicit bounded `clip`. This retains full-page capture mode on the exact WebKit path previously failing with a >32767-pixel screenshot. Changed the tile screenshot call to `fullPage: false` while preserving explicit device-scale-aware clip bounds, image output, coverage annotations and existing overflow checks. Commit `3f5c93654c23a45e79b0030af822f7efb539b52b` on `staging/leasewild-full-clone` only. This is a test harness correction, not an application UI change.
+
+**Verification:** GitHub source edit committed. **REAL-BROWSER RETEST NOT EXECUTED in this run**; no verified pass, screenshots, Actions run URL, or Cloudflare deployment claimed. The next network-enabled Codespaces/Work browser run must execute `bash qa/playwright/run-staging-qa.sh --project=hunter-mobile-webkit --grep="terms.html"` and inspect the report. If it still fails, inspect clip coordinate handling and rendered page dimensions in the trace rather than marking it repaired.
+
+**Run accounting:** 1 QA helper file changed; 1 staging commit; 0 real browser routes tested; 0 authenticated E2E flows; 0 new Stripe TEST payments, refunds, or payouts; 0 application fixes or verified sandbox deployments. Hunter QA/Developer own fresh card-entry fixtures and checkout automation; Bot B continues host-side reconciliation. Existing tax, payout, authorization and E2E evidence launch gates remain open. **NO-GO**. Main/live/production untouched.
