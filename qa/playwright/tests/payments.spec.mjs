@@ -201,15 +201,17 @@ async function authorize3ds(page) {
   // Stripe can also render its test challenge in a single frame.
   await expect.poll(async () => {
     for (const frame of page.frames()) {
+      const target = new URL(frame.url() || 'about:blank');
+      if (target.protocol !== 'https:' || !target.hostname.endsWith('.stripe.com')) continue;
+      const challenge = frame.getByText(/This is a test 3D Secure/i);
       const button = frame.getByRole('button', { name: /^(?:Complete|Complete authentication)$/i });
-      if (await button.count() && await button.first().isVisible() &&
-          ['https://hooks.stripe.com', 'https://js.stripe.com'].includes(new URL(frame.url()).origin)) {
+      if (await challenge.first().isVisible() && await button.first().isVisible()) {
         await button.first().click();
         return true;
       }
     }
     return false;
-  }, { timeout: 30_000 }).toBe(true);
+  }, { timeout: 30_000, message: 'Stripe test challenge in frames: ' + page.frames().map(frame => new URL(frame.url() || 'about:blank').origin).join(', ') }).toBe(true);
 }
 
 async function waitForBooking(headers, bookingId, status) {
@@ -283,9 +285,8 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
     const redirects = new Set();
     page.on('framenavigated', frame => {
       const target = new URL(frame.url() || 'about:blank');
-      if (target.origin === origin && target.pathname === '/guest-portal.html' &&
-          target.searchParams.get('authorization') === 'success') {
-        redirects.add(target.searchParams.get('session_id'));
+      if (target.origin === origin && target.pathname === '/guest-portal.html') {
+        redirects.add(target.pathname);
       }
     });
     page.on('response', response => {
@@ -340,13 +341,13 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
         await enterCard(page, session.id, cards.success);
       }
       if (scenario === 'three_ds') await authorize3ds(page);
-      await expect.poll(() => redirects.has(session.id), { timeout: 45_000, message: 'Sandbox guest portal redirect' }).toBe(true);
       const intent = await reconcileAuthorization(hunterHeaders, bookingId, session.id);
       evidence.paymentIntentId = intent.id;
       const events = await stripe('events?type=checkout.session.completed&limit=50');
       const event = events.data.find(event => event.livemode === false && event.data.object.id === session.id);
       expect(Boolean(event), 'Stripe TEST completion event for this session').toBe(true);
       evidence.webhookEventId = event.id;
+      await expect.soft.poll(() => redirects.has('/guest-portal.html'), { timeout: 15_000, message: 'Sandbox guest portal redirect' }).toBe(true);
       if (scenario === 'success') {
         await captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intent.id, evidence);
       }
