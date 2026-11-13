@@ -85,3 +85,8 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - PASS (independent re-fetch): Confirmed pagination, fail-closed cap and removed obsolete 60-row warning.
 - NOT TESTED: Cloudflare deployment, actual inventory, ten viewport widths, accessibility browser tests, Stripe TEST payments/refunds/webhooks/Connect payouts.
 - NO-GO: Unique experience IDs still needed. Tax and end-to-end payment/payout evidence remain open. Developer/Hunter QA own identity and checkout; Growth owns discovery.
+
+## 2026-11-13 09:09 ET — Directory currency display hardening
+- **PASS (staging source):** `9c2ffd0c040f7d128b700b33d72a6ba50cf943c0` changes directory price labels to explicit USD currency formatting (up to two decimal places), preventing fractional trip prices from appearing as unlabelled three-digit decimals, and rejects empty-string prices that previously appeared as `$0`. Missing/invalid prices now retain `Price on request`. Source independently re-fetched after commit.
+- **NOT TESTED:** Actual browser display, ten responsive widths, Cloudflare deployment, live inventory, Stripe TEST checkout/tax/promo/add-on/refund/Connect reconciliation. This is display-only, not a change to server-side pricing or payments.
+- **OPEN / NO-GO:** Stable per-experience IDs, complete inventory beyond temporary 600-record ceiling, verified Stripe Tax and Connect payout, complete UI payment/refund proof. Developer/Hunter QA own checkout/identity, Landowner QA owns payout reconciliation, Legal owns tax policy. No main/live changes.
