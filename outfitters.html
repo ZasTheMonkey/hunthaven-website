@@ -410,6 +410,12 @@
      items.push(...page);
      if(page.length<pageSize)return items;
    }
+   // A full final page does not prove that more records exist. Probe one extra row.
+   const probe=await fetch(url+'&limit=1&offset='+maxRecords,{headers:{'apikey':key,'Accept':'application/json'},cache:'no-store',signal:controller.signal});
+   if(!probe.ok)throw Error('Directory pagination probe '+probe.status);
+   const extra=await probe.json();
+   if(!Array.isArray(extra))throw Error('Malformed directory pagination probe');
+   if(extra.length===0)return items;
    // Fail closed rather than offer links when additional duplicates may be unseen.
    throw Error('Directory exceeds safe pagination limit');
  }
