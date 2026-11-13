@@ -60,8 +60,8 @@ jobs:
         env:
           QA_HUNTER_EMAIL: ${{ secrets.QA_HUNTER_EMAIL }}
           QA_HUNTER_PASSWORD: ${{ secrets.QA_HUNTER_PASSWORD }}
-          QA_LANDOWNER_EMAIL: ${{ secrets.QA_LANDOWNER_EMAIL }}
-          QA_LANDOWNER_PASSWORD: ${{ secrets.QA_LANDOWNER_PASSWORD }}
+          QA_LANDOWNER_EMAIL: ${{ secrets.QA_LANDOWNER_EMAIL || (!secrets.QA_LANDOWNER_PASSWORD && secrets.QA_PAYMENT_OWNER_EMAIL) }}
+          QA_LANDOWNER_PASSWORD: ${{ secrets.QA_LANDOWNER_PASSWORD || (!secrets.QA_LANDOWNER_EMAIL && secrets.QA_PAYMENT_OWNER_PASSWORD) }}
           QA_OUTFITTER_EMAIL: ${{ secrets.QA_OUTFITTER_EMAIL }}
           QA_OUTFITTER_PASSWORD: ${{ secrets.QA_OUTFITTER_PASSWORD }}
           QA_ADMIN_EMAIL: ${{ secrets.QA_ADMIN_EMAIL }}
