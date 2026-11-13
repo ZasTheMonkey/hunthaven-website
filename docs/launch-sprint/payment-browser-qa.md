@@ -19,3 +19,11 @@ Run `bash qa/playwright/run-staging-qa.sh --project=payments-chromium` in Codesp
 - Landowner QA owns approval, capture, release, cancellation and refund reconciliation. The success case checks one capture, a Stripe receipt URL and one full refund outside the 72-hour cutoff. The 3DS and retry cases release the hold. Decline cases verify no paid state and close their open Checkout Sessions. Review any recorded booking ID if cleanup fails.
 - Receipt inbox delivery, partial refund, 20% commission and Connect transfer/payout remain blocked. The deployed landowner authorization/capture path lacks Connect destination and application fee fields. Test these against a dedicated connected synthetic fixture and reconcile the charge, fee, transfer and payout readiness separately. Existing account flags or historic transfers are insufficient evidence.
 - The JSON/HTML report includes sanitized identifiers. Booking state advancing to pending approval is application-side webhook evidence, alongside the correlated Stripe event. The suite does not inspect Stripe's endpoint delivery log. A receipt URL establishes a Stripe receipt exists, while inbox delivery needs a controlled mailbox.
+
+## Verified run — 2026-11-13 05:32 ET
+
+- **PASS:** GitHub Actions run `43409486530` executed five real Stripe TEST card scenarios through hosted Checkout: success, generic decline, insufficient funds, completed 3DS and decline-then-successful retry. Payments job `131832049114` reports **5 passed, 4 skipped**.
+- **PASS:** success reconciled Session, TEST PaymentIntent, booking state, completion event, capture, receipt URL, cancellation and one full refund tied to the exact charge and PaymentIntent.
+- **PASS:** the 3DS completion webhook reached `sandbox-booking-webhook` with HTTP 200. The harness permits 60 seconds only for the verified authorization-state transition because the preceding run showed the signed webhook arriving at the edge of the former 30-second window.
+- **Evidence artifact:** `14028732476`, containing scenario-level test-only identifiers. No populated card-field screenshot is captured.
+- **OPEN:** receipt inbox delivery, explicit 20% commission, connected-account transfer/payout, partial refund, Stripe Tax classification/registration, promo/add-on/cleaning-deposit totals, duplicate submission and webhook replay/idempotency remain separate gates.

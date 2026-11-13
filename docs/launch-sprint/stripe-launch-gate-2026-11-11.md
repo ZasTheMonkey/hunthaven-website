@@ -263,3 +263,12 @@ All five saved LeaseWild automations (Designer/Developer, Hunter QA, Landowner Q
 - **OPEN P1:** Duplicate detection remains limited to the returned 60 records, so a listing outside the response could share an outfitter ID. The unique listing-ID fix must be implemented across directory, detail, booking, and checkout; this informational change is not a booking-integrity fix.
 - **NOT TESTED:** Cloudflare deployment confirmation, rendered 60-result state, 320–2560 responsive matrix, keyboard/touch/zoom, Stripe TEST payment/refund/webhook/Connect reconciliation. Sandbox Supabase identity still needs independent confirmation before accessing data.
 - **LAUNCH GATE:** **NO-GO** until tax/Connect payout and full payment/refund evidence are verified. No main/live/production changes.
+
+## 2026-11-13 05:32 ET — Core hosted Checkout card matrix PASS
+
+- **PASS — fresh browser execution:** [GitHub Actions run `43409486530`](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43409486530), payments job `131832049114`, completed with five implemented Stripe TEST card scenarios passing: success, generic decline, insufficient funds, completed 3DS and decline-then-successful retry.
+- **PASS — success lifecycle covered by the test:** booking/Session/PaymentIntent/completion-event reconciliation, manual capture, receipt URL presence, guest cancellation and one succeeded full refund tied to the exact TEST charge and PaymentIntent.
+- **PASS — failure recovery:** both decline cases retained zero received/capturable amount; retry succeeded in the same Session after the initial decline. Synthetic cleanup cancelled bookings, expired unpaid Sessions and released non-success authorizations.
+- **PASS — 3DS timing reconciled:** Supabase logs showed the signed webhook returning HTTP 200 at the edge of the prior 30-second assertion; commit `2edde196cb64f565d4e92d75aae9ce890cb377af` preserves the state assertion while allowing 60 seconds for that verified webhook transition.
+- **Evidence:** artifact `14028732476` contains scenario-level test-only identifiers. Card-entry evidence is retained without screenshots of populated Stripe card fields.
+- **REMAINING NO-GO gates:** receipt email delivery, explicit 20% commission accounting, true Connect transfer/payout, partial refund, Stripe Tax registration/classification, promo/add-on/cleaning-deposit reconciliation, duplicate submission/concurrency, webhook replay/idempotency and outfitter-specific destination payout.

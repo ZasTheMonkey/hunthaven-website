@@ -519,3 +519,18 @@ Production, `main`, live Stripe, production Supabase, real users, and personal s
 - **NOT TESTED:** authenticated area create/save/reload/delete, hunter access-window visibility, full responsive matrix, message regression, completed-booking review positive path, Connect transfer/payout and Stripe Tax readiness.
 
 Production, `main`, live Stripe, production Supabase, real users and personal sessions were untouched.
+
+## 2026-11-13 05:32 ET — Fresh real-browser Stripe TEST card pass
+
+**Decision: NO-GO, with the core card matrix now PASS.** GitHub Actions run `43409486530` executed the sandbox Checkout UI with official Stripe TEST cards after two evidence-harness corrections. All four public host/hunter browser jobs and all five implemented card scenarios passed.
+
+- **PASS — successful card:** Stripe confirmation HTTP 200; exact Checkout Session returned to the sandbox Hunter Portal; booking reached `pending_approval`; PaymentIntent reached `requires_capture`; owner capture produced a succeeded charge and receipt URL; hunter cancellation produced one succeeded full refund for the exact TEST PaymentIntent/charge.
+- **PASS — generic decline:** Stripe confirmation HTTP 402; the decline message rendered; no amount was received or capturable; cleanup cancelled the synthetic booking and expired the open Session.
+- **PASS — insufficient funds:** Stripe confirmation HTTP 402; the insufficient-funds message rendered and no amount was received or capturable.
+- **PASS — completed 3DS:** the Stripe TEST challenge was completed; webhook delivery returned HTTP 200; the booking reached `pending_approval`; the authorization was reconciled and released during cleanup.
+- **PASS — decline and retry:** the first TEST card was declined, a success card was re-entered in the same Checkout Session, confirmation returned HTTP 200, the booking/authorization reconciled, and cleanup released the authorization.
+- **PASS — browser regression jobs:** hunter Chromium, hunter mobile WebKit, host Chromium and host mobile WebKit all completed successfully in the same run.
+- **Evidence:** workflow run `43409486530`, payments job `131832049114`, artifact `14028732476`; the artifact contains the scenario-level test-only booking, Checkout Session, PaymentIntent, webhook, charge and refund identifiers recorded by the harness.
+- **STILL SKIPPED / NOT PROVEN:** receipt inbox delivery, explicit 20% commission accounting, connected-account transfer/payout readiness and partial refund. Stripe Tax registration/classification, promo/add-on/cleaning-deposit economics, duplicate submission, webhook replay/idempotency and role-specific outfitter payout remain launch gates.
+
+The passing run used only the isolated LeaseWild sandbox, synthetic identities and Stripe TEST mode. It does not authorize production deployment or establish tax/legal readiness.
