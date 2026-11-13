@@ -387,7 +387,8 @@
  const key='sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
  fetch(url,{headers:{'apikey':key,'Accept':'application/json'},cache:'no-store',signal:controller.signal}).then(async r=>{if(!r.ok)throw Error('Directory request '+r.status);return r.json()}).then(data=>{
  clearTimeout(timeout);root.setAttribute('aria-busy','false');
- if(!Array.isArray(data)||!data.length){notice('No approved outfitters are listed yet.');return}
+ if(!Array.isArray(data)){notice('The directory returned an unexpected response. Please try again.',true);return}
+ if(!data.length){notice('No approved outfitters are listed yet.');return}
  root.replaceChildren();
  // User-level detail links cannot distinguish multiple active experiences.
  const counts=new Map();for(const x of data){if(x&&typeof x.user_id==='string')counts.set(x.user_id,(counts.get(x.user_id)||0)+1)}
