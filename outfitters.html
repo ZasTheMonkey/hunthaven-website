@@ -182,6 +182,14 @@
 #outfitter-directory .experience-card:hover .experience-card__media img{transform:none}
 @media(max-width:600px){#outfitter-directory .experience-card__media{aspect-ratio:auto;min-height:150px}}
 </style><style>
+/* Growth QA: prevent user-supplied long titles, prices and locations from forcing horizontal overflow at 320px. */
+#outfitter-directory .experience-card__heading{min-width:0;flex-wrap:wrap}
+#outfitter-directory .experience-card__title,
+#outfitter-directory .experience-card__title a,
+#outfitter-directory .experience-card__location,
+#outfitter-directory .experience-card__species,
+#outfitter-directory .experience-card__price{min-width:0;max-width:100%;overflow-wrap:anywhere;white-space:normal}
+#outfitter-directory .experience-card__footer{flex-wrap:wrap}
 /* Growth QA: visible keyboard navigation and reduced-motion support. */
 #outfitter-directory a:focus-visible,
 #outfitter-directory button:focus-visible,
