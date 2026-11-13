@@ -11,7 +11,11 @@ const cards = {
   insufficient_funds: '4000000000009995',
   three_ds: '4000002500003155',
 };
-const hunter = { email: 'roamquestlx+leasewild-hunter@gmail.com', id: '58356c6f-35b7-42c1-b9da-164863ea0cbb', password: process.env.QA_PAYMENT_HUNTER_PASSWORD };
+const hunter = {
+  email: 'hunter-qa@leasewild.test',
+  id: (process.env.QA_PAYMENT_HUNTER_ID ?? 'c04b7c5a-28e0-4a60-921a-642586cf7d5b').toLowerCase(),
+  password: process.env.QA_PAYMENT_HUNTER_PASSWORD,
+};
 const owner = { email: 'roamquestlx+leasewild-owner-a@gmail.com', id: '103c4605-f279-4f87-a677-1ac2b46df373', password: process.env.QA_PAYMENT_OWNER_PASSWORD };
 const stripeKey = process.env.QA_STRIPE_TEST_READ_KEY;
 const publicKey = process.env.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY;
@@ -51,6 +55,9 @@ function bookingCall(headers, endpoint, body) {
 }
 
 async function preflight() {
+  if (!uuid.test(hunter.id) || hunter.id === owner.id) {
+    throw new Error('BLOCKED: QA_PAYMENT_HUNTER_ID must be a valid Hunter fixture UUID distinct from the owner');
+  }
   if (!/^(rk|sk)_test_[A-Za-z0-9]+$/.test(stripeKey || '') || !/^sb_publishable_[\w-]+$/.test(publicKey || '') || !uuid.test(listingId || '')) {
     throw new Error('BLOCKED: invalid Stripe TEST key, sandbox publishable key or fixture listing ID');
   }
