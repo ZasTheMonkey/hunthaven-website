@@ -485,6 +485,7 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
 test('20% commission and connected-account transfer / real Stripe TEST card entry', async ({ page }, info) => {
   const { hunterHeaders } = credentials;
   const tripDate = new Date(Date.now() + 45 * 86_400_000).toISOString().slice(0, 10);
+  // The helper authorizes the server-marked sandbox guest identity; no user UUID is hard-coded.
   const created = await sandboxFunction(hunterHeaders, 'sandbox-outfitter-qa-fixture', { action: 'create', trip_date: tripDate });
   const requestId = created.fixture?.id;
   if (!uuid.test(requestId || '')) throw new Error('Disposable Connect QA fixture was not created');
