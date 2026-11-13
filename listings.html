@@ -775,9 +775,9 @@ body{background:#fff!important;color:#193d32!important}
 
 
   <!-- LISTING DETAIL MODAL -->
-  <div id="listing-detail-modal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto" onclick="if(event.target===this)closeListingDetail()">
-    <div id="listing-detail-inner" style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);max-width:560px;width:100%;margin:auto;box-shadow:var(--shadow-lg);position:relative;overflow:hidden">
-      <button onclick="closeListingDetail()" style="position:absolute;top:1rem;right:1rem;z-index:10;background:rgba(0,0,0,.45);border:none;cursor:pointer;color:#fff;font-size:1.1rem;line-height:1;padding:6px 10px;border-radius:var(--radius-full)">✕</button>
+  <div id="listing-detail-modal" role="dialog" aria-modal="true" aria-label="Listing details" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto" onclick="if(event.target===this)closeListingDetail()">
+    <div id="listing-detail-inner" tabindex="-1" style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);max-width:560px;width:100%;margin:auto;box-shadow:var(--shadow-lg);position:relative;overflow:hidden">
+      <button type="button" data-listing-modal-close onclick="closeListingDetail()" aria-label="Close listing details" style="position:absolute;top:1rem;right:1rem;z-index:10;width:44px;height:44px;background:rgba(0,0,0,.58);border:1px solid rgba(255,255,255,.45);cursor:pointer;color:#fff;font-size:1.1rem;line-height:1;padding:0;border-radius:var(--radius-full);display:grid;place-items:center">✕</button>
       <div id="listing-detail-content"></div>
     </div>
   </div>

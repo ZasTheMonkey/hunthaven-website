@@ -207,3 +207,11 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - Attorney review is still required for the timing and expiry of exact access disclosure, location consent, reliance/survey disclaimers, retention for safety/disputes and cancellation effects.
 
 **Legal launch recommendation remains NO-GO.** No binding policy language was published and no production system or real-user data was accessed.
+
+## Listing-detail accessibility update — November 13, 2026 at 12:07 AM ET
+
+- Public listing-detail overlays now expose dialog semantics, modal state, accessible close labels, predictable keyboard focus, Escape dismissal and focus restoration.
+- Close controls meet the 44×44 CSS-pixel touch-target baseline.
+- This accessibility change does not approve listing claims, cancellation language, payment terms, property verification, access-location disclosure or any binding legal policy.
+
+**Legal launch recommendation remains NO-GO.** Florida attorney review and the existing payment, tax, cancellation and access-disclosure gates remain open.

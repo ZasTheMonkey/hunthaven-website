@@ -277,6 +277,18 @@ Production, `main`, live Stripe, production Supabase, real users and personal se
 
 No payment, booking, messaging or production code was changed by this privacy correction. Production, `main`, live Stripe, production Supabase, real users and personal sessions were untouched.
 
+## 2026-11-13 00:07 ET — Listing-detail modal accessibility
+
+**Decision: NO-GO.** Public listing-detail dialogs were upgraded for keyboard, assistive-technology and touch use. Payment and authenticated lifecycle gates remain unchanged.
+
+- **FIXED — semantics:** homepage and listings detail containers expose dialog/modal state and maintain `aria-hidden` as they open and close.
+- **FIXED — keyboard:** focus moves to the close control, Tab/Shift+Tab remain inside the open dialog, Escape closes it and focus returns to the listing that opened it.
+- **FIXED — touch target:** both close controls are at least 44×44 CSS pixels and have explicit accessible labels; the homepage control has a visible focus ring.
+- **STATIC PASS:** `booking.js` and all executable inline scripts compile; assertions confirm modal attributes, close hooks, focus restoration and keyboard handling are present.
+- **RETEST REQUIRED:** deployed browser keyboard/touch behavior and modal layout across the full width matrix must be verified after the exact commit deploys.
+
+No Stripe, booking-state, Supabase, legal-policy or production code was changed.
+
 
 ## Hourly update — November 10, 2026 at 2:15 AM ET
 

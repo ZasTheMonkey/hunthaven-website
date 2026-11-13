@@ -1,5 +1,6 @@
 // ── BOOKING FLOW ──────────────────────────────────────────
 var _currentListing = null;
+var _listingDetailTrigger = null;
 var LAUNCH_DATE = new Date('2026-07-01T00:00:00');
 
 function isLaunched() { return new Date() >= LAUNCH_DATE; }
@@ -15,6 +16,8 @@ function openListingById(id) {
 
 function openListingDetail(l) {
   if (!l) return;
+  _listingDetailTrigger = document.activeElement && document.activeElement !== document.body
+    ? document.activeElement : null;
   _currentListing = l;
   _appliedCode = null; // reset code when opening a new listing
   var type = getType(l);
@@ -296,8 +299,14 @@ function openListingDetail(l) {
       '</div>' +
     '</div>';
 
-  document.getElementById('listing-detail-modal').style.display = 'flex';
+  var listingModal = document.getElementById('listing-detail-modal');
+  listingModal.style.display = 'flex';
+  listingModal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+  requestAnimationFrame(function() {
+    var closeButton = listingModal.querySelector('[data-listing-modal-close]');
+    (closeButton || listingModal).focus();
+  });
 
   // Init Flatpickr after DOM is ready
   if (priceNum) {
@@ -623,7 +632,42 @@ async function submitBookingStripe() {
 function switchToPreReservation() { openWaitlist(); }
 
 function closeListingDetail() {
-  document.getElementById('listing-detail-modal').style.display = 'none';
+  var listingModal = document.getElementById('listing-detail-modal');
+  if (!listingModal || listingModal.style.display === 'none') return;
+  listingModal.style.display = 'none';
+  listingModal.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
   _currentListing = null;
+  if (_listingDetailTrigger && document.contains(_listingDetailTrigger)) {
+    _listingDetailTrigger.focus();
+  }
+  _listingDetailTrigger = null;
 }
+
+document.addEventListener('keydown', function(event) {
+  var listingModal = document.getElementById('listing-detail-modal');
+  if (!listingModal || listingModal.style.display === 'none') return;
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeListingDetail();
+    return;
+  }
+  if (event.key !== 'Tab') return;
+  var focusable = Array.from(listingModal.querySelectorAll(
+    'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
+  )).filter(function(element) { return element.offsetParent !== null; });
+  if (!focusable.length) {
+    event.preventDefault();
+    listingModal.focus();
+    return;
+  }
+  var first = focusable[0];
+  var last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+});
