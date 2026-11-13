@@ -186,19 +186,22 @@ async function enterCard(page, sessionId, card) {
   }
   const submit = await findCheckoutControl(page, frame => frame.getByRole('button', { name: /^(?:pay|authorize)(?:\s+\$[\d.,]+)?$/i }),
     15_000, 'Stripe Checkout submit button');
-  await submit.click();
-  const invalid = await number.evaluate(element => ({
-    ariaInvalid: element.getAttribute('aria-invalid') === 'true',
-    valid: element.validity.valid,
-  }));
-  console.log('Stripe card field after submit', invalid);
+  const confirms = request => request.method() === 'POST' &&
+    new URL(request.url()).origin === 'https://api.stripe.com' &&
+    new URL(request.url()).pathname.endsWith('/confirm');
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const sent = page.waitForEvent('request', { predicate: confirms, timeout: 8_000 }).catch(() => null);
+    await submit.click();
+    if (await sent) return;
+  }
+  throw new Error('Stripe Checkout did not send a confirmation request');
 }
 
 async function authorize3ds(page) {
   // Stripe can also render its test challenge in a single frame.
   await expect.poll(async () => {
     for (const frame of page.frames()) {
-      const button = frame.getByRole('button', { name: 'Complete authentication', exact: true });
+      const button = frame.getByRole('button', { name: /^(?:Complete|Complete authentication)$/i });
       if (await button.count() && await button.first().isVisible() &&
           ['https://hooks.stripe.com', 'https://js.stripe.com'].includes(new URL(frame.url()).origin)) {
         await button.first().click();
@@ -277,6 +280,14 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
     if (!uuid.test(created.booking_id || '')) throw new Error('Sandbox checkout did not return a booking ID');
     const bookingId = evidence.bookingId = created.booking_id;
     const stripeResponses = [];
+    const redirects = new Set();
+    page.on('framenavigated', frame => {
+      const target = new URL(frame.url() || 'about:blank');
+      if (target.origin === origin && target.pathname === '/guest-portal.html' &&
+          target.searchParams.get('authorization') === 'success') {
+        redirects.add(target.searchParams.get('session_id'));
+      }
+    });
     page.on('response', response => {
       const request = response.request();
       const target = new URL(response.url());
@@ -329,11 +340,7 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
         await enterCard(page, session.id, cards.success);
       }
       if (scenario === 'three_ds') await authorize3ds(page);
-      await expect.poll(() => {
-        const url = new URL(page.url());
-        return url.origin === origin && url.pathname === '/guest-portal.html' &&
-          url.searchParams.get('authorization') === 'success' && url.searchParams.get('session_id') === session.id;
-      }, { timeout: 45_000 }).toBe(true);
+      await expect.poll(() => redirects.has(session.id), { timeout: 45_000, message: 'Sandbox guest portal redirect' }).toBe(true);
       const intent = await reconcileAuthorization(hunterHeaders, bookingId, session.id);
       evidence.paymentIntentId = intent.id;
       const events = await stripe('events?type=checkout.session.completed&limit=50');
@@ -346,7 +353,10 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
     } finally {
       try {
         if (checkoutVerified) {
-          await bookingCall(hunterHeaders, 'cancel', { action: 'cancel', booking_id: bookingId });
+          const { bookings } = await bookingCall(hunterHeaders, 'approval', { action: 'hunter_list' });
+          if (bookings?.find(row => row.id === bookingId)?.status !== 'cancelled') {
+            await bookingCall(hunterHeaders, 'cancel', { action: 'cancel', booking_id: bookingId });
+          }
           await waitForBooking(hunterHeaders, bookingId, 'cancelled');
           if (scenario === 'declined' || scenario === 'insufficient_funds') {
             const expired = await stripe('checkout/sessions/' + evidence.sessionId);
