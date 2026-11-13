@@ -103,6 +103,20 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
   await expect(page.locator('#auth-card')).toBeHidden();
   await screenshotStep(page,info,'landowner-signed-in');
  });
+ test('authenticated synthetic landowner session survives reload',async({page},info)=>{
+  const creds=requireSyntheticCredentials('QA_LANDOWNER');
+  test.skip(!creds,'BLOCKED: verified synthetic QA_LANDOWNER credentials not configured');
+  await visit(page,'/landowner-portal.html');
+  await page.locator('#si-email').fill(creds.email);
+  await page.locator('#si-password').fill(creds.password);
+  await page.locator('#signin-btn').click();
+  await expect(page.locator('#dashboard')).toBeVisible({timeout:20000});
+  await expect(page.locator('#auth-card')).toBeHidden();
+  await page.reload();
+  await expect(page.locator('#dashboard')).toBeVisible({timeout:20000});
+  await expect(page.locator('#auth-card')).toBeHidden();
+  await screenshotStep(page,info,'landowner-session-persists-after-reload');
+ });
  test('human fills outfitter login',async({page},info)=>{
   await visit(page,'/outfitter-portal.html');
   const creds=requireSyntheticCredentials('QA_OUTFITTER');
