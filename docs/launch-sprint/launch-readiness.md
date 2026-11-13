@@ -547,3 +547,15 @@ The passing run used only the isolated LeaseWild sandbox, synthetic identities a
 - **NO-GO remains:** Stripe Tax registrations/classification, promo/add-on/cleaning-deposit economics, duplicate/replay/idempotency, authenticated owner map save/reload and cross-owner denial, completed-booking hunter-review moderation/reporting, and Florida attorney approval.
 
 No production deployment was requested or performed.
+
+
+## Hourly integration update — November 13, 2026 at 4:58 PM ET
+
+**Decision: NO-GO.** No production launch was authorized or performed.
+
+- **Verified fix:** commits `84aac3673b58954d83035dc80046e97461437328` and `ec64704fc70e19b85ced674e167bcb3919b9aae1` removed the recurring Connect harness dependency on publicly active synthetic inventory. The exact listing is active only during the test and is forced back to `inactive`.
+- **Verified matrix:** workflow [43514846824](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43514846824) completed all five jobs successfully at exact tested commit `ec64704fc70e19b85ced674e167bcb3919b9aae1`. Payments: **6 passed / 3 skipped**; host Chromium and mobile WebKit: **25 passed / 3 skipped each**; hunter Chromium and mobile WebKit: **24 passed / 2 skipped each**.
+- **Verified cleanup:** artifact `14080940933` (SHA-256 `e6cb3d44723bf5395a304d160f6ad1b72279a9d36852a947b9dc6b9910d4e00c`) reports `inactive` and zero unsettled paid fixtures; independent sandbox SQL confirmed both conditions.
+- **Verified deployment:** Cloudflare deployment `7be4548f-1464-420c-a349-0073bec0e73c` successfully served exact commit `ec64704fc70e19b85ced674e167bcb3919b9aae1` at the canonical sandbox branch before these documentation-only commits.
+- **Other bots:** Landowner QA fixed its outfitter-dashboard login assertion (`8307eb714593`, `1e1aee5047c`); Growth improved first real outfitter-image priority (`803ceee1615e`). Both changes were included in this green host/hunter matrix because the tested payment commit descends from them.
+- **Open P0/P1 evidence:** delivered receipt inbox, paid external-bank payout, partial refund, Stripe Tax registration/classification, promo/add-on/cleaning-deposit economics, duplicate/replay/idempotency, authenticated owner map save/reload and cross-owner denial, completed-booking hunter-review moderation/reporting, and Florida attorney approval.
