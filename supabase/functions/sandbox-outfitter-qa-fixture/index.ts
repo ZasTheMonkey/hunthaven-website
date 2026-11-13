@@ -1,7 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.49.8';
 
 const sandboxOrigin = 'https://leasewild-sandbox.pages.dev';
-const qaHunterId = '7d582821-90a3-49e6-84cf-8ee344d840f3';
 const qaOutfitterId = '0c9ed01e-8c96-4a35-b0db-a8ed34322e11';
 const headers = {
   'Access-Control-Allow-Origin': sandboxOrigin,
@@ -26,7 +25,8 @@ Deno.serve(async (request) => {
   const database = createClient(url, serviceKey, { auth: { persistSession: false } });
   const token = (request.headers.get('authorization') || '').replace(/^Bearer /i, '');
   const { data: { user }, error: authError } = await database.auth.getUser(token);
-  if (authError || user?.id !== qaHunterId) {
+  if (authError || !user || user.app_metadata?.qa_fixture !== 'leasewild-payment-browser' ||
+      user.user_metadata?.role !== 'guest') {
     return respond({ error: 'Dedicated payment QA identity required' }, 403);
   }
 
@@ -71,7 +71,7 @@ Deno.serve(async (request) => {
 
   const { data: fixture, error } = await database.from('outfitter_booking_requests').insert({
     outfitter_id: qaOutfitterId,
-    hunter_id: qaHunterId,
+    hunter_id: user.id,
     trip_date: input.trip_date,
     guest_count: 1,
     guest_name: 'LeaseWild Synthetic Payment QA',
