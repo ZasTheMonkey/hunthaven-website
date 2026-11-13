@@ -70,6 +70,10 @@ jobs:
       - name: Run Stripe test-mode payment QA
         if: matrix.bot == 'payments'
         env:
+          QA_PAYMENT_HUNTER_EMAIL: ${{ vars.QA_PAYMENT_HUNTER_EMAIL || secrets.QA_PAYMENT_HUNTER_EMAIL }}
+          QA_PAYMENT_HUNTER_ID: ${{ vars.QA_PAYMENT_HUNTER_ID || secrets.QA_PAYMENT_HUNTER_ID }}
+          QA_PAYMENT_OWNER_EMAIL: ${{ vars.QA_PAYMENT_OWNER_EMAIL || secrets.QA_PAYMENT_OWNER_EMAIL }}
+          QA_PAYMENT_OWNER_ID: ${{ vars.QA_PAYMENT_OWNER_ID || secrets.QA_PAYMENT_OWNER_ID }}
           QA_STRIPE_TEST_READ_KEY: ${{ secrets.QA_STRIPE_TEST_READ_KEY }}
           QA_PAYMENT_HUNTER_PASSWORD: ${{ secrets.QA_PAYMENT_HUNTER_PASSWORD }}
           QA_PAYMENT_OWNER_PASSWORD: ${{ secrets.QA_PAYMENT_OWNER_PASSWORD }}
