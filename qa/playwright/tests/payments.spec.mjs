@@ -258,9 +258,25 @@ async function captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intentId
   expect(refunds.data).toHaveLength(1);
   const refund = refunds.data[0];
   evidence.refundId = refund.id;
-  expect(refund.livemode).toBe(false);
+  expect(refund.id).toMatch(/^re_[A-Za-z0-9]+$/);
+  // Restricted-key list responses can omit `livemode`; prove that this is the
+  // refund created for the already verified TEST PaymentIntent and charge.
+  expect(refund.payment_intent).toBe(intentId);
+  expect(refund.charge).toBe(evidence.chargeId);
   expect(refund.status).toBe('succeeded');
   expect(refund.amount).toBe(10_650);
+}
+
+async function waitForGuestPortalReturn(page, sessionId) {
+  try {
+    await expect(page).toHaveURL(target => target.origin === origin &&
+      target.pathname === '/guest-portal.html' && target.searchParams.get('session_id') === sessionId,
+    { timeout: 30_000 });
+  } catch {
+    const target = new URL(page.url());
+    throw new Error('Stripe TEST payment reconciled but hosted Checkout did not return to the sandbox guest portal; final page: ' +
+      target.origin + target.pathname);
+  }
 }
 
 let credentials;
@@ -282,13 +298,6 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
     if (!uuid.test(created.booking_id || '')) throw new Error('Sandbox checkout did not return a booking ID');
     const bookingId = evidence.bookingId = created.booking_id;
     const stripeResponses = [];
-    const redirects = new Set();
-    page.on('framenavigated', frame => {
-      const target = new URL(frame.url() || 'about:blank');
-      if (target.origin === origin && target.pathname === '/guest-portal.html') {
-        redirects.add(target.pathname);
-      }
-    });
     page.on('response', response => {
       const request = response.request();
       const target = new URL(response.url());
@@ -347,7 +356,7 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
       const event = events.data.find(event => event.livemode === false && event.data.object.id === session.id);
       expect(Boolean(event), 'Stripe TEST completion event for this session').toBe(true);
       evidence.webhookEventId = event.id;
-      await expect.soft.poll(() => redirects.has('/guest-portal.html'), { timeout: 15_000, message: 'Sandbox guest portal redirect' }).toBe(true);
+      await waitForGuestPortalReturn(page, session.id);
       if (scenario === 'success') {
         await captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intent.id, evidence);
       }
