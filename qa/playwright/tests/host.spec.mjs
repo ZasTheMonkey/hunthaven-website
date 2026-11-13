@@ -55,6 +55,22 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    await screenshotStep(page,info,'anonymous-'+zoneType+'-save-denied');
   });
  }
+ test('anonymous access-zone drafts do not persist after page reload',async({page},info)=>{
+  await visit(page,'/sandbox-zone-editor.html');
+  await page.locator('#zone-type').selectOption('parking_area');
+  await page.locator('summary').filter({hasText:'Optional: enter exact coordinates'}).click();
+  for(const [lat,lng] of [[29.02,-80.93],[29.021,-80.93],[29.021,-80.929]]){
+   await page.locator('#latitude').fill(String(lat));
+   await page.locator('#longitude').fill(String(lng));
+   await page.locator('#add-point').click();
+  }
+  await expect(page.locator('#draft-count')).toContainText('3 draft point');
+  await expect(page.locator('#save')).toBeDisabled();
+  await page.reload();
+  await expect(page.locator('#saved li')).toHaveCount(0);
+  await expect(page.locator('#save')).toBeDisabled();
+  await screenshotStep(page,info,'anonymous-zone-draft-reload-no-persistence');
+ });
  test('human fills landowner login',async({page},info)=>{
   await visit(page,'/landowner-portal.html');
   const creds=requireSyntheticCredentials('QA_LANDOWNER');
