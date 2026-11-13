@@ -140,3 +140,14 @@
 - **This automation execution:** 0 additional browser routes, 0 authenticated flows, 0 Stripe test-card payments, 0 verified runtime fixes, 0 sandbox deployments. GitHub staging QA report updated with independently inspected owner-provided evidence. No production or main changes.
 
 **Launch decision: NO-GO.** Priorities: reliable screenshot capture, synthetic account/checkout fixtures, actual automated TEST card submissions, host-side reservation/transfer/refund/webhook/email reconciliation, tax and role-isolation gates. Keep test evidence distinct from code presence and historical Stripe records.
+
+
+## 2026-11-12 19:18 EST — current screenshot fix inspected; network execution gate rechecked
+
+**Evidence: STATIC-ONLY plus direct DNS probe.** Read the current staging `qa/playwright/tests/helpers.mjs` and host Playwright spec. A newer screenshot helper now uses explicit clipped tiles (maximum 4096 CSS pixels per side, device-scale-aware), `scale: 'css'`, and captures up to ten segments. This is materially different from the owner-tested failed `8f7a795` height-guard fallback. **Do not claim this newer implementation passed** without a new real WebKit run; another bot may own the helper and edits were deliberately avoided to prevent conflicts.
+
+**Independent sandbox connectivity check:** `getent hosts leasewild-sandbox.pages.dev` returned no address; `curl -I --max-time 8 https://leasewild-sandbox.pages.dev/sandbox-zone-editor.html` failed with `curl: (6) Could not resolve host`. This run therefore cannot execute browser-driven deployed-site tests or submit Stripe TEST cards from its local runtime. It is a network/DNS blocker, **not** a request for more user approval. The owner has already provided Playwright trace evidence of the previous screenshot failure.
+
+**Next independent evidence required:** network-enabled Codespaces/Work runner executes `hunter-mobile-webkit` Terms screenshot test against the deployed sandbox, then the host/admin suite with synthetic role credentials and fresh Stripe TEST Checkout fixtures. Record exact run URL/artifacts and Stripe TEST-to-Supabase reconciliation. No manual card entry should be requested from the owner.
+
+**This run:** GitHub staging files reviewed 3 (screenshot helper, host spec, shared QA report); deployed browser routes 0; authenticated E2E flows 0; new TEST card payments/refunds/payouts 0; verified deployed fixes 0; deployments 0. Main, live website, production Supabase and live Stripe untouched. **Launch NO-GO.**
