@@ -204,3 +204,9 @@
 **Next execution handoff:** Developer/QA should provision isolated synthetic host/admin secrets in staging Actions without logging values; Bot B then adds and runs authenticated, state-reloading tests with fixture cleanup and owner-isolation negative cases. Hunter/Payments owns fresh card-entry execution; Bot B reconciles its TEST IDs against host-side booking, refund, commission, payout and notification rows. Confirm project identity before any database reads or writes. Coordinate file ownership before edits.
 
 **Accounting for this invocation:** 0 new browser routes/flows, 0 TEST card submissions, 0 verified fixes, 0 deployments. This documentation-only checkpoint is not deployment verification. **NO-GO**. No main/live/production access.
+
+## 2026-11-13 — attempt 2 host and payment reconciliation
+
+[Actions run 43451398532, attempt 2](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43451398532/attempts/2) used staging commit `8325f8b143ed5ba51fe6a52a7a53fee20e380ec8`. The host Chromium and mobile WebKit logs each show 19 passed and 3 skipped. Authenticated landowner, outfitter and admin coverage remains open. The payments job `131978218981` shows 6 passed and 3 skipped. [Verified payments artifact 14053890593](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43451398532/artifacts/14053890593).
+
+Read-only sandbox reconciliation matched the captured and refunded landowner booking `b51736c8-2131-4108-b84c-9de92c98e2f1` and the $200 Connect request `b2f0625a-96f8-44b2-ae30-765459f6ac53` to their artifact PaymentIntents. The Connect request finished `cancelled/refunded`. Its linked account has charges and payouts enabled in Supabase. The bank payout, partial refund, and delivered receipt are still open. Three owner-booking-request outbox records tied to these fixtures remain pending. See the [Stripe launch gate](stripe-launch-gate-2026-11-11.md) for the prerequisites. **Launch remains NO-GO.**
