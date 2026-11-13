@@ -6,6 +6,15 @@ const stripeAccount = 'acct_1TOJ2rAO40Rp32aF';
 // Verified in this sandbox through an independent, account-scoped Stripe connection.
 const stripeAccountFixture = 'cs_test_a0NdkczfEBO5eOYzv49nVQP6UB7L7BS5cVZwCa4BpbgkOMYRL7bXrYVJXZ';
 const checkoutOrigin = 'https://checkout.stripe.com';
+const checkoutPath = /^\/[cg]\/pay\/(cs_test_[A-Za-z0-9]+)$/;
+// Unpaid sandbox bookings from staging run 43345000392.
+const previousRunBookings = [
+  ['39b7d223-e632-44cd-b91b-551f5781f7c6', 'cs_test_a01PI7n5n7bEwpPi3XrMWp1XHlSWxZq1qe5dtHyDH86Xrm18am8E6W2u4m'],
+  ['e2d8f5c3-3823-4160-8ef8-a8c9b48a6150', 'cs_test_a09lfRkZQuD1x3gxmfNzsUsiIKGP9TSjgqb5ZddkgRUgtIb4c64j5I9ke8'],
+  ['2a14298c-3803-4fe1-93dc-42617620a74c', 'cs_test_a0eZDCtLsA5MgM1iP86yT1JR744ZCWO4ACEzTja1N324WDwnOk1EVv6WbA'],
+  ['bafe1064-985b-40da-a839-f69e74ed2209', 'cs_test_a0nw2BXTOCVUYYITc9qy8iYuX1CmU2UzbKzRPsSLbx88SDWP2AYcYVM0pf'],
+  ['a6bdddf3-ae6d-463c-b592-d1f556aebcfe', 'cs_test_a0gQY3jg4GXqQsWI1gRTeFmwLZUDZmJ9sGAFdVjqYDpPyyZxIqkO6rGTAc'],
+];
 const previousListingId = '0a0b8819-ce6a-4cdb-a924-3b88dc899e1c';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const cards = {
@@ -117,9 +126,9 @@ async function preflight() {
 
 async function verifiedCheckout(url, bookingId) {
   const checkout = new URL(url);
-  const sessionId = checkout.pathname.split('/').at(-1);
+  const sessionId = checkoutPath.exec(checkout.pathname)?.[1];
   if (checkout.origin !== checkoutOrigin || checkout.username || checkout.password ||
-      !/^\/c\/pay\/cs_test_[A-Za-z0-9]+$/.test(checkout.pathname)) {
+      !sessionId) {
     throw new Error('BLOCKED: invalid Stripe TEST Checkout URL');
   }
   const session = await stripe('checkout/sessions/' + sessionId);
@@ -135,7 +144,7 @@ async function verifiedCheckout(url, bookingId) {
 
 async function enterCard(page, sessionId, card) {
   const url = new URL(page.url());
-  if (url.origin !== checkoutOrigin || url.pathname !== '/c/pay/' + sessionId) {
+  if (url.origin !== checkoutOrigin || checkoutPath.exec(url.pathname)?.[1] !== sessionId || url.username || url.password) {
     throw new Error('BLOCKED: Checkout browser moved outside the verified TEST session');
   }
   const field = (selector) => page.locator(selector).filter({ visible: true }).first();
@@ -222,6 +231,22 @@ async function captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intentId
 let credentials;
 test.beforeAll(async () => {
   credentials = await preflight();
+  const { hunterHeaders } = credentials;
+  const { bookings } = await bookingCall(hunterHeaders, 'approval', { action: 'hunter_list' });
+  if (!Array.isArray(bookings)) throw new Error('BLOCKED: could not reconcile previous QA bookings');
+  for (const [bookingId, sessionId] of previousRunBookings) {
+    const booking = bookings.find(row => row.id === bookingId);
+    if (!booking || booking.status === 'cancelled') continue;
+    const session = await stripe('checkout/sessions/' + sessionId);
+    if (booking.listing_id !== listingId || booking.status !== 'authorization_pending' ||
+        session.id !== sessionId || session.livemode !== false || !['open', 'expired'].includes(session.status) ||
+        session.payment_status !== 'unpaid' || session.payment_intent || session.customer_email !== hunter.email ||
+        session.metadata?.booking_id !== bookingId || session.metadata?.sandbox !== 'true') {
+      throw new Error('BLOCKED: previous QA booking is outside the expected unpaid sandbox state');
+    }
+    await bookingCall(hunterHeaders, 'cancel', { action: 'cancel', booking_id: bookingId });
+    await waitForBooking(hunterHeaders, bookingId, 'cancelled');
+  }
 });
 
 for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds', 'retry']) {
