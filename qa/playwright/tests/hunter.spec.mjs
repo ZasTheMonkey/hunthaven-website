@@ -17,6 +17,20 @@ test.describe('Bot A: real hunter browser',()=>{
    await screenshotStep(page,info,'page-'+route.replace(/[^a-z0-9]/gi,'-'));
   });
  }
+ // Owner-requested responsive widths: real browser navigation and DOM overflow assertions.
+ // A passing result means these two public routes rendered without document-level
+ // horizontal overflow; it is not a substitute for visual or touch QA.
+ for (const width of [320,375,390,430,768,1024,1280,1440,1920,2560]) {
+  test('responsive public routes at '+width+'px',async({page},info)=>{
+   await page.setViewportSize({width,height:900});
+   for (const route of ['/','/listings.html']) {
+    await visit(page,route);
+    await checkNoRawScript(page);
+    await checkOverflow(page);
+   }
+   info.annotations.push({type:'coverage',description:'Real browser document-overflow check at '+width+'px for / and /listings.html; not a visual quality PASS'});
+  });
+ }
  test('human clicks listing filters',async({page},info)=>{
   await visit(page,'/listings.html');
   const filters=page.locator('.card-filter-btn');
