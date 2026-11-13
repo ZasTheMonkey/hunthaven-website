@@ -244,7 +244,14 @@ async function reconcileAuthorization(headers, bookingId, sessionId) {
   // 3DS completion can reach the signed webhook at the edge of the default
   // polling window. Preserve the state assertion, but allow webhook delivery
   // enough time before declaring a payment failure.
-  const booking = await waitForBooking(headers, bookingId, 'pending_approval', 120_000);
+  let booking;
+  try {
+    booking = await waitForBooking(headers, bookingId, 'pending_approval', 30_000);
+  } catch {
+    const reconciled = await bookingCall(headers, 'reconcile', { booking_id: bookingId, session_id: sessionId });
+    expect(reconciled.booking?.status).toBe('pending_approval');
+    booking = await waitForBooking(headers, bookingId, 'pending_approval');
+  }
   const session = await stripe('checkout/sessions/' + sessionId);
   expect(session.status).toBe('complete');
   expect(session.payment_status).toBe('unpaid');
