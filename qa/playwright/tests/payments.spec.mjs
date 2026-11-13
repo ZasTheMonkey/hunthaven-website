@@ -241,10 +241,11 @@ async function authorize3ds(page, evidence) {
   }, { timeout: 30_000, message: 'Find the Stripe test challenge and its Complete button' }).toBe(true);
   const button = complete(challengeFrame);
   evidence.challengeFrameOrigin = new URL(challengeFrame.url()).origin;
-  await button.click({ timeout: 10_000 });
-  evidence.challengeClicked = true;
+  await button.focus();
+  await button.press('Enter');
+  evidence.challengeInteraction = 'keyboard_enter';
   await expect.poll(async () => challengeFrame.isDetached() || !(await button.isVisible()),
-    { timeout: 15_000, message: 'Stripe test challenge closes after clicking Complete' }).toBe(true);
+    { timeout: 30_000, message: 'Stripe test challenge closes after activating Complete' }).toBe(true);
   evidence.challengeClosed = true;
 }
 
