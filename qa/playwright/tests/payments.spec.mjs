@@ -58,17 +58,17 @@ function stripe(path, label = 'Stripe test read') {
   }, label);
 }
 
-async function authenticate(identity) {
+async function authenticate(identity, role) {
   const session = await json(database + '/auth/v1/token?grant_type=password', {
     method: 'POST',
     headers: { apikey: publicKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: identity.email, password: identity.password }),
-  }, 'Synthetic account authentication');
+  }, 'Synthetic ' + role + ' authentication');
   if (session.user?.id !== identity.id || session.user?.email !== identity.email ||
       session.user?.role !== 'authenticated' || !session.user?.email_confirmed_at || !session.access_token ||
       session.user?.app_metadata?.qa_fixture !== 'leasewild-payment-browser' ||
       (identity.signupRole && session.user?.user_metadata?.role !== identity.signupRole)) {
-    throw new Error('BLOCKED: unexpected synthetic account identity');
+    throw new Error('BLOCKED: unexpected synthetic ' + role + ' identity');
   }
   return { apikey: publicKey, Authorization: 'Bearer ' + session.access_token, Origin: origin, 'Content-Type': 'application/json' };
 }
@@ -131,7 +131,10 @@ async function preflight() {
     stripe('events?limit=1', 'BLOCKED: Stripe Events read'),
     stripe('refunds?limit=1', 'BLOCKED: Stripe Refunds read'),
   ]);
-  const [hunterHeaders, ownerHeaders] = await Promise.all([authenticate(hunter), authenticate(owner)]);
+  const logins = await Promise.allSettled([authenticate(hunter, 'hunter'), authenticate(owner, 'landowner')]);
+  const failures = logins.filter(login => login.status === 'rejected');
+  if (failures.length) throw new Error(failures.map(login => login.reason.message).join(' | '));
+  const [hunterHeaders, ownerHeaders] = logins.map(login => login.value);
   const rows = await json(database + '/rest/v1/listings?id=eq.' + listingId + '&select=id,owner_id,email,status,description,price_per_day,cleaning_fee,min_stay', { headers: ownerHeaders }, 'Synthetic listing lookup');
   const listing = rows[0];
   if (rows.length !== 1 || listing.id !== listingId || listing.owner_id !== owner.id || listing.email !== owner.email ||
