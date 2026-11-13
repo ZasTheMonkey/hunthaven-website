@@ -102,10 +102,15 @@ async function preflight() {
   }).filter(([, value]) => !value).map(([name]) => name);
   if (missing.length) throw new Error('BLOCKED: missing ' + missing.join(', '));
   const fixtureEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
-  if (!uuid.test(hunter.id) || !uuid.test(owner.id) || hunter.id.toLowerCase() === owner.id.toLowerCase() ||
-      !fixtureEmail.test(hunter.email) || !fixtureEmail.test(owner.email) ||
-      hunter.email.toLowerCase() === owner.email.toLowerCase()) {
-    throw new Error('BLOCKED: distinct synthetic QA hunter and owner fixtures are required');
+  const invalid = Object.entries({
+    QA_PAYMENT_HUNTER_EMAIL: fixtureEmail.test(hunter.email),
+    QA_PAYMENT_HUNTER_ID: uuid.test(hunter.id),
+    QA_PAYMENT_OWNER_EMAIL: fixtureEmail.test(owner.email),
+    QA_PAYMENT_OWNER_ID: uuid.test(owner.id),
+  }).filter(([, valid]) => !valid).map(([name]) => name);
+  if (invalid.length) throw new Error('BLOCKED: invalid fixture settings: ' + invalid.join(', '));
+  if (hunter.id.toLowerCase() === owner.id.toLowerCase() || hunter.email.toLowerCase() === owner.email.toLowerCase()) {
+    throw new Error('BLOCKED: hunter and owner fixture settings identify the same account');
   }
   if (!/^rk_test_[A-Za-z0-9]+$/.test(stripeKey) || !/^sb_publishable_[\w-]+$/.test(publicKey)) {
     throw new Error('BLOCKED: a restricted Stripe TEST key and sandbox publishable key are required');
