@@ -1,6 +1,9 @@
 name: LeaseWild real-browser QA (sandbox only)
 on:
   workflow_dispatch:
+  push:
+    branches: [staging/leasewild-full-clone]
+    paths: [.github/workflows/leasewild-real-browser-qa.yml]
 permissions:
   contents: read
 concurrency:
@@ -49,7 +52,7 @@ jobs:
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium webkit
       - name: Interact with real sandbox browser
-        if: matrix.bot != 'payments'
+        if: matrix.bot != 'payments' && github.event_name == 'workflow_dispatch'
         env:
           QA_HUNTER_EMAIL: ${{ secrets.QA_HUNTER_EMAIL }}
           QA_HUNTER_PASSWORD: ${{ secrets.QA_HUNTER_PASSWORD }}
