@@ -263,6 +263,19 @@ A first implementation commit `c60dfa0e` was rejected by validation after native
 
 Production, `main`, live Stripe, production Supabase, real users and personal sessions were untouched.
 
+## 2026-11-12 23:31 ET — Homepage location-privacy correction
+
+**Decision: NO-GO.** A public homepage data-minimization defect was found and corrected in staging. Payment, tax, Connect, legal and authenticated authorization gates remain open.
+
+- **FIXED — public listing request:** `index.html` now requests an explicit public-safe column allowlist instead of every readable `listings` column. Street address, parcel boundary and access-zone geometry are excluded from the homepage response.
+- **FIXED — public card/search metadata:** homepage cards no longer derive a city or hidden search attribute from `street_address`; displayed discovery location is county/state only.
+- **FIXED — public map privacy:** homepage pins are now generated from county centroids with a deterministic display-only offset. Public rendering no longer consumes parcel coordinates or geocodes a listing's street address.
+- **PASS — latest public browser jobs before this fix:** GitHub Actions run `43365572093` passed host/hunter Chromium and mobile-WebKit jobs, including the ten-width public/listing route matrix. This does not test the new privacy patch until its post-deployment run completes.
+- **PARTIAL / FAIL — Stripe TEST run `43365572093`:** generic decline and insufficient-funds passed. Success, 3DS and retry reached Stripe confirm HTTP 200 but failed return-navigation assertions; success also exposed a refund-response assertion mismatch. Receipt email, commission, Connect payout and partial refund remain skipped.
+- **NOT RESOLVED:** direct Data API grants/RLS still require server-side review; client allowlisting alone is defense in depth, not a complete database authorization boundary.
+
+No payment, booking, messaging or production code was changed by this privacy correction. Production, `main`, live Stripe, production Supabase, real users and personal sessions were untouched.
+
 
 ## Hourly update — November 10, 2026 at 2:15 AM ET
 

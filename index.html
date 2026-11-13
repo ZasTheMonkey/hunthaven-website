@@ -1959,14 +1959,9 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
       var type = getType(l);
       var isHunt = type === 'hunting';
       var price = l.price_per_day ? '$' + parseInt(l.price_per_day) : 'Contact';
-      // Location: prefer street_address city parsing, else county, else state
-      var city = '';
-      if (l.street_address) {
-        // e.g. "3051 Meleto Blvd, New Smyrna Beach, FL, 32168" — grab city part
-        var parts = l.street_address.split(',');
-        city = parts.length >= 2 ? parts[1].trim() : '';
-      }
-      var location = city ? city + ', FL' : (l.county ? l.county + ' Co., FL' : (l.state || 'Florida'));
+      // Public discovery stays at county/state level. Precise access details are
+      // reserved for an eligible confirmed booking.
+      var location = l.county ? l.county + ' Co., FL' : (l.state || 'Florida');
       // acreage: if it's a string like "Under 50 acres" use as-is, if numeric add 'acres'
       var acreageRaw = l.acreage || '';
       var acreage = acreageRaw
@@ -1986,7 +1981,6 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
       article.dataset.type = dataType;
       article.dataset.acres = l.acreage || '';
       article.dataset.species = (l.activities || []).join(' ').toLowerCase();
-      article.dataset.address = (l.street_address || '').toLowerCase(); // for ZIP + city search
       article.dataset.county = (l.county || '').toLowerCase();
       article.style.cursor = 'pointer';
       article.setAttribute('tabindex','0');
@@ -2032,7 +2026,13 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
   (function fetchListings(){
     var SB_URL = 'https://kbkdfpmlyggfijkyjxoi.supabase.co';
     var SB_KEY = 'sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
-    fetch(SB_URL + '/rest/v1/listings?status=eq.active&order=created_at.desc', {
+    var PUBLIC_LISTING_FIELDS = [
+      'id','created_at','status','state','county','acreage','pricing_type',
+      'price_per_day','max_guests','cleaning_fee','min_stay','activities',
+      'description','photo_urls','allow_out_of_state','video_url','num_beds',
+      'deer_activity','hogs_active','trail_cam_date'
+    ].join(',');
+    fetch(SB_URL + '/rest/v1/listings?select=' + encodeURIComponent(PUBLIC_LISTING_FIELDS) + '&status=eq.active&order=created_at.desc', {
       headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
     })
     .then(function(r){ return r.json(); })
@@ -2322,52 +2322,24 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
     'Washington':[30.61,-85.66]
   };
 
-  /* ─ Geocode cache so we don't re-fetch same address ─ */
-  var _geocodeCache = {};
-
-  /* ─ Geocode a single listing address via Nominatim, then call cb(lat, lng) ─ */
+  /* ─ Place public discovery pins near county centers, never at a parcel/address ─ */
   function geocodeListingAddress(l, cb) {
-    // 1. Use stored parcel_boundary coords if available (saved on submit)
-    if (l.parcel_boundary && l.parcel_boundary.lat && l.parcel_boundary.lng) {
-      return cb(l.parcel_boundary.lat, l.parcel_boundary.lng);
-    }
-    var addr = l.street_address;
-    if (!addr) {
-      // Fall back to county centroid
-      var c = l.county ? (_countyCoords[l.county] || [29.0, -81.5]) : [29.0, -81.5];
-      return cb(c[0] + (Math.random()-0.5)*0.02, c[1] + (Math.random()-0.5)*0.02);
-    }
-    if (_geocodeCache[addr]) {
-      return cb(_geocodeCache[addr][0], _geocodeCache[addr][1]);
-    }
-    var q = encodeURIComponent(addr);
-    var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + q
-      + '&viewbox=-87.6,24.4,-79.9,31.0&bounded=1&limit=1';
-    fetch(url, { headers: { 'User-Agent': 'LeaseWild/1.0' } })
-      .then(function(r){ return r.json(); })
-      .then(function(res){
-        if (res && res.length) {
-          var lat = parseFloat(res[0].lat);
-          var lng = parseFloat(res[0].lon);
-          _geocodeCache[addr] = [lat, lng];
-          cb(lat, lng);
-        } else {
-          // Geocode failed — fall back to county centroid
-          var c = l.county ? (_countyCoords[l.county] || [29.0, -81.5]) : [29.0, -81.5];
-          cb(c[0] + (Math.random()-0.5)*0.02, c[1] + (Math.random()-0.5)*0.02);
-        }
-      })
-      .catch(function(){
-        var c = l.county ? (_countyCoords[l.county] || [29.0, -81.5]) : [29.0, -81.5];
-        cb(c[0] + (Math.random()-0.5)*0.02, c[1] + (Math.random()-0.5)*0.02);
-      });
+    var c = l.county ? (_countyCoords[l.county] || [29.0, -81.5]) : [29.0, -81.5];
+    var seed = String(l.id || l.county || 'florida');
+    var hash = 0;
+    for (var i = 0; i < seed.length; i++) hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0;
+    // Deterministic visual separation only; this offset is unrelated to the
+    // property's actual coordinates and avoids implying an exact location.
+    var latOffset = (((hash & 255) / 255) - 0.5) * 0.12;
+    var lngOffset = ((((hash >>> 8) & 255) / 255) - 0.5) * 0.12;
+    cb(c[0] + latOffset, c[1] + lngOffset);
   }
 
   /* ─ Update map when live Supabase listings are loaded ─ */
   function updateMapWithLiveListings(listings){
     if (!listings || !listings.length) return;
-    // Filter to listings that have at least a county or street address
-    var validListings = listings.filter(function(l){ return l.county || l.street_address; });
+    // Public pins require only a general county/state location.
+    var validListings = listings.filter(function(l){ return l.county || l.state; });
     if (!validListings.length) return;
 
     var total = validListings.length;
@@ -2718,16 +2690,13 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
       var cards = document.querySelectorAll('#cards-grid .card');
       var visible = 0;
       cards.forEach(function(c){
-        // Search across title, location, tags AND data-address attribute
+        // Search only public-safe card text and general county metadata.
         var title   = (c.querySelector('.card-title')||{}).textContent||'';
         var loc     = (c.querySelector('.card-location')||{}).textContent||'';
         var tags    = Array.from(c.querySelectorAll('.card-tag')).map(function(t){return t.textContent;}).join(' ');
-        var addr    = (c.dataset.address||'');
         var county  = (c.dataset.county||'');
-        var haystack = (title+loc+tags+addr+county).toLowerCase();
-        // Also match ZIP codes
-        var matchZip = /^\d{5}$/.test(q.trim()) ? addr.includes(q.trim()) : false;
-        var match = haystack.includes(qLow) || matchZip;
+        var haystack = (title+loc+tags+county).toLowerCase();
+        var match = haystack.includes(qLow);
         c.style.display = match ? '' : 'none';
         if (match) visible++;
       });

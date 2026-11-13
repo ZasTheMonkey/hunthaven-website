@@ -197,3 +197,13 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - Rollback-only synthetic tests verified valid areas are accepted and wrong Point geometry is rejected for an area; no synthetic identity, listing or zone remained afterward.
 - Legal approval is still required for when confirmed hunters may see exact access geometry, when that access expires after cancellation/checkout, retention for disputes/safety, location-consent language and reliance disclaimers. `docs/legal/website-compliance-handoff.md` remains absent.
 - **Legal release recommendation remains NO-GO.** This technical capability is not approval of any binding term, waiver, safety claim or production disclosure policy.
+
+## Homepage public-location minimization — November 12, 2026 at 11:31 PM ET
+
+- The public homepage listing request now uses an explicit presentation-field allowlist and excludes street address, parcel boundary and access-zone geometry.
+- Public listing cards and local filtering no longer store or search a street address.
+- Public map pins use county/state-level discovery coordinates with a deterministic visual offset unrelated to the property's true location. The homepage no longer uses parcel coordinates or geocodes listing street addresses.
+- This is a client-side minimization and disclosure mitigation. It does not replace database grants/RLS, a reviewed public catalog view, server-side authorization or an approved booked-hunter location-disclosure policy.
+- Attorney review is still required for the timing and expiry of exact access disclosure, location consent, reliance/survey disclaimers, retention for safety/disputes and cancellation effects.
+
+**Legal launch recommendation remains NO-GO.** No binding policy language was published and no production system or real-user data was accessed.
