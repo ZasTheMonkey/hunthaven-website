@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   browser-qa:
-    if: github.ref == 'refs/heads/staging/leasewild-full-clone' && (github.event_name == 'workflow_dispatch' || matrix.bot != 'payments')
+    if: github.ref == 'refs/heads/staging/leasewild-full-clone'
     name: ${{ matrix.bot }} — ${{ matrix.browser }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
