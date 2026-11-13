@@ -101,7 +101,7 @@ async function preflight() {
     QA_PAYMENT_LISTING_ID: listingId,
   }).filter(([, value]) => !value).map(([name]) => name);
   if (missing.length) throw new Error('BLOCKED: missing ' + missing.join(', '));
-  const fixtureEmail = /^[^\s@]+@example\.com$/i;
+  const fixtureEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
   if (!uuid.test(hunter.id) || !uuid.test(owner.id) || hunter.id.toLowerCase() === owner.id.toLowerCase() ||
       !fixtureEmail.test(hunter.email) || !fixtureEmail.test(owner.email) ||
       hunter.email.toLowerCase() === owner.email.toLowerCase()) {
