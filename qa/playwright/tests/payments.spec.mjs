@@ -16,14 +16,14 @@ const cards = {
   three_ds: '4000002500003155',
 };
 const hunter = {
-  email: 'zachschmitt32@gmail.com',
-  id: '7d582821-90a3-49e6-84cf-8ee344d840f3',
+  email: process.env.QA_PAYMENT_HUNTER_EMAIL,
+  id: process.env.QA_PAYMENT_HUNTER_ID,
   signupRole: 'guest',
   password: process.env.QA_PAYMENT_HUNTER_PASSWORD,
 };
 const owner = {
-  email: 'roamquestlx@gmail.com',
-  id: '7bdc7bf0-ad2d-436c-b4ad-425765ba9d48',
+  email: process.env.QA_PAYMENT_OWNER_EMAIL,
+  id: process.env.QA_PAYMENT_OWNER_ID,
   password: process.env.QA_PAYMENT_OWNER_PASSWORD,
 };
 const connectFixture = {
@@ -66,6 +66,7 @@ async function authenticate(identity) {
   }, 'Synthetic account authentication');
   if (session.user?.id !== identity.id || session.user?.email !== identity.email ||
       session.user?.role !== 'authenticated' || !session.user?.email_confirmed_at || !session.access_token ||
+      session.user?.app_metadata?.qa_fixture !== 'leasewild-payment-browser' ||
       (identity.signupRole && session.user?.user_metadata?.role !== identity.signupRole)) {
     throw new Error('BLOCKED: unexpected synthetic account identity');
   }
@@ -89,6 +90,10 @@ async function preflight() {
     throw new Error('BLOCKED: payment QA requires the canonical LeaseWild sandbox URL');
   }
   const missing = Object.entries({
+    QA_PAYMENT_HUNTER_EMAIL: hunter.email,
+    QA_PAYMENT_HUNTER_ID: hunter.id,
+    QA_PAYMENT_OWNER_EMAIL: owner.email,
+    QA_PAYMENT_OWNER_ID: owner.id,
     QA_PAYMENT_HUNTER_PASSWORD: hunter.password,
     QA_PAYMENT_OWNER_PASSWORD: owner.password,
     QA_STRIPE_TEST_READ_KEY: stripeKey,
@@ -96,6 +101,12 @@ async function preflight() {
     QA_PAYMENT_LISTING_ID: listingId,
   }).filter(([, value]) => !value).map(([name]) => name);
   if (missing.length) throw new Error('BLOCKED: missing ' + missing.join(', '));
+  const fixtureEmail = /^[^\s@]+@example\.com$/i;
+  if (!uuid.test(hunter.id) || !uuid.test(owner.id) || hunter.id.toLowerCase() === owner.id.toLowerCase() ||
+      !fixtureEmail.test(hunter.email) || !fixtureEmail.test(owner.email) ||
+      hunter.email.toLowerCase() === owner.email.toLowerCase()) {
+    throw new Error('BLOCKED: distinct synthetic QA hunter and owner fixtures are required');
+  }
   if (!/^rk_test_[A-Za-z0-9]+$/.test(stripeKey) || !/^sb_publishable_[\w-]+$/.test(publicKey)) {
     throw new Error('BLOCKED: a restricted Stripe TEST key and sandbox publishable key are required');
   }
@@ -213,21 +224,58 @@ async function enterCard(page, sessionId, card) {
   throw new Error('Stripe Checkout did not send a confirmation request');
 }
 
-async function authorize3ds(page) {
-  // Stripe can also render its test challenge in a single frame.
+async function authorize3ds(page, evidence) {
+  let challengeFrame;
+  const complete = frame => frame.getByRole('button', { name: /^(?:Complete|Complete authentication)$/i });
   await expect.poll(async () => {
     for (const frame of page.frames()) {
       const target = new URL(frame.url() || 'about:blank');
       if (target.protocol !== 'https:' || !target.hostname.endsWith('.stripe.com')) continue;
       const challenge = frame.getByText(/This is a test 3D Secure/i);
-      const button = frame.getByRole('button', { name: /^(?:Complete|Complete authentication)$/i });
-      if (await challenge.first().isVisible() && await button.first().isVisible()) {
-        await button.first().click();
+      if (await challenge.first().isVisible() && await complete(frame).isVisible()) {
+        challengeFrame = frame;
         return true;
       }
     }
     return false;
-  }, { timeout: 30_000, message: 'Stripe test challenge in frames: ' + page.frames().map(frame => new URL(frame.url() || 'about:blank').origin).join(', ') }).toBe(true);
+  }, { timeout: 30_000, message: 'Find the Stripe test challenge and its Complete button' }).toBe(true);
+  const button = complete(challengeFrame);
+  evidence.challengeFrameOrigin = new URL(challengeFrame.url()).origin;
+  await button.click({ timeout: 10_000 });
+  evidence.challengeClicked = true;
+  await expect.poll(async () => challengeFrame.isDetached() || !(await button.isVisible()),
+    { timeout: 15_000, message: 'Stripe test challenge closes after clicking Complete' }).toBe(true);
+  evidence.challengeClosed = true;
+}
+
+async function read3dsAuthorization(sessionId, evidence) {
+  const session = await stripe('checkout/sessions/' + sessionId);
+  evidence.checkoutStatus = session.status;
+  if (!session.payment_intent) return;
+  evidence.paymentIntentId = session.payment_intent;
+  const intent = await stripe('payment_intents/' + session.payment_intent + '?expand[]=latest_charge');
+  expect(intent.livemode).toBe(false);
+  evidence.intentStatusBeforeCleanup = intent.status;
+  evidence.threeDSResult = intent.latest_charge?.payment_method_details?.card?.three_d_secure?.result;
+  return [session.status, intent.status, evidence.threeDSResult];
+}
+
+async function verify3dsAuthorization(sessionId, evidence) {
+  await expect.poll(async () => {
+    return read3dsAuthorization(sessionId, evidence);
+  }, { timeout: 25_000, message: 'Stripe TEST reports completed Checkout and an authenticated, capturable 3DS payment' })
+    .toEqual(['complete', 'requires_capture', 'authenticated']);
+}
+
+async function verify3dsWebhook(sessionId, evidence) {
+  await expect.poll(async () => {
+    const events = await stripe('events?type=checkout.session.completed&limit=50');
+    const event = events.data.find(event => event.livemode === false && event.data.object.id === sessionId &&
+      event.data.object.payment_intent === evidence.paymentIntentId);
+    evidence.webhookEventId = event?.id;
+    evidence.pendingWebhookDeliveries = event?.pending_webhooks;
+    return Boolean(event) && event.pending_webhooks === 0;
+  }, { timeout: 25_000, message: 'The matching Stripe TEST completion event has no pending deliveries' }).toBe(true);
 }
 
 async function waitForBooking(headers, bookingId, status, timeout = 30_000) {
@@ -240,14 +288,15 @@ async function waitForBooking(headers, bookingId, status, timeout = 30_000) {
   return booking;
 }
 
-async function reconcileAuthorization(headers, bookingId, sessionId) {
+async function reconcileAuthorization(headers, bookingId, sessionId, { allowRecovery = true } = {}) {
   // 3DS completion can reach the signed webhook at the edge of the default
   // polling window. Preserve the state assertion, but allow webhook delivery
   // enough time before declaring a payment failure.
   let booking;
   try {
     booking = await waitForBooking(headers, bookingId, 'pending_approval', 30_000);
-  } catch {
+  } catch (error) {
+    if (!allowRecovery) throw error;
     const reconciled = await bookingCall(headers, 'reconcile', { booking_id: bookingId, session_id: sessionId });
     expect(reconciled.booking?.status).toBe('pending_approval');
     booking = await waitForBooking(headers, bookingId, 'pending_approval');
@@ -376,8 +425,15 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
         if (scenario !== 'retry') return;
         await enterCard(page, session.id, cards.success);
       }
-      if (scenario === 'three_ds') await authorize3ds(page);
-      const intent = await reconcileAuthorization(hunterHeaders, bookingId, session.id);
+      if (scenario === 'three_ds') {
+        await authorize3ds(page, evidence);
+        await verify3dsAuthorization(session.id, evidence);
+        await verify3dsWebhook(session.id, evidence);
+      }
+      // A recovery call could advance the booking independently of the webhook.
+      const intent = await reconcileAuthorization(hunterHeaders, bookingId, session.id, {
+        allowRecovery: scenario !== 'three_ds',
+      });
       evidence.paymentIntentId = intent.id;
       const events = await stripe('events?type=checkout.session.completed&limit=50');
       const event = events.data.find(event => event.livemode === false && event.data.object.id === session.id);
@@ -387,11 +443,20 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
       if (scenario === 'success') {
         await captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intent.id, evidence);
       }
+    } catch (error) {
+      if (scenario === 'three_ds' && checkoutVerified) {
+        await read3dsAuthorization(evidence.sessionId, evidence).catch(() => {
+          evidence.stripeDiagnosticUnavailable = true;
+        });
+      }
+      throw error;
     } finally {
       try {
         if (checkoutVerified) {
           const { bookings } = await bookingCall(hunterHeaders, 'approval', { action: 'hunter_list' });
-          if (bookings?.find(row => row.id === bookingId)?.status !== 'cancelled') {
+          const booking = bookings?.find(row => row.id === bookingId);
+          evidence.bookingStatusBeforeCleanup ??= booking?.status;
+          if (booking?.status !== 'cancelled') {
             await bookingCall(hunterHeaders, 'cancel', { action: 'cancel', booking_id: bookingId });
           }
           await waitForBooking(hunterHeaders, bookingId, 'cancelled');

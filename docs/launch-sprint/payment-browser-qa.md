@@ -4,7 +4,7 @@ Scope is `staging/leasewild-full-clone`, `https://leasewild-sandbox.pages.dev`, 
 
 ## Runner setup
 
-The payment fixtures use confirmed sandbox Auth users `zachschmitt32@gmail.com` (Hunter, `7d582821-90a3-49e6-84cf-8ee344d840f3`) and `roamquestlx@gmail.com` (landowner, `7bdc7bf0-ad2d-436c-b4ad-425765ba9d48`).
+Use two dedicated, confirmed sandbox Auth accounts with administrator-set app metadata `qa_fixture: leasewild-payment-browser`. The hunter requires the `guest` signup role. Set `QA_PAYMENT_HUNTER_EMAIL`, `QA_PAYMENT_HUNTER_ID`, `QA_PAYMENT_OWNER_EMAIL`, and `QA_PAYMENT_OWNER_ID` to the matching sandbox fixture values.
 
 - Set `QA_PAYMENT_HUNTER_PASSWORD` and `QA_PAYMENT_OWNER_PASSWORD` as Actions secrets using the dedicated LeaseWild sandbox login passwords.
 - Set `QA_STRIPE_TEST_READ_KEY` as an Actions secret using a restricted `rk_test_` key for the exact sandbox platform, with read access to the account, Checkout Sessions, PaymentIntents, charges, events and refunds.
@@ -18,7 +18,7 @@ Run `bash qa/playwright/run-staging-qa.sh --project=payments-chromium` in Codesp
 - Hunter QA owns the five card cases, including the completed 3DS challenge and retry. Verify the exact sandbox return and join browser results to booking, Checkout Session, PaymentIntent and Stripe event IDs. The expected one-night total is 10,650 cents, including the configured 6.5% sandbox tax.
 - Landowner QA owns approval, capture, release, cancellation and refund reconciliation. The success case checks one capture, a Stripe receipt URL and one full refund outside the 72-hour cutoff. The 3DS and retry cases release the hold. Decline cases verify no paid state and close their open Checkout Sessions. Review any recorded booking ID if cleanup fails.
 - Receipt inbox delivery, partial refund, 20% commission and Connect transfer/payout remain blocked. The deployed landowner authorization/capture path lacks Connect destination and application fee fields. Test these against a dedicated connected synthetic fixture and reconcile the charge, fee, transfer and payout readiness separately. Existing account flags or historic transfers are insufficient evidence.
-- The JSON/HTML report includes sanitized identifiers. Booking state advancing to pending approval is application-side webhook evidence, alongside the correlated Stripe event. The suite does not inspect Stripe's endpoint delivery log. A receipt URL establishes a Stripe receipt exists, while inbox delivery needs a controlled mailbox.
+- The JSON/HTML report includes sanitized identifiers. For 3DS, the suite checks that the browser challenge closes, Stripe reports authenticated 3DS and a capturable TEST PaymentIntent, and the matched Checkout completion event has zero pending deliveries. It observes the booking in pending approval before cleanup with explicit recovery disabled. Confirm delivery to the sandbox webhook endpoint in Stripe using that event ID. A receipt URL establishes a Stripe receipt exists, while inbox delivery needs a controlled mailbox.
 
 ## Verified run — 2026-11-13 05:32 ET
 
