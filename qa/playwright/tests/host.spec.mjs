@@ -37,6 +37,24 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
   await expect(page.locator('#save-all')).toBeDisabled();
   await screenshotStep(page,info,'unauthenticated-boundary-save-denied');
  });
+ // Explicit negative-case coverage for the owner-only entry and parking map tools.
+ // These tests deliberately use no credentials and must never write a zone.
+ for (const [zoneType,pointCount] of [['entry',1],['parking',1],['entry_area',3],['parking_area',3]]) {
+  test('anonymous '+zoneType+' draft cannot be saved',async({page},info)=>{
+   await visit(page,'/sandbox-zone-editor.html');
+   await page.locator('#zone-type').selectOption(zoneType);
+   await page.locator('summary').filter({hasText:'Optional: enter exact coordinates'}).click();
+   for (const [lat,lng] of [[29.02,-80.93],[29.021,-80.93],[29.021,-80.929]].slice(0,pointCount)) {
+    await page.locator('#latitude').fill(String(lat));
+    await page.locator('#longitude').fill(String(lng));
+    await page.locator('#add-point').click();
+   }
+   await expect(page.locator('#draft-count')).toContainText(pointCount+' draft point');
+   await expect(page.locator('#save')).toBeDisabled();
+   await expect(page.locator('#saved li')).toHaveCount(0);
+   await screenshotStep(page,info,'anonymous-'+zoneType+'-save-denied');
+  });
+ }
  test('human fills landowner login',async({page},info)=>{
   await visit(page,'/landowner-portal.html');
   const creds=requireSyntheticCredentials('QA_LANDOWNER');
