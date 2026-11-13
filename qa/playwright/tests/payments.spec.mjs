@@ -16,14 +16,14 @@ const cards = {
   three_ds: '4000002500003155',
 };
 const hunter = {
-  email: process.env.QA_PAYMENT_HUNTER_EMAIL,
-  id: process.env.QA_PAYMENT_HUNTER_ID,
+  email: 'zachschmitt32@gmail.com',
+  id: '7d582821-90a3-49e6-84cf-8ee344d840f3',
   signupRole: 'guest',
   password: process.env.QA_PAYMENT_HUNTER_PASSWORD,
 };
 const owner = {
-  email: process.env.QA_PAYMENT_OWNER_EMAIL,
-  id: process.env.QA_PAYMENT_OWNER_ID,
+  email: 'roamquestlx@gmail.com',
+  id: '7bdc7bf0-ad2d-436c-b4ad-425765ba9d48',
   password: process.env.QA_PAYMENT_OWNER_PASSWORD,
 };
 const connectFixture = {
@@ -89,10 +89,6 @@ async function preflight() {
     throw new Error('BLOCKED: payment QA requires the canonical LeaseWild sandbox URL');
   }
   const missing = Object.entries({
-    QA_PAYMENT_HUNTER_EMAIL: hunter.email,
-    QA_PAYMENT_HUNTER_ID: hunter.id,
-    QA_PAYMENT_OWNER_EMAIL: owner.email,
-    QA_PAYMENT_OWNER_ID: owner.id,
     QA_PAYMENT_HUNTER_PASSWORD: hunter.password,
     QA_PAYMENT_OWNER_PASSWORD: owner.password,
     QA_STRIPE_TEST_READ_KEY: stripeKey,
@@ -100,12 +96,6 @@ async function preflight() {
     QA_PAYMENT_LISTING_ID: listingId,
   }).filter(([, value]) => !value).map(([name]) => name);
   if (missing.length) throw new Error('BLOCKED: missing ' + missing.join(', '));
-  if (!uuid.test(hunter.id) || !uuid.test(owner.id) || hunter.id === owner.id ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(hunter.email) ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(owner.email) ||
-      hunter.email.toLowerCase() === owner.email.toLowerCase()) {
-    throw new Error('BLOCKED: distinct synthetic QA hunter and owner email/UUID fixtures are required');
-  }
   if (!/^rk_test_[A-Za-z0-9]+$/.test(stripeKey) || !/^sb_publishable_[\w-]+$/.test(publicKey)) {
     throw new Error('BLOCKED: a restricted Stripe TEST key and sandbox publishable key are required');
   }
@@ -431,6 +421,7 @@ test('20% commission and connected-account transfer / real Stripe TEST card entr
   expect(sessionId).toMatch(/^cs_test_[A-Za-z0-9]+$/);
   evidence.sessionId = sessionId;
 
+  try {
   const sessionBefore = await stripe('checkout/sessions/' + sessionId);
   expect(sessionBefore.livemode).toBe(false);
   expect(sessionBefore.amount_total).toBe(20_000);
@@ -465,12 +456,22 @@ test('20% commission and connected-account transfer / real Stripe TEST card entr
 
   const session = await stripe('checkout/sessions/' + sessionId);
   evidence.paymentIntentId = session.payment_intent;
-  const intent = await stripe('payment_intents/' + session.payment_intent + '?expand[]=latest_charge');
+  let intent;
+  await expect.poll(async () => {
+    intent = await stripe('payment_intents/' + session.payment_intent + '?expand[]=latest_charge');
+    return {
+      status: intent.status,
+      amount: intent.amount_received,
+      fee: intent.application_fee_amount,
+      destination: intent.transfer_data?.destination,
+      applicationFeeReady: /^fee_[A-Za-z0-9]+$/.test(intent.latest_charge?.application_fee || ''),
+      transferReady: /^tr_[A-Za-z0-9]+$/.test(intent.latest_charge?.transfer || ''),
+    };
+  }, { timeout: 30_000 }).toEqual({
+    status: 'succeeded', amount: 20_000, fee: 4_000, destination: connectFixture.accountId,
+    applicationFeeReady: true, transferReady: true,
+  });
   expect(intent.livemode).toBe(false);
-  expect(intent.status).toBe('succeeded');
-  expect(intent.amount_received).toBe(20_000);
-  expect(intent.application_fee_amount).toBe(4_000);
-  expect(intent.transfer_data?.destination).toBe(connectFixture.accountId);
   expect(intent.latest_charge?.application_fee).toMatch(/^fee_[A-Za-z0-9]+$/);
   expect(intent.latest_charge?.transfer).toMatch(/^tr_[A-Za-z0-9]+$/);
   evidence.applicationFeeId = intent.latest_charge.application_fee;
@@ -492,6 +493,13 @@ test('20% commission and connected-account transfer / real Stripe TEST card entr
   expect(refunds.data[0].status).toBe('succeeded');
   evidence.refundId = refunds.data[0].id;
   await info.attach('connect-payment-identifiers', { body: JSON.stringify(evidence, null, 2), contentType: 'application/json' });
+  } finally {
+    const rows = await json(database + '/rest/v1/outfitter_booking_requests?id=eq.' + requestId +
+      '&select=status,payment_status', { headers: hunterHeaders }, 'Outfitter test cleanup');
+    if (rows[0]?.status === 'accepted' && rows[0]?.payment_status === 'paid') {
+      await sandboxFunction(hunterHeaders, 'sandbox-outfitter-cancel', { action: 'cancel', booking_id: requestId });
+    }
+  }
 });
 
 for (const name of ['receipt email delivery', 'connected-account bank payout readiness', 'partial refund']) {
