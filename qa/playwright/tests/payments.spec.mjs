@@ -493,11 +493,15 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
 test('20% commission and connected-account transfer / real Stripe TEST card entry', async ({ page }, info) => {
   const { hunterHeaders } = credentials;
   const tripDate = new Date(Date.now() + 45 * 86_400_000).toISOString().slice(0, 10);
-  // The helper authorizes the server-marked sandbox guest identity; no user UUID is hard-coded.
+  let requestId;
+  const evidence = { scenario: 'outfitter_connect_20_percent', stripeAccount, connectedAccountId: connectFixture.accountId };
+
+  try {
+  // The helper authorizes the server-marked sandbox guest identity, then activates only the exact synthetic listing.
   const created = await sandboxFunction(hunterHeaders, 'sandbox-outfitter-qa-fixture', { action: 'create', trip_date: tripDate });
-  const requestId = created.fixture?.id;
+  requestId = created.fixture?.id;
   if (!uuid.test(requestId || '')) throw new Error('Disposable Connect QA fixture was not created');
-  const evidence = { scenario: 'outfitter_connect_20_percent', requestId, stripeAccount, connectedAccountId: connectFixture.accountId };
+  evidence.requestId = requestId;
 
   const checkout = await sandboxFunction(hunterHeaders, 'sandbox-outfitter-checkout', { request_id: requestId });
   expect(checkout.request_id).toBe(requestId);
@@ -511,7 +515,6 @@ test('20% commission and connected-account transfer / real Stripe TEST card entr
   expect(sessionId).toMatch(/^cs_test_[A-Za-z0-9]+$/);
   evidence.sessionId = sessionId;
 
-  try {
   const sessionBefore = await stripe('checkout/sessions/' + sessionId);
   expect(sessionBefore.livemode).toBe(false);
   expect(sessionBefore.amount_total).toBe(20_000);
@@ -582,12 +585,21 @@ test('20% commission and connected-account transfer / real Stripe TEST card entr
   expect(refunds.data[0].amount).toBe(20_000);
   expect(refunds.data[0].status).toBe('succeeded');
   evidence.refundId = refunds.data[0].id;
-  await info.attach('connect-payment-identifiers', { body: JSON.stringify(evidence, null, 2), contentType: 'application/json' });
   } finally {
-    const rows = await json(database + '/rest/v1/outfitter_booking_requests?id=eq.' + requestId +
-      '&select=status,payment_status', { headers: hunterHeaders }, 'Outfitter test cleanup');
-    if (rows[0]?.status === 'accepted' && rows[0]?.payment_status === 'paid') {
-      await sandboxFunction(hunterHeaders, 'sandbox-outfitter-cancel', { action: 'cancel', booking_id: requestId });
+    try {
+      if (requestId) {
+        const rows = await json(database + '/rest/v1/outfitter_booking_requests?id=eq.' + requestId +
+          '&select=status,payment_status', { headers: hunterHeaders }, 'Outfitter test cleanup');
+        if (rows[0]?.status === 'accepted' && rows[0]?.payment_status === 'paid') {
+          await sandboxFunction(hunterHeaders, 'sandbox-outfitter-cancel', { action: 'cancel', booking_id: requestId });
+        }
+      }
+    } finally {
+      const cleanup = await sandboxFunction(hunterHeaders, 'sandbox-outfitter-qa-fixture', { action: 'cleanup' });
+      evidence.fixtureCleanup = cleanup;
+      await info.attach('connect-payment-identifiers', { body: JSON.stringify(evidence, null, 2), contentType: 'application/json' });
+      expect(cleanup.listing_status).toBe('inactive');
+      expect(cleanup.unsettled_paid_fixtures).toBe(0);
     }
   }
 });
