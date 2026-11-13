@@ -27,3 +27,13 @@ Run `bash qa/playwright/run-staging-qa.sh --project=payments-chromium` in Codesp
 - **PASS:** the 3DS completion webhook reached `sandbox-booking-webhook` with HTTP 200. The harness permits 60 seconds only for the verified authorization-state transition because the preceding run showed the signed webhook arriving at the edge of the former 30-second window.
 - **Evidence artifact:** `14028732476`, containing scenario-level test-only identifiers. No populated card-field screenshot is captured.
 - **OPEN:** receipt inbox delivery, explicit 20% commission, connected-account transfer/payout, partial refund, Stripe Tax classification/registration, promo/add-on/cleaning-deposit totals, duplicate submission and webhook replay/idempotency remain separate gates.
+
+## Verified rerun — 2026-11-13 15:57 ET
+
+[Run 43505786846](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43505786846), payment job `132162975474`, commit `39236b175e492b5ac9b4277257fecd351d94479a`: **6 passed, 3 skipped, 0 failed**. Artifact `14075903372` has SHA-256 `897521acecd9567a1910039e0744bcf1d1dafbbc226f9c23975a6a9b438ad779`.
+
+The official 3DS TEST card completed through the hosted browser using keyboard activation of Stripe's challenge. Checkout completed, the TEST intent reached `requires_capture`, 3DS result was `authenticated`, the matching completion event had zero pending deliveries, and the booking reached `pending_approval` before cleanup. Success, decline, insufficient funds, retry, capture, cancellation and full-refund checks also passed.
+
+The Connect case charged 20,000 cents, applied a 4,000-cent platform fee, transferred to the linked TEST account, then fully refunded the charge, fully reversed the transfer and fully refunded the application fee. Supabase request `b79f5764-51d2-4023-90d2-1621992a6368` reconciled to `cancelled/refunded`.
+
+Receipt inbox delivery, a paid external-bank payout and partial refund remain explicit skips. These are not passes.
