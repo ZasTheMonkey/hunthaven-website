@@ -216,3 +216,12 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - This accessibility change does not approve listing claims, cancellation language, payment terms, property verification, access-location disclosure or any binding legal policy.
 
 **Legal launch recommendation remains NO-GO.** Florida attorney review and the existing payment, tax, cancellation and access-disclosure gates remain open.
+
+## Payment evidence boundary — November 13, 2026 at 3:57 PM ET
+
+- Sandbox browser run `43505786846` passed the implemented Stripe TEST card matrix, including authenticated 3DS and the 20% synthetic outfitter Connect charge/refund path.
+- This evidence does not approve tax collection, payout disclosures, cancellation terms, partial-refund rules, cleaning deposits, promotional pricing, access-coordinate disclosure, review moderation/appeals, or any binding policy.
+- Delivered receipt, external-bank payout and partial refund remain unproven. Stripe Tax registration/classification and Florida attorney review remain open.
+- No legal terms were silently changed and no production or live-payment resource was touched.
+
+**Legal release recommendation remains NO-GO.**
