@@ -447,7 +447,7 @@
  card.append(media,body);root.append(card);
  }
  if(!rendered){notice('No valid outfitter experiences could be displayed. Please try again or contact LeaseWild.',true);return}
- const summary=document.createElement('p');summary.style.cssText='grid-column:1/-1;margin:0;color:var(--color-text-muted);font-weight:600';summary.textContent=rendered+' outfitter experience'+(rendered===1?'':'s')+' shown'+(unavailable?' · '+unavailable+' temporarily unavailable for booking':'');root.prepend(summary);
+ const summary=document.createElement('p');summary.setAttribute('role','status');summary.setAttribute('aria-live','polite');summary.style.cssText='grid-column:1/-1;margin:0;color:var(--color-text-muted);font-weight:600';summary.textContent=rendered+' outfitter experience'+(rendered===1?'':'s')+' shown'+(unavailable?' · '+unavailable+' temporarily unavailable for booking':'');root.prepend(summary);
  if(rendered<data.length){const warning=document.createElement('p');warning.setAttribute('role','note');warning.style.cssText='grid-column:1/-1;margin-top:1.25rem;color:var(--color-text-muted)';warning.textContent='Some experiences could not be displayed because their listing information is incomplete. Please try again later.';root.append(warning)}
  
  }).catch(e=>{clearTimeout(timeout);console.error('Outfitter directory:',e);notice(e.name==='AbortError'?'The directory timed out. Please try again.':'Could not load the complete outfitter directory safely. Please try again or contact LeaseWild.',true)});
