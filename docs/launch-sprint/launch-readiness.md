@@ -285,7 +285,9 @@ No payment, booking, messaging or production code was changed by this privacy co
 - **FIXED — keyboard:** focus moves to the close control, Tab/Shift+Tab remain inside the open dialog, Escape closes it and focus returns to the listing that opened it.
 - **FIXED — touch target:** both close controls are at least 44×44 CSS pixels and have explicit accessible labels; the homepage control has a visible focus ring.
 - **STATIC PASS:** `booking.js` and all executable inline scripts compile; assertions confirm modal attributes, close hooks, focus restoration and keyboard handling are present.
-- **RETEST REQUIRED:** deployed browser keyboard/touch behavior and modal layout across the full width matrix must be verified after the exact commit deploys.
+- **DEPLOYMENT PASS:** Cloudflare deployment `4a9c04ab-f531-433b-8fd5-4c89e649a3e1` completed successfully for exact commit `41d71101c162b2008642d8058e5258239401e81e`.
+- **DEPLOYED BROWSER PASS — desktop smoke:** on `leasewild-sandbox.pages.dev/listings.html` at a 1348 CSS-pixel viewport, the first real listing opened as a named modal dialog with `aria-modal=true`; focus landed on the close control; Tab remained inside the dialog; Shift+Tab returned to the close control; Escape hid the dialog and restored focus to the opening listing card. The close control measured 44×44 CSS pixels and the page had no horizontal overflow.
+- **NOT TESTED:** the same dialog behavior at 320–2560px, touch input, 200% zoom, real assistive technology and authenticated routes. No new GitHub Actions run was triggered by this commit; the latest workflow evidence remains run `43365572093` with the previously recorded payment failures.
 
 No Stripe, booking-state, Supabase, legal-policy or production code was changed.
 

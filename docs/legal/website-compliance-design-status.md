@@ -212,6 +212,7 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 
 - Public listing-detail overlays now expose dialog semantics, modal state, accessible close labels, predictable keyboard focus, Escape dismissal and focus restoration.
 - Close controls meet the 44×44 CSS-pixel touch-target baseline.
+- Exact commit `41d71101c162b2008642d8058e5258239401e81e` deployed successfully and a live 1348px browser smoke verified focus entry/containment/restoration, Escape dismissal, 44×44 sizing and no horizontal overflow. The full width, zoom, touch and assistive-technology matrix remains untested.
 - This accessibility change does not approve listing claims, cancellation language, payment terms, property verification, access-location disclosure or any binding legal policy.
 
 **Legal launch recommendation remains NO-GO.** Florida attorney review and the existing payment, tax, cancellation and access-disclosure gates remain open.
