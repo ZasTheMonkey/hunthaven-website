@@ -1964,6 +1964,7 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
     valid.forEach(function(l) {
       var type = getType(l);
       var isHunt = type === 'hunting';
+      var hasNumericPrice = Number.isFinite(Number(l.price_per_day)) && Number(l.price_per_day) > 0;
       var price = formatPublicPrice(l.price_per_day, 'Contact');
       // Public discovery stays at county/state level. Precise access details are
       // reserved for an eligible confirmed booking.
@@ -2009,7 +2010,7 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
         '<div class="card-body">' +
           '<div class="card-top">' +
             '<div class="card-title">' + escHtml(l.county ? l.county + ' Private Land' : 'Private Land') + '</div>' +
-            '<div class="card-price-inline">' + price + '<span>/day</span></div>' +
+            '<div class="card-price-inline">' + price + (hasNumericPrice ? '<span>/day</span>' : '') + '</div>' +
           '</div>' +
           '<div class="card-location">' +
             '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>' +
@@ -2109,6 +2110,7 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
     var acres = l.acres || l.acreage || '';
     var species = l.species || (l.activities ? l.activities.join(' · ') : '');
     var price = l.price || l.price_per_day;
+    var hasNumericPrice = Number.isFinite(Number(price)) && Number(price) > 0;
     var priceStr = formatPublicPrice(price, 'Contact');
     var actLabel = isHunt ? 'Hunting' : 'Fishing';
     // Store listing in cache with a safe numeric key, pass key to onclick
@@ -2126,7 +2128,7 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
       +'<p style="font-size:12px;color:#6b6656;margin-bottom:6px">'
         +location+(acres?' &middot; '+acres+' acres':'')+(species?' &middot; '+species:'')+'</p>'
       +'<p style="font-size:18px;font-weight:800;color:'+col+';margin-bottom:10px">'
-        +priceStr+'<span style="font-size:12px;font-weight:400;color:#6b6656"> / day</span></p>'
+        +priceStr+(hasNumericPrice?'<span style="font-size:12px;font-weight:400;color:#6b6656"> / day</span>':'')+'</p>'
       +'<button onclick="openMapListing(\'' + cacheKey + '\')" style="width:100%;padding:9px;background:'+col+';color:#fff;border:none;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">View listing →</button>'
       +'</div>';
   }
