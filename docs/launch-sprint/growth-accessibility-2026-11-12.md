@@ -10,3 +10,9 @@
 
 ## Coordination
 Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunter QA own authenticated booking/payment paths; Landowner QA owns booking/zone/review verification; Legal Risk Review owns tax/policy. Avoid editing `outfitters.html` concurrently without refetching latest SHA.
+
+## 2026-11-12 19:40 ET — Directory malformed-response handling
+- **PASS (staging source):** `fa2013acfb17c814cc116574f59a452a8838bb4a` distinguishes a malformed/non-array directory API response from a legitimate empty inventory. Unexpected responses now show a retry control rather than falsely telling hunters that no approved outfitters exist. No database or payment changes.
+- **PASS (static verification pending separate read):** This is a narrow response-handling change only; it does not imply backend availability.
+- **NOT TESTED:** Browser reproduction of malformed responses, Cloudflare deployment, responsive widths, screen readers, Stripe TEST cards/refunds/Connect reconciliation.
+- **OPEN / NO-GO:** Unique listing identity, 60-row cap, Stripe Tax and complete payout/payment proof remain unresolved. Confirm Supabase sandbox identity before any API fixtures.
