@@ -182,6 +182,12 @@
 #outfitter-directory .experience-card:hover .experience-card__media img{transform:none}
 @media(max-width:600px){#outfitter-directory .experience-card__media{aspect-ratio:auto;min-height:150px}}
 </style><style>
+/* Growth Research: visible keyboard focus for retry and reduced-motion support. */
+#outfitter-directory button:focus-visible{outline:3px solid var(--color-accent);outline-offset:4px}
+@media(prefers-reduced-motion:reduce){
+  #outfitter-directory .experience-card,
+  #outfitter-directory .experience-card__media img{transition:none!important;transform:none!important}
+}
 /* Growth QA: prevent user-supplied long titles, prices and locations from forcing horizontal overflow at 320px. */
 #outfitter-directory .experience-card__heading{min-width:0;flex-wrap:wrap}
 #outfitter-directory .experience-card__title,
