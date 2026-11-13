@@ -302,3 +302,13 @@ The 3DS case received HTTP 200 from Stripe confirmation, but the booking stayed 
 - **Still NO-GO:** Stripe Tax registration/classification, promo/add-on/cleaning-deposit reconciliation, duplicate submission/concurrency, webhook replay/idempotency, authenticated map/review cross-owner journeys, and attorney/legal release gates.
 
 Only sandbox Supabase, Stripe TEST, synthetic fixtures, staging, and Cloudflare sandbox were used. No production or live-payment resource was touched.
+
+
+## 2026-11-13 4:58 PM ET — Connect fixture lifecycle retest
+
+- **PASS:** workflow [43514846824](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43514846824), exact tested commit `ec64704fc70e19b85ced674e167bcb3919b9aae1`, completed with all five jobs green. Payment job `132194067461`: **6 passed, 3 explicit skips, 0 failed**.
+- **PASS:** exact synthetic listing activation is now limited to the Connect test window and cleanup verified `inactive` with zero unsettled accepted/paid fixtures. Code: `84aac3673b58954d83035dc80046e97461437328`, `ec64704fc70e19b85ced674e167bcb3919b9aae1`; active helper: `sandbox-outfitter-qa-fixture` v3.
+- **PASS:** Connect request `54234812-1162-4a9f-9bbf-5d8439764e56`; TEST PI `pi_3UbSTGAO40Rp32aF0IKdm0XI`; fee `fee_1UbSTJAO408zPcFQvGn9mlaz`; transfer `tr_3UbSTGAO40Rp32aF0vcjVXwa`; charge `ch_3UbSTGAO40Rp32aF0mNfC1ux`; refund `re_3UbSTGAO40Rp32aF0saolpmL`.
+- **PASS:** 3DS booking `5a2ba231-4a13-4dee-8723-018012805268`; TEST PI `pi_3UbSShAO40Rp32aF1OCXLzSd`; event `evt_1UbSSkAO40Rp32aFj0ZYr2Ia`; authenticated keyboard challenge, capturable authorization, zero pending webhook deliveries.
+- **Evidence:** artifact `14080940933`, SHA-256 `e6cb3d44723bf5395a304d160f6ad1b72279a9d36852a947b9dc6b9910d4e00c`.
+- **NO-GO remains:** Stripe Tax is still pending with no registrations; delivered receipt inbox, paid external-bank payout and partial refund remain unproven; promo/add-on/cleaning-deposit economics, duplicate/replay/idempotency, authenticated map/review authorization, and attorney/legal gates remain open.
