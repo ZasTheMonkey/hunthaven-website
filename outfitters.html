@@ -412,7 +412,8 @@
  const action=document.createElement('a');action.href=href;action.className='experience-card__action';action.textContent=ambiguous?'Booking temporarily unavailable':'View experience';if(ambiguous){action.removeAttribute('href');action.setAttribute('aria-disabled','true');action.style.cssText='pointer-events:none;opacity:.65;cursor:not-allowed';media.removeAttribute('href');media.setAttribute('aria-disabled','true');titleLink.removeAttribute('href');titleLink.setAttribute('aria-disabled','true');const explanation=document.createElement('p');explanation.className='experience-card__description';explanation.textContent='This outfitter has multiple experiences. Booking is paused until each trip can be identified reliably.';body.append(explanation)}body.append(action);
  card.append(media,body);root.append(card);
  }
- if(!rendered){notice('No bookable outfitter experiences are available right now.');return}
+ if(!rendered){notice('No valid outfitter experiences could be displayed. Please try again or contact LeaseWild.',true);return}
+ if(rendered<data.length){const warning=document.createElement('p');warning.setAttribute('role','note');warning.style.cssText='margin-top:1.25rem;color:var(--color-text-muted)';warning.textContent='Some experiences could not be displayed because their listing information is incomplete. Please try again later.';root.append(warning)}
  if(data.length===60){const p=document.createElement('p');p.setAttribute('role','note');p.style.cssText='margin-top:1.25rem;color:var(--color-text-muted)';p.textContent='Showing up to 60 recent experiences. Additional listings may not appear here yet; contact LeaseWild if you cannot find a specific trip.';root.append(p)}
  }).catch(e=>{clearTimeout(timeout);console.error('Outfitter directory:',e);notice(e.name==='AbortError'?'The directory timed out. Please try again.':'Could not load outfitters (connection error). Please try again.',true)});
 })();
