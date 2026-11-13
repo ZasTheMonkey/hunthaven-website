@@ -120,3 +120,9 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - PASS (GitHub source): commit `2b267bd4c2e3becaad0566647a469a83f4688fb7` removes a nested `role=status` from the dynamic experience-count paragraph. The directory's existing parent live region continues to announce changes. Source independently re-fetched; no booking/payment logic touched.
 - NOT TESTED: screen-reader announcements in a real browser, responsive widths, Cloudflare deployment, actual sandbox inventory, Stripe TEST transactions/refunds/payouts.
 - NO-GO: unique experience identifiers, scalable discovery, Stripe Tax review and full checkout/Connect reconciliation remain open. Developer/Hunter QA own booking identity and payments; Growth owns public directory accessibility.
+
+
+## 2026-11-13 14:59 ET — Directory first-image loading priority
+- **PASS (staging source):** `8776979433913160e30add08b297e2176ec81a0a` changes the first rendered outfitter card image from lazy to eager loading and sets `fetchPriority=high`, while subsequent card images remain lazy. This addresses a potential above-the-fold largest-contentful-paint delay on mobile; no payment, booking, database, or production code changed.
+- **NOT TESTED:** Cloudflare deployment, real browser LCP/network timing, 320–2560 viewport matrix, real sandbox inventory, Stripe TEST E2E and reconciliation. Performance benefit is a hypothesis until browser metrics are captured.
+- **OPEN / NO-GO:** Unique experience identifiers, stable inventory pagination above 600, Stripe Tax validation, connected payout E2E and full checkout/refund reconciliation. Developer/Hunter QA own payment gates; Growth owns directory performance. Review current Stripe launch gate before changing payment flows.
