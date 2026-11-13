@@ -73,3 +73,9 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - **NOT TESTED:** Real browser Tab/Enter behavior, screen reader, Cloudflare deployment, viewport matrix (320/375/390/430/768/1024/1280/1440/1920/2560), sandbox inventory and Stripe TEST payment/refund/Connect reconciliation.
 - **NO-GO:** Stable experience IDs and full inventory pagination remain outstanding. Stripe Tax and end-to-end financial evidence still require verified cross-system tests; historical launch-gate counts may have changed and must be re-read before reporting as current.
 - **Coordination:** Growth Research modified only the public outfitter directory; other roles retain payment, booking, map/review and legal ownership. No main/live changes.
+
+
+## 2026-11-13 07:55 ET — Directory unavailable count transparency
+- **PASS (source commit):** `008f6c9e513a060d46014ecacf88e8a553e8c2ff` adds a separate count of temporarily unbookable outfitter experiences to the directory result summary. Before this, a visitor could see “N experiences shown” without knowing that some cards cannot be opened because the same outfitter owns multiple active experiences. The fail-closed booking guard remains unchanged. No payment, API, database, main, or production changes.
+- **NOT TESTED:** Deployed Cloudflare browser rendering, real sandbox inventory, screen-reader behavior, ten responsive viewport widths, Stripe TEST cards/refunds/webhooks/Connect payout reconciliation. Static code verification is not browser evidence.
+- **FAIL / P1:** Directory still queries a maximum of 60 records and routes by outfitter `user_id`, not unique experience ID. Developer/Hunter QA own identity migration and authenticated payment E2E; Growth Research owns discovery presentation. Stripe Tax classification and full payout/refund proof remain launch blockers. **NO-GO.**
