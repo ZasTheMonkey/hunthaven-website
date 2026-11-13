@@ -4,6 +4,7 @@ const origin = 'https://leasewild-sandbox.pages.dev';
 const database = 'https://kbkdfpmlyggfijkyjxoi.supabase.co';
 const stripeAccount = 'acct_1TOJ2rAO40Rp32aF';
 const checkoutOrigin = 'https://checkout.stripe.com';
+const previousListingId = '0a0b8819-ce6a-4cdb-a924-3b88dc899e1c';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const cards = {
   success: '4242424242424242',
@@ -12,22 +13,36 @@ const cards = {
   three_ds: '4000002500003155',
 };
 const hunter = {
-  email: 'hunter-qa@leasewild.test',
-  id: (process.env.QA_PAYMENT_HUNTER_ID ?? 'c04b7c5a-28e0-4a60-921a-642586cf7d5b').toLowerCase(),
+  email: 'zachschmitt32@gmail.com',
+  id: '7d582821-90a3-49e6-84cf-8ee344d840f3',
+  signupRole: 'guest',
   password: process.env.QA_PAYMENT_HUNTER_PASSWORD,
 };
-const owner = { email: 'roamquestlx+leasewild-owner-a@gmail.com', id: '103c4605-f279-4f87-a677-1ac2b46df373', password: process.env.QA_PAYMENT_OWNER_PASSWORD };
+const owner = {
+  email: 'roamquestlx@gmail.com',
+  id: '7bdc7bf0-ad2d-436c-b4ad-425765ba9d48',
+  password: process.env.QA_PAYMENT_OWNER_PASSWORD,
+};
 const stripeKey = process.env.QA_STRIPE_TEST_READ_KEY;
 const publicKey = process.env.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY;
-const listingId = process.env.QA_PAYMENT_LISTING_ID;
+const listingId = process.env.QA_PAYMENT_LISTING_ID?.toLowerCase();
 
 test.use({ trace: 'off', screenshot: 'off', video: 'off', serviceWorkers: 'block' });
 test.describe.configure({ retries: 0, timeout: 150_000 });
 
 async function json(url, options, label) {
-  const response = await fetch(url, { ...options, redirect: 'error', signal: AbortSignal.timeout(15_000) });
+  let response;
+  try {
+    response = await fetch(url, { ...options, redirect: 'error', signal: AbortSignal.timeout(15_000) });
+  } catch {
+    throw new Error(label + ' request failed');
+  }
   if (!response.ok) throw new Error(label + ' returned HTTP ' + response.status);
-  return response.json();
+  try {
+    return await response.json();
+  } catch {
+    throw new Error(label + ' returned invalid JSON');
+  }
 }
 
 function stripe(path) {
@@ -42,7 +57,9 @@ async function authenticate(identity) {
     headers: { apikey: publicKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: identity.email, password: identity.password }),
   }, 'Synthetic account authentication');
-  if (session.user?.id !== identity.id || session.user?.email !== identity.email || !session.access_token) {
+  if (session.user?.id !== identity.id || session.user?.email !== identity.email ||
+      session.user?.role !== 'authenticated' || !session.user?.email_confirmed_at || !session.access_token ||
+      (identity.signupRole && session.user?.user_metadata?.role !== identity.signupRole)) {
     throw new Error('BLOCKED: unexpected synthetic account identity');
   }
   return { apikey: publicKey, Authorization: 'Bearer ' + session.access_token, Origin: origin, 'Content-Type': 'application/json' };
@@ -55,18 +72,29 @@ function bookingCall(headers, endpoint, body) {
 }
 
 async function preflight() {
-  if (!uuid.test(hunter.id) || hunter.id === owner.id) {
-    throw new Error('BLOCKED: QA_PAYMENT_HUNTER_ID must be a valid Hunter fixture UUID distinct from the owner');
+  if ((process.env.QA_BASE_URL || origin).replace(/\/$/, '') !== origin) {
+    throw new Error('BLOCKED: payment QA requires the canonical LeaseWild sandbox URL');
   }
-  if (!/^(rk|sk)_test_[A-Za-z0-9]+$/.test(stripeKey || '') || !/^sb_publishable_[\w-]+$/.test(publicKey || '') || !uuid.test(listingId || '')) {
-    throw new Error('BLOCKED: invalid Stripe TEST key, sandbox publishable key or fixture listing ID');
+  const missing = Object.entries({
+    QA_PAYMENT_HUNTER_PASSWORD: hunter.password,
+    QA_PAYMENT_OWNER_PASSWORD: owner.password,
+    QA_STRIPE_TEST_READ_KEY: stripeKey,
+    QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY: publicKey,
+    QA_PAYMENT_LISTING_ID: listingId,
+  }).filter(([, value]) => !value).map(([name]) => name);
+  if (missing.length) throw new Error('BLOCKED: missing ' + missing.join(', '));
+  if (!/^rk_test_[A-Za-z0-9]+$/.test(stripeKey) || !/^sb_publishable_[\w-]+$/.test(publicKey)) {
+    throw new Error('BLOCKED: a restricted Stripe TEST key and sandbox publishable key are required');
+  }
+  if (!uuid.test(listingId) || listingId === previousListingId) {
+    throw new Error('BLOCKED: QA_PAYMENT_LISTING_ID must identify a new listing for the verified landowner');
   }
   const account = await stripe('account');
   if (account.id !== stripeAccount) throw new Error('BLOCKED: unexpected Stripe sandbox account');
   const [hunterHeaders, ownerHeaders] = await Promise.all([authenticate(hunter), authenticate(owner)]);
   const rows = await json(database + '/rest/v1/listings?id=eq.' + listingId + '&select=id,owner_id,email,status,description,price_per_day,cleaning_fee,min_stay', { headers: ownerHeaders }, 'Synthetic listing lookup');
   const listing = rows[0];
-  if (rows.length !== 1 || listing.owner_id !== owner.id || listing.email !== owner.email ||
+  if (rows.length !== 1 || listing.id !== listingId || listing.owner_id !== owner.id || listing.email !== owner.email ||
       listing.status !== 'active' || !/^QA ONLY\b/i.test(listing.description || '') ||
       Number(listing.price_per_day) !== 100 || Number(listing.cleaning_fee || 0) !== 0 || Number(listing.min_stay || 0) > 1) {
     throw new Error('BLOCKED: dedicated QA ONLY active synthetic listing with $100/night and no cleaning fee is required');
@@ -162,7 +190,7 @@ async function captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intentId
   expect(intent.livemode).toBe(false);
   expect(intent.status).toBe('succeeded');
   expect(intent.amount_received).toBe(10_650);
-  expect(intent.latest_charge?.receipt_url).toMatch(/^https:\/\/pay\.stripe\.com\/receipts\//);
+  expect(/^https:\/\/pay\.stripe\.com\/receipts\//.test(intent.latest_charge?.receipt_url || ''), 'Stripe receipt URL exists').toBe(true);
   evidence.chargeId = intent.latest_charge.id;
   const preview = await bookingCall(hunterHeaders, 'cancel', { action: 'preview', booking_id: bookingId });
   expect(preview.refund_type).toBe('full_refund');
@@ -178,11 +206,14 @@ async function captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intentId
   expect(refund.amount).toBe(10_650);
 }
 
+let credentials;
+test.beforeAll(async () => {
+  credentials = await preflight();
+});
+
 for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds', 'retry']) {
   test(scenario + ' / real Stripe TEST card entry', async ({ page }, info) => {
-    test.skip(![stripeKey, publicKey, listingId, hunter.password, owner.password].every(Boolean),
-      'BLOCKED: missing synthetic account, fixture listing or sandbox read credentials');
-    const { hunterHeaders, ownerHeaders } = await preflight();
+    const { hunterHeaders, ownerHeaders } = credentials;
     const evidence = { scenario, stripeAccount };
     // Use a different future night per case, beyond the 72-hour refund cutoff.
     const day = 21 + ['success', 'declined', 'insufficient_funds', 'three_ds', 'retry'].indexOf(scenario);

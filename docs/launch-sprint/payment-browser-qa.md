@@ -4,12 +4,12 @@ Scope is `staging/leasewild-full-clone`, `https://leasewild-sandbox.pages.dev`, 
 
 ## Runner setup
 
-Configure these names as Actions secrets or Codespaces secrets and use the documented synthetic Hunter and Owner A identities in [synthetic QA fixtures](synthetic-qa-fixtures.md).
+The payment fixtures use confirmed sandbox Auth users `zachschmitt32@gmail.com` (Hunter, `7d582821-90a3-49e6-84cf-8ee344d840f3`) and `roamquestlx@gmail.com` (landowner, `7bdc7bf0-ad2d-436c-b4ad-425765ba9d48`).
 
-- `QA_PAYMENT_HUNTER_PASSWORD` and `QA_PAYMENT_OWNER_PASSWORD` for the two verified synthetic accounts.
-- `QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY` from the sandbox project.
-- `QA_STRIPE_TEST_READ_KEY` for the exact sandbox platform, with read access to the account, Checkout Sessions, PaymentIntents, charges, events and refunds.
-- `QA_PAYMENT_LISTING_ID` for a dedicated active Owner A fixture whose description begins with QA ONLY, priced at $100/night without cleaning fee, with a one-night minimum and Owner A’s controlled email address. Keep existing draft map and authorization fixtures isolated. Provision this fixture only once the environment can run the suite. The booking endpoint requires active status.
+- Set `QA_PAYMENT_HUNTER_PASSWORD` and `QA_PAYMENT_OWNER_PASSWORD` as Actions secrets using the dedicated LeaseWild sandbox login passwords.
+- Set `QA_STRIPE_TEST_READ_KEY` as an Actions secret using a restricted `rk_test_` key for the exact sandbox platform, with read access to the account, Checkout Sessions, PaymentIntents, charges, events and refunds.
+- Set `QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY` as an Actions variable (or secret) using the sandbox project's `sb_publishable_` key.
+- Set `QA_PAYMENT_LISTING_ID` as an Actions variable (or secret) once the new landowner has a dedicated active listing marked QA ONLY, priced at $100/night, with zero cleaning fee, a one-night minimum and the landowner's exact email. Listing `0a0b8819-ce6a-4cdb-a924-3b88dc899e1c` belongs to the previous owner and is explicitly rejected.
 
 Run `bash qa/playwright/run-staging-qa.sh --project=payments-chromium` in Codespaces. GitHub Actions can run the same project as its payments matrix job when dispatched on staging. For unattended scheduling, an authorized runner must dispatch the staging ref and show a completed run with artifacts. GitHub's native schedule runs from the default branch.
 

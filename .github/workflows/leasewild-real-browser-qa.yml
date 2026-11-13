@@ -36,19 +36,6 @@ jobs:
         working-directory: qa/playwright
     env:
       QA_BASE_URL: https://leasewild-sandbox.pages.dev
-      QA_HUNTER_EMAIL: ${{ secrets.QA_HUNTER_EMAIL }}
-      QA_HUNTER_PASSWORD: ${{ secrets.QA_HUNTER_PASSWORD }}
-      QA_LANDOWNER_EMAIL: ${{ secrets.QA_LANDOWNER_EMAIL }}
-      QA_LANDOWNER_PASSWORD: ${{ secrets.QA_LANDOWNER_PASSWORD }}
-      QA_OUTFITTER_EMAIL: ${{ secrets.QA_OUTFITTER_EMAIL }}
-      QA_OUTFITTER_PASSWORD: ${{ secrets.QA_OUTFITTER_PASSWORD }}
-      QA_ADMIN_EMAIL: ${{ secrets.QA_ADMIN_EMAIL }}
-      QA_ADMIN_PASSWORD: ${{ secrets.QA_ADMIN_PASSWORD }}
-      QA_STRIPE_TEST_READ_KEY: ${{ matrix.bot == 'payments' && secrets.QA_STRIPE_TEST_READ_KEY || '' }}
-      QA_PAYMENT_HUNTER_PASSWORD: ${{ matrix.bot == 'payments' && secrets.QA_PAYMENT_HUNTER_PASSWORD || '' }}
-      QA_PAYMENT_OWNER_PASSWORD: ${{ matrix.bot == 'payments' && secrets.QA_PAYMENT_OWNER_PASSWORD || '' }}
-      QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY: ${{ matrix.bot == 'payments' && (vars.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY || secrets.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY) || '' }}
-      QA_PAYMENT_LISTING_ID: ${{ matrix.bot == 'payments' && (vars.QA_PAYMENT_LISTING_ID || secrets.QA_PAYMENT_LISTING_ID) || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,7 +49,26 @@ jobs:
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium webkit
       - name: Interact with real sandbox browser
+        if: matrix.bot != 'payments'
+        env:
+          QA_HUNTER_EMAIL: ${{ secrets.QA_HUNTER_EMAIL }}
+          QA_HUNTER_PASSWORD: ${{ secrets.QA_HUNTER_PASSWORD }}
+          QA_LANDOWNER_EMAIL: ${{ secrets.QA_LANDOWNER_EMAIL }}
+          QA_LANDOWNER_PASSWORD: ${{ secrets.QA_LANDOWNER_PASSWORD }}
+          QA_OUTFITTER_EMAIL: ${{ secrets.QA_OUTFITTER_EMAIL }}
+          QA_OUTFITTER_PASSWORD: ${{ secrets.QA_OUTFITTER_PASSWORD }}
+          QA_ADMIN_EMAIL: ${{ secrets.QA_ADMIN_EMAIL }}
+          QA_ADMIN_PASSWORD: ${{ secrets.QA_ADMIN_PASSWORD }}
         run: npx playwright test --project=${{ matrix.project }}
+      - name: Run Stripe test-mode payment QA
+        if: matrix.bot == 'payments'
+        env:
+          QA_STRIPE_TEST_READ_KEY: ${{ secrets.QA_STRIPE_TEST_READ_KEY }}
+          QA_PAYMENT_HUNTER_PASSWORD: ${{ secrets.QA_PAYMENT_HUNTER_PASSWORD }}
+          QA_PAYMENT_OWNER_PASSWORD: ${{ secrets.QA_PAYMENT_OWNER_PASSWORD }}
+          QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY: ${{ vars.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY || secrets.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY }}
+          QA_PAYMENT_LISTING_ID: ${{ vars.QA_PAYMENT_LISTING_ID || secrets.QA_PAYMENT_LISTING_ID }}
+        run: npx playwright test --project=payments-chromium
       - name: Upload screenshots, video, traces and reports
         if: always()
         uses: actions/upload-artifact@v4
