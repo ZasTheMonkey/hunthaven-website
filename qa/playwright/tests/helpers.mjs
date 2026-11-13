@@ -10,41 +10,39 @@ export async function visit(page,route) {
 }
 export async function screenshotStep(page,testInfo,name){
  await page.evaluate(() => document.fonts.ready.then(() => {}));
- const { width, height, devicePixelRatio } = await page.evaluate(() => {
-  const root = document.documentElement;
-  const body = document.body;
-  return {
-   width: Math.max(root.scrollWidth, root.offsetWidth, root.clientWidth, body.scrollWidth, body.offsetWidth, body.clientWidth),
-   height: Math.max(root.scrollHeight, root.offsetHeight, root.clientHeight, body.scrollHeight, body.offsetHeight, body.clientHeight),
-   devicePixelRatio: window.devicePixelRatio,
-  };
- });
-
- // Keep each clip below WebKit's bitmap limit even at the emulated device scale.
- const maxSide = Math.min(4096, Math.floor(32000 / Math.max(1, devicePixelRatio)));
- const clipWidth = Math.min(width, maxSide);
- const tileCount = Math.ceil(height / maxSide);
+ const dimensions = await page.evaluate(() => ({
+  width: document.documentElement.scrollWidth,
+  height: document.documentElement.scrollHeight,
+  viewportWidth: document.documentElement.clientWidth,
+  viewportHeight: window.innerHeight,
+ }));
+ const { width, height, viewportWidth, viewportHeight } = dimensions;
+ const step = Math.max(1, Math.min(viewportHeight, 1800));
+ const total = Math.max(1, Math.ceil(height / step));
  const maxTiles = 10;
- const capturedTiles = Math.min(tileCount, maxTiles);
- if (width > clipWidth || tileCount > maxTiles) {
-  const rows = tileCount > maxTiles
-   ? `rows 0–${(maxTiles - 1) * maxSide - 1} and ${(tileCount - 1) * maxSide}–${height - 1}`
-   : 'all rows';
+ if (total > maxTiles || width > viewportWidth) {
   testInfo.annotations.push({
    type: 'screenshot coverage',
-   description: `${name}: ${width}×${height} CSS px at DPR ${devicePixelRatio}. Captured the leftmost ${clipWidth} px across ${rows}.`,
+   description: `${name}: page ${width}×${height}, viewport ${viewportWidth}×${viewportHeight}; ${Math.min(total,maxTiles)} viewport tiles captured`,
   });
  }
- for (let index = 0; index < capturedTiles; index++) {
-  const tile = index === maxTiles - 1 ? tileCount - 1 : index;
-  const y = tile * maxSide;
-  const filename = tile === 0 ? name : `${name}-part-${tile + 1}`;
-  await page.screenshot({
-   path: testInfo.outputPath(filename + '.png'),
-   fullPage: false,
-   scale: 'css',
-   clip: { x: 0, y, width: clipWidth, height: Math.min(height - y, maxSide) },
-  });
+ // Playwright clip coordinates are viewport-relative; scrolling first avoids
+ // the 'Clipped area is outside the resulting image' error on long pages.
+ const originalScroll = await page.evaluate(() => window.scrollY);
+ try {
+  for (let i = 0; i < Math.min(total,maxTiles); i++) {
+   const tile = i === maxTiles - 1 && total > maxTiles ? total - 1 : i;
+   await page.evaluate(y => window.scrollTo(0,y), tile * step);
+   const filename = i === 0 ? name : `${name}-part-${i+1}`;
+   await page.screenshot({
+    path: testInfo.outputPath(filename + '.png'),
+    fullPage: false,
+    scale: 'css',
+    animations: 'disabled',
+   });
+  }
+ } finally {
+  await page.evaluate(y => window.scrollTo(0,y), originalScroll).catch(() => {});
  }
 }
 export async function checkNoRawScript(page) {
