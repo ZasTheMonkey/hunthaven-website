@@ -590,3 +590,18 @@ No production deployment was requested or performed.
 4. Authenticated booking/messaging/account journeys, real-device/touch/200% zoom/screen-reader coverage and legal approval.
 
 Only the isolated sandbox, synthetic identities and Stripe TEST were used. `leasewild.com`, `main`, live Stripe, production Supabase, real users and personal sessions remained untouched.
+
+
+## Hourly integration update — November 14, 2026 at 3:45 AM ET
+
+**Decision: NO-GO.** No production launch was authorized or performed.
+
+- **PASS — authenticated owner access areas:** workflow [43576816811](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43576816811) verified entry-area and parking-area create/save/reload/delete in Chromium and mobile WebKit.
+- **PASS — cross-account privacy:** the separate configured synthetic account could not retrieve another owner's saved zones and both save controls remained disabled in both Host engines. This is a non-owner negative case; booked-hunter positive disclosure and every cross-role mutation remain unproved.
+- **PASS — cleanup:** independent sandbox SQL found zero retained rows labeled `QA entry area %` or `QA parking area %`.
+- **PASS — full regression at exact commit `b2ff3220e89f6a779839ca95adb66cec24e2e29e`:** Host 32 passed / 2 skipped per engine; Hunter 28 passed / 2 skipped per engine; Stripe TEST 6 passed / 3 explicitly skipped.
+- **PASS — deployment:** Cloudflare sandbox deployment `fbf45a40-591a-4555-abcf-cd62a950a254` succeeded for exact tested commit `b2ff3220e89f6a779839ca95adb66cec24e2e29e`.
+- **Evidence report:** `docs/launch-sprint/designer-developer-qa-2026-11-14-0345.md`.
+- **OPEN:** booked-hunter access-coordinate disclosure/revocation, completed-booking hunter-review moderation/reporting/appeal, authenticated messaging lifecycle, receipt inbox, external-bank payout, partial refund, Stripe Tax, promo/add-on/deposit totals, webhook replay, real-device/zoom/screen-reader testing and attorney approval.
+
+Only the isolated sandbox, synthetic identities and Stripe TEST were used. `leasewild.com`, `main`, live Stripe, production Supabase, real users and personal sessions remained untouched.
