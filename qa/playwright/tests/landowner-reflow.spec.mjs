@@ -13,6 +13,17 @@ test.describe('Bot B: zone editor zoom and keyboard regression', () => {
       await expect(page.locator('#zone-type')).toBeVisible();
       await expect(page.locator('#map')).toBeVisible();
       await checkNoRawScript(page);
+      if (width === 320) {
+        const viewport = await page.evaluate(() => document.documentElement.clientWidth);
+        const offenders = await page.locator('body *').evaluateAll((elements, viewportWidth) => elements
+          .map(element => {
+            const rect = element.getBoundingClientRect();
+            return { tag: element.tagName.toLowerCase(), id: element.id, className: String(element.className || '').slice(0, 120), left: Math.round(rect.left), right: Math.round(rect.right), width: Math.round(rect.width), scrollWidth: element.scrollWidth };
+          })
+          .filter(item => item.left < -8 || item.right > viewportWidth + 8 || item.scrollWidth > Math.ceil(item.width) + 8)
+          .slice(0, 20), viewport);
+        console.log('Extreme reflow overflow diagnostics', JSON.stringify({ viewport, offenders }));
+      }
       await checkOverflow(page);
       await expect(page.locator('#save')).toBeDisabled();
       await screenshotStep(page, info, 'zone-editor-half-width-reflow-' + width);
