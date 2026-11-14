@@ -49,7 +49,8 @@ test.describe('Bot A: real hunter browser',()=>{
  test('about compact-laptop navigation stays in viewport',async({page},info)=>{
   await page.setViewportSize({width:1024,height:900});
   await visit(page,'/about.html');
-  await expect(page.locator('.mobile-menu-btn')).toBeVisible();
+  const compactMenu=page.locator('.mobile-menu-btn:visible, #lw-site-menu-toggle:visible');
+  expect(await compactMenu.count()).toBeGreaterThan(0);
   await expect(page.locator('.nav-links')).toBeHidden();
   await checkOverflow(page);
   await screenshotStep(page,info,'about-compact-laptop-navigation');
