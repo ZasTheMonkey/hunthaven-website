@@ -192,6 +192,44 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    }
   }
  });
+ test('authenticated synthetic owner saves reloads and deletes a parking area',async({page},info)=>{
+  const creds=requireSyntheticCredentials('QA_LANDOWNER');
+  const listingId=process.env.QA_LANDOWNER_LISTING_ID;
+  test.skip(!creds||!/^[0-9a-f-]{36}$/i.test(listingId||''),'BLOCKED: verified synthetic owner credentials and listing ID are required');
+  const label=('QA parking area '+info.project.name+' '+Date.now()).slice(0,80);
+  await visit(page,'/landowner-portal.html');
+  await page.locator('#si-email').fill(creds.email);
+  await page.locator('#si-password').fill(creds.password);
+  await page.locator('#signin-btn').click();
+  await expect(page.locator('#dashboard')).toBeVisible({timeout:20000});
+  await visit(page,'/sandbox-zone-editor.html?listing='+encodeURIComponent(listingId));
+  await expect(page.locator('#status')).toContainText('Editing your',{timeout:20000});
+  const savedRow=page.locator('#saved li').filter({hasText:label});
+  try{
+   await page.locator('#zone-type').selectOption('parking_area');
+   await page.locator('#zone-label').fill(label);
+   await page.locator('summary').filter({hasText:'Optional: enter exact coordinates'}).click();
+   for(const [lat,lng] of [[29.02,-80.93],[29.021,-80.93],[29.021,-80.929]]){
+    await page.locator('#latitude').fill(String(lat));
+    await page.locator('#longitude').fill(String(lng));
+    await page.locator('#add-point').click();
+   }
+   await expect(page.locator('#save')).toBeEnabled();
+   await page.locator('#save').click();
+   await expect(page.locator('#status')).toContainText('Zone saved',{timeout:20000});
+   await expect(savedRow).toHaveCount(1);
+   await page.reload();
+   await expect(page.locator('#status')).toContainText('Editing your',{timeout:20000});
+   await expect(savedRow).toHaveCount(1);
+   await screenshotStep(page,info,'authenticated-parking-area-survives-reload');
+  }finally{
+   if(await savedRow.count()){
+    page.once('dialog',dialog=>dialog.accept());
+    await savedRow.getByRole('button',{name:'Delete '+label}).click();
+    await expect(savedRow).toHaveCount(0,{timeout:20000});
+   }
+  }
+ });
  test('human fills outfitter login',async({page},info)=>{
   await visit(page,'/outfitter-portal.html');
   const creds=requireSyntheticCredentials('QA_OUTFITTER');
