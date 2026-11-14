@@ -644,3 +644,18 @@ Work the items in order, recording PASS, FAIL or BLOCKED and linking the existin
 | 9 | Reviews and group guest ID | Verify eligible completed-booking review, one per booking, moderation/report/appeal and public visibility. Test adult invitations, upload, private access, admin review and minor data minimization against the approved booking policy. |
 | 10 | Discovery and accessibility | Test mixed inventory, listing filters, listing detail and map/card consistency; keyboard, native browser zoom, screen reader and physical mobile devices. |
 | 11 | Legal and final release review | Obtain Florida counsel approval for Terms/waiver, privacy, host agreement, insurance claims and retention; prove versioned consent. Rerun staging on the release candidate and review all recorded gates before release. |
+
+
+## Hourly integration update — November 14, 2026 at 10:35 AM ET
+
+**Decision: NO-GO.** No production launch was authorized or performed.
+
+- **PASS — message-composer recovery:** commits `c805599b8bccf2d407756aeb75bfb16668239baf` and `2070740888f555e6df82e2bbf9db70af7e1e9137` fail closed on expired auth, retain the draft, re-enable Send and clear only after acknowledged insert.
+- **PASS — scoped browser regression:** [run 43609562993](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43609562993) at `42f34516771ec4441e4478cd1b58486d81c6d15c` passed both Host engines **50/50**; the new messaging recovery case passed in Chromium and mobile WebKit. Hunter engines each passed **29 / 1 skipped**.
+- **FAIL — overall workflow/payment expansion:** the same run's concurrently expanded payment journey reported **1 passed / 6 failed / 3 skipped**, with auth/fixture 401, 403 and 409 responses. Corrective payment runs are continuing. Do not use this run as a green launch matrix.
+- **PASS — deployment:** Cloudflare sandbox deployment `0211d0ad-539b-4198-b7f5-05921f467f70` succeeded for exact messaging test commit `42f34516771ec4441e4478cd1b58486d81c6d15c`.
+- **Evidence report:** `docs/launch-sprint/designer-developer-qa-2026-11-14-1035.md`.
+
+**OPEN:** real participant-isolated hunter↔outfitter messaging lifecycle; eligible completed-booking hunter-review positive path and moderation/reporting/appeal; payment matrix recovery; booked-hunter zone disclosure/revocation; receipt, payout, partial refund, Stripe Tax, pricing totals and email delivery; native zoom/physical device/screen reader; Florida attorney approval.
+
+Only staging, the isolated sandbox, synthetic identities and Stripe TEST were used. `leasewild.com`, `main`, live Stripe, production Supabase, real users and personal sessions remained untouched.
