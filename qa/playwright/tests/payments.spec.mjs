@@ -389,12 +389,50 @@ test.beforeAll(async () => {
   credentials = await preflight();
 });
 
-for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds', 'retry']) {
+async function requestBookingFromListing(page, bookingRequest) {
+  await page.goto(origin + '/guest-portal.html');
+  await page.locator('#si-email').fill(hunter.email);
+  await page.locator('#si-pass').fill(hunter.password);
+  await page.locator('#si-btn').click();
+  await expect(page.locator('#dashboard')).toBeVisible({ timeout: 20_000 });
+  await page.goto(origin + '/#listings-section');
+  const candidates = page.getByRole('button', { name: 'View Orange details', exact: true });
+  // Sandbox inventory can contain other properties in the same county.
+  await expect(candidates.first()).toBeVisible({ timeout: 20_000 });
+  const modal = page.locator('#listing-detail-modal');
+  let found = false;
+  for (const candidate of await candidates.all()) {
+    await candidate.click();
+    if (await modal.getByText('QA ONLY — dedicated LeaseWild payment browser fixture', { exact: true }).isVisible()) {
+      found = true;
+      break;
+    }
+    await modal.getByRole('button', { name: 'Close listing details' }).click();
+  }
+  expect(found, 'Dedicated sandbox listing is visible in discovery').toBe(true);
+  for (const [selector, date] of [['#bk-checkin', bookingRequest.check_in], ['#bk-checkout', bookingRequest.check_out]]) {
+    const input = modal.locator(selector);
+    await expect.poll(() => input.evaluate(element => Boolean(element._flatpickr))).toBe(true);
+    await input.evaluate((element, value) => element._flatpickr.setDate(value, true), date);
+    await expect(input).toHaveValue(date);
+  }
+  const response = page.waitForResponse(result =>
+    result.url() === database + '/functions/v1/sandbox-booking-checkout' && result.request().method() === 'POST');
+  await modal.locator('#bk-btn').click();
+  const checkout = await response;
+  expect(checkout.request().postDataJSON()).toMatchObject({ listing_id: listingId,
+    check_in: bookingRequest.check_in, check_out: bookingRequest.check_out, guests: 1 });
+  expect(checkout.ok(), 'Listing checkout request succeeded').toBe(true);
+  return checkout.json();
+}
+
+const scenarios = ['success', 'declined', 'insufficient_funds', 'three_ds', 'retry', 'hunter_journey'];
+for (const scenario of scenarios) {
   test(scenario + ' / real Stripe TEST card entry', async ({ page }, info) => {
     const { hunterHeaders, ownerHeaders } = credentials;
     const evidence = { scenario, stripeAccount };
     // Use a different future night per case, beyond the 72-hour refund cutoff.
-    const day = 21 + ['success', 'declined', 'insufficient_funds', 'three_ds', 'retry'].indexOf(scenario);
+    const day = 21 + scenarios.indexOf(scenario);
     const date = offset => new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10);
     const requestKey = crypto.randomUUID();
     const bookingRequest = {
@@ -407,7 +445,8 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
       redirect: 'error', signal: AbortSignal.timeout(15_000),
     }).then(async response => ({ status: response.status, body: await response.json() }));
     const attempts = scenario === 'success' ? await Promise.all([submitCheckout(), submitCheckout()]) : [];
-    const created = attempts.length ? attempts.find(attempt => attempt.body.idempotent_replay === false)?.body
+    const created = scenario === 'hunter_journey' ? await requestBookingFromListing(page, bookingRequest)
+      : attempts.length ? attempts.find(attempt => attempt.body.idempotent_replay === false)?.body
       : await bookingCall(hunterHeaders, 'checkout', bookingRequest);
     if (!uuid.test(created?.booking_id || '')) throw new Error('Sandbox checkout did not return a booking ID');
     expect(created.idempotent_replay).toBe(false);
@@ -482,7 +521,7 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
       } catch {
         throw new Error('Verified Stripe TEST Checkout could not load in Chromium');
       }
-      await enterCard(page, session.id, cards[scenario === 'retry' ? 'declined' : scenario]);
+      await enterCard(page, session.id, cards[scenario === 'retry' ? 'declined' : scenario === 'hunter_journey' ? 'success' : scenario]);
       if (['declined', 'insufficient_funds', 'retry'].includes(scenario)) {
         await findCheckoutControl(page, frame => frame.getByText(scenario === 'insufficient_funds' ? /insufficient funds/i : /card was declined/i),
           25_000, 'Stripe decline message');
@@ -516,7 +555,13 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
       expect(Boolean(event), 'Stripe TEST completion event for this session').toBe(true);
       evidence.webhookEventId = event.id;
       await waitForGuestPortalReturn(page, session.id);
-      if (scenario === 'success') {
+      if (scenario === 'hunter_journey') {
+        const booking = page.locator('.booking-card').filter({ has: page.locator('a[href="cancel.html?id=' + bookingId + '"]') });
+        await expect(booking).toContainText('Awaiting landowner approval');
+        await page.reload();
+        await expect(booking).toContainText('Awaiting landowner approval');
+      }
+      if (['success', 'hunter_journey'].includes(scenario)) {
         await captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intent.id, evidence);
       }
     } catch (error) {
