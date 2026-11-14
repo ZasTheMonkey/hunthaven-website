@@ -312,3 +312,16 @@ Only sandbox Supabase, Stripe TEST, synthetic fixtures, staging, and Cloudflare 
 - **PASS:** 3DS booking `5a2ba231-4a13-4dee-8723-018012805268`; TEST PI `pi_3UbSShAO40Rp32aF1OCXLzSd`; event `evt_1UbSSkAO40Rp32aFj0ZYr2Ia`; authenticated keyboard challenge, capturable authorization, zero pending webhook deliveries.
 - **Evidence:** artifact `14080940933`, SHA-256 `e6cb3d44723bf5395a304d160f6ad1b72279a9d36852a947b9dc6b9910d4e00c`.
 - **NO-GO remains:** Stripe Tax is still pending with no registrations; delivered receipt inbox, paid external-bank payout and partial refund remain unproven; promo/add-on/cleaning-deposit economics, duplicate/replay/idempotency, authenticated map/review authorization, and attorney/legal gates remain open.
+
+
+## 2026-11-13 22:01 ET — Duplicate checkout gate closed in sandbox
+
+**Gate status: PASS for browser duplicate submission; overall launch remains NO-GO.**
+
+- Applied sandbox migration `add_booking_checkout_request_idempotency` and deployed `sandbox-booking-checkout` v10. Client/server/Stripe now share one UUID request key; the database unique partial index is the concurrency backstop.
+- Workflow [43549078806](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43549078806) at exact commit `c1b16f9af832bf6aa401aab52e8fdbcf741eaf51` finished all five jobs successfully. Payments: **6 passed / 3 skipped**; host Chromium/mobile WebKit: **28 passed / 2 skipped each**; hunter Chromium/mobile WebKit: **28 passed / 2 skipped each**.
+- Artifact `14095687333` (SHA-256 `f6d620cfdb3523903dd057de3ba135ee19b540808b54137c9b522cf12e7d63e2`) proves same-key replay returned booking `6b57e3ce-8d71-4137-9f22-32c1faf1418e` and the same open Checkout Session; a distinct key for the occupied dates returned HTTP 409. Independent SQL found one row per request key and all five card fixtures `cancelled` after cleanup.
+- Success, generic decline, insufficient funds, completed keyboard 3DS, decline/retry, capture, cancellation/full refund, and the synthetic 20% Connect fee/transfer/refund regression passed in Stripe TEST.
+- **Still NO-GO:** delivered receipt inbox, external-bank payout, partial refund, Stripe Tax registration/classification, promo/add-on/cleaning-deposit economics, webhook replay, authenticated owner map/review authorization, and Florida attorney approval.
+
+No live Stripe, production Supabase, `main`, or `leasewild.com` resource was accessed or changed.
