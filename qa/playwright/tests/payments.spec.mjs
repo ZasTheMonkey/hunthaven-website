@@ -335,7 +335,8 @@ async function reconcileAuthorization(headers, bookingId, sessionId, { allowReco
   return intent;
 }
 
-async function captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intentId, evidence) {
+async function captureAndRefund(hunterHeaders, bookingId, intentId, evidence) {
+  const ownerHeaders = await authenticate(owner, 'landowner');
   const capture = await bookingCall(ownerHeaders, 'approval', { action: 'approve', booking_id: bookingId });
   expect(capture.booking?.status).toBe('confirmed');
   await waitForBooking(hunterHeaders, bookingId, 'confirmed');
@@ -445,7 +446,6 @@ async function requestBookingFromListing(page, bookingRequest, hunterHeaders) {
 const scenarios = ['success', 'declined', 'insufficient_funds', 'three_ds', 'retry', 'hunter_journey'];
 for (const scenario of scenarios) {
   test(scenario + ' / real Stripe TEST card entry', async ({ page }, info) => {
-    const { ownerHeaders } = credentials;
     const hunterHeaders = await authenticate(hunter, 'hunter');
     const evidence = { scenario, stripeAccount };
     // Use a different future night per case, beyond the 72-hour refund cutoff.
@@ -580,7 +580,7 @@ for (const scenario of scenarios) {
       }
       if (scenario === 'hunter_journey') Object.assign(hunterHeaders, await authenticate(hunter, 'hunter'));
       if (['success', 'hunter_journey'].includes(scenario)) {
-        await captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intent.id, evidence);
+        await captureAndRefund(hunterHeaders, bookingId, intent.id, evidence);
       }
     } catch (error) {
       if (scenario === 'three_ds' && checkoutVerified) {
