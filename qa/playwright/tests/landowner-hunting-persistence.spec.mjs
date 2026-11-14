@@ -8,6 +8,18 @@ test('synthetic landowner hunting boundary survives reload and is cleaned up', a
   test.skip(!credentials || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(listingId || ''),
     'BLOCKED: sandbox-only landowner credentials and verified synthetic listing ID required');
 
+  // A UUID alone does not establish that the listing is disposable or geographically valid.
+  // Require independently verified fixture ownership, bounds and cleanup before writes.
+  const rawPoints = process.env.QA_LANDOWNER_ZONE_POINTS || '';
+  const points = rawPoints.split(';').map(pair => pair.split(',').map(Number));
+  const validPoints = rawPoints.length > 0 && points.length >= 3 &&
+    points.every(pair => pair.length === 2 && pair.every(Number.isFinite) &&
+      Math.abs(pair[0]) <= 90 && Math.abs(pair[1]) <= 180) &&
+    new Set(points.map(pair => pair.join(','))).size >= 3;
+  test.skip(!validPoints || process.env.QA_LANDOWNER_FIXTURE_VERIFIED !== 'true' ||
+    process.env.QA_LANDOWNER_ZONE_CLEANUP_VERIFIED !== 'true',
+    'BLOCKED: fixture-specific polygon, independently verified sandbox ownership/bounds and reliable cleanup required');
+
   const label = ('QA hunting boundary ' + info.project.name + ' ' + Date.now()).slice(0, 80);
   await visit(page, '/landowner-portal.html');
   await page.locator('#si-email').fill(credentials.email);
@@ -22,7 +34,7 @@ test('synthetic landowner hunting boundary survives reload and is cleaned up', a
     await page.locator('#zone-type').selectOption('hunting_area');
     await page.locator('#zone-label').fill(label);
     await page.locator('summary').filter({ hasText: 'Optional: enter exact coordinates' }).click();
-    for (const [latitude, longitude] of [[29.02, -80.93], [29.021, -80.93], [29.021, -80.929]]) {
+    for (const [latitude, longitude] of points) {
       await page.locator('#latitude').fill(String(latitude));
       await page.locator('#longitude').fill(String(longitude));
       await page.locator('#add-point').click();
