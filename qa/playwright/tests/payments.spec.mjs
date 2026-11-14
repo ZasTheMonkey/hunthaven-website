@@ -561,7 +561,6 @@ for (const scenario of scenarios) {
         await verify3dsAuthorization(session.id, evidence);
         await verify3dsWebhook(session.id, evidence);
       }
-      if (scenario === 'hunter_journey') Object.assign(hunterHeaders, await authenticate(hunter, 'hunter'));
       // A recovery call could advance the booking independently of the webhook.
       const intent = await reconcileAuthorization(hunterHeaders, bookingId, session.id, {
         allowRecovery: scenario !== 'three_ds',
