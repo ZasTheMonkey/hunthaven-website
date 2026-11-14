@@ -250,6 +250,7 @@
 #outfitter-directory .experience-card__species{overflow-wrap:anywhere}
 #outfitter-directory .experience-card__action{max-width:100%;white-space:normal;overflow-wrap:anywhere;text-align:center}
 </style>
+<style>.lw-directory-search{display:flex;align-items:end;flex-wrap:wrap;gap:.75rem;margin:0 0 1.25rem}.lw-directory-search label{flex-basis:100%;font-weight:700}.lw-directory-search input{flex:1 1 220px;min-width:0;min-height:48px;padding:.75rem;border:1px solid var(--color-border);border-radius:10px;font:inherit;background:var(--color-surface-2);color:var(--color-text)}.lw-directory-search button{min-height:48px;padding:.65rem 1rem;border:1px solid var(--color-border);border-radius:10px;background:var(--color-surface-2);color:var(--color-text);font:inherit;cursor:pointer}.experience-card[hidden]{display:none!important}.lw-directory-search :focus-visible{outline:3px solid var(--color-accent);outline-offset:2px}</style>
 </head>
 <body>
   <a class="lw-skip-link" href="#main-content">Skip to main content</a>
@@ -338,6 +339,7 @@
     <p class="section-label">Directory</p>
     <h2 class="section-title">Florida Outfitters</h2>
     <p class="section-sub">Explore active Florida outfitter experiences. Confirm guide credentials, licenses, and trip details before booking. Listed prices may exclude applicable taxes, LeaseWild fees, and optional add-ons; review the full checkout total before authorizing payment.</p>
+    <div class="lw-directory-search"><label for="outfitter-search">Search outfitter experiences</label><input id="outfitter-search" type="search" autocomplete="off" placeholder="Search title, species, or county" aria-controls="outfitter-directory" disabled /><button id="outfitter-search-clear" type="button" disabled>Clear</button></div>
     <div id="outfitter-directory" aria-busy="true">
       <p id="outfitter-directory-status" role="status" aria-live="polite" style="color:var(--color-text-muted)">Loading approved outfitters…</p>
     </div>
@@ -411,6 +413,7 @@
  if(!root)return;
  function notice(text,retry){root.setAttribute('aria-busy','false');root.replaceChildren();const p=document.createElement('p');p.style.cssText='grid-column:1/-1;color:var(--color-text-muted)';p.textContent=text;p.setAttribute('role','status');root.appendChild(p);if(retry){const b=document.createElement('button');b.type='button';b.textContent='Try loading outfitters again';b.style.cssText='grid-column:1/-1;justify-self:start;margin-top:12px;min-height:48px;padding:12px 20px;border-radius:999px;border:1px solid var(--color-border);background:var(--color-primary);color:#fff;font-weight:700;cursor:pointer';b.addEventListener('click',()=>location.reload());root.appendChild(b)}}
  root.setAttribute('aria-busy','true');
+ const search=document.getElementById('outfitter-search'),clearSearch=document.getElementById('outfitter-search-clear');
  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),30000);
  const url='https://kbkdfpmlyggfijkyjxoi.supabase.co/rest/v1/outfitter_listings?select=user_id,title,bio,price,price_label,counties,species,photos&status=eq.active&order=updated_at.desc,user_id.asc';
  const key='sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
@@ -460,10 +463,14 @@
  const speciesNames=(Array.isArray(item.species)?item.species:[item.species]).filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim());if(speciesNames.length){const species=document.createElement('p');species.className='experience-card__species';species.textContent=speciesNames.join(' · ');body.append(species)}
  if(typeof item.bio==='string'&&item.bio.trim()){const desc=document.createElement('p');desc.className='experience-card__description';desc.textContent=item.bio;body.append(desc)}
  const action=document.createElement(ambiguous?'span':'a');if(!ambiguous)action.href=href;action.className='experience-card__action';action.textContent=ambiguous?'Booking temporarily unavailable':'View experience';if(!ambiguous)action.setAttribute('aria-label','View experience: '+displayTitle);if(ambiguous){action.style.cssText='opacity:.65;cursor:not-allowed';const explanation=document.createElement('p');explanation.className='experience-card__description';explanation.textContent='This outfitter has multiple experiences. Booking is paused until each trip can be identified reliably.';body.append(explanation)}body.append(action);
+ card.dataset.search=[displayTitle,...countyNames,...speciesNames].join(' ').toLocaleLowerCase('en-US');
  card.append(media,body);root.append(card);
  }
  if(!rendered){notice('No valid outfitter experiences could be displayed. Please try again or contact LeaseWild.',true);return}
  const summary=document.createElement('p');summary.setAttribute('role','status');summary.setAttribute('aria-live','polite');summary.style.cssText='grid-column:1/-1;margin:0;color:var(--color-text-muted);font-weight:600';summary.textContent=rendered+' outfitter experience'+(rendered===1?'':'s')+' shown'+(unavailable?' · '+unavailable+' temporarily unavailable for booking':'');root.prepend(summary);
+ const emptySearch=document.createElement('p');emptySearch.setAttribute('role','status');emptySearch.style.cssText='grid-column:1/-1;color:var(--color-text-muted)';emptySearch.hidden=true;root.append(emptySearch);
+ function applySearch(){const q=search.value.trim().toLocaleLowerCase('en-US');let shown=0;for(const card of root.querySelectorAll('.experience-card')){const match=!q||card.dataset.search.includes(q);card.hidden=!match;if(match)shown++;}summary.textContent=shown+' of '+rendered+' outfitter experience'+(rendered===1?'':'s')+' shown'+(unavailable?' · '+unavailable+' temporarily unavailable for booking':'');emptySearch.hidden=shown!==0;emptySearch.textContent=shown?'':'No matching experiences. Try a different title, species, or county.';clearSearch.disabled=!q;}
+ search.disabled=false;clearSearch.disabled=true;search.addEventListener('input',applySearch);clearSearch.addEventListener('click',()=>{search.value='';applySearch();search.focus()});
  if(rendered<data.length){const warning=document.createElement('p');warning.setAttribute('role','note');warning.style.cssText='grid-column:1/-1;margin-top:1.25rem;color:var(--color-text-muted)';warning.textContent='Some experiences could not be displayed because their listing information is incomplete. Please try again later.';root.append(warning)}
  
  }).catch(e=>{clearTimeout(timeout);console.error('Outfitter directory:',e);notice(e.name==='AbortError'?'The directory timed out. Please try again.':'Could not load the complete outfitter directory safely. Please try again or contact LeaseWild.',true)});
