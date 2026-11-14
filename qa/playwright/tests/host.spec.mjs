@@ -159,7 +159,7 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
   const listingId=process.env.QA_LANDOWNER_LISTING_ID;
   const polygonText=process.env.QA_LANDOWNER_ZONE_POINTS||'';
   const points=polygonText.split(';').map(pair=>pair.split(',').map(Number));
-  const validPoints=points.length>=3&&points.every(([lat,lng])=>Number.isFinite(lat)&&Number.isFinite(lng)&&lat>=-90&&lat<=90&&lng>=-180&&lng<=180);
+  const validPoints=points.length>=3&&points.every(pair=>pair.length===2&&pair.every(Number.isFinite)&&pair[0]>=-90&&pair[0]<=90&&pair[1]>=-180&&pair[1]<=180)&&new Set(points.map(pair=>pair.join(','))).size>=3;
   test.skip(!creds||!/^[0-9a-f-]{36}$/i.test(listingId||'')||!validPoints,'BLOCKED: verified synthetic owner, listing and fixture-specific QA_LANDOWNER_ZONE_POINTS are required');
   const label=('QA entry area '+info.project.name+' '+Date.now()).slice(0,80);
   await visit(page,'/landowner-portal.html');
@@ -200,7 +200,7 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
   const listingId=process.env.QA_LANDOWNER_LISTING_ID;
   const polygonText=process.env.QA_LANDOWNER_ZONE_POINTS||'';
   const points=polygonText.split(';').map(pair=>pair.split(',').map(Number));
-  const validPoints=points.length>=3&&points.every(([lat,lng])=>Number.isFinite(lat)&&Number.isFinite(lng)&&lat>=-90&&lat<=90&&lng>=-180&&lng<=180);
+  const validPoints=points.length>=3&&points.every(pair=>pair.length===2&&pair.every(Number.isFinite)&&pair[0]>=-90&&pair[0]<=90&&pair[1]>=-180&&pair[1]<=180)&&new Set(points.map(pair=>pair.join(','))).size>=3;
   test.skip(!creds||!/^[0-9a-f-]{36}$/i.test(listingId||'')||!validPoints,'BLOCKED: verified synthetic owner, listing and fixture-specific QA_LANDOWNER_ZONE_POINTS are required');
   const label=('QA parking area '+info.project.name+' '+Date.now()).slice(0,80);
   await visit(page,'/landowner-portal.html');
