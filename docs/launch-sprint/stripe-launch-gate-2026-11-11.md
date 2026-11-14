@@ -325,3 +325,16 @@ Only sandbox Supabase, Stripe TEST, synthetic fixtures, staging, and Cloudflare 
 - **Still NO-GO:** delivered receipt inbox, external-bank payout, partial refund, Stripe Tax registration/classification, promo/add-on/cleaning-deposit economics, webhook replay, authenticated owner map/review authorization, and Florida attorney approval.
 
 No live Stripe, production Supabase, `main`, or `leasewild.com` resource was accessed or changed.
+
+
+## 2026-11-14 08:55 ET — Current Stripe TEST regression
+
+**Implemented payment matrix remains PASS; overall launch remains NO-GO.**
+
+- Workflow [43601907812](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43601907812), exact tested commit `72cd01df5cc1ebb302adc1ccda54525aa908a268`, payment job `132468261217`: **6 passed / 3 explicitly skipped / 0 failed**.
+- Passed real hosted Checkout entry for success, generic decline, insufficient funds, completed 3DS, decline-then-success retry, and the synthetic 20% connected-account transfer/refund case.
+- Payment artifact: `14116607604` (`leasewild-payments-chromium-43601907812`). This run is regression evidence; prior reconciled TEST object IDs remain the canonical object-level evidence above.
+- Explicitly skipped: delivered receipt inbox, connected-account bank payout readiness and partial refund.
+- Still NO-GO: Stripe Tax registration/classification, promo/add-on/cleaning-deposit reconciliation, webhook replay, booked-hunter map disclosure/revocation, completed-booking review moderation/reporting/appeal and Florida attorney approval.
+
+No live Stripe, production Supabase, `main` or `leasewild.com` resource was accessed or changed.
