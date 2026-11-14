@@ -256,3 +256,17 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - **NO-GO remains:** attorney-approved access-coordinate disclosure rules and consent copy; completed-booking hunter-review moderation/reporting/appeal; tax, refund/cancellation and payout review; accessibility validation on real devices and assistive technology.
 
 Evidence: `docs/launch-sprint/designer-developer-qa-2026-11-14-0345.md`; commits `3791b8f32a26153eb5a8970b9f1a9ae04258f10e` and `b2ff3220e89f6a779839ca95adb66cec24e2e29e`. No binding legal text was published.
+
+
+## November 14, 2026 at 8:55 AM ET — Map reflow and review-authorization evidence boundary
+
+- **PASS (sandbox browser evidence):** run `43601907812` verified authenticated synthetic-owner hunting-boundary save/reload/cleanup in Chromium and mobile WebKit.
+- **PASS (negative review authorization only):** malformed booking identifiers, signed-out access and an authenticated owner with an unknown booking kept the hunter-review form unavailable. This does not prove an eligible completed-booking submission, one-per-booking enforcement in the browser, publication, moderation, reporting or appeal.
+- **PASS (reflow approximation):** the map editor passed 320–2560 source widths at half-width layout after the extreme-narrow action-grid fix. This is not native browser zoom, physical-device or assistive-technology evidence.
+- **PASS (cleanup):** independent sandbox SQL found zero retained map rows matching the QA hunting, entry-area or parking-area labels.
+- **Payment boundary unchanged:** the current Stripe TEST regression passed 6 implemented cases and explicitly skipped receipt delivery, external-bank payout and partial refund. It does not approve tax, cancellation/refund language, promotions, add-ons, cleaning deposits or payout disclosures.
+- The requested `docs/legal/website-compliance-handoff.md` file was not present on staging during this run. No binding terms, waivers, consent text or privacy policy were changed.
+
+**Legal release recommendation remains NO-GO.** Florida attorney approval, booked-hunter access-coordinate disclosure/revocation rules, review moderation/reporting/appeal, Stripe Tax and the remaining payment evidence are still required.
+
+Evidence: `docs/launch-sprint/designer-developer-qa-2026-11-14-0855.md`; exact tested commit `72cd01df5cc1ebb302adc1ccda54525aa908a268`.
