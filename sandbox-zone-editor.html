@@ -59,6 +59,15 @@ summary{font-size:.83rem;font-weight:650;cursor:pointer}
  .leaflet-control-layers-expanded{font-size:12px}
 }
 @media(max-width:370px){.edit-actions{grid-template-columns:1fr 1fr}.edit-actions button{font-size:.74rem}}
+@media(max-width:240px){
+ main{padding:.35rem;gap:.35rem}
+ section{padding:.65rem;border-radius:12px}
+ .map-panel{padding:.35rem}
+ .edit-actions{grid-template-columns:minmax(0,1fr)}
+ .edit-actions button{min-width:0;overflow-wrap:anywhere}
+ details{padding:.5rem}
+ summary{overflow-wrap:anywhere}
+}
 </style><link rel="stylesheet" href="/leasewild-light-system.css?v=20261112-canonical"></head><body>
 <header><a id="back-to-listing" href="landowner-portal.html">← Back to Edit Listing</a><h1>Property access map</h1><div>Sandbox · Private to the listing owner</div></header>
 <main><section class="editor-panel" aria-label="Zone editor"><div class="editor-heading"><span class="eyebrow">PROPERTY TOOLS</span><h2>Map your land</h2><p>Mark hunting areas, entry and parking locations, access areas and trails.</p></div><p id="status" role="status" aria-live="polite">Checking your session…</p>
