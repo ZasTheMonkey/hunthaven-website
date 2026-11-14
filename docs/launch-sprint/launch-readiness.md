@@ -605,3 +605,21 @@ Only the isolated sandbox, synthetic identities and Stripe TEST were used. `leas
 - **OPEN:** booked-hunter access-coordinate disclosure/revocation, completed-booking hunter-review moderation/reporting/appeal, authenticated messaging lifecycle, receipt inbox, external-bank payout, partial refund, Stripe Tax, promo/add-on/deposit totals, webhook replay, real-device/zoom/screen-reader testing and attorney approval.
 
 Only the isolated sandbox, synthetic identities and Stripe TEST were used. `leasewild.com`, `main`, live Stripe, production Supabase, real users and personal sessions remained untouched.
+
+
+## Hourly integration update — November 14, 2026 at 8:55 AM ET
+
+**Decision: NO-GO.** No production launch was authorized or performed.
+
+- **PASS — activated map/review coverage:** workflow [43601907812](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43601907812) at exact commit `72cd01df5cc1ebb302adc1ccda54525aa908a268` completed all five jobs successfully.
+- **PASS — Host engines:** Chromium and mobile WebKit each reported **47 passed / 2 skipped**, including authenticated hunting-boundary save/reload/cleanup, all ten 200%-equivalent reflow cases, and four hunter-review fail-closed cases.
+- **PASS — reflow defect fixed:** the two-column action grid caused the 160px-layout overflow. Commit `c9cfbbd89831314dcd47497370484280beeea2f4` switches extreme-narrow controls to one flexible column; 320–2560 source widths passed the half-width approximation. Native browser zoom and physical devices remain untested.
+- **PASS — Hunter engines:** Chromium and mobile WebKit each reported **28 passed / 2 skipped**.
+- **PASS — Stripe TEST regression:** **6 passed / 3 skipped**. Success, decline, insufficient funds, 3DS, retry and 20% Connect transfer/refund passed; receipt inbox, external-bank payout and partial refund remain skipped.
+- **PASS — cleanup:** independent sandbox SQL returned zero retained QA hunting-boundary, entry-area or parking-area rows.
+- **PASS — deployment:** Cloudflare sandbox deployment `0ad0f96f-56b5-4d5b-b9a4-f2d906d11782` succeeded for exact tested commit `72cd01df5cc1ebb302adc1ccda54525aa908a268`.
+- **Evidence report:** `docs/launch-sprint/designer-developer-qa-2026-11-14-0855.md`.
+
+**OPEN:** positive eligible-booking hunter-review submission and one-per-booking proof; moderation/reporting/appeal; booked-hunter zone disclosure/revocation; authenticated messaging; receipt, payout, partial refund, Stripe Tax, promo/add-on/deposit totals and webhook replay; physical-device/native-zoom/screen-reader testing; Florida attorney approval.
+
+Only staging, the isolated sandbox, synthetic identities and Stripe TEST were used. `leasewild.com`, `main`, live Stripe, production Supabase, real users and personal sessions remained untouched.
