@@ -340,6 +340,9 @@ async function captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intentId
   const cancel = await bookingCall(hunterHeaders, 'cancel', { action: 'cancel', booking_id: bookingId });
   expect(cancel.result).toBe('full_refund_issued');
   await waitForBooking(hunterHeaders, bookingId, 'cancelled');
+  const retry = await bookingCall(hunterHeaders, 'cancel', { action: 'cancel', booking_id: bookingId });
+  expect(retry).toMatchObject({ status: 'cancelled', already_cancelled: true });
+  evidence.refundRetryAcknowledged = true;
   const refunds = await stripe('refunds?payment_intent=' + intentId);
   expect(refunds.data).toHaveLength(1);
   const refund = refunds.data[0];
@@ -384,29 +387,17 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
       check_in: date(day), check_out: date(day + 1),
       guests: 1, additional_guests: [], trip_protection: false,
     };
-    const created = await bookingCall(hunterHeaders, 'checkout', bookingRequest);
-    if (!uuid.test(created.booking_id || '')) throw new Error('Sandbox checkout did not return a booking ID');
+    const submitCheckout = () => fetch(database + '/functions/v1/sandbox-booking-checkout', {
+      method: 'POST', headers: hunterHeaders, body: JSON.stringify(bookingRequest),
+      redirect: 'error', signal: AbortSignal.timeout(15_000),
+    }).then(async response => ({ status: response.status, body: await response.json() }));
+    const attempts = scenario === 'success' ? await Promise.all([submitCheckout(), submitCheckout()]) : [];
+    const created = attempts.length ? attempts.find(attempt => attempt.body.idempotent_replay === false)?.body
+      : await bookingCall(hunterHeaders, 'checkout', bookingRequest);
+    if (!uuid.test(created?.booking_id || '')) throw new Error('Sandbox checkout did not return a booking ID');
     expect(created.idempotent_replay).toBe(false);
     const bookingId = evidence.bookingId = created.booking_id;
     evidence.checkoutRequestKey = requestKey;
-    if (scenario === 'success') {
-      const replay = await bookingCall(hunterHeaders, 'checkout', bookingRequest);
-      expect(replay.booking_id).toBe(bookingId);
-      expect(replay.url).toBe(created.url);
-      expect(replay.idempotent_replay).toBe(true);
-      const competing = await fetch(database + '/functions/v1/sandbox-booking-checkout', {
-        method: 'POST', headers: hunterHeaders,
-        body: JSON.stringify({ ...bookingRequest, request_key: crypto.randomUUID() }),
-      });
-      const competingBody = await competing.json();
-      expect(competing.status).toBe(409);
-      expect(competingBody.error).toBe('Dates are unavailable');
-      evidence.duplicateSubmission = {
-        sameKeyBookingId: replay.booking_id,
-        sameKeySessionReused: replay.url === created.url,
-        differentKeyStatus: competing.status,
-      };
-    }
     const stripeResponses = [];
     page.on('response', response => {
       const request = response.request();
@@ -423,6 +414,32 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
       const session = await verifiedCheckout(created.url, bookingId);
       evidence.sessionId = session.id;
       checkoutVerified = true;
+      if (scenario === 'success') {
+        expect(attempts.filter(attempt => attempt.body.idempotent_replay === false)).toHaveLength(1);
+        for (const attempt of attempts) {
+          if (attempt.status === 409) continue;
+          expect(attempt.status).toBe(200);
+          expect(attempt.body.booking_id).toBe(bookingId);
+          expect(attempt.body.url).toBe(created.url);
+        }
+        evidence.concurrentCheckoutStatuses = attempts.map(attempt => attempt.status);
+        const replay = await bookingCall(hunterHeaders, 'checkout', bookingRequest);
+        expect(replay.booking_id).toBe(bookingId);
+        expect(replay.url).toBe(created.url);
+        expect(replay.idempotent_replay).toBe(true);
+        const competing = await fetch(database + '/functions/v1/sandbox-booking-checkout', {
+          method: 'POST', headers: hunterHeaders,
+          body: JSON.stringify({ ...bookingRequest, request_key: crypto.randomUUID() }),
+        });
+        const competingBody = await competing.json();
+        expect(competing.status).toBe(409);
+        expect(competingBody.error).toBe('Dates are unavailable');
+        evidence.duplicateSubmission = {
+          sameKeyBookingId: replay.booking_id,
+          sameKeySessionReused: replay.url === created.url,
+          differentKeyStatus: competing.status,
+        };
+      }
       await expect.poll(async () => (await bookingCall(hunterHeaders, 'approval', { action: 'hunter_list' })).bookings
         ?.some(row => row.id === bookingId && row.listing_id === listingId && row.status === 'authorization_pending')).toBe(true);
       expect(session.amount_total).toBe(10_650);
