@@ -2870,6 +2870,17 @@ window.addEventListener('load',function(){
  }
 });
 </script>
+<script>
+/* Keep keyboard entry deterministic while deferred navigation/auth UI settles. */
+document.addEventListener('keydown',function(event){
+  if(event.key!=='Tab'||event.shiftKey||event.altKey||event.ctrlKey||event.metaKey)return;
+  if(document.activeElement!==document.body)return;
+  const skip=document.querySelector('.skip-link[href="#main-content"]');
+  if(!skip)return;
+  event.preventDefault();
+  skip.focus();
+},{capture:true});
+</script>
 <script src="/leasewild-navigation.js" defer></script>
 </body>
 </html>
