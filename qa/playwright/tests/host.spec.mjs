@@ -174,7 +174,7 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    await page.locator('#zone-type').selectOption('entry_area');
    await page.locator('#zone-label').fill(label);
    await page.locator('summary').filter({hasText:'Optional: enter exact coordinates'}).click();
-   for(const [lat,lng] of points{
+   for(const [lat,lng] of points){
     await page.locator('#latitude').fill(String(lat));
     await page.locator('#longitude').fill(String(lng));
     await page.locator('#add-point').click();
@@ -215,7 +215,7 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    await page.locator('#zone-type').selectOption('parking_area');
    await page.locator('#zone-label').fill(label);
    await page.locator('summary').filter({hasText:'Optional: enter exact coordinates'}).click();
-   for(const [lat,lng] of points{
+   for(const [lat,lng] of points){
     await page.locator('#latitude').fill(String(lat));
     await page.locator('#longitude').fill(String(lng));
     await page.locator('#add-point').click();
