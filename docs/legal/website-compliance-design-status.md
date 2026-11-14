@@ -245,3 +245,14 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - No legal terms were changed, and no production or live-payment resource was touched.
 
 **Legal release recommendation remains NO-GO.** Florida attorney approval is still required.
+
+
+## 2026-11-14 03:45 ET — Access-area privacy evidence boundary
+
+- **PASS (sandbox browser evidence):** GitHub Actions run `43576816811` verified that the authenticated synthetic listing owner could create, save, reload and delete entry and parking areas in Chromium and mobile WebKit.
+- **PASS (negative authorization evidence):** a separate configured synthetic non-owner could not retrieve the owner's zones, and the editor's save controls remained disabled in both Host engines.
+- **PASS (cleanup):** independent sandbox SQL found zero retained browser-test rows matching the entry/parking QA labels.
+- **Evidence boundary:** this proves the tested owner and non-owner cases only. It does not approve public disclosure, booked-hunter disclosure timing, cancellation/expiration revocation, emergency access use, data retention, or every cross-role mutation.
+- **NO-GO remains:** attorney-approved access-coordinate disclosure rules and consent copy; completed-booking hunter-review moderation/reporting/appeal; tax, refund/cancellation and payout review; accessibility validation on real devices and assistive technology.
+
+Evidence: `docs/launch-sprint/designer-developer-qa-2026-11-14-0345.md`; commits `3791b8f32a26153eb5a8970b9f1a9ae04258f10e` and `b2ff3220e89f6a779839ca95adb66cec24e2e29e`. No binding legal text was published.
