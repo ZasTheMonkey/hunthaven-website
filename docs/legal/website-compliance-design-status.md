@@ -234,3 +234,14 @@ After Legal supplies the missing handoff, prioritize the highest-risk approved i
 - No legal terms were changed, and no production or live-payment resource was touched.
 
 **Legal release recommendation remains NO-GO.** Florida attorney approval, Stripe Tax registration/classification, delivered receipt, paid external-bank payout, partial refund, access-zone authorization and review-moderation evidence remain open.
+
+
+## Checkout idempotency and accessibility evidence boundary — November 13, 2026 at 10:01 PM ET
+
+- Sandbox checkout now uses a client request UUID, database uniqueness and a matching Stripe TEST idempotency key. Real browser evidence shows same-key replay returns the same booking/Session and a different key cannot double-book occupied dates.
+- Run `43549078806` passed the implemented TEST card/Connect matrix and both Chromium/mobile-WebKit host and hunter regression jobs. Public/guest route overflow checks passed at the configured 320–2560px widths, and the homepage skip link is reachable and visible on first Tab.
+- This technical evidence does **not** approve cancellation/refund disclosures, tax collection, payout timing, cleaning deposits, promotional/add-on pricing, access-coordinate disclosure, review moderation/appeals, waivers or any binding legal term.
+- Delivered receipt inbox, external-bank payout, partial refund, Stripe Tax registration/classification, webhook replay, authenticated map/review authorization and real assistive-technology review remain open.
+- No legal terms were changed, and no production or live-payment resource was touched.
+
+**Legal release recommendation remains NO-GO.** Florida attorney approval is still required.
