@@ -337,8 +337,23 @@ async function captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intentId
   evidence.chargeId = intent.latest_charge.id;
   const preview = await bookingCall(hunterHeaders, 'cancel', { action: 'preview', booking_id: bookingId });
   expect(preview.refund_type).toBe('full_refund');
-  const cancel = await bookingCall(hunterHeaders, 'cancel', { action: 'cancel', booking_id: bookingId });
-  expect(cancel.result).toBe('full_refund_issued');
+  const cancel = async () => {
+    const response = await fetch(database + '/functions/v1/sandbox-booking-cancel', {
+      method: 'POST', headers: hunterHeaders, redirect: 'error', signal: AbortSignal.timeout(15_000),
+      body: JSON.stringify({ action: 'cancel', booking_id: bookingId }),
+    });
+    return { status: response.status, body: await response.json() };
+  };
+  const cancellations = await Promise.all([cancel(), cancel()]);
+  evidence.concurrentRefundStatuses = cancellations.map(({ status }) => status);
+  expect(cancellations.filter(({ status, body }) => status === 200 && body.result === 'full_refund_issued')).toHaveLength(1);
+  for (const { status, body } of cancellations) {
+    if (status === 409) expect(body.error).toMatch(/processing|progress/i);
+    else {
+      expect(status).toBe(200);
+      expect(body.already_cancelled === true || body.result === 'full_refund_issued').toBe(true);
+    }
+  }
   await waitForBooking(hunterHeaders, bookingId, 'cancelled');
   const retry = await bookingCall(hunterHeaders, 'cancel', { action: 'cancel', booking_id: bookingId });
   expect(retry).toMatchObject({ status: 'cancelled', already_cancelled: true });
@@ -452,6 +467,16 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
             ![origin, checkoutOrigin, 'https://hooks.stripe.com'].includes(target.origin)) return route.abort();
         return route.continue();
       });
+      if (scenario === 'success') {
+        const checkoutDocument = url => url.origin === checkoutOrigin && checkoutPath.exec(url.pathname)?.[1] === session.id;
+        await page.route(checkoutDocument, route => route.abort('internetdisconnected'), { times: 1 });
+        await expect(page.goto(created.url, { waitUntil: 'domcontentloaded' })).rejects.toThrow(/ERR_INTERNET_DISCONNECTED/);
+        const interrupted = await stripe('checkout/sessions/' + session.id);
+        expect(interrupted).toMatchObject({ status: 'open', payment_status: 'unpaid', payment_intent: null });
+        const resumed = await bookingCall(hunterHeaders, 'checkout', bookingRequest);
+        expect(resumed).toMatchObject({ booking_id: bookingId, url: created.url, idempotent_replay: true });
+        evidence.interruptedCheckoutResumed = true;
+      }
       try {
         await page.goto(created.url, { waitUntil: 'domcontentloaded' });
       } catch {
