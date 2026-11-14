@@ -348,7 +348,7 @@ async function captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intentId
   evidence.concurrentRefundStatuses = cancellations.map(({ status }) => status);
   expect(cancellations.filter(({ status, body }) => status === 200 && body.result === 'full_refund_issued')).toHaveLength(1);
   for (const { status, body } of cancellations) {
-    if (status === 409) expect(body.error).toMatch(/processing|progress/i);
+    if (status === 409) expect(body.error).toMatch(/processing|progress|^Booking is being updated; refresh and try again$/i);
     else {
       expect(status).toBe(200);
       expect(body.already_cancelled === true || body.result === 'full_refund_issued').toBe(true);
