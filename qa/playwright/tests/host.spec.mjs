@@ -138,6 +138,22 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
   await expect(page.locator('#auth-card')).toBeHidden();
   await screenshotStep(page,info,'landowner-session-persists-after-reload');
  });
+ test('synthetic landowner logout invalidates dashboard access after reload',async({page},info)=>{
+  const creds=requireSyntheticCredentials('QA_LANDOWNER');
+  test.skip(!creds,'BLOCKED: verified synthetic QA_LANDOWNER credentials not configured');
+  await visit(page,'/landowner-portal.html');
+  await page.locator('#si-email').fill(creds.email);
+  await page.locator('#si-password').fill(creds.password);
+  await page.locator('#signin-btn').click();
+  await expect(page.locator('#dashboard')).toBeVisible({timeout:20000});
+  await page.getByRole('button',{name:'Sign Out'}).click();
+  await expect(page.locator('#dashboard')).toBeHidden({timeout:20000});
+  await expect(page.locator('#auth-card')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('#dashboard')).toBeHidden({timeout:20000});
+  await expect(page.locator('#auth-card')).toBeVisible();
+  await screenshotStep(page,info,'landowner-logout-stays-signed-out-after-reload');
+ });
  test('authenticated synthetic owner saves reloads and deletes an entry area',async({page},info)=>{
   const creds=requireSyntheticCredentials('QA_LANDOWNER');
   const listingId=process.env.QA_LANDOWNER_LISTING_ID;
