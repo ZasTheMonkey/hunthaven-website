@@ -74,7 +74,13 @@ test.describe('Bot A: real hunter browser',()=>{
   await page.locator('#si-pass').fill(credentials.password);
   await page.locator('#si-btn').click();
   await expect(page.locator('#dtab-bookings')).toBeVisible({timeout:20000});
-  await screenshotStep(page,info,'hunter-signed-in');
+  await expect(page.locator('#dashboard')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('#dtab-bookings')).toBeVisible({timeout:20000});
+  await screenshotStep(page,info,'hunter-signed-in-after-reload');
+  await page.getByRole('button',{name:'Sign out',exact:true}).click();
+  await expect(page.locator('#dashboard')).toBeHidden();
+  await expect(page.locator('#si-email')).toBeVisible();
  });
  test('guest ID upload rejects invalid invitation in real UI',async({page},info)=>{
   await visit(page,'/sandbox-guest-id-upload.html?token=invalid');
