@@ -389,11 +389,17 @@ test.beforeAll(async () => {
   credentials = await preflight();
 });
 
-async function requestBookingFromListing(page, bookingRequest) {
+async function requestBookingFromListing(page, bookingRequest, hunterHeaders) {
   await page.goto(origin + '/guest-portal.html');
   await page.locator('#si-email').fill(hunter.email);
   await page.locator('#si-pass').fill(hunter.password);
+  const loginResponse = page.waitForResponse(response =>
+    response.url().startsWith(database + '/auth/v1/token?grant_type=password') && response.request().method() === 'POST');
   await page.locator('#si-btn').click();
+  const login = await (await loginResponse).json();
+  expect(login.user?.id).toBe(hunter.id);
+  expect(Boolean(login.access_token), 'Hunter browser login has a session').toBe(true);
+  hunterHeaders.Authorization = 'Bearer ' + login.access_token;
   await expect(page.locator('#dashboard')).toBeVisible({ timeout: 20_000 });
   await page.goto(origin + '/#listings-section');
   const candidates = page.getByRole('button', { name: 'View Orange details', exact: true });
@@ -445,7 +451,7 @@ for (const scenario of scenarios) {
       redirect: 'error', signal: AbortSignal.timeout(15_000),
     }).then(async response => ({ status: response.status, body: await response.json() }));
     const attempts = scenario === 'success' ? await Promise.all([submitCheckout(), submitCheckout()]) : [];
-    const created = scenario === 'hunter_journey' ? await requestBookingFromListing(page, bookingRequest)
+    const created = scenario === 'hunter_journey' ? await requestBookingFromListing(page, bookingRequest, hunterHeaders)
       : attempts.length ? attempts.find(attempt => attempt.body.idempotent_replay === false)?.body
       : await bookingCall(hunterHeaders, 'checkout', bookingRequest);
     if (!uuid.test(created?.booking_id || '')) throw new Error('Sandbox checkout did not return a booking ID');
@@ -601,7 +607,7 @@ for (const scenario of scenarios) {
 }
 
 test('20% commission and connected-account transfer / real Stripe TEST card entry', async ({ page }, info) => {
-  const { hunterHeaders } = credentials;
+  const hunterHeaders = await authenticate(hunter, 'hunter');
   const tripDate = new Date(Date.now() + 45 * 86_400_000).toISOString().slice(0, 10);
   let requestId;
   const evidence = { scenario: 'outfitter_connect_20_percent', stripeAccount, connectedAccountId: connectFixture.accountId };
