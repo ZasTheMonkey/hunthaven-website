@@ -160,7 +160,7 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
   const polygonText=process.env.QA_LANDOWNER_ZONE_POINTS||'';
   const points=polygonText.split(';').map(pair=>pair.split(',').map(Number));
   const validPoints=points.length>=3&&points.every(pair=>pair.length===2&&pair.every(Number.isFinite)&&pair[0]>=-90&&pair[0]<=90&&pair[1]>=-180&&pair[1]<=180)&&new Set(points.map(pair=>pair.join(','))).size>=3;
-  test.skip(!creds||!/^[0-9a-f-]{36}$/i.test(listingId||'')||!validPoints,'BLOCKED: verified synthetic owner, listing and fixture-specific QA_LANDOWNER_ZONE_POINTS are required');
+  test.skip(!creds||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(listingId||'')||!validPoints||process.env.QA_LANDOWNER_FIXTURE_VERIFIED!=='true'||process.env.QA_LANDOWNER_ZONE_CLEANUP_VERIFIED!=='true','BLOCKED: independently verified synthetic owner/listing, geographic bounds and reliable cleanup are required');
   const label=('QA entry area '+info.project.name+' '+Date.now()).slice(0,80);
   await visit(page,'/landowner-portal.html');
   await page.locator('#si-email').fill(creds.email);
@@ -201,7 +201,7 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
   const polygonText=process.env.QA_LANDOWNER_ZONE_POINTS||'';
   const points=polygonText.split(';').map(pair=>pair.split(',').map(Number));
   const validPoints=points.length>=3&&points.every(pair=>pair.length===2&&pair.every(Number.isFinite)&&pair[0]>=-90&&pair[0]<=90&&pair[1]>=-180&&pair[1]<=180)&&new Set(points.map(pair=>pair.join(','))).size>=3;
-  test.skip(!creds||!/^[0-9a-f-]{36}$/i.test(listingId||'')||!validPoints,'BLOCKED: verified synthetic owner, listing and fixture-specific QA_LANDOWNER_ZONE_POINTS are required');
+  test.skip(!creds||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(listingId||'')||!validPoints||process.env.QA_LANDOWNER_FIXTURE_VERIFIED!=='true'||process.env.QA_LANDOWNER_ZONE_CLEANUP_VERIFIED!=='true','BLOCKED: independently verified synthetic owner/listing, geographic bounds and reliable cleanup are required');
   const label=('QA parking area '+info.project.name+' '+Date.now()).slice(0,80);
   await visit(page,'/landowner-portal.html');
   await page.locator('#si-email').fill(creds.email);
