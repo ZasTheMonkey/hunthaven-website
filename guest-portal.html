@@ -560,7 +560,7 @@
 
   async function signOut() {
     clearInterval(pollInterval);
-    await sb.auth.signOut();
+    await sb.auth.signOut({ scope: 'local' });
     document.getElementById('dashboard').style.display = 'none';
     document.getElementById('auth-card').style.display = 'block';
   }
