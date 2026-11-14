@@ -230,6 +230,22 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    }
   }
  });
+ test('second synthetic landowner cannot edit another owner's zones',async({page},info)=>{
+  const owner=requireSyntheticCredentials('QA_SECOND_LANDOWNER');
+  const listingId=process.env.QA_LANDOWNER_LISTING_ID;
+  test.skip(!owner||!/^[0-9a-f-]{36}$/i.test(listingId||''),'BLOCKED: separate synthetic second-owner credentials and first-owner disposable listing required');
+  await visit(page,'/landowner-portal.html');
+  await page.locator('#si-email').fill(owner.email);
+  await page.locator('#si-password').fill(owner.password);
+  await page.locator('#signin-btn').click();
+  await expect(page.locator('#dashboard')).toBeVisible({timeout:20000});
+  await visit(page,'/sandbox-zone-editor.html?listing='+encodeURIComponent(listingId));
+  await expect(page.locator('#status')).toContainText('You do not have access to edit this listing.',{timeout:20000});
+  await expect(page.locator('#save')).toBeDisabled();
+  await expect(page.locator('#save-all')).toBeDisabled();
+  await expect(page.locator('#saved li')).toHaveCount(0);
+  await screenshotStep(page,info,'second-landowner-cross-owner-zone-access-denied');
+ });
  test('human fills outfitter login',async({page},info)=>{
   await visit(page,'/outfitter-portal.html');
   const creds=requireSyntheticCredentials('QA_OUTFITTER');
