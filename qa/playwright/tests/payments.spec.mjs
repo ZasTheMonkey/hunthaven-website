@@ -605,10 +605,18 @@ for (const scenario of scenarios) {
             expect(expired.status).toBe('expired');
             expect(expired.payment_status).toBe('unpaid');
           }
-          if (evidence.paymentIntentId && scenario !== 'success') {
+          if (evidence.paymentIntentId) {
             const intent = await stripe('payment_intents/' + evidence.paymentIntentId);
-            expect(intent.status).toBe('canceled');
-            expect(intent.amount_received).toBe(0);
+            if (['success', 'hunter_journey'].includes(scenario)) {
+              // Capture followed by a full refund leaves the PaymentIntent succeeded;
+              // refund state is represented by the Refund/Charge, not by canceling the intent.
+              expect(intent.status).toBe('succeeded');
+              expect(intent.amount_received).toBe(10_650);
+              expect(evidence.refundId).toMatch(/^re_[A-Za-z0-9]+$/);
+            } else {
+              expect(intent.status).toBe('canceled');
+              expect(intent.amount_received).toBe(0);
+            }
           }
         }
       } finally {
