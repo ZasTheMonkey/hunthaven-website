@@ -142,6 +142,13 @@ async function preflight() {
       Number(listing.price_per_day) !== 100 || Number(listing.cleaning_fee || 0) !== 0 || Number(listing.min_stay || 0) > 1) {
     throw new Error('BLOCKED: dedicated QA ONLY active synthetic listing with $100/night and no cleaning fee is required');
   }
+  const staleJourneyId = '6e7e7db8-315b-4688-9666-af94dd70b2b0';
+  const { bookings } = await bookingCall(hunterHeaders, 'approval', { action: 'hunter_list' });
+  const staleJourney = bookings?.find(row => row.id === staleJourneyId && row.listing_id === listingId);
+  if (staleJourney?.status === 'pending_approval') {
+    const released = await bookingCall(hunterHeaders, 'cancel', { action: 'cancel', booking_id: staleJourneyId });
+    expect(released.result).toBe('authorization_released');
+  }
   const staleConnect = await json(database + '/rest/v1/outfitter_booking_requests?notes=eq.' +
     encodeURIComponent('AUTOMATED QA ONLY — disposable Stripe TEST Connect fixture') +
     '&status=eq.accepted&payment_status=eq.paid&select=id', { headers: hunterHeaders }, 'Stale Connect fixture lookup');
