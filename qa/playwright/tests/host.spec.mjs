@@ -254,7 +254,7 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
   await page.locator('#si-pass').fill(creds.password);
   await page.locator('#si-btn').click();
   // The pre-login HTML already contains dashboard/listing text. Require the actual authenticated dashboard to become visible.
-  await expect(page.locator('#dashboard')).toBeVisible({timeout:20000});
+  await expect(page.locator('#dashboard'), 'Outfitter dashboard should open after sandbox login and portal membership verification').toBeVisible({timeout:20000});
   await expect(page.locator('#panel-signin')).toBeHidden();
   await screenshotStep(page,info,'outfitter-signed-in');
  });
