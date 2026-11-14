@@ -74,12 +74,21 @@
    if(mode==='cancel'&&paid)body='CANCELLATION REQUEST (Stripe TEST payment already recorded): '+(body||'Please contact me about cancellation and any eligible refund.');
    if(!body){status.textContent='Enter a message first.';return;}
    send.disabled=true;status.textContent='Sending…';
-   var user=(await db.auth.getUser()).data.user;
-   var result=await db.from('outfitter_booking_messages').insert({booking_id:bookingId,sender_id:user.id,body:body});
-   send.disabled=false;
-   if(result.error){status.textContent=result.error.message;return;}
-   input.value='';status.textContent=mode==='cancel'&&paid?'Cancellation request sent. Reservation remains paid until refund and cancellation are processed.':'Message sent.';
-   await load();
+   try{
+    var authResult=await db.auth.getUser();
+    var user=authResult&&authResult.data&&authResult.data.user;
+    if(authResult&&authResult.error)throw authResult.error;
+    if(!user)throw Error('Sign in again to send this message.');
+    var result=await db.from('outfitter_booking_messages').insert({booking_id:bookingId,sender_id:user.id,body:body});
+    if(result.error)throw result.error;
+    input.value='';
+    status.textContent=mode==='cancel'&&paid?'Cancellation request sent. Reservation remains paid until refund and cancellation are processed.':'Message sent.';
+    await load();
+   }catch(e){
+    status.textContent=e&&e.message?e.message:'Message failed to send. Please retry.';
+   }finally{
+    send.disabled=false;
+   }
   };
   if(mode==='cancel'&&!paid){
    input.style.display='none';send.textContent='Confirm cancellation';
