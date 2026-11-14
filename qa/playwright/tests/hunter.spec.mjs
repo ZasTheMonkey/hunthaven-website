@@ -46,6 +46,14 @@ test.describe('Bot A: real hunter browser',()=>{
    await screenshotStep(page,info,'keyboard-focus-'+route.replace(/[^a-z0-9]/gi,'-'));
   });
  }
+ test('about compact-laptop navigation stays in viewport',async({page},info)=>{
+  await page.setViewportSize({width:1024,height:900});
+  await visit(page,'/about.html');
+  await expect(page.locator('.mobile-menu-btn')).toBeVisible();
+  await expect(page.locator('.nav-links')).toBeHidden();
+  await checkOverflow(page);
+  await screenshotStep(page,info,'about-compact-laptop-navigation');
+ });
  test('human clicks listing filters',async({page},info)=>{
   await visit(page,'/listings.html');
   const filters=page.locator('.card-filter-btn');
