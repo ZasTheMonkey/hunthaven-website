@@ -87,7 +87,13 @@ const map=L.map('map').setView([29.02,-80.93],11);
 const streetLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:19});
 const satelliteLayer=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Imagery © Esri and its imagery providers',maxZoom:19});
 satelliteLayer.addTo(map);
-L.control.layers({'Satellite':satelliteLayer,'Street map':streetLayer},null,{position:'topright',collapsed:false}).addTo(map);
+L.control.layers({'Satellite':satelliteLayer,'Street map':streetLayer},null,{
+ position:'topright',
+ // At extreme narrow reflow (for example 320px at 200% zoom), the expanded
+ // labels are wider than the usable map. Keep the same keyboard-accessible
+ // control but start it collapsed so it cannot force horizontal scrolling.
+ collapsed:window.matchMedia('(max-width:240px)').matches
+}).addTo(map);
 let suppressMapClickUntil=0;
 let points=[],draftLayer=null,pendingZones=[],pendingLayers=L.featureGroup().addTo(map),savedLayers=L.featureGroup().addTo(map),owner=false,drawing=false,tracing=false,tracePointer=null;const drawButton=document.getElementById('draw-boundary'),drawHelp=document.getElementById('draw-help'),mapEl=document.getElementById('map');
 const areaTypes=new Set(['hunting_area','entry_area','parking_area']);
