@@ -142,12 +142,14 @@ async function preflight() {
       Number(listing.price_per_day) !== 100 || Number(listing.cleaning_fee || 0) !== 0 || Number(listing.min_stay || 0) > 1) {
     throw new Error('BLOCKED: dedicated QA ONLY active synthetic listing with $100/night and no cleaning fee is required');
   }
-  const staleJourneyId = '6e7e7db8-315b-4688-9666-af94dd70b2b0';
+  const staleBookingIds = new Set(['f0204963-1c7b-4650-bb4e-89a44842dc38',
+    '4e9c504c-79f4-44d7-8548-c255bdc7e45c', '7b8bc889-fe75-44fc-b9e3-3f235c219416']);
   const { bookings } = await bookingCall(hunterHeaders, 'approval', { action: 'hunter_list' });
-  const staleJourney = bookings?.find(row => row.id === staleJourneyId && row.listing_id === listingId);
-  if (staleJourney?.status === 'pending_approval') {
-    const released = await bookingCall(hunterHeaders, 'cancel', { action: 'cancel', booking_id: staleJourneyId });
-    expect(released.result).toBe('authorization_released');
+  for (const booking of bookings || []) {
+    if (staleBookingIds.has(booking.id) && booking.listing_id === listingId &&
+        ['authorization_pending', 'pending_approval'].includes(booking.status)) {
+      await bookingCall(hunterHeaders, 'cancel', { action: 'cancel', booking_id: booking.id });
+    }
   }
   const staleConnect = await json(database + '/rest/v1/outfitter_booking_requests?notes=eq.' +
     encodeURIComponent('AUTOMATED QA ONLY — disposable Stripe TEST Connect fixture') +
@@ -442,7 +444,8 @@ async function requestBookingFromListing(page, bookingRequest, hunterHeaders) {
 const scenarios = ['success', 'declined', 'insufficient_funds', 'three_ds', 'retry', 'hunter_journey'];
 for (const scenario of scenarios) {
   test(scenario + ' / real Stripe TEST card entry', async ({ page }, info) => {
-    const { hunterHeaders, ownerHeaders } = credentials;
+    const { ownerHeaders } = credentials;
+    const hunterHeaders = await authenticate(hunter, 'hunter');
     const evidence = { scenario, stripeAccount };
     // Use a different future night per case, beyond the 72-hour refund cutoff.
     const day = 21 + scenarios.indexOf(scenario);
@@ -558,6 +561,7 @@ for (const scenario of scenarios) {
         await verify3dsAuthorization(session.id, evidence);
         await verify3dsWebhook(session.id, evidence);
       }
+      if (scenario === 'hunter_journey') Object.assign(hunterHeaders, await authenticate(hunter, 'hunter'));
       // A recovery call could advance the booking independently of the webhook.
       const intent = await reconcileAuthorization(hunterHeaders, bookingId, session.id, {
         allowRecovery: scenario !== 'three_ds',
@@ -574,6 +578,7 @@ for (const scenario of scenarios) {
         await page.reload();
         await expect(booking).toContainText('Awaiting landowner approval');
       }
+      if (scenario === 'hunter_journey') Object.assign(hunterHeaders, await authenticate(hunter, 'hunter'));
       if (['success', 'hunter_journey'].includes(scenario)) {
         await captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intent.id, evidence);
       }
@@ -587,6 +592,7 @@ for (const scenario of scenarios) {
     } finally {
       try {
         if (checkoutVerified) {
+          if (scenario === 'hunter_journey') Object.assign(hunterHeaders, await authenticate(hunter, 'hunter'));
           const { bookings } = await bookingCall(hunterHeaders, 'approval', { action: 'hunter_list' });
           const booking = bookings?.find(row => row.id === bookingId);
           evidence.bookingStatusBeforeCleanup ??= booking?.status;
