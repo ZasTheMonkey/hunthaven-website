@@ -378,12 +378,35 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
     // Use a different future night per case, beyond the 72-hour refund cutoff.
     const day = 21 + ['success', 'declined', 'insufficient_funds', 'three_ds', 'retry'].indexOf(scenario);
     const date = offset => new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10);
-    const created = await bookingCall(hunterHeaders, 'checkout', {
-      action: 'request', listing_id: listingId, check_in: date(day), check_out: date(day + 1),
+    const requestKey = crypto.randomUUID();
+    const bookingRequest = {
+      action: 'request', request_key: requestKey, listing_id: listingId,
+      check_in: date(day), check_out: date(day + 1),
       guests: 1, additional_guests: [], trip_protection: false,
-    });
+    };
+    const created = await bookingCall(hunterHeaders, 'checkout', bookingRequest);
     if (!uuid.test(created.booking_id || '')) throw new Error('Sandbox checkout did not return a booking ID');
+    expect(created.idempotent_replay).toBe(false);
     const bookingId = evidence.bookingId = created.booking_id;
+    evidence.checkoutRequestKey = requestKey;
+    if (scenario === 'success') {
+      const replay = await bookingCall(hunterHeaders, 'checkout', bookingRequest);
+      expect(replay.booking_id).toBe(bookingId);
+      expect(replay.url).toBe(created.url);
+      expect(replay.idempotent_replay).toBe(true);
+      const competing = await fetch(database + '/functions/v1/sandbox-booking-checkout', {
+        method: 'POST', headers: hunterHeaders,
+        body: JSON.stringify({ ...bookingRequest, request_key: crypto.randomUUID() }),
+      });
+      const competingBody = await competing.json();
+      expect(competing.status).toBe(409);
+      expect(competingBody.error).toBe('Dates are unavailable');
+      evidence.duplicateSubmission = {
+        sameKeyBookingId: replay.booking_id,
+        sameKeySessionReused: replay.url === created.url,
+        differentKeyStatus: competing.status,
+      };
+    }
     const stripeResponses = [];
     page.on('response', response => {
       const request = response.request();
