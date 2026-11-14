@@ -575,6 +575,19 @@ function collectBookingGuestRoster(){
 // If OFF → falls back to pre-reservation form.
 // If ON  → saves booking as 'pending_payment' then redirects to Stripe.
 let _sandboxBookingCheckoutInFlight = false;
+const SANDBOX_BOOKING_REQUEST_STORAGE_KEY = 'leasewild:sandbox-booking-request';
+function sandboxBookingRequestKey(payload) {
+  const fingerprint = JSON.stringify(payload);
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(SANDBOX_BOOKING_REQUEST_STORAGE_KEY) || 'null');
+    if (saved?.fingerprint === fingerprint && /^[0-9a-f-]{36}$/i.test(saved.key || '')) return saved.key;
+    const key = crypto.randomUUID();
+    sessionStorage.setItem(SANDBOX_BOOKING_REQUEST_STORAGE_KEY, JSON.stringify({ fingerprint, key }));
+    return key;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
 async function submitBookingStripe() {
   if (_sandboxBookingCheckoutInFlight) return;
   const l = _currentListing;
@@ -612,13 +625,21 @@ async function submitBookingStripe() {
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const { data: { session } } = await client.auth.getSession();
     if (!session) throw new Error('Sign in to your sandbox hunter account before booking.');
+    const request = {action:'request',listing_id:l.id, check_in, check_out, guests, additional_guests, trip_protection};
+    request.request_key = sandboxBookingRequestKey(request);
     const res = await fetch('https://kbkdfpmlyggfijkyjxoi.supabase.co/functions/v1/sandbox-booking-checkout', {
       method: 'POST',
       headers: {'Content-Type':'application/json', apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+session.access_token},
-      body: JSON.stringify({action:'request',listing_id:l.id, check_in, check_out, guests, additional_guests, trip_protection})
+      body: JSON.stringify(request)
     });
     const data = await res.json();
-    if (!res.ok || data.status !== 'authorization_pending' || !/^https:\/\/checkout\.stripe\.com\//.test(data.url || '')) throw new Error(data.error || 'Unable to authorize your card.');
+    if (!res.ok) {
+      try { sessionStorage.removeItem(SANDBOX_BOOKING_REQUEST_STORAGE_KEY); } catch {}
+      throw new Error(data.error || 'Unable to authorize your card.');
+    }
+    if (data.status !== 'authorization_pending' || !/^https:\/\/checkout\.stripe\.com\//.test(data.url || '')) {
+      throw new Error('Secure checkout returned an invalid response.');
+    }
     window.location.href = data.url;
   } catch (e) {
     msg.style.display = 'block'; msg.style.color = '#c0392b';
