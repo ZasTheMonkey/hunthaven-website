@@ -623,3 +623,24 @@ Only the isolated sandbox, synthetic identities and Stripe TEST were used. `leas
 **OPEN:** positive eligible-booking hunter-review submission and one-per-booking proof; moderation/reporting/appeal; booked-hunter zone disclosure/revocation; authenticated messaging; receipt, payout, partial refund, Stripe Tax, promo/add-on/deposit totals and webhook replay; physical-device/native-zoom/screen-reader testing; Florida attorney approval.
 
 Only staging, the isolated sandbox, synthetic identities and Stripe TEST were used. `leasewild.com`, `main`, live Stripe, production Supabase, real users and personal sessions remained untouched.
+
+
+## Ordered launch QA queue — November 14, 2026
+
+**NO-GO.** Verified the completed [staging matrix, run 43602921447 attempt 2](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43602921447/attempts/2) at `07b1ac09596a856e6a0f7a87f2168c685fff4c20`. Host Chromium and mobile WebKit each passed 49 with zero skips, including authenticated landowner, outfitter and admin checks. Hunter each passed 28 with 2 skips (credentialed portal and older Checkout placeholder). Payments passed 6 with 3 skips, including 3DS and Connect transfer/refund among the passes. The subsequent branch head `49a28d3` changed only the host report when audited. Fresh read-only checks on the deployed sandbox returned HTTP 200 for home, Browse Land, outfitters, all three role portals, admin, map editor, Terms, Privacy and robots.txt. Sandbox database showed zero retained labeled QA map zones and the synthetic Connect listing inactive after cleanup.
+
+Work the items in order, recording PASS, FAIL or BLOCKED and linking the existing owner report. Keep all operational tests in the sandbox with synthetic identities and Stripe TEST.
+
+| Order | Gate | Evidence needed to close |
+| --- | --- | --- |
+| 1 | Exact Stripe webhook delivery and retry safety | Match `evt_1UbSVcAO40Rp32aFwDcXV9YB` to the sandbox endpoint delivery in Stripe. On a disposable TEST booking, exercise replay and interrupted/duplicate submission. Verify a single state change and no duplicate charge, refund or notification. |
+| 2 | Authenticated hunter booking journey | Enable the credentialed Hunter browser case on both engines. Exercise discovery through request, approval, dates/conflict, refresh and cancellation. Reconcile the older hunter Checkout placeholder against the dedicated payment suite and cover the missing UI handoff. |
+| 3 | Access coordinates and permissions | Verify eligible booked-hunter access only during the intended window. Test pre-booking, unrelated, expired, cancelled and refunded denials and confirm owner-only edits across roles. |
+| 4 | Messaging | Exercise hunter–owner and hunter–outfitter send/receive, drafts, thread switching, retries, unread and refresh. Confirm participant isolation, cancellation behavior and approved retention. |
+| 5 | Receipt and booking emails | Use a controlled sandbox inbox and approved sandbox sender. Match delivered receipt against the captured charge, then verify booking notification delivery and retry behavior. |
+| 6 | Cancellation and partial refunds | Reconcile documented 48h/72h and guest-fee discrepancies with the currently deployed policy. Obtain the approved rule for both booking types, then test boundary times, timezone/DST, full/partial/no refund, taxes and Connect reversals; match preview, terms, Stripe and database. |
+| 7 | Connect bank payout | Reconcile a paid Stripe TEST bank payout to its funding transfer, connected balance and payout destination. |
+| 8 | Tax and booking totals | Confirm applicable registrations/classifications with the responsible adviser. Verify the replacement or validation of the placeholder tax, and reconcile promo, add-on, deposit and group totals from UI to Stripe and storage. |
+| 9 | Reviews and group guest ID | Verify eligible completed-booking review, one per booking, moderation/report/appeal and public visibility. Test adult invitations, upload, private access, admin review and minor data minimization against the approved booking policy. |
+| 10 | Discovery and accessibility | Test mixed inventory, listing filters, listing detail and map/card consistency; keyboard, native browser zoom, screen reader and physical mobile devices. |
+| 11 | Legal and final release review | Obtain Florida counsel approval for Terms/waiver, privacy, host agreement, insurance claims and retention; prove versioned consent. Rerun staging on the release candidate and review all recorded gates before release. |
