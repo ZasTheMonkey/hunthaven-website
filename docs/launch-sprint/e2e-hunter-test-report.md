@@ -250,3 +250,15 @@ In a graphical sandbox browser, navigate home → search → listing → synthet
 - **NOT TESTED:** These three cases have **not** been executed or verified in a deployed graphical browser in this run. Their existence is not an accessibility PASS; visible focus indicators, full tab order, keyboard traps, zoom and WCAG audit remain open. A failing case should be triaged as an actual keyboard issue or test selector assumption, not silently skipped.
 - **COORDINATION:** Hunter spec and Hunter report only; no Stripe launch gate or host/admin changes. Historical payment run 43514846824 (6 passed, 3 skipped) remains the latest documented payment evidence, not a fresh card submission.
 - **RUN COUNTERS:** 0 newly executed browser routes/flows; 0 newly reproduced browser failures; 1 Hunter test-harness commit; 0 application fixes; 0 verified deployments. Browser-control access unavailable. Authenticated booking, messaging, cancellation, reviews, privacy, receipt delivery, bank payouts, partial refund, Stripe Tax, promo/add-on/deposit and idempotency remain **NOT TESTED / NO-GO**. No main/live/production access.
+
+
+## Responsive and keyboard regression closure — November 13, 2026 at 10:01 PM ET
+
+- **Reproduced:** run `43548062443` showed `/about.html` at 1024px had document width 1260px and the homepage first Tab left focus on `body` in Chromium and mobile WebKit.
+- **Fixed:** `f3fda42aded0f18d64c6fbc547752f31087642c9` collapses the About header before compact-laptop overflow; `48c5fd3ad5ef18893ccefde6f8567d79db301512` sends first unmodified Tab from the homepage body to the existing visible skip link. `c1b16f9af832bf6aa401aab52e8fdbcf741eaf51` corrects the regression assertion to accept LeaseWild's shared compact navigation control.
+- **PASS:** workflow [43549078806](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43549078806) at exact commit `c1b16f9af832bf6aa401aab52e8fdbcf741eaf51`. Hunter Chromium and mobile WebKit each report **28 passed, 2 explicit skips, 0 failed**.
+- **PASS — widths/routes:** real browser document-overflow checks passed at 320, 375, 390, 430, 768, 1024, 1280, 1440, 1920 and 2560px for the twelve configured public/guest routes. This is layout evidence, not a claim of universal device or visual quality.
+- **PASS — keyboard smoke:** first Tab reached a visible interactive control on `/`, `/listings.html`, and `/guest-portal.html` in both engines. Independent deployed-browser inspection confirmed the homepage skip link focused and animated into the viewport.
+- **BLOCKED / SKIPPED:** authenticated Hunter dashboard flow and the separate in-suite hosted Checkout placeholder remain skipped; the dedicated payment project independently passed its six implemented TEST-mode scenarios.
+
+Production and `main` were not touched.
