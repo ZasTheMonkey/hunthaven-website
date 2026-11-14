@@ -659,3 +659,19 @@ Work the items in order, recording PASS, FAIL or BLOCKED and linking the existin
 **OPEN:** real participant-isolated hunter↔outfitter messaging lifecycle; eligible completed-booking hunter-review positive path and moderation/reporting/appeal; payment matrix recovery; booked-hunter zone disclosure/revocation; receipt, payout, partial refund, Stripe Tax, pricing totals and email delivery; native zoom/physical device/screen reader; Florida attorney approval.
 
 Only staging, the isolated sandbox, synthetic identities and Stripe TEST were used. `leasewild.com`, `main`, live Stripe, production Supabase, real users and personal sessions remained untouched.
+
+
+## Hourly integration update — November 14, 2026 at 2:57 PM ET
+
+**Decision: NO-GO.** No production launch was authorized or performed.
+
+- **PASS — payment matrix restored:** commit `c4c667e0f374d76a1397b96ef95443775e5d4b2d` corrects the QA cleanup assertion for captured-and-refunded PaymentIntents without changing product payment behavior.
+- **PASS — exact workflow:** [run `43634277042`](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43634277042) completed all five jobs at that commit: Host Chromium/mobile WebKit **48 passed / 2 skipped each**; Hunter Chromium/mobile WebKit **29 passed / 1 skipped each**; Payments Chromium **7 passed / 3 skipped**.
+- **PASS — TEST payment evidence:** success, decline, insufficient funds, keyboard 3DS, retry, expanded hunter journey and 20% Connect transfer/refund passed. Artifact `14129044672`, SHA-256 `b54f49ffcc40eb9d84953f32e47ab1f473df3cd478b8148f4997d72e9cd9ca29`.
+- **PASS — deployment:** Cloudflare sandbox deployment `08988a76-a9e1-4d3d-bbe3-9ac9c25185ad` succeeded for exact tested commit `c4c667e0f374d76a1397b96ef95443775e5d4b2d`. The current Growth head also has separately successful sandbox deployment `e944477d-e8e6-4805-aef4-7a153e807182`.
+- **PARTIAL — map/review/messaging:** prior owner zone and non-owner denial evidence remains, and expired-session message draft recovery remains green. The positive completed-booking hunter-review path, review moderation/report/appeal, booked-hunter access disclosure/revocation and full participant messaging lifecycle are not proven.
+- **Evidence report:** `docs/launch-sprint/designer-developer-qa-2026-11-14-1457.md`.
+
+**OPEN:** delivered receipt inbox, external-bank payout, partial refund, Stripe Tax, promo/add-on/deposit totals, positive hunter reviews and moderation, booked-hunter zone disclosure/revocation, full authenticated messaging, physical-device/native-zoom/screen-reader testing and Florida attorney approval.
+
+Only staging, the isolated sandbox, synthetic identities and Stripe TEST were used. `leasewild.com`, `main`, live Stripe, production Supabase, real users and personal sessions remained untouched.

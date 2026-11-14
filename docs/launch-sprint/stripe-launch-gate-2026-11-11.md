@@ -338,3 +338,19 @@ No live Stripe, production Supabase, `main`, or `leasewild.com` resource was acc
 - Still NO-GO: Stripe Tax registration/classification, promo/add-on/cleaning-deposit reconciliation, webhook replay, booked-hunter map disclosure/revocation, completed-booking review moderation/reporting/appeal and Florida attorney approval.
 
 No live Stripe, production Supabase, `main` or `leasewild.com` resource was accessed or changed.
+
+
+## 2026-11-14 14:57 ET — Expanded hunter payment journey PASS
+
+**Implemented Stripe TEST matrix is green; overall launch remains NO-GO.**
+
+- Commit `c4c667e0f374d76a1397b96ef95443775e5d4b2d` corrects a test-only cleanup assertion: a captured then fully refunded PaymentIntent correctly remains `succeeded`; uncaptured authorization fixtures must be `canceled` with zero received amount.
+- [Workflow run `43634277042`](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43634277042), payment job `132567532712`: **7 passed / 3 skipped / 0 failed**.
+- Passed: success, generic decline, insufficient funds, completed keyboard 3DS, decline-then-success retry, expanded hunter journey, and synthetic 20% connected-account transfer/refund.
+- Hunter journey: booking `93c87e3f-bf51-494b-9dd1-c8ee6b0db027`; TEST PaymentIntent `pi_3Ubn0sAO40Rp32aF21pKcaZB`; webhook event `evt_1Ubn0uAO40Rp32aFpAg0SbgM`; refund `re_3Ubn0sAO40Rp32aF25WMfRDH`; pre-cleanup booking status `cancelled`; concurrent refund responses `[200, 409]`.
+- Artifact `14129044672`, SHA-256 `b54f49ffcc40eb9d84953f32e47ab1f473df3cd478b8148f4997d72e9cd9ca29`.
+- Cloudflare sandbox deployment `08988a76-a9e1-4d3d-bbe3-9ac9c25185ad` independently succeeded for the exact tested commit.
+- **Still skipped/not proven:** delivered receipt inbox, connected-account external-bank payout and partial refund.
+- **Still NO-GO:** Stripe Tax registration/classification, promo/add-on/cleaning-deposit reconciliation, review and access-disclosure gates, full authenticated messaging, accessibility hardware/assistive-technology coverage and Florida attorney approval.
+
+No live Stripe, production Supabase, GitHub `main` or `leasewild.com` resource was accessed or changed.

@@ -270,3 +270,14 @@ Evidence: `docs/launch-sprint/designer-developer-qa-2026-11-14-0345.md`; commits
 **Legal release recommendation remains NO-GO.** Florida attorney approval, booked-hunter access-coordinate disclosure/revocation rules, review moderation/reporting/appeal, Stripe Tax and the remaining payment evidence are still required.
 
 Evidence: `docs/launch-sprint/designer-developer-qa-2026-11-14-0855.md`; exact tested commit `72cd01df5cc1ebb302adc1ccda54525aa908a268`.
+
+
+## November 14, 2026 at 2:57 PM ET — Expanded payment evidence boundary
+
+- Sandbox workflow `43634277042` passed seven implemented Stripe TEST browser scenarios after a test-only cleanup assertion was corrected at commit `c4c667e0f374d76a1397b96ef95443775e5d4b2d`.
+- The new hunter journey proves hosted TEST checkout, capture, cancellation/full refund and duplicate-refund rejection for its synthetic fixture. This does not approve the underlying cancellation/refund policy or language.
+- Delivered receipt inbox, external-bank payout, partial refund, Stripe Tax registration/classification, promotions, add-ons, cleaning deposits and payout disclosures remain unproven or unapproved.
+- The positive completed-booking hunter-review path and moderation/reporting/appeal remain unproven. Booked-hunter access-coordinate disclosure and revocation rules also remain unapproved.
+- `docs/legal/website-compliance-handoff.md` remains absent. No binding terms, waiver, consent, privacy or payment policy was changed.
+
+**Legal release recommendation remains NO-GO.** Florida attorney approval and the open payment, access-coordinate and review-governance gates remain required.
