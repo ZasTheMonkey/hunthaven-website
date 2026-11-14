@@ -31,6 +31,21 @@ test.describe('Bot A: real hunter browser',()=>{
    info.annotations.push({type:'coverage',description:'Real browser document-overflow check at '+width+'px for all twelve public/guest routes; not a visual quality PASS'});
   });
  }
+ // Keyboard-only public navigation smoke: verifies that Tab reaches an actual
+ // visible interactive control rather than leaving focus trapped on the document.
+ // This does not establish full WCAG compliance or a visual focus indicator.
+ for (const route of ['/', '/listings.html', '/guest-portal.html']) {
+  test('keyboard Tab reaches visible control on '+route,async({page},info)=>{
+   await visit(page,route);
+   await page.keyboard.press('Tab');
+   const focused=page.locator(':focus');
+   await expect(focused).toHaveCount(1);
+   await expect(focused).toBeVisible();
+   const tag=await focused.evaluate(el=>el.tagName.toLowerCase());
+   expect(['a','button','input','select','textarea','summary']).toContain(tag);
+   await screenshotStep(page,info,'keyboard-focus-'+route.replace(/[^a-z0-9]/gi,'-'));
+  });
+ }
  test('human clicks listing filters',async({page},info)=>{
   await visit(page,'/listings.html');
   const filters=page.locator('.card-filter-btn');
