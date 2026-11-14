@@ -214,3 +214,7 @@ Read-only sandbox reconciliation matched the captured and refunded landowner boo
 ## Authenticated landowner follow-up
 
 Staging workflow commit `bcd37f763b7eb4122fe731a0ba83f2be2057c1e3` uses the verified sandbox payment owner credentials when both dedicated host owner settings are unset. [Chromium](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43518561227/job/132206707529) and [mobile WebKit](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43518561227/job/132206707472) each reported **26 passed, 2 skipped**, including the authenticated landowner dashboard visibility check. The outfitter dashboard and admin Reservations / ID Verification cases still require dedicated sandbox credentials. Authenticated map save/reload and role isolation remain open.
+
+## Authenticated host and admin retest — 2026-11-14
+
+Run `43602921447`, attempt 2, at staging test commit `07b1ac09596a856e6a0f7a87f2168c685fff4c20`: [Chromium](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43602921447/job/132473379371) and [mobile WebKit](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43602921447/job/132473379512) each reported **49 passed and zero skipped** after the sandbox outfitter membership and runner credentials were corrected. Both browser jobs exercised the authenticated landowner dashboard, outfitter dashboard, and admin Reservations and ID Verification tabs. The run matrix was green. Remaining payment launch gates are tracked in the existing landowner/payment evidence.
