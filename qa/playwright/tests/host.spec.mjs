@@ -91,6 +91,27 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
   await expect(page.locator('#save')).toBeDisabled();
   await screenshotStep(page,info,'zone-type-change-discards-only-after-confirmation');
  });
+ test('keyboard-only coordinate entry keeps anonymous boundary unsaved',async({page},info)=>{
+  await visit(page,'/sandbox-zone-editor.html');
+  const details=page.locator('summary').filter({hasText:'Optional: enter exact coordinates'});
+  await details.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#latitude')).toBeVisible();
+  for(const [lat,lng] of [[29.02,-80.93],[29.021,-80.93],[29.021,-80.929]]){
+   await page.locator('#latitude').focus();
+   await page.keyboard.press('ControlOrMeta+A');
+   await page.keyboard.type(String(lat));
+   await page.locator('#longitude').focus();
+   await page.keyboard.press('ControlOrMeta+A');
+   await page.keyboard.type(String(lng));
+   await page.locator('#add-point').focus();
+   await page.keyboard.press('Enter');
+  }
+  await expect(page.locator('#draft-count')).toContainText('3 draft point');
+  await expect(page.locator('#save')).toBeDisabled();
+  await expect(page.locator('#save-all')).toBeDisabled();
+  await screenshotStep(page,info,'keyboard-coordinate-entry-anonymous-save-denied');
+ });
  test('human fills landowner login',async({page},info)=>{
   await visit(page,'/landowner-portal.html');
   const creds=requireSyntheticCredentials('QA_LANDOWNER');
