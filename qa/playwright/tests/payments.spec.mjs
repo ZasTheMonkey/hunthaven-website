@@ -143,7 +143,8 @@ async function preflight() {
     throw new Error('BLOCKED: dedicated QA ONLY active synthetic listing with $100/night and no cleaning fee is required');
   }
   const staleBookingIds = new Set(['f0204963-1c7b-4650-bb4e-89a44842dc38',
-    '4e9c504c-79f4-44d7-8548-c255bdc7e45c', '7b8bc889-fe75-44fc-b9e3-3f235c219416']);
+    '4e9c504c-79f4-44d7-8548-c255bdc7e45c', '7b8bc889-fe75-44fc-b9e3-3f235c219416',
+    'c1e43c0d-65df-4333-b16f-b867dd01819e']);
   const { bookings } = await bookingCall(hunterHeaders, 'approval', { action: 'hunter_list' });
   for (const booking of bookings || []) {
     if (staleBookingIds.has(booking.id) && booking.listing_id === listingId &&
@@ -561,6 +562,7 @@ for (const scenario of scenarios) {
         await verify3dsAuthorization(session.id, evidence);
         await verify3dsWebhook(session.id, evidence);
       }
+      if (scenario === 'hunter_journey') Object.assign(hunterHeaders, await authenticate(hunter, 'hunter'));
       // A recovery call could advance the booking independently of the webhook.
       const intent = await reconcileAuthorization(hunterHeaders, bookingId, session.id, {
         allowRecovery: scenario !== 'three_ds',
