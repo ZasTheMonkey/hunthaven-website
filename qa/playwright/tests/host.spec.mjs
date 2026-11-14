@@ -157,7 +157,10 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
  test('authenticated synthetic owner saves reloads and deletes an entry area',async({page},info)=>{
   const creds=requireSyntheticCredentials('QA_LANDOWNER');
   const listingId=process.env.QA_LANDOWNER_LISTING_ID;
-  test.skip(!creds||!/^[0-9a-f-]{36}$/i.test(listingId||''),'BLOCKED: verified synthetic owner credentials and listing ID are required');
+  const polygonText=process.env.QA_LANDOWNER_ZONE_POINTS||'';
+  const points=polygonText.split(';').map(pair=>pair.split(',').map(Number));
+  const validPoints=points.length>=3&&points.every(([lat,lng])=>Number.isFinite(lat)&&Number.isFinite(lng)&&lat>=-90&&lat<=90&&lng>=-180&&lng<=180);
+  test.skip(!creds||!/^[0-9a-f-]{36}$/i.test(listingId||'')||!validPoints,'BLOCKED: verified synthetic owner, listing and fixture-specific QA_LANDOWNER_ZONE_POINTS are required');
   const label=('QA entry area '+info.project.name+' '+Date.now()).slice(0,80);
   await visit(page,'/landowner-portal.html');
   await page.locator('#si-email').fill(creds.email);
@@ -171,7 +174,7 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    await page.locator('#zone-type').selectOption('entry_area');
    await page.locator('#zone-label').fill(label);
    await page.locator('summary').filter({hasText:'Optional: enter exact coordinates'}).click();
-   for(const [lat,lng] of [[29.02,-80.93],[29.021,-80.93],[29.021,-80.929]]){
+   for(const [lat,lng] of points{
     await page.locator('#latitude').fill(String(lat));
     await page.locator('#longitude').fill(String(lng));
     await page.locator('#add-point').click();
@@ -195,7 +198,10 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
  test('authenticated synthetic owner saves reloads and deletes a parking area',async({page},info)=>{
   const creds=requireSyntheticCredentials('QA_LANDOWNER');
   const listingId=process.env.QA_LANDOWNER_LISTING_ID;
-  test.skip(!creds||!/^[0-9a-f-]{36}$/i.test(listingId||''),'BLOCKED: verified synthetic owner credentials and listing ID are required');
+  const polygonText=process.env.QA_LANDOWNER_ZONE_POINTS||'';
+  const points=polygonText.split(';').map(pair=>pair.split(',').map(Number));
+  const validPoints=points.length>=3&&points.every(([lat,lng])=>Number.isFinite(lat)&&Number.isFinite(lng)&&lat>=-90&&lat<=90&&lng>=-180&&lng<=180);
+  test.skip(!creds||!/^[0-9a-f-]{36}$/i.test(listingId||'')||!validPoints,'BLOCKED: verified synthetic owner, listing and fixture-specific QA_LANDOWNER_ZONE_POINTS are required');
   const label=('QA parking area '+info.project.name+' '+Date.now()).slice(0,80);
   await visit(page,'/landowner-portal.html');
   await page.locator('#si-email').fill(creds.email);
@@ -209,7 +215,7 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    await page.locator('#zone-type').selectOption('parking_area');
    await page.locator('#zone-label').fill(label);
    await page.locator('summary').filter({hasText:'Optional: enter exact coordinates'}).click();
-   for(const [lat,lng] of [[29.02,-80.93],[29.021,-80.93],[29.021,-80.929]]){
+   for(const [lat,lng] of points{
     await page.locator('#latitude').fill(String(lat));
     await page.locator('#longitude').fill(String(lng));
     await page.locator('#add-point').click();
