@@ -12,7 +12,8 @@ export default defineConfig({
     {name:'hunter-chromium',testMatch:'hunter.spec.mjs',use:{...devices['Desktop Chrome']}},
     {name:'hunter-mobile-webkit',testMatch:'hunter.spec.mjs',use:{...devices['iPhone 13']}},
     // Keep the Host scope explicit: these suites share the same synthetic owner
-    // credentials but have independent fixtures and cleanup responsibilities.
+    // credentials but have independent fixtures and cleanup responsibilities. The reflow suite
+    // includes the 160px layout viewport produced by 320px content at 200% zoom.
     {name:'host-chromium',testMatch:['host.spec.mjs','landowner-hunting-persistence.spec.mjs','landowner-reflow.spec.mjs','reviews-negative.spec.mjs'],use:{...devices['Desktop Chrome']}},
     {name:'payments-chromium',testMatch:'payments.spec.mjs',use:{...devices['Desktop Chrome']}},
     {name:'host-mobile-webkit',testMatch:['host.spec.mjs','landowner-hunting-persistence.spec.mjs','landowner-reflow.spec.mjs','reviews-negative.spec.mjs'],use:{...devices['iPhone 13']}},
