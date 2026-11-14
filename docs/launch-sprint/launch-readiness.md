@@ -559,3 +559,34 @@ No production deployment was requested or performed.
 - **Verified deployment:** Cloudflare deployment `7be4548f-1464-420c-a349-0073bec0e73c` successfully served exact commit `ec64704fc70e19b85ced674e167bcb3919b9aae1` at the canonical sandbox branch before these documentation-only commits.
 - **Other bots:** Landowner QA fixed its outfitter-dashboard login assertion (`8307eb714593`, `1e1aee5047c`); Growth improved first real outfitter-image priority (`803ceee1615e`). Both changes were included in this green host/hunter matrix because the tested payment commit descends from them.
 - **Open P0/P1 evidence:** delivered receipt inbox, paid external-bank payout, partial refund, Stripe Tax registration/classification, promo/add-on/cleaning-deposit economics, duplicate/replay/idempotency, authenticated owner map save/reload and cross-owner denial, completed-booking hunter-review moderation/reporting, and Florida attorney approval.
+
+
+## Hourly integration update — November 13, 2026 at 10:01 PM ET
+
+**Decision: NO-GO.** No production launch was authorized or performed.
+
+### Independently verified this run
+
+- **Designer/Developer:** implemented booking-checkout idempotency across sandbox Postgres, Edge v10, Stripe TEST request headers and browser retry state. Commits: `33950a28ce7b107c93616631c420b2ffe007f0b8`, `11bbcc11bdc99b8736c59aa100cf816aa8f1bcc2`, `d51709e730e78025d31d30a1a60fcf3beb02b3aa`, `865b2fefe4278a601a3d53e9974ff1e8fe033286`.
+- **Designer/Developer + Hunter QA regression:** fixed About-page 1024px overflow and homepage first-Tab focus in `f3fda42aded0f18d64c6fbc547752f31087642c9` and `48c5fd3ad5ef18893ccefde6f8567d79db301512`; final regression assertion `c1b16f9af832bf6aa401aab52e8fdbcf741eaf51`.
+- **Full sandbox workflow:** [run 43549078806](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43549078806) finished all five jobs successfully at exact commit `c1b16f9af832bf6aa401aab52e8fdbcf741eaf51`. Payments **6 passed / 3 skipped**; host Chromium and mobile WebKit **28 passed / 2 skipped each**; hunter Chromium and mobile WebKit **28 passed / 2 skipped each**.
+- **Responsive evidence:** the configured twelve public/guest routes passed document-overflow checks at 320, 375, 390, 430, 768, 1024, 1280, 1440, 1920 and 2560px in both hunter engines. Homepage/listings/guest-portal keyboard smoke passed. This does not substitute for real devices, screen readers, 200% zoom or full visual review.
+- **Payment evidence:** same-key replay reused booking `6b57e3ce-8d71-4137-9f22-32c1faf1418e` and its Checkout Session; a different key for the occupied dates returned 409. Independent SQL found one row per request key and all card fixtures cleaned to `cancelled`. Artifact `14095687333`, SHA-256 `f6d620cfdb3523903dd057de3ba135ee19b540808b54137c9b522cf12e7d63e2`.
+- **Deployment:** Cloudflare Pages sandbox deployment `f7169156-6dfd-4598-a833-6d4b62869cba` succeeded for exact code/test commit `c1b16f9af832bf6aa401aab52e8fdbcf741eaf51`. Cloudflare calls this sandbox project's primary environment `production`; it is not `leasewild.com`.
+
+### Five-role coordination snapshot
+
+- **Designer/Developer:** delivered and verified the idempotency, responsive and keyboard fixes above.
+- **Hunter QA:** its new keyboard and ten-width route coverage exposed both regressions; the corrected matrix is green. Authenticated Hunter dashboard coverage remains explicitly skipped.
+- **Landowner QA:** latest recorded negative-auth and keyboard-zone coverage remains in shared reports; this run's host matrix is green, but authenticated owner map save/reload, cross-owner denial and hunter-review eligibility/moderation are still not proven.
+- **Growth Research:** prior accessible loading and blank-title fallback changes are included in the tested branch ancestry; no additional Growth commit was independently verified during this run.
+- **Legal Risk Review:** prior evidence reconciles TEST-mode payment behavior but does not approve tax, cancellation/refund language, access-coordinate disclosure, review moderation/appeals or launch. Florida attorney approval is still absent.
+
+### Remaining P0/P1 gates
+
+1. Stripe Tax registration/classification, delivered receipt inbox, external-bank payout, partial refund, promo/add-on/cleaning-deposit totals and webhook replay.
+2. Authenticated landowner map create/edit/save/reload/delete, cross-owner denial and booked-hunter disclosure timing.
+3. Completed-booking landowner review eligibility, one-per-booking enforcement, moderation/reporting/appeal and cross-role visibility.
+4. Authenticated booking/messaging/account journeys, real-device/touch/200% zoom/screen-reader coverage and legal approval.
+
+Only the isolated sandbox, synthetic identities and Stripe TEST were used. `leasewild.com`, `main`, live Stripe, production Supabase, real users and personal sessions remained untouched.
