@@ -50,3 +50,16 @@ Post-run cleanup restored the exact synthetic outfitter listing `SANDBOX TEST ON
 - **Cleanup proof:** attached result reported `listing_status: inactive` and `unsettled_paid_fixtures: 0`; an independent sandbox database query confirmed the exact listing is `inactive` and zero accepted/paid synthetic Connect fixtures remain.
 - **Artifact:** `14080940933`, SHA-256 `e6cb3d44723bf5395a304d160f6ad1b72279a9d36852a947b9dc6b9910d4e00c`.
 - **Still BLOCKED / SKIPPED:** delivered receipt inbox, external-bank payout and partial refund. A hard runner termination can still bypass browser-level cleanup; the listing is fail-closed between completed runs, but a TTL/lease would be needed to eliminate that residual case.
+
+
+## Duplicate-checkout protection and full rerun — November 13, 2026 at 10:01 PM ET
+
+- **PASS — server idempotency:** migration `add_booking_checkout_request_idempotency` adds nullable UUID `bookings.checkout_request_key` plus a unique partial index. `sandbox-booking-checkout` v10 requires the key, forwards a stable Stripe TEST idempotency key, replays the existing open Session for the same key/payload, rejects mismatched reuse, and treats `authorization_pending` dates as unavailable.
+- **PASS — browser retry behavior:** `booking.js` stores one logical request UUID per checkout payload in session storage, reuses it after an ambiguous retry, and clears it after an explicit failed response.
+- **PASS — real sandbox evidence:** workflow [43549078806](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43549078806), exact commit `c1b16f9af832bf6aa401aab52e8fdbcf741eaf51`, payment job `132307104791`: **6 passed, 3 explicit skips, 0 failed**. Artifact `14095687333`, SHA-256 `f6d620cfdb3523903dd057de3ba135ee19b540808b54137c9b522cf12e7d63e2`.
+- **PASS — duplicate submission:** request key `f009182a-69f0-4eda-a19a-11c79770b062` returned booking `6b57e3ce-8d71-4137-9f22-32c1faf1418e` on both same-key calls, reused the same Checkout Session, and a different key for the same dates returned HTTP 409. Independent sandbox SQL found exactly one booking row for each of the five card-scenario keys; all were `cancelled` after cleanup.
+- **PASS — payment lifecycle regression:** success used TEST PaymentIntent `pi_3UbXBAAO40Rp32aF0yfTm8OK`, event `evt_1UbXBCAO40Rp32aFCvDeR3rn`, charge `ch_3UbXBAAO40Rp32aF0kGKnGUx`, and full refund `re_3UbXBAAO40Rp32aF0yizrfyb`. Decline, insufficient funds, completed keyboard 3DS, and decline/retry also passed.
+- **PASS — Connect regression:** TEST PaymentIntent `pi_3UbXCVAO40Rp32aF3rdF0NJU`, application fee `fee_1UbXCYAO408zPcFQlGIlDBgX`, transfer `tr_3UbXCVAO40Rp32aF3Ha314A6`, charge `ch_3UbXCVAO40Rp32aF3LY3dNJe`, and refund `re_3UbXCVAO40Rp32aF35Qpup55`; cleanup reports the synthetic listing `inactive` and zero unsettled paid fixtures.
+- **SKIPPED / OPEN:** delivered receipt inbox, external-bank payout, and partial refund. Stripe Tax registration/classification, promo/add-on/cleaning-deposit economics, and webhook replay remain separate gates.
+
+All activity used sandbox Supabase and Stripe TEST only. No production deployment or live payment resource was touched.
