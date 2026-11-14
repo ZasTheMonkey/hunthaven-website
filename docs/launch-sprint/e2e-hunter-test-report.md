@@ -262,3 +262,7 @@ In a graphical sandbox browser, navigate home → search → listing → synthet
 - **BLOCKED / SKIPPED:** authenticated Hunter dashboard flow and the separate in-suite hosted Checkout placeholder remain skipped; the dedicated payment project independently passed its six implemented TEST-mode scenarios.
 
 Production and `main` were not touched.
+
+## Authenticated hunter follow-up
+
+Staging workflow commit `40f8a1967a81b6bea6ad53760fee77f1b19275d4` falls back to the verified sandbox payment hunter when both dedicated Hunter settings are unset. Test commit `27fae7738b63ac89963fb134d1c744f8fb3bdffb` checks the authenticated dashboard, reload persistence and sign-out. [Chromium](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43607950991/job/132487356240) and [mobile WebKit](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43607950991/job/132487356176) each reported **29 passed, 1 skipped**. The remaining Hunter skip is the hosted checkout placeholder. The separate [payments job](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43607950991/job/132487355935) passed all five landowner card scenarios and stopped on an HTTP 403 from the sandbox Connect fixture. Item 2 remains open for a single authenticated browser journey from the synthetic listing through booking request and checkout handoff, approval, conflicting dates, persisted reservation and cancellation.
