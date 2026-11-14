@@ -11,8 +11,8 @@ export default defineConfig({
   projects: [
     {name:'hunter-chromium',testMatch:'hunter.spec.mjs',use:{...devices['Desktop Chrome']}},
     {name:'hunter-mobile-webkit',testMatch:'hunter.spec.mjs',use:{...devices['iPhone 13']}},
-    {name:'host-chromium',testMatch:'host.spec.mjs',use:{...devices['Desktop Chrome']}},
+    {name:'host-chromium',testMatch:['host.spec.mjs','landowner-hunting-persistence.spec.mjs','landowner-reflow.spec.mjs','reviews-negative.spec.mjs'],use:{...devices['Desktop Chrome']}},
     {name:'payments-chromium',testMatch:'payments.spec.mjs',use:{...devices['Desktop Chrome']}},
-    {name:'host-mobile-webkit',testMatch:'host.spec.mjs',use:{...devices['iPhone 13']}},
+    {name:'host-mobile-webkit',testMatch:['host.spec.mjs','landowner-hunting-persistence.spec.mjs','landowner-reflow.spec.mjs','reviews-negative.spec.mjs'],use:{...devices['iPhone 13']}},
   ],
 });
