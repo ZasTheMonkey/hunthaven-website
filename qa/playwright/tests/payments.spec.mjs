@@ -516,6 +516,12 @@ for (const scenario of ['success', 'declined', 'insufficient_funds', 'three_ds',
       expect(Boolean(event), 'Stripe TEST completion event for this session').toBe(true);
       evidence.webhookEventId = event.id;
       await waitForGuestPortalReturn(page, session.id);
+      if (scenario === 'three_ds') {
+        test.setTimeout(420_000);
+        // Keep the disposable TEST booking pending while Stripe Workbench resends its signed event.
+        await new Promise(resolve => setTimeout(resolve, 180_000));
+        await waitForBooking(hunterHeaders, bookingId, 'pending_approval');
+      }
       if (scenario === 'success') {
         await captureAndRefund(hunterHeaders, ownerHeaders, bookingId, intent.id, evidence);
       }
