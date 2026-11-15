@@ -1,0 +1,16 @@
+# Landowner QA evidence checkpoint — 2026-11-15 15:33 ET
+
+Scope: staging/leasewild-full-clone, Cloudflare sandbox only. Read-only inspection of actual GitHub Actions run [43726696441](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43726696441), commit `50ed16ed54677d55008cd63290c899e866dd8f2c`. This checkpoint does **not** represent new browser execution, a deployed fix, or a passing authenticated map journey.
+
+## Verified browser runner evidence
+
+- Host Chromium job [132850073114](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43726696441/job/132850073114): **46 passed, 5 skipped**. Host mobile WebKit job [132850072994](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43726696441/job/132850072994): **46 passed, 5 skipped**. Both are real-browser executions on the deployed sandbox, but not all requested flows ran.
+- In both host jobs, the **hunting-boundary**, **entry-area**, **parking-area**, **second-owner zone access**, and standalone `landowner-hunting-persistence.spec.mjs` tests were explicitly **SKIPPED**. Thus the new hunting-boundary test's presence does not establish save/reload/delete behavior. Verify sandbox-only listing ownership and runner `QA_LANDOWNER_LISTING_ID`, `QA_LANDOWNER_FIXTURE_VERIFIED`, synthetic distinct second-owner credentials, and safe cleanup; do not turn off fixture guards.
+- The host jobs passed authenticated outfitter login, admin Reservations/ID tabs, signed-out/invalid review-denial checks and the 10 requested viewport-width reflow smoke cases. The latter logged Leaflet tile overflow diagnostics at 160px equivalent reflow but the test itself passed. These do not establish completed-booking review creation, private-ID access or RLS enforcement.
+- Payment Chromium job [132850073112](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43726696441/job/132850073112): **7 passed, 3 skipped, 1 failed**. Passed hosted Stripe TEST success, generic decline, insufficient funds, 3DS, retry, hunter journey, and 20% Connect transfer. Skipped receipt delivery, external-bank payout and partial refund. **FAILED** mobile WebKit hunter journey: timed out after 25s waiting for a Stripe card form or payment-method selector; no Stripe confirm response was logged for that scenario. [Payment artifact 14167022021](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43726696441/artifacts/14167022021). This is a browser failure, not proof of payment defect/root cause.
+
+## Ownership and next steps
+
+Landowner QA owns provisioning independently verified disposable owner/listing/map fixtures and executing hunting/entry/parking persistence with post-deletion database reconciliation, cross-owner authenticated RLS denial, completed-booking reviews and two-account messaging. Keep property verification, responsive coverage and ID privacy in the host/admin checklist. Hunter/Payments QA owns investigating mobile WebKit hosted Checkout card selector with screenshot/trace and exact rerun, avoiding conflicting payment edits. All launch gates remain NO-GO until demonstrated.
+
+This checkpoint is **STATIC/LOG REVIEW ONLY**: 0 new tests run by this invocation, 0 fixes, 0 deployments, 0 Stripe submissions. No production access or main/live changes.
