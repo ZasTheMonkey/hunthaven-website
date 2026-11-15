@@ -137,7 +137,7 @@
         preview=await request('preview');
         const b=preview.booking;
         const fmt=x=>x?new Date(x+'T00:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}):'—';
-        const msg=preview.refund_type==='release_hold'?'Your card authorization will be released. Your bank may take additional time to remove the hold.':preview.refund_type==='full_refund'?'Under the existing 48-hour flexible policy, your test payment qualifies for a full refund.':'Under the existing 48-hour flexible policy, this booking does not qualify for a refund.';
+        const msg=preview.refund_type==='release_hold'?'Your card authorization will be released. Your bank may take additional time to remove the hold.':preview.refund_type==='full_refund'?'Your test payment qualifies for a full refund when cancelled at least 72 hours before check-in.':'Guest cancellations less than 72 hours before check-in are nonrefundable.';
         document.getElementById('loading').style.display='none';
         const box=document.getElementById('content');box.style.display='block';
         box.innerHTML=`<h1>Cancel Reservation</h1><p style="margin-top:.4rem">Review your reservation and cancellation terms.</p>
@@ -157,7 +157,7 @@
       try{
         const result=await request('cancel');
         document.getElementById('content').style.display='none';document.getElementById('done').style.display='block';
-        document.getElementById('done-msg').textContent=result.result==='authorization_released'?'Your reservation is cancelled. The card hold has been released; bank processing may take longer.':result.result==='full_refund_issued'?'Your reservation is cancelled and a full test refund was initiated.':'Your reservation is cancelled. No refund applies under the existing 48-hour policy.';
+        document.getElementById('done-msg').textContent=result.result==='authorization_released'?'Your reservation is cancelled. The card hold has been released; bank processing may take longer.':result.result==='full_refund_issued'?'Your reservation is cancelled and a full test refund was initiated.':'Your reservation is cancelled. No refund applies within 72 hours of check-in.';
       }catch(e){btn.disabled=false;btn.textContent='Yes, cancel my reservation';msg.style.display='block';msg.className='msg error';msg.textContent=e.message;}
     }
     init();
