@@ -341,3 +341,11 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - **PASS (staging source fix):** Commit `a49a23b511ba019ab1f454518b87e019acef0357` enables Clear filters whenever the search input has non-whitespace content or a maximum price is entered, regardless of normalized search tokens. No payment, database, or production changes.
 - **NOT TESTED:** Browser interaction, Cloudflare deployment, all ten responsive widths, actual inventory, Stripe TEST checkout/refund/Connect reconciliation. Source verification is separate from deployed behavior.
 - **COORDINATION:** Growth owns directory filter UX; Hunter/Developer own checkout identity/payment; Landowner owns zones/reviews; Legal owns tax review. NO-GO until full launch evidence exists.
+
+
+## 2026-11-15 18:15 ET — Punctuation-only directory search fail-closed (Growth)
+- **FAIL (source-level):** Search normalization removes punctuation, so a nonempty query such as `---` produced zero terms and `terms.every(...)` returned true for every card. This misleadingly displayed the full directory as if it matched the search.
+- **PASS (staging source fix):** commit `430ba596a4efc484f13f538f09e4cc987c075f28` now requires at least one normalized term for nonempty queries, with an actionable status message asking for a letter or number. Empty query still shows the full directory; price filter and Clear filters remain unchanged. No payments, Supabase, booking, production or main changes.
+- **BLOCKED:** Independent Cloudflare HTTPS verification failed with `curl: (6) Could not resolve host: leasewild-sandbox.pages.dev` from this execution environment.
+- **NOT TESTED:** Browser behavior against actual sandbox inventory, all 320/375/390/430/768/1024/1280/1440/1920/2560 widths, touch/keyboard/zoom, fresh Stripe TEST transactions or reconciliation. Source PASS is not E2E PASS.
+- **COORDINATION / NO-GO:** Growth owns public directory only; Hunter/Developer QA own booking identity, messaging and checkout; Landowner QA owns boundaries/reviews and payout; Legal owns tax/release. Receipt delivery, external-bank payout, partial refunds, Stripe Tax and full authenticated regression remain open. Do not duplicate payment evidence.
