@@ -188,11 +188,19 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    await expect(savedRow).toHaveCount(1);
    await screenshotStep(page,info,'authenticated-entry-area-survives-reload');
   }finally{
+   // A save may reach Supabase before the UI reports success. Reload to discover
+   // a persisted synthetic zone even if the preceding assertion failed.
+   await page.reload();
+   await expect(page.locator('#status')).toContainText('Editing your',{timeout:20000});
    if(await savedRow.count()){
     page.once('dialog',dialog=>dialog.accept());
     await savedRow.getByRole('button',{name:'Delete '+label}).click();
     await expect(savedRow).toHaveCount(0,{timeout:20000});
    }
+   // Verify deletion survives reload; UI disappearance alone is insufficient.
+   await page.reload();
+   await expect(page.locator('#status')).toContainText('Editing your',{timeout:20000});
+   await expect(savedRow).toHaveCount(0,{timeout:20000});
   }
  });
  test('authenticated synthetic owner saves reloads and deletes a parking area',async({page},info)=>{
@@ -229,11 +237,19 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    await expect(savedRow).toHaveCount(1);
    await screenshotStep(page,info,'authenticated-parking-area-survives-reload');
   }finally{
+   // A save may reach Supabase before the UI reports success. Reload to discover
+   // a persisted synthetic zone even if the preceding assertion failed.
+   await page.reload();
+   await expect(page.locator('#status')).toContainText('Editing your',{timeout:20000});
    if(await savedRow.count()){
     page.once('dialog',dialog=>dialog.accept());
     await savedRow.getByRole('button',{name:'Delete '+label}).click();
     await expect(savedRow).toHaveCount(0,{timeout:20000});
    }
+   // Verify deletion survives reload; UI disappearance alone is insufficient.
+   await page.reload();
+   await expect(page.locator('#status')).toContainText('Editing your',{timeout:20000});
+   await expect(savedRow).toHaveCount(0,{timeout:20000});
   }
  });
  test("second synthetic account cannot edit another owner's zones",async({page},info)=>{
