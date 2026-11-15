@@ -3,6 +3,25 @@ import Stripe from 'npm:stripe@14.25.0';
 const origin='https://leasewild-sandbox.pages.dev';
 const headers={'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'authorization,apikey,content-type','Access-Control-Allow-Methods':'POST,OPTIONS','Content-Type':'application/json'};
 const out=(v:unknown,s=200)=>new Response(JSON.stringify(v),{status:s,headers});
+function tripStart(date:string,time='00:00:00',zone='America/New_York'){
+ const wall=Date.parse(date+'T'+time+'Z');
+ if(!Number.isFinite(wall))return NaN;
+ try{
+   const format=new Intl.DateTimeFormat('en-US',{timeZone:zone,timeZoneName:'longOffset'});
+   let instant=wall;
+   for(let i=0;i<3;i++){
+     const offset=format.formatToParts(instant).find(part=>part.type==='timeZoneName')?.value;
+     if(offset==='GMT')return wall;
+     const match=/^GMT([+-])(\d{2}):(\d{2})$/.exec(offset||'');
+     if(!match)return NaN;
+     const next=wall-(match[1]==='+'?1:-1)*(Number(match[2])*60+Number(match[3]))*60000;
+     if(next===instant)return instant;
+     instant=next;
+   }
+   return NaN;
+ }catch{return NaN;}
+}
+
 Deno.serve(async req=>{
  if(req.method==='OPTIONS')return new Response('',{headers});
  if(req.method!=='POST'||req.headers.get('origin')!==origin)return out({error:'Sandbox origin required'},403);
@@ -20,11 +39,12 @@ Deno.serve(async req=>{
  const {data:request}=await db.from('outfitter_cancellation_requests').select('id,status,refund_status,stripe_refund_id').eq('booking_id',id).maybeSingle();
  if(b.status==='cancelled')return out({status:'cancelled',refund_status:request?.refund_status||'not_applicable',already_cancelled:true});
  if(b.status!=='accepted'||b.payment_status!=='paid')return out({error:'Only accepted, paid outfitter trips use this flow'},409);
- const tripAt=Date.parse(String(b.trip_date)+'T00:00:00-05:00');
+ const tripAt=tripStart(String(b.trip_date));
  const hours=(tripAt-Date.now())/3600000;
- const fullRefund=Number.isFinite(hours)&&hours>=48;
+ if(!Number.isFinite(hours))return out({error:'Unable to verify the trip start'},503);
+ const fullRefund=hours>=72;
  const refundType=fullRefund?'full_refund':'no_refund';
- const preview={booking:{trip_date:b.trip_date,guest_count:b.guest_count,amount_cents:b.amount_cents},refund_type:refundType,policy:'48-hour flexible cancellation policy',existing_request:request?.status||null};
+ const preview={booking:{trip_date:b.trip_date,guest_count:b.guest_count,amount_cents:b.amount_cents},refund_type:refundType,policy:'Guest: full refund at least 72 hours before the trip date begins in Eastern time; no refund less than 72 hours before',existing_request:request?.status||null};
  if(body.action==='preview')return out(preview);
  if(body.action!=='cancel')return out({error:'Invalid action'},400);
  if(request&&request.status==='refunded')return out({status:'cancelled',result:'full_refund_issued',already_cancelled:true});
@@ -32,7 +52,7 @@ Deno.serve(async req=>{
  if(request&&request.status!=='pending_review')return out({error:'Cancellation already processing or awaiting resolution',status:request.status},409);
  let rid=request?.id;
  if(!rid){
-  const {data:created,error:ce}=await db.from('outfitter_cancellation_requests').insert({booking_id:id,hunter_id:user.id,outfitter_id:b.outfitter_id,reason:'Hunter confirmed cancellation under the displayed 48-hour policy'}).select('id').single();
+  const {data:created,error:ce}=await db.from('outfitter_cancellation_requests').insert({booking_id:id,hunter_id:user.id,outfitter_id:b.outfitter_id,reason:'Hunter confirmed cancellation under the displayed 72-hour policy'}).select('id').single();
   if(ce||!created)return out({error:'Cancellation request already exists; refresh to review'},409);
   rid=created.id;
  }
