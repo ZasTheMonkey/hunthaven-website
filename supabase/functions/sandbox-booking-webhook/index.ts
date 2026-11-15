@@ -60,6 +60,19 @@ Deno.serve(async(req)=>{
    const pi=await stripe.paymentIntents.retrieve(String(verified.payment_intent));
    if(pi.status==='requires_capture'&&pi.amount_capturable===Math.round(Number(b.total)*100)){
      const {error}=await db.from('bookings').update({status:'pending_approval',stripe_payment_intent:pi.id,authorization_created_at:new Date().toISOString()}).eq('id',b.id).eq('status','authorization_pending');
+     if(error?.code==='23P01'){
+       // Another authorized booking won the dates. Release this TEST hold before acknowledging.
+       try {
+         await stripe.paymentIntents.cancel(pi.id,{}, {idempotencyKey:'leasewild-sandbox-overlap-release-'+b.id});
+       } catch {
+         const current=await stripe.paymentIntents.retrieve(pi.id);
+         if(current.status!=='canceled')return new Response('Conflicting authorization release failed',{status:500});
+       }
+       const {error:releaseError}=await db.from('bookings').update({
+         status:'declined',stripe_payment_intent:pi.id,authorization_created_at:new Date().toISOString()
+       }).eq('id',b.id).eq('status','authorization_pending');
+       return releaseError?new Response('Conflict update failed',{status:500}):new Response('ok');
+     }
      if(error)return new Response('Update failed',{status:500});
      // Durable, deduplicated notification intent. Do not email before verified Stripe authorization.
      const {data:detail}=await db.from('bookings').select('listing_id').eq('id',b.id).single();
