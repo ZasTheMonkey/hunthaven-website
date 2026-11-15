@@ -58,6 +58,14 @@ Deno.serve(async(req)=>{
  }
  if(verified.payment_status==='unpaid'&&verified.payment_intent&&b.status==='authorization_pending'){
    const pi=await stripe.paymentIntents.retrieve(String(verified.payment_intent));
+   // Stripe cancellation can succeed before a database write is retried.
+   if(pi.status==='canceled'&&!verified.livemode&&verified.status==='complete'&&
+      verified.amount_total===Math.round(Number(b.total)*100)&&s.payment_intent===pi.id){
+     const {error}=await db.from('bookings').update({
+       status:'declined',stripe_payment_intent:pi.id,authorization_created_at:new Date().toISOString()
+     }).eq('id',b.id).eq('status','authorization_pending');
+     return error?new Response('Conflict update failed',{status:500}):new Response('ok');
+   }
    if(pi.status==='requires_capture'&&pi.amount_capturable===Math.round(Number(b.total)*100)){
      const {error}=await db.from('bookings').update({status:'pending_approval',stripe_payment_intent:pi.id,authorization_created_at:new Date().toISOString()}).eq('id',b.id).eq('status','authorization_pending');
      if(error?.code==='23P01'){
