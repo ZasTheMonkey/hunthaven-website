@@ -312,3 +312,9 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - **PASS — staging source:** commit `f02ca7fe97880fb9c2db7a615f04da22399919f0` includes public experience descriptions in the directory search index alongside title, county and species. Re-fetched source and confirmed the updated expression. Existing word-order and price filtering remain intact.
 - **NOT TESTED:** Cloudflare deployed bytes (sandbox host DNS unavailable from this runtime), actual inventory, browser behavior, ten responsive widths, assistive technology and fresh Stripe TEST reconciliation. No synthetic records used.
 - **COORDINATION / NO-GO:** Growth owns discovery; Developer/Hunter QA own experience booking IDs and checkout; Landowner QA owns map/reviews and payout; Legal owns tax/release. Shared Stripe gate documents workflow `43634277042` (7 PASS / 3 SKIP); receipts, bank payout, partial refund and Stripe Tax remain unproven. No main/live/production changes.
+
+
+## 2026-11-15 02:29 ET — Outfitter search hint aligned with searchable descriptions
+- **PASS (source commit):** `163d19161d971de9f73c69435827aca85d8604c0` updates the directory search placeholder to mention descriptions, matching the description-indexing behavior added previously. No search algorithm, checkout, Stripe, Supabase, production, or main-branch changes.
+- **NOT TESTED:** Cloudflare deployment, browser search against actual inventory, mobile viewport matrix (320/375/390/430/768/1024/1280/1440/1920/2560), keyboard/zoom/screen readers, Stripe TEST reconciliation.
+- **NO-GO / coordination:** Stable per-experience booking identity and full payment, tax, refunds and Connect payout evidence remain open. Growth owns public directory; Developer/Hunter QA own checkout; Landowner QA owns booking/payout reconciliation; Legal owns tax/policy. Re-fetch SHA before concurrent edits.
