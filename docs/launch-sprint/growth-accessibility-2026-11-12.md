@@ -334,3 +334,10 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - **FAIL (source-level reproduction):** `applySearch()` sets `card.hidden=true` for unmatched outfitter experiences, but author CSS sets `.experience-card{display:flex}` and `#outfitter-directory .experience-card{display:flex}`, which can override the user-agent `[hidden]{display:none}` rule. This risks showing filtered-out listings despite the displayed result count.
 - **FIX COMMITTED (source):** `46800fb0e62c4f661159a3fbd69387ad7c2f3670` adds `#outfitter-directory .experience-card[hidden]{display:none!important}`. This is a scoped, reversible display-only correction; no payment, Supabase, inventory, booking, or live resources changed.
 - **NOT TESTED:** Cloudflare deployment, actual inventory and browser filter behavior, ten responsive widths, touch/keyboard/zoom, and fresh Stripe TEST reconciliation. Independently re-fetch staging source to confirm rule. Developer/Hunter QA retain payment and unique experience ID; Growth owns browser filter regression. **NO-GO** until launch gate evidence complete.
+
+
+## 2026-11-15 12:50 ET — Punctuation-only search reset
+- **FAIL (source reproduction):** The outfitter directory normalized punctuation-only queries (e.g. `---`) to an empty search term, then disabled the Clear filters button because it checked normalized `q` instead of the actual nonempty input. Users could not clear that entered value with the provided button.
+- **PASS (staging source fix):** Commit `a49a23b511ba019ab1f454518b87e019acef0357` enables Clear filters whenever the search input has non-whitespace content or a maximum price is entered, regardless of normalized search tokens. No payment, database, or production changes.
+- **NOT TESTED:** Browser interaction, Cloudflare deployment, all ten responsive widths, actual inventory, Stripe TEST checkout/refund/Connect reconciliation. Source verification is separate from deployed behavior.
+- **COORDINATION:** Growth owns directory filter UX; Hunter/Developer own checkout identity/payment; Landowner owns zones/reviews; Legal owns tax review. NO-GO until full launch evidence exists.
