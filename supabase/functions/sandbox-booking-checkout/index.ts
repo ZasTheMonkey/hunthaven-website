@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
 
   const { data: conflicts, error: conflictError } = await db.from('bookings').select('id')
     .eq('listing_id', listing.id)
-    .in('status', ['confirmed', 'pre_reserved', 'pending_payment', 'authorization_pending', 'pending_approval', 'approved', 'capturing'])
+    .in('status', ['confirmed', 'pre_reserved', 'pending_payment', 'pending_approval', 'approved', 'capturing'])
     .lt('check_in', check_out).gt('check_out', check_in).limit(1);
   if (conflictError) return reply({ error: 'Availability check failed' }, 503);
   if (conflicts?.length) return reply({ error: 'Dates are unavailable' }, 409);
