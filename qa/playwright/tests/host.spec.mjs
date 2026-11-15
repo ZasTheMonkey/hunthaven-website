@@ -239,7 +239,10 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
  test("second synthetic account cannot edit another owner's zones",async({page},info)=>{
   const owner=requireSyntheticCredentials('QA_SECOND_LANDOWNER');
   const listingId=process.env.QA_LANDOWNER_LISTING_ID;
-  test.skip(!owner||!/^[0-9a-f-]{36}$/i.test(listingId||''),'BLOCKED: separate synthetic non-owner credentials and first-owner disposable listing required');
+  const firstOwner=requireSyntheticCredentials('QA_LANDOWNER');
+  const distinctOwners=Boolean(owner&&firstOwner&&owner.email.trim().toLowerCase()!==firstOwner.email.trim().toLowerCase());
+  const verifiedFixture=process.env.QA_LANDOWNER_FIXTURE_VERIFIED==='true';
+  test.skip(!distinctOwners||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(listingId||'')||!verifiedFixture,'BLOCKED: independently verified first-owner synthetic listing and distinct second-owner identity required');
   await visit(page,'/landowner-portal.html');
   await page.locator('#si-email').fill(owner.email);
   await page.locator('#si-password').fill(owner.password);
