@@ -468,6 +468,7 @@ for (const scenario of scenarios) {
   test(scenario + ' / real Stripe TEST card entry', async ({ page }, info) => {
     const hunterHeaders = await authenticate(hunter, 'hunter');
     const evidence = { scenario, stripeAccount };
+    const mobileJourney = scenario === 'hunter_journey' && page.context().browser()?.browserType().name() === 'webkit';
     // Use a different future night per case, beyond the 72-hour refund cutoff.
     const day = 21 + scenarios.indexOf(scenario);
     const date = offset => new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10);
@@ -536,7 +537,7 @@ for (const scenario of scenarios) {
       expect(session.amount_total).toBe(10_650);
       expect(session.currency).toBe('usd');
       // Prevent top-level navigation to any other LeaseWild environment.
-      await page.route('**/*', route => {
+      await page.route(url => ![origin, checkoutOrigin, 'https://hooks.stripe.com'].includes(url.origin), route => {
         const request = route.request();
         const target = new URL(request.url());
         if (request.isNavigationRequest() && request.frame() === page.mainFrame() &&
@@ -554,9 +555,14 @@ for (const scenario of scenarios) {
         evidence.interruptedCheckoutResumed = true;
       }
       try {
-        await page.goto(created.url, { waitUntil: 'domcontentloaded' });
+        if (mobileJourney) {
+          await page.waitForURL(url => url.origin === checkoutOrigin && checkoutPath.exec(url.pathname)?.[1] === session.id,
+            { waitUntil: 'domcontentloaded' });
+        } else {
+          await page.goto(created.url, { waitUntil: 'domcontentloaded' });
+        }
       } catch {
-        throw new Error('Verified Stripe TEST Checkout could not load in Chromium');
+        throw new Error('Verified Stripe TEST Checkout could not load in the browser');
       }
       await enterCard(page, session.id, cards[scenario === 'retry' ? 'declined' : scenario === 'hunter_journey' ? 'success' : scenario]);
       if (['declined', 'insufficient_funds', 'retry'].includes(scenario)) {
