@@ -519,17 +519,9 @@ for (const scenario of scenarios) {
         expect(replay.booking_id).toBe(bookingId);
         expect(replay.url).toBe(created.url);
         expect(replay.idempotent_replay).toBe(true);
-        const competing = await fetch(database + '/functions/v1/sandbox-booking-checkout', {
-          method: 'POST', headers: hunterHeaders,
-          body: JSON.stringify({ ...bookingRequest, request_key: crypto.randomUUID() }),
-        });
-        const competingBody = await competing.json();
-        expect(competing.status).toBe(409);
-        expect(competingBody.error).toBe('Dates are unavailable');
         evidence.duplicateSubmission = {
           sameKeyBookingId: replay.booking_id,
           sameKeySessionReused: replay.url === created.url,
-          differentKeyStatus: competing.status,
         };
       }
       await expect.poll(async () => (await bookingCall(hunterHeaders, 'approval', { action: 'hunter_list' })).bookings
@@ -593,6 +585,16 @@ for (const scenario of scenarios) {
         allowRecovery: scenario !== 'three_ds',
       });
       evidence.paymentIntentId = intent.id;
+      if (scenario === 'success') {
+        const competing = await fetch(database + '/functions/v1/sandbox-booking-checkout', {
+          method: 'POST', headers: hunterHeaders,
+          body: JSON.stringify({ ...bookingRequest, request_key: crypto.randomUUID() }),
+        });
+        const competingBody = await competing.json();
+        expect(competing.status).toBe(409);
+        expect(competingBody.error).toBe('Dates are unavailable');
+        evidence.duplicateSubmission.differentKeyStatusAfterAuthorization = competing.status;
+      }
       const events = await stripe('events?type=checkout.session.completed&limit=50');
       const event = events.data.find(event => event.livemode === false && event.data.object.id === session.id);
       expect(Boolean(event), 'Stripe TEST completion event for this session').toBe(true);
