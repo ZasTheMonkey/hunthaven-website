@@ -154,6 +154,55 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
   await expect(page.locator('#auth-card')).toBeVisible();
   await screenshotStep(page,info,'landowner-logout-stays-signed-out-after-reload');
  });
+ test('authenticated synthetic owner saves reloads and deletes a hunting boundary',async({page},info)=>{
+  const creds=requireSyntheticCredentials('QA_LANDOWNER');
+  const listingId=process.env.QA_LANDOWNER_LISTING_ID;
+  const polygonText=process.env.QA_LANDOWNER_ZONE_POINTS||'';
+  const points=polygonText.split(';').map(pair=>pair.split(',').map(value=>value.trim())).map(pair=>pair.map(value=>value===''?NaN:Number(value)));
+  const validPoints=points.length>=3&&points.every(pair=>pair.length===2&&pair.every(Number.isFinite)&&pair[0]>=-90&&pair[0]<=90&&pair[1]>=-180&&pair[1]<=180)&&new Set(points.map(pair=>pair.join(','))).size>=3;
+  test.skip(!creds||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(listingId||'')||!validPoints||process.env.QA_LANDOWNER_FIXTURE_VERIFIED!=='true'||process.env.QA_LANDOWNER_ZONE_CLEANUP_VERIFIED!=='true','BLOCKED: independently verified synthetic owner/listing, geographic bounds and reliable cleanup are required');
+  const label=('QA hunting boundary '+info.project.name+' '+Date.now()).slice(0,80);
+  await visit(page,'/landowner-portal.html');
+  await page.locator('#si-email').fill(creds.email);
+  await page.locator('#si-password').fill(creds.password);
+  await page.locator('#signin-btn').click();
+  await expect(page.locator('#dashboard')).toBeVisible({timeout:20000});
+  await visit(page,'/sandbox-zone-editor.html?listing='+encodeURIComponent(listingId));
+  await expect(page.locator('#status')).toContainText('Editing your',{timeout:20000});
+  const savedRow=page.locator('#saved li').filter({hasText:label});
+  try{
+   await page.locator('#zone-type').selectOption('hunting_area');
+   await page.locator('#zone-label').fill(label);
+   await page.locator('summary').filter({hasText:'Optional: enter exact coordinates'}).click();
+   for(const [lat,lng] of points){
+    await page.locator('#latitude').fill(String(lat));
+    await page.locator('#longitude').fill(String(lng));
+    await page.locator('#add-point').click();
+   }
+   await expect(page.locator('#save')).toBeEnabled();
+   await page.locator('#save').click();
+   await expect(page.locator('#status')).toContainText('Zone saved',{timeout:20000});
+   await expect(savedRow).toHaveCount(1);
+   await page.reload();
+   await expect(page.locator('#status')).toContainText('Editing your',{timeout:20000});
+   await expect(savedRow).toHaveCount(1);
+   await screenshotStep(page,info,'authenticated-hunting-boundary-survives-reload');
+  }finally{
+   // A save may reach Supabase before the UI reports success. Reload to discover
+   // a persisted synthetic zone even if the preceding assertion failed.
+   await page.reload();
+   await expect(page.locator('#status')).toContainText('Editing your',{timeout:20000});
+   if(await savedRow.count()){
+    page.once('dialog',dialog=>dialog.accept());
+    await savedRow.getByRole('button',{name:'Delete '+label}).click();
+    await expect(savedRow).toHaveCount(0,{timeout:20000});
+   }
+   // Verify deletion survives reload; UI disappearance alone is insufficient.
+   await page.reload();
+   await expect(page.locator('#status')).toContainText('Editing your',{timeout:20000});
+   await expect(savedRow).toHaveCount(0,{timeout:20000});
+  }
+ });
  test('authenticated synthetic owner saves reloads and deletes an entry area',async({page},info)=>{
   const creds=requireSyntheticCredentials('QA_LANDOWNER');
   const listingId=process.env.QA_LANDOWNER_LISTING_ID;
