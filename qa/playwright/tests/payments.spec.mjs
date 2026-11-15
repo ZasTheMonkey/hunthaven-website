@@ -191,9 +191,13 @@ async function findCheckoutControl(page, locate, timeout, label) {
   await expect.poll(async () => {
     for (const frame of stripeFrames(page)) {
       const candidate = locate(frame).filter({ visible: true }).first();
-      if (await candidate.isVisible()) {
-        control = candidate;
-        return true;
+      try {
+        if (await candidate.isVisible()) {
+          control = candidate;
+          return true;
+        }
+      } catch (error) {
+        if (!frame.isDetached() && !/frame was detached/i.test(error.message)) throw error;
       }
     }
     return false;
