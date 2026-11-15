@@ -10,6 +10,6 @@ Deno.serve(async req=>{
  const id=new URL(req.url).searchParams.get('listing_id')||'';
  if(!/^[0-9a-f-]{36}$/i.test(id))return new Response(JSON.stringify({error:'Invalid property'}),{status:400,headers});
  const db=createClient(Deno.env.get('SUPABASE_URL')||'',Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'',{auth:{persistSession:false}});
- const {data,error}=await db.from('bookings').select('check_in,check_out,status').eq('listing_id',id).in('status',['confirmed','pre_reserved','pending_payment','authorization_pending','pending_approval','approved','capturing','cancellation_processing']).gte('check_out',new Date().toISOString().slice(0,10)).order('check_in',{ascending:true}).limit(500);
+ const {data,error}=await db.from('bookings').select('check_in,check_out,status').eq('listing_id',id).in('status',['confirmed','pre_reserved','pending_payment','pending_approval','approved','capturing','cancellation_processing']).gte('check_out',new Date().toISOString().slice(0,10)).order('check_in',{ascending:true}).limit(500);
  return new Response(JSON.stringify(error?{error:'Availability unavailable'}:{ranges:(data||[]).map(x=>({start:x.check_in,end:x.check_out,type:['confirmed','pre_reserved','approved','pending_payment'].includes(x.status)?'booked':'pending'}))}),{status:error?503:200,headers});
 });
