@@ -400,18 +400,7 @@ test.beforeAll(async () => {
   credentials = await preflight();
 });
 
-async function requestBookingFromListing(page, bookingRequest, hunterHeaders) {
-  await page.goto(origin + '/guest-portal.html');
-  await page.locator('#si-email').fill(hunter.email);
-  await page.locator('#si-pass').fill(hunter.password);
-  const loginResponse = page.waitForResponse(response =>
-    response.url().startsWith(database + '/auth/v1/token?grant_type=password') && response.request().method() === 'POST');
-  await page.locator('#si-btn').click();
-  const login = await (await loginResponse).json();
-  expect(login.user?.id).toBe(hunter.id);
-  expect(Boolean(login.access_token), 'Hunter browser login has a session').toBe(true);
-  hunterHeaders.Authorization = 'Bearer ' + login.access_token;
-  await expect(page.locator('#dashboard')).toBeVisible({ timeout: 20_000 });
+async function openPaymentListing(page) {
   await page.goto(origin + '/#listings-section');
   const candidates = page.getByRole('button', { name: 'View Orange details', exact: true });
   // Sandbox inventory can contain other properties in the same county.
@@ -427,6 +416,37 @@ async function requestBookingFromListing(page, bookingRequest, hunterHeaders) {
     await modal.getByRole('button', { name: 'Close listing details' }).click();
   }
   expect(found, 'Dedicated sandbox listing is visible in discovery').toBe(true);
+  return modal;
+}
+
+async function checkHeldDateInCalendar(page, date) {
+  const modal = await openPaymentListing(page);
+  const input = modal.locator('#bk-checkin');
+  await expect.poll(() => input.evaluate(element => Boolean(element._flatpickr))).toBe(true);
+  await input.evaluate((element, value) => element._flatpickr.jumpToDate(value), date);
+  await input.click();
+  const label = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric',
+    timeZone: 'UTC' }).format(new Date(date));
+  const heldDay = page.locator('.flatpickr-calendar.open .flatpickr-day').filter({ visible: true })
+    .and(page.locator('[aria-label=' + JSON.stringify(label) + ']'));
+  await expect(heldDay).toHaveClass(/\bflatpickr-disabled\b/);
+  await heldDay.click();
+  await expect(input).toHaveValue('');
+}
+
+async function requestBookingFromListing(page, bookingRequest, hunterHeaders) {
+  await page.goto(origin + '/guest-portal.html');
+  await page.locator('#si-email').fill(hunter.email);
+  await page.locator('#si-pass').fill(hunter.password);
+  const loginResponse = page.waitForResponse(response =>
+    response.url().startsWith(database + '/auth/v1/token?grant_type=password') && response.request().method() === 'POST');
+  await page.locator('#si-btn').click();
+  const login = await (await loginResponse).json();
+  expect(login.user?.id).toBe(hunter.id);
+  expect(Boolean(login.access_token), 'Hunter browser login has a session').toBe(true);
+  hunterHeaders.Authorization = 'Bearer ' + login.access_token;
+  await expect(page.locator('#dashboard')).toBeVisible({ timeout: 20_000 });
+  const modal = await openPaymentListing(page);
   for (const [selector, date] of [['#bk-checkin', bookingRequest.check_in], ['#bk-checkout', bookingRequest.check_out]]) {
     const input = modal.locator(selector);
     await expect.poll(() => input.evaluate(element => Boolean(element._flatpickr))).toBe(true);
@@ -577,6 +597,8 @@ for (const scenario of scenarios) {
         await expect(booking).toContainText('Awaiting landowner approval');
         await page.reload();
         await expect(booking).toContainText('Awaiting landowner approval');
+        await checkHeldDateInCalendar(page, bookingRequest.check_in);
+        evidence.heldDateDisabledInHunterCalendar = true;
       }
       if (scenario === 'hunter_journey') Object.assign(hunterHeaders, await authenticate(hunter, 'hunter'));
       if (['success', 'hunter_journey'].includes(scenario)) {
