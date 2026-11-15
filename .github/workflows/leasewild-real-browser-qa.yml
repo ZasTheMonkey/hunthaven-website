@@ -82,7 +82,7 @@ jobs:
           QA_PAYMENT_OWNER_PASSWORD: ${{ secrets.QA_PAYMENT_OWNER_PASSWORD }}
           QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY: ${{ vars.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY || secrets.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY }}
           QA_PAYMENT_LISTING_ID: ${{ vars.QA_PAYMENT_LISTING_ID || secrets.QA_PAYMENT_LISTING_ID }}
-        run: npx playwright test --project=payments-chromium
+        run: npx playwright test --project=payments-chromium --project=payments-mobile-webkit
       - name: Upload screenshots, video, traces and reports
         if: always()
         uses: actions/upload-artifact@v4
