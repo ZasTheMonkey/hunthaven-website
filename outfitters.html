@@ -210,6 +210,8 @@
   .nav a {transition:none!important;transform:none!important}
 }
 </style><style>
+/* Filtered experience cards must be removed from layout even though card CSS sets display:flex. */
+#outfitter-directory .experience-card[hidden]{display:none!important}
 /* Growth QA: ensure missing and failed photographs have a legible, centered placeholder. */
 #outfitter-directory .experience-card__media.experience-card__placeholder{display:grid!important;place-items:center;min-height:180px;padding:1.5rem;text-align:center;font-weight:700;color:var(--color-text);overflow-wrap:anywhere}
 /* Growth QA: prevent narrow-screen overflow and honor reduced-motion preferences. */
