@@ -595,6 +595,23 @@ for (const scenario of scenarios) {
           body: JSON.stringify({ ...bookingRequest, request_key: crypto.randomUUID() }),
         });
         const competingBody = await competing.json();
+        // Capture response and visible booking state before asserting; HTTP 200 alone
+        // does not prove that a second eligible reservation exists.
+        evidence.duplicateSubmission.differentKeyResponse = {
+          httpStatus: competing.status,
+          bookingId: competingBody?.booking_id ?? null,
+          reservationStatus: competingBody?.status ?? competingBody?.booking?.status ?? null,
+          error: competingBody?.error ?? null,
+          idempotentReplay: competingBody?.idempotent_replay ?? null,
+        };
+        const competingRows = await bookingCall(hunterHeaders, 'approval', { action: 'hunter_list' });
+        evidence.duplicateSubmission.differentKeyBookingRow = competingRows.bookings?.find(
+          row => row.id === competingBody?.booking_id
+        )?.status ?? null;
+        await info.attach('competing-booking-diagnostic', {
+          body: JSON.stringify(evidence.duplicateSubmission, null, 2),
+          contentType: 'application/json',
+        });
         expect(competing.status).toBe(409);
         expect(competingBody.error).toBe('Dates are unavailable');
         evidence.duplicateSubmission.differentKeyStatusAfterAuthorization = competing.status;
