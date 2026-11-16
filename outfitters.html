@@ -77,13 +77,13 @@
     .mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--color-text);padding:.4rem}
     .nav-mob-cta{display:none}
     @media(max-width:768px){
-      .nav-links a:not(.nav-mob-cta){display:none}
+      .nav-inner{position:relative}
+      .nav-links{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:0 0 var(--radius-lg) var(--radius-lg);box-shadow:var(--shadow-md);padding:.5rem;z-index:101}
+      .nav-links.is-open{display:flex}
+      .nav-links a,.nav-links a:not(.nav-mob-cta),.nav-links .nav-mob-cta{display:block;padding:.8rem 1rem;min-height:44px}
       .nav-divider{display:none}
-      .mobile-menu-btn{display:flex}
+      .mobile-menu-btn{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
       .nav .btn-ghost,.nav .btn-primary,.nav .btn-accent{display:none!important}
-      
-      
-      
     }
 
     .hero{padding:clamp(3rem,8vw,6rem) clamp(1rem,4vw,3rem) clamp(2rem,5vw,3rem);text-align:center;border-bottom:1px solid var(--color-border)}
@@ -275,6 +275,7 @@
         <a href="landowner-portal.html" class="nav-mob-cta" style="color:var(--color-text-muted);font-weight:600">Landowner Login</a>
         <a href="outfitter-portal.html" class="nav-mob-cta" style="color:var(--color-water);font-weight:600">Outfitter Login</a>
       </div>
+      <button class="mobile-menu-btn" id="outfitter-menu-toggle" type="button" aria-controls="nav-links" aria-expanded="false" aria-label="Open navigation menu"><span aria-hidden="true">☰</span></button>
       <div class="nav-actions">
         
         <a href="landowner-portal.html" class="btn btn-ghost">Landowner Login</a>
@@ -284,6 +285,18 @@
     </div>
   </nav>
 
+<script>
+(function(){
+ const button=document.getElementById('outfitter-menu-toggle'),menu=document.getElementById('nav-links');
+ if(!button||!menu)return;
+ function close(){menu.classList.remove('is-open');button.setAttribute('aria-expanded','false');button.setAttribute('aria-label','Open navigation menu')}
+ button.addEventListener('click',()=>{const open=!menu.classList.contains('is-open');menu.classList.toggle('is-open',open);button.setAttribute('aria-expanded',String(open));button.setAttribute('aria-label',open?'Close navigation menu':'Open navigation menu')});
+ menu.addEventListener('click',event=>{if(event.target.closest('a'))close()});
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu.classList.contains('is-open')){close();button.focus()}});
+ document.addEventListener('click',event=>{if(!menu.contains(event.target)&&!button.contains(event.target))close()});
+ window.addEventListener('resize',()=>{if(window.innerWidth>768)close()});
+})();
+</script>
   <main id="main-content" tabindex="-1">
   <!-- HERO -->
   <div style="padding:clamp(3rem,7vw,5rem) clamp(1rem,4vw,3rem) clamp(1.5rem,4vw,3rem);text-align:center;border-bottom:1px solid var(--color-border)">
