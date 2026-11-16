@@ -21,6 +21,29 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    await screenshotStep(page,info,'zone-editor-'+width+'px');
   });
  }
+ // Genuine pointer-driven draft coverage. No authentication or database writes.
+ // This verifies browser gestures only; authenticated persistence is a separate gate.
+ for (const [zoneType,zoneName] of [['hunting_area','hunting'],['entry_area','entry'],['parking_area','parking']]) {
+  test('mouse traces an unsaved '+zoneName+' area and anonymous save stays denied',async({page},info)=>{
+   await visit(page,'/sandbox-zone-editor.html');
+   await page.locator('#zone-type').selectOption(zoneType);
+   await page.locator('#draw-boundary').click();
+   await expect(page.locator('#draw-boundary')).toHaveAttribute('aria-pressed','true');
+   const map=page.locator('#map'),rect=await map.boundingBox();
+   expect(rect,'map must have a rendered bounding box').not.toBeNull();
+   const x=rect.x+rect.width*.35,y=rect.y+rect.height*.35;
+   await page.mouse.move(x,y);
+   await page.mouse.down();
+   for (const [dx,dy] of [[45,0],[90,0],[90,45],[90,90],[45,90],[0,90],[0,45]]) {
+    await page.mouse.move(x+dx,y+dy,{steps:5});
+   }
+   await page.mouse.up();
+   await expect(page.locator('#draw-boundary')).toHaveAttribute('aria-pressed','false');
+   await expect(page.locator('#draft-count')).toContainText(/([3-9]|[1-9][0-9]+) draft point/);
+   await expect(page.locator('#save')).toBeDisabled();
+   await screenshotStep(page,info,'anonymous-mouse-traced-'+zoneName+'-area');
+  });
+ }
  test('unauthenticated visitor cannot save a drafted hunting boundary',async({page},info)=>{
   await visit(page,'/sandbox-zone-editor.html');
   await expect(page.locator('#save')).toBeDisabled();
