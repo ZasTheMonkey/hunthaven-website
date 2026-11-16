@@ -227,3 +227,10 @@ Run `43602921447`, attempt 2, at staging test commit `07b1ac09596a856e6a0f7a87f2
 **Payment cross-check, no duplicate tests:** Existing payment job [132985854427](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/43770738144/job/132985854427) logged **7 passed, 3 skipped, 1 failed**. Failure was a 25-second wait for Stripe card form or payment selector; Hunter/Payments owns diagnosis and fresh TEST payment rerun. Do not claim this as a landowner-side fix.
 
 **This invocation: STATIC-ONLY** (3 staging files read; 2 existing CI job logs independently inspected); **0 new deployed browser routes/flows, 0 Stripe TEST submissions, 0 fixes, 0 deployments**. Browser access to the deployed sandbox was not available in this runtime. No production, live Stripe, main or live website access. **Launch NO-GO** until authenticated map/RLS, reviews, messaging and payment/tax/payout evidence is complete.
+
+
+## 2026-11-16 13:38 EST — Bot B map interaction coverage gap (STATIC-ONLY)
+
+Inspected `qa/playwright/tests/host.spec.mjs` at blob `cd698127f700a893989d040d24544369e0d49355`. The authenticated hunting, entry-area and parking-area tests populate latitude/longitude fields and click `#add-point`; they do **not** drag/tap the actual map canvas to draw boundaries. Thus even a future passing authenticated coordinate-entry test would not prove the owner-requested human-like map drawing gestures, touch polygon closure/editing, or persisted geometry from the map itself. Keep those as separate **NOT TESTED** gates, including mobile touch and keyboard alternatives. Existing fixture gates still require a verified synthetic owner/listing, in-bounds points, reliable cleanup, and distinct second owner. Do not flip fixture flags without independent sandbox verification.
+
+No graphical browser/computer was available in this invocation. **0 fresh browser E2E flows, 0 Stripe TEST submissions, 0 application fixes, 0 deployments.** Historical GitHub browser runs are not new results. Coordinate with Hunter/Payments on payment ownership; Bot B owns map gesture and host-side booking evidence. **NO-GO.** No main/live/production access.
