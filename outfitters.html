@@ -168,6 +168,8 @@
 @media(max-width:600px){#outfitter-directory{grid-template-columns:minmax(0,1fr);gap:1rem}.experience-card__media{aspect-ratio:16/9}.experience-card__body{padding:.95rem 1rem 1.1rem}.experience-card__title{font-size:1.17rem}}
 </style>
 <style>
+/* Filtered cards must honor the hidden attribute despite author display:flex rules. */
+#outfitter-directory .experience-card[hidden]{display:none!important}
 /* Growth QA 2026-11-11: preserve a usable mobile card and readable CTA in both themes. */
 #outfitter-directory .experience-card{display:flex;flex-direction:column;min-width:0;background:var(--color-surface-2)}
 #outfitter-directory .experience-card__media{display:block;aspect-ratio:16/10;overflow:hidden;background:var(--color-surface-offset)}
