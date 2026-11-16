@@ -349,3 +349,10 @@ Growth Research owns public discovery and accessibility copy/CSS. Developer/Hunt
 - **BLOCKED:** Independent Cloudflare HTTPS verification failed with `curl: (6) Could not resolve host: leasewild-sandbox.pages.dev` from this execution environment.
 - **NOT TESTED:** Browser behavior against actual sandbox inventory, all 320/375/390/430/768/1024/1280/1440/1920/2560 widths, touch/keyboard/zoom, fresh Stripe TEST transactions or reconciliation. Source PASS is not E2E PASS.
 - **COORDINATION / NO-GO:** Growth owns public directory only; Hunter/Developer QA own booking identity, messaging and checkout; Landowner QA owns boundaries/reviews and payout; Legal owns tax/release. Receipt delivery, external-bank payout, partial refunds, Stripe Tax and full authenticated regression remain open. Do not duplicate payment evidence.
+
+
+## 2026-11-15 21:19 ET — Filtered directory cards visibility
+- **FAIL (source-level):** `applySearch()` sets `card.hidden=true` on nonmatching cards, but author CSS `#outfitter-directory .experience-card{display:flex}` overrides the user-agent `[hidden]{display:none}` styling. Filtered cards could remain visible while the result count says zero or fewer matches.
+- **FIX / PASS (staging commit):** `f6041ac8e324a1e6eb1051f5a5c2e1557b1388a0` adds the scoped rule `#outfitter-directory .experience-card[hidden]{display:none!important}` before the existing card styling. No checkout, API, database, Stripe or production changes.
+- **NOT TESTED:** Deployed browser behavior, real inventory, ten responsive widths, keyboard/touch/zoom, and fresh Stripe TEST payments/Connect reconciliation. Source-level correction is not a browser pass.
+- **COORDINATION:** Growth Research owns this directory CSS fix; Developer/Hunter QA retain checkout and listing identity, Landowner QA owns owner-facing maps/reviews, Legal owns tax. Verify Cloudflare staging deployment and search filtering with synthetic or approved inventory. **NO-GO** pending independent payment, tax and payout proof.
