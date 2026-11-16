@@ -560,7 +560,48 @@ for (const scenario of scenarios) {
       } catch {
         throw new Error('Verified Stripe TEST Checkout could not load in the browser');
       }
-      await enterCard(page, session.id, cards[scenario === 'retry' ? 'declined' : scenario === 'hunter_journey' ? 'success' : scenario]);
+      // Capture redacted hosted-checkout diagnostics only when the card UI fails to appear.
+      // Do not log Checkout URLs, session tokens, cookies, request bodies or payment details.
+      const checkoutFailures = [];
+      const checkoutErrors = [];
+      const onRequestFailed = request => {
+        const url = new URL(request.url());
+        checkoutFailures.push({ origin: url.origin, resource: request.resourceType(),
+          failure: request.failure()?.errorText?.slice(0, 120) || 'unknown' });
+      };
+      const onPageError = error => checkoutErrors.push({ kind: 'pageerror', name: error.name });
+      const onConsole = message => {
+        if (message.type() === 'error') checkoutErrors.push({ kind: 'console', locationOrigin:
+          (() => { try { return new URL(message.location().url).origin; } catch { return 'unknown'; } })() });
+      };
+      page.on('requestfailed', onRequestFailed);
+      page.on('pageerror', onPageError);
+      page.on('console', onConsole);
+      try {
+        await enterCard(page, session.id, cards[scenario === 'retry' ? 'declined' : scenario === 'hunter_journey' ? 'success' : scenario]);
+      } catch (error) {
+        const currentSession = await stripe('checkout/sessions/' + session.id).catch(() => null);
+        const diagnostic = {
+          browser: test.info().project.name, scenario, errorName: error.name,
+          checkoutPageOrigin: new URL(page.url()).origin,
+          visibleHostedError: await page.getByText('Something went wrong', { exact: true }).isVisible().catch(() => false),
+          frameOrigins: [...new Set(page.frames().map(frame => {
+            try { return new URL(frame.url()).origin; } catch { return 'unknown'; }
+          }))],
+          sessionStatus: currentSession?.status || 'unavailable',
+          sessionPaymentStatus: currentSession?.payment_status || 'unavailable',
+          sessionExpired: currentSession?.expires_at ? currentSession.expires_at <= Math.floor(Date.now() / 1000) : null,
+          requestFailures: checkoutFailures.slice(-20), browserErrors: checkoutErrors.slice(-20),
+        };
+        await test.info().attach('stripe-checkout-redacted-diagnostic', {
+          body: JSON.stringify(diagnostic, null, 2), contentType: 'application/json',
+        });
+        throw error;
+      } finally {
+        page.off('requestfailed', onRequestFailed);
+        page.off('pageerror', onPageError);
+        page.off('console', onConsole);
+      }
       if (['declined', 'insufficient_funds', 'retry'].includes(scenario)) {
         await findCheckoutControl(page, frame => frame.getByText(scenario === 'insufficient_funds' ? /insufficient funds/i : /card was declined/i),
           25_000, 'Stripe decline message');
