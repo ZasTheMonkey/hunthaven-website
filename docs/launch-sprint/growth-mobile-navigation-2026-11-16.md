@@ -16,3 +16,10 @@ Commit `1ea6e56e2f1c29637bcf0b81670ae1eaa6ab3c6c` adds a 44px minimum mobile men
 - NOT TESTED: actual sandbox listing inventory, authenticated conversion and Stripe TEST reconciliation.
 - Retest mobile toggle opening, link visibility, Escape focus, outside click, login links, desktop menu, and absence of overflow once browser access is available.
 - Stripe launch gate remains NO-GO per `stripe-launch-gate-2026-11-11.md` until outstanding payment/tax/refund/payout/legal gates have evidence. No claim of launch readiness.
+
+## 2026-11-16 follow-up — mobile cascade regression corrected
+
+- **FAIL (source cascade):** A later `#lw-growth-directory-nav-fix` style block forced `.nav .nav-links{display:flex!important}` even at <=768px, overriding the initial mobile `.nav-links{display:none}` and showing the dropdown before the toggle was activated. The same block forced login links visible on narrow screens. This contradicted the mobile toggle's `aria-expanded=false` state.
+- **PASS (source fix):** Commit `59de231df44d531be59ae7f0adda552954cff23c` adds a narrow-screen override *after* the tablet/light-theme rules. The dropdown is hidden by default and shown only with `.is-open`; menu links retain 44px targets, and the 72px mobile header remains single-row. Re-fetched the staging file and confirmed the new rules and existing toggle/Escape handlers are present. No payment or Supabase files changed.
+- **NOT TESTED:** Browser CSS computed styles, real touch/keyboard interactions, screenshots at the ten widths, and Cloudflare deployment. This is source-level verification only, not a browser PASS.
+- **NO-GO:** Stripe receipt delivery, external-bank payout, partial refunds, Stripe Tax, legal and authenticated end-to-end gates remain open. Keep production untouched.
