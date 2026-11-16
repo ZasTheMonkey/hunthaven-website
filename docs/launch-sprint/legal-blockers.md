@@ -85,3 +85,12 @@ Florida-licensed attorney review of terms, waiver, privacy, host agreement, insu
 **REVIEW (multiple public policy surfaces):** `terms.html` embeds a privacy policy while `privacy.html` separately publishes a privacy policy. Both are public-facing; update/version them together and verify footer and signup/checkout links target the authoritative current text. Do not treat either page as proof of affirmative waiver consent.
 
 **PASS:** Read both staging legal files and existing shared launch-gate report. **FAIL:** inconsistent stated minor-data collection policy relative to planned workflow. **NOT TESTED:** authenticated minor guest submission, browser policy links, consent records, RLS, review moderation, responsive matrix, Stripe TEST transactions, Cloudflare deployment. **NO-GO** unchanged; no payment or production changes. This is issue spotting, not legal advice.
+
+
+## 2026-11-15 — legal page theme and accessibility regression (source-verified)
+
+**FAIL — contradictory light-theme declarations in legal terms:** `terms.html` begins with `<html lang="en" data-theme="light">` and defines light tokens under `:root,[data-theme="light"]`, but a later `[data-theme="light"]` rule overrides the same tokens with dark background (`#111410`), dark surfaces and light foreground. This is a deterministic CSS cascade conflict; the later rule wins absent a stronger external override. Two external theme stylesheets are loaded afterward, so the final computed visual theme requires browser verification. Designer/Developer should consolidate token definitions and verify default, toggled, Safari/Chrome, system dark mode, forced colors and 200% zoom. Do not assume the legal page is visually consistent with the homepage.
+
+**REVIEW — legal accessibility:** The terms mobile menu button has an accessible name but its expanded state and focus behavior are not established from the reviewed markup. Verify keyboard activation, focus return, `aria-expanded`, Escape and visible focus. This is a test request, not a confirmed functional failure.
+
+**PASS:** Read staging `terms.html`, `privacy.html`, the current legal report and Stripe launch-gate document. **FAIL:** source-level CSS theme token contradiction. **NOT TESTED:** browser computed styles across 320–2560px, authenticated terms assent, synthetic RLS, Stripe TEST flows, Cloudflare deployment and payouts. No payments or production resources touched. **NO-GO** remains. Ownership: Designer/Developer for CSS remediation; Legal for policy and consent verification.
