@@ -242,6 +242,14 @@
  .nav .nav-links .nav-mob-cta{display:inline-flex!important}
  .nav .nav-actions{display:none!important}
 }
+/* The mobile dropdown must override the earlier light-theme and tablet flex rules. */
+@media(max-width:768px){
+ .nav .nav-inner{height:72px;min-height:72px;flex-wrap:nowrap;padding-top:0;padding-bottom:0}
+ .nav .nav-links{display:none!important;position:absolute;top:100%;left:0;right:0;width:auto;order:initial;overflow:visible;white-space:normal;flex-direction:column;align-items:stretch;gap:0}
+ .nav .nav-links.is-open{display:flex!important}
+ .nav .nav-links a,.nav .nav-links a:not(.nav-mob-cta),.nav .nav-links .nav-mob-cta{display:block!important;min-height:44px;white-space:normal}
+ .nav .mobile-menu-btn{display:inline-flex;flex-shrink:0}
+}
 </style><style>/* Keyboard accessibility: skip repeated navigation on the outfitter directory. */
 .lw-skip-link{position:fixed;top:8px;left:8px;z-index:10000;padding:.75rem 1rem;background:#fff;color:#193d32;border:2px solid #193d32;border-radius:8px;font-weight:700;transform:translateY(-180%)}
 .lw-skip-link:focus{transform:translateY(0);outline:3px solid #c17f3a;outline-offset:2px}
