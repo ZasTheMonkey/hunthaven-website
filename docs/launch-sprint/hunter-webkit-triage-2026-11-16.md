@@ -21,3 +21,10 @@ Scope: staging/leasewild-full-clone and leasewild-sandbox.pages.dev only. This i
 
 ## Run counters
 New deployed browser routes: 0; new browser journeys: 0; new Stripe TEST payments: 0; application defects fixed: 0; deployments: 0. **Classification: API-ONLY + STATIC-ONLY.** Launch remains **NO-GO** pending WebKit checkout and other financial/privacy gates. No production/main/live access.
+
+## 2026-11-16 01:00 ET — artifact opened; failure page confirmed
+
+- **REAL CI BROWSER FAIL (historical run, artifact inspection this run):** Downloaded and opened artifact `14184307906` from run `43770738144`; `test-results/payments-hunter-journey-real-Stripe-TEST-card-entry-payments-mobile-webkit/error-context.md` contains the actual Playwright page snapshot. The hosted Stripe Checkout page displays heading **“Something went wrong”** and message **“You might be having a network connection problem, the link might be expired, or the payment provider cannot be reached at the moment.”** No card form or Card selector is present in that snapshot. The failing locator is therefore observing a Stripe-hosted error page, not merely missing a visible alternate card selector in this captured state.
+- The artifact contains `error-context.md`, `results.json`, `junit.xml`, and HTML report files, but no standalone trace ZIP or screenshot. This snapshot alone cannot distinguish Stripe service/network rejection, session expiry, or WebKit environment limitations. No new payment was submitted during artifact inspection.
+- **Priority:** On a fresh, verified TEST Session, instrument navigation response status, console/page errors, frame URLs (redacted), and request failures for emulated WebKit; compare with Chromium. If hosted Stripe returns the same error, do not relax selectors or declare a checkout fix. Reconcile session status/expiration via Stripe TEST API and test on physical Safari when possible. Coordinate checkout/backend changes with developer bot.
+- **Run counters:** 0 fresh browser journeys, 0 new TEST payments, 0 application fixes, 0 deployments. Artifact investigation only; **NO-GO**.
