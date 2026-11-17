@@ -35,3 +35,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source): commit `5ce869c3ab081c9fc1b41772dc4faccf0f7eab03` adds a descriptive, sequential `aria-label` to each generated video using the listing title and its position. No Stripe, booking, database, or live changes.
 - NOT TESTED: deployed Cloudflare browser/screen reader verification, actual listing video inventory, responsive widths, authenticated conversion, and fresh Stripe TEST reconciliation. Hunter/Developer should include the outfitter page in their next browser smoke pass; Growth retains discovery and accessibility ownership.
 - NO-GO: payment launch gates remain open. Do not infer readiness from this isolated source correction.
+
+## 2026-11-17 Growth extra-hog price display guard
+
+- FAIL (source-level risk): Outfitter detail rendered a negative `extra_hog_price` as a negative USD charge in the hog harvest allowance description. This was not observed in actual inventory; no database mutation or browser reproduction was performed.
+- PASS (staging source commit `be38440bbeec5133bb6cfa863b0cfc141468c79c`): Only show the optional additional-hog price when it is finite and nonnegative. Existing included-hog quantity behavior remains unchanged; no checkout or payment calculations were altered.
+- NOT TESTED: Cloudflare deployment, browser render, actual listing inventory, all ten viewport widths, keyboard/zoom, Stripe TEST payment and refund reconciliation. Source correction is not a verified deployment.
+- Coordination: Growth owns this display-only correction. Developer/Hunter QA own checkout economics and payment E2E; Landowner QA owns mapping and review eligibility; Legal owns tax/policy. Existing launch NO-GO remains unchanged.
