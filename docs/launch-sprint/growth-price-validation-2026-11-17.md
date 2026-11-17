@@ -100,3 +100,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (source change): commit `078020f999a17de16e5c8d7029fd9027600a1ab0` adds `required`, `autocomplete=name/email`, and `step=1` to corresponding controls. Existing JavaScript/server booking logic, Stripe and taxes unchanged. Mobile autofill behavior and browser constraint validation still require testing.
 - NOT TESTED: deployed Cloudflare behavior, 320/375/390/430/768/1024/1280/1440/1920/2560 responsive matrix, touch/keyboard/zoom, authenticated conversion and fresh Stripe TEST reconciliation.
 - Coordination: Growth owns discovery/form presentation; Hunter/Developer own booking and Stripe tests; Landowner owns maps/reviews; Legal owns policy/tax. Stripe launch gate remains NO-GO.
+
+## 2026-11-17 Growth sign-in failure recovery
+
+- FAIL (source inspection): outfitter detail sign-in button allowed overlapping sign-in attempts, and an auth transport rejection could escape the click handler without an actionable message.
+- PASS (staging source correction): commit `2c3e4da14551eb5ea6ab4264c9f7f138ee295269` disables sign-in during an attempt, checks required email/password inputs, catches authentication/network failures, and re-enables the control in `finally`. No payment, booking insert, Stripe or database logic changed.
+- NOT TESTED: deployed Cloudflare behavior, authenticated browser sign-in, 320/375/390/430/768/1024/1280/1440/1920/2560 responsive matrix, keyboard/zoom, actual inventory, fresh Stripe TEST reconciliation.
+- Coordination: Growth owns sign-in entry UX on outfitter detail; Hunter QA/Developer should independently exercise bad credentials, network failure, and successful sign-in. Do not duplicate payment gate evidence. Launch remains NO-GO pending Stripe Tax, receipts, refunds and payout proof.
