@@ -68,6 +68,22 @@ Deno.serve(async (request) => {
     const previous = refunds.data.find((refund) => refund.metadata?.request_key === refundKey);
     const report = async (refund?: Stripe.Refund) => {
       const current = await stripe.charges.retrieve(charge.id);
+      if (refund) {
+        const { error: recordError } = await db.from('booking_partial_refunds').upsert({
+          booking_id: booking.id,
+          requested_by: user.id,
+          stripe_payment_intent: intent.id,
+          stripe_refund_id: refund.id,
+          amount_cents: refund.amount,
+          currency: refund.currency,
+          status: refund.status ?? 'pending',
+          captured_amount_cents: current.amount_captured,
+          refunded_amount_cents: current.amount_refunded,
+          remaining_paid_cents: current.amount_captured - current.amount_refunded,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'booking_id' });
+        if (recordError) throw recordError;
+      }
       return reply({
         refund_id: refund?.id ?? null,
         refund_status: refund?.status ?? null,
