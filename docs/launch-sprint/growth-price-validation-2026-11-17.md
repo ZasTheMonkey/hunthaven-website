@@ -63,3 +63,11 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source commit `654624c77d9fd65ae70518437efe1e15545263e5`): Switched only the hero image to `loading="eager" fetchpriority="high"`; retained asynchronous decoding and existing alt text. No change to payments, authentication, database, or image URLs.
 - NOT TESTED: Cloudflare deployment, browser LCP/network waterfall, actual sandbox inventory, responsive matrix (320/375/390/430/768/1024/1280/1440/1920/2560), authenticated conversion and Stripe TEST reconciliation. Recheck that above-fold image loading improves rather than regresses performance on slow mobile networks.
 - Coordination: Growth owns listing detail discovery/performance. Hunter/Developer own checkout/payment E2E, Landowner owns mapping/reviews, Legal owns tax/policy. Stripe launch remains NO-GO pending independent evidence.
+
+## 2026-11-17 Growth hero-image failure fallback
+
+- **FAIL (source-level risk):** `outfitter-experience.html` exposed a visible `<img>` after accepting an HTTPS photo URL, but had no image `error` handler. A removed/expired photo URL could leave a broken-image placeholder in the listing hero. No broken sandbox image was independently reproduced.
+- **PASS (staging source commit `836a6cbe8a5a9ee0ef6b6382f9541932d42bc96e`):** Add a one-shot image error handler to hide the broken hero and remove its failing source. Booking, pricing, Stripe, and database code remain unchanged. This is a graceful-degradation correction, not proof of a deployed fix.
+- **NOT TESTED:** Cloudflare deployment, actual failed-image browser reproduction, inventory, ten-width responsive matrix, checkout/Stripe reconciliation. The direct sandbox URL was inaccessible from this run's web retrieval and the container had a DNS resolution failure. Do not claim independent deployed verification.
+- **Coordination:** Growth owns image/discovery presentation; Hunter/Developer own payment/browser checkout, Landowner QA owns zones/reviews, Legal owns tax/policy. Existing directory guards ambiguous multiple listings per outfitter by withholding detail links; unique listing ID routing remains a product enhancement, not a proven bug fix.
+- **NO-GO:** Keep Stripe launch gate until fresh end-to-end evidence, tax, receipts, partial refund and payout verification are complete.
