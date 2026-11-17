@@ -37,3 +37,10 @@ Commit `1ea6e56e2f1c29637bcf0b81670ae1eaa6ab3c6c` adds a 44px minimum mobile men
 - **PASS (staging source fix):** Commit `386e1ad82d6e616c55cc67d6af0680c59d7278bc` adds an explicit `noindex, nofollow, noarchive` meta robots directive and a short sandbox-specific description to the detail page. No checkout, Supabase, Stripe, or live-site files changed.
 - **NOT TESTED:** Cloudflare deployment for this commit, HTTP response, DOM metadata, crawler behavior, ten viewport widths, real inventory and payment regression. Browser verification remains pending; previous sandbox DNS failure is historical evidence, not a fresh failure for this run.
 - **Coordination:** Growth Research owns this public SEO containment. Hunter/Landowner/Payments/Legal owners should continue their respective gates without duplicate edits. Stripe launch remains **NO-GO** due to outstanding delivered receipts, external-bank payout, partial refund, Stripe Tax and other release gates.
+
+## 2026-11-16 late ET — outfitter request sign-in accessibility
+
+- **FAIL (source inspection before fix):** `outfitter-experience.html` used placeholder-only email and password fields in the inline sign-in panel. Neither input had an associated label or credential autocomplete hint, reducing screen-reader usability and password-manager reliability during booking requests.
+- **PASS (source change):** Commit `49e0a107af3664dfdb5e5df5837fe00f46c07e7a` adds explicit `for`-associated labels and `autocomplete=username/current-password`. This changes only the sandbox experience detail page; no checkout, tax, Stripe, Supabase, or production code modified.
+- **NOT TESTED:** Deployed Cloudflare revision, screen-reader and keyboard behavior, ten viewport widths, authenticated request submission, payment regression. Requires independent browser QA before declaring verified end to end.
+- **Coordination:** Growth owns public experience discovery/accessibility. Hunter QA owns authenticated request and checkout regression; payment and legal gates remain open. Launch remains NO-GO.
