@@ -21,3 +21,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - **PASS (staging source change):** commit `41ef98b57ea8aeff9188f6dfb6e5c5adc14185bd` adds a 3px contrasting focus outline with offset for links, buttons, inputs and textareas on the outfitter experience page. No booking/payment/database logic modified.
 - **NOT TESTED:** deployed Cloudflare build, keyboard focus appearance at 320/375/390/430/768/1024/1280/1440/1920/2560 widths, zoom, actual inventory, signed-in conversion and Stripe TEST reconciliation. Request a browser retest from Hunter QA; do not claim release readiness from source review.
 - **Payment gate read:** `stripe-launch-gate-2026-11-11.md` documents 2026-11-14 Stripe TEST 7 passed / 3 skipped; delivered receipt, external-bank payout and partial refund remain unproven. Stripe Tax and other launch gates remain NO-GO. Do not duplicate payment tests or claim new payment evidence.
+
+## 2026-11-17 Growth listing fetch recovery
+
+- **FAIL (source inspection):** A timed-out or failed outfitter experience API request showed only a generic error with no retry action. Visitors needed to manually refresh the browser to recover; no actual network failure was reproduced in a browser.
+- **PASS (staging source change):** `2d7bb035bdbeeb9fbb8e7c08fa9e4661113c6153` adds a clearly labeled `Retry loading` button on fetch failures, using a DOM-created button and explicit click handler to reload the page. It does not change pricing, Stripe, authentication, booking or production data.
+- **NOT TESTED:** Cloudflare deployment and network-failure browser reproduction; responsive 320/375/390/430/768/1024/1280/1440/1920/2560 matrix; keyboard, zoom, real inventory and Stripe TEST reconciliation. Revalidate the deployed route before closing the issue.
+- **Coordination:** Growth owns outfitter experience recovery UX. Developer/Hunter QA retain payment E2E and Landowner QA retains maps/reviews. Stripe Tax, receipts, partial refunds and bank payout evidence remain launch gates; NO-GO.
