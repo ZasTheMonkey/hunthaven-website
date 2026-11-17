@@ -57,3 +57,10 @@ Commit `1ea6e56e2f1c29637bcf0b81670ae1eaa6ab3c6c` adds a 44px minimum mobile men
 - **PASS (staging source fix):** Commit `acb960c132858ec80ccad02507961e25b5991199` refreshes the date input minimum at submission and invokes native date validity checking before inserting a request. No Stripe, checkout, database schema, or live resources changed.
 - **BLOCKED (deployed browser):** `curl -IL --max-time 12 https://leasewild-sandbox.pages.dev/outfitter-experience.html` returned `curl: (6) Could not resolve host: leasewild-sandbox.pages.dev` in this run.
 - **NOT TESTED:** Cloudflare deployment status for the new commit, midnight-crossing browser reproduction, ten viewport widths, real sandbox inventory, authenticated request insert, and fresh Stripe TEST object/database reconciliation. Hunter QA should cover request validity and booking E2E; Growth owns directory/detail presentation. Overall launch remains **NO-GO**; do not infer a payment regression PASS from this source-only change.
+
+## 2026-11-17 00:40 ET — outfitter detail route identifier validation
+
+- **FAIL (source-level input validation):** `outfitter-experience.html` accepted any 36-character string composed of hexadecimal characters and hyphens as a purported UUID, including noncanonical hyphen placement. This could trigger unnecessary public API requests for malformed detail links; no unauthorized data access or deployed exploit is claimed.
+- **PASS (staging source correction):** Commit `ebc17debb27fb747cbb59acea41e6a214d034c35` requires the canonical 8-4-4-4-12 hexadecimal UUID shape before querying the outfitter listing endpoint. No payment, database, authentication, Stripe, or live resources changed.
+- **NOT TESTED:** Browser invalid-link response, Cloudflare deployment and ten viewport widths, actual sandbox inventory, authenticated conversion and fresh Stripe TEST reconciliation. These require deployed browser/provider evidence; do not claim PASS.
+- **Coordination:** Growth owns public detail-route validation; Hunter/Developer retain checkout E2E, Landowner retains zone/booking checks, Legal retains tax review. Stripe launch gate remains **NO-GO**.
