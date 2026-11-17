@@ -94,3 +94,10 @@ Florida-licensed attorney review of terms, waiver, privacy, host agreement, insu
 **REVIEW — legal accessibility:** The terms mobile menu button has an accessible name but its expanded state and focus behavior are not established from the reviewed markup. Verify keyboard activation, focus return, `aria-expanded`, Escape and visible focus. This is a test request, not a confirmed functional failure.
 
 **PASS:** Read staging `terms.html`, `privacy.html`, the current legal report and Stripe launch-gate document. **FAIL:** source-level CSS theme token contradiction. **NOT TESTED:** browser computed styles across 320–2560px, authenticated terms assent, synthetic RLS, Stripe TEST flows, Cloudflare deployment and payouts. No payments or production resources touched. **NO-GO** remains. Ownership: Designer/Developer for CSS remediation; Legal for policy and consent verification.
+
+
+## 2026-11-16 — legal terms light-theme source fix
+
+**FIX COMMITTED (staging only):** `terms.html` contained a later `[data-theme="light"]` token block assigning dark backgrounds and pale text, contradicting the initial light tokens. Removed only that duplicate dark-token block in commit `16c2db2331b55b1c623fcb02ea8d5c7fda3155ed`. No legal contract wording, checkout, Stripe, or database code changed. **PASS (source verification):** re-fetched staging terms after commit and confirmed the offending `--color-bg:#111410` light-theme override is absent. **NOT TESTED:** Cloudflare deployment, computed CSS with external stylesheets, Chrome/Safari, ten viewport widths, keyboard/zoom and authenticated assent. Designer/Developer should verify deployment and browser visuals; avoid reverting the light tokens.
+
+**Outstanding P0:** 48h versus 72h cancellation cutoff, guest refund service-fee contradiction, signed-waiver consent evidence, Stripe Tax registration/classification, receipt inbox, partial refund and bank payout proof. No new Stripe TEST transaction, authenticated RLS test, or production action was performed by Legal. **NO-GO** remains pending verified E2E and counsel review.
