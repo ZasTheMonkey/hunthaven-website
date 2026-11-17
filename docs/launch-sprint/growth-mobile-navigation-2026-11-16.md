@@ -64,3 +64,9 @@ Commit `1ea6e56e2f1c29637bcf0b81670ae1eaa6ab3c6c` adds a 44px minimum mobile men
 - **PASS (staging source correction):** Commit `ebc17debb27fb747cbb59acea41e6a214d034c35` requires the canonical 8-4-4-4-12 hexadecimal UUID shape before querying the outfitter listing endpoint. No payment, database, authentication, Stripe, or live resources changed.
 - **NOT TESTED:** Browser invalid-link response, Cloudflare deployment and ten viewport widths, actual sandbox inventory, authenticated conversion and fresh Stripe TEST reconciliation. These require deployed browser/provider evidence; do not claim PASS.
 - **Coordination:** Growth owns public detail-route validation; Hunter/Developer retain checkout E2E, Landowner retains zone/booking checks, Legal retains tax review. Stripe launch gate remains **NO-GO**.
+
+## 2026-11-17 — outfitter experience loading/error announcements
+
+- **FAIL (source-level accessibility):** The experience detail `#status` node showed loading, invalid-link, unavailable-listing, ambiguous-listing, and network-error text without a live-region role. Dynamic status updates might not be announced to assistive technology; this is a source-level finding, not a confirmed screen-reader reproduction.
+- **PASS (staging source fix):** Commit `6fcdf36688b98bb329c79f4efc1da494af119456` adds `role="status" aria-live="polite" aria-atomic="true"` to the existing status container. This is a reversible markup-only change; no checkout, Supabase, Stripe, payment or production resources changed.
+- **NOT TESTED:** Cloudflare deployment, screen-reader announcement, ten responsive viewport widths, live sandbox inventory, authenticated request and Stripe TEST reconciliation. Hunter/Developer retain checkout verification; Growth owns directory/detail accessibility. Stripe launch remains **NO-GO**.
