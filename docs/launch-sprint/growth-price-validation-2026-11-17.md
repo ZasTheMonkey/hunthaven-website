@@ -56,3 +56,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source change): `a750823487c5c32b135af81d86af974e56d5b633` constrains the sidebar track with `minmax(0,310px)`, permits grid children to shrink, and wraps dynamic listing and booking status text. No Stripe, booking, database or production changes.
 - NOT TESTED: Cloudflare deployment, actual 320/375/390/430/768/1024/1280/1440/1920/2560 browser viewport matrix, touch, keyboard, zoom, authentic listing inventory or Stripe TEST reconciliation. Treat as source hardening only until deployed browser proof.
 - Coordination: Growth owns discovery/detail responsive presentation. Hunter/Developer own payment end-to-end; Landowner owns boundaries and hunter reviews; Legal owns tax/policy. Stripe launch gate remains NO-GO.
+
+## 2026-11-17 Growth above-the-fold image priority
+
+- REVIEW (source inspection): The primary outfitter experience hero image used `loading="lazy"` despite being the prominent listing photograph near the top of the page. Browser scheduling can delay its request and worsen perceived loading or Largest Contentful Paint. This is a source-level performance risk, not measured Core Web Vitals evidence.
+- PASS (staging source commit `654624c77d9fd65ae70518437efe1e15545263e5`): Switched only the hero image to `loading="eager" fetchpriority="high"`; retained asynchronous decoding and existing alt text. No change to payments, authentication, database, or image URLs.
+- NOT TESTED: Cloudflare deployment, browser LCP/network waterfall, actual sandbox inventory, responsive matrix (320/375/390/430/768/1024/1280/1440/1920/2560), authenticated conversion and Stripe TEST reconciliation. Recheck that above-fold image loading improves rather than regresses performance on slow mobile networks.
+- Coordination: Growth owns listing detail discovery/performance. Hunter/Developer own checkout/payment E2E, Landowner owns mapping/reviews, Legal owns tax/policy. Stripe launch remains NO-GO pending independent evidence.
