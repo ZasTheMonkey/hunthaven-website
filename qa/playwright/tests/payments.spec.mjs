@@ -211,8 +211,26 @@ async function enterCard(page, sessionId, card) {
     throw new Error('BLOCKED: Checkout browser moved outside the verified TEST session');
   }
   const cardOption = frame => frame.getByRole('button', { name: /^card$/i });
-  const ready = await findCheckoutControl(page, frame => frame.locator(cardNumber).or(cardOption(frame)), 25_000,
-    'Stripe card form or payment method selector');
+  let ready;
+  try {
+    ready = await findCheckoutControl(page, frame => frame.locator(cardNumber).or(cardOption(frame)), 25_000,
+      'Stripe card form or payment method selector');
+  } catch (error) {
+    // Bounded diagnostic: never log checkout URLs, session IDs, credentials or card data.
+    const frames = [];
+    for (const frame of stripeFrames(page)) {
+      const location = new URL(frame.url() || 'about:blank');
+      const headings = await frame.locator('h1,h2,[role="alert"]').allTextContents().catch(() => []);
+      frames.push({ origin: location.origin, headings: headings.slice(0, 3).map(value => value.trim().slice(0, 120)) });
+    }
+    let sessionStatus = 'unavailable';
+    try {
+      const verified = await stripe('checkout/sessions/' + sessionId, 'Stripe TEST failure-state read');
+      sessionStatus = verified.livemode === false ? verified.status : 'invalid_account_mode';
+    } catch { sessionStatus = 'read_failed'; }
+    console.log('STRIPE_TEST_WEBKIT_SAFE_DIAGNOSTIC', JSON.stringify({ frames, sessionStatus }));
+    throw error;
+  }
   if (await ready.evaluate(element => element.tagName !== 'INPUT')) await ready.click();
   const number = await findCheckoutControl(page, frame => frame.locator(cardNumber), 15_000, 'Stripe card number field');
   await number.fill('');
