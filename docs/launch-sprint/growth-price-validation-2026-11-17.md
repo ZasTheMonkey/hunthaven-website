@@ -42,3 +42,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source commit `be38440bbeec5133bb6cfa863b0cfc141468c79c`): Only show the optional additional-hog price when it is finite and nonnegative. Existing included-hog quantity behavior remains unchanged; no checkout or payment calculations were altered.
 - NOT TESTED: Cloudflare deployment, browser render, actual listing inventory, all ten viewport widths, keyboard/zoom, Stripe TEST payment and refund reconciliation. Source correction is not a verified deployment.
 - Coordination: Growth owns this display-only correction. Developer/Hunter QA own checkout economics and payment E2E; Landowner QA owns mapping and review eligibility; Legal owns tax/policy. Existing launch NO-GO remains unchanged.
+
+## 2026-11-17 Growth blank-price display guard
+
+- FAIL (source inspection): JavaScript `Number('')` and `Number('   ')` evaluate to zero, so empty/whitespace `price` or `extra_hog_price` values were presented as a real $0.00 price or free additional hog. No malformed sandbox listing was observed and no customer-facing failure is claimed.
+- PASS (staging source commit `f0e07caa71b35a027618a7f9e8d22688f8d16bf2`): Require nonblank trimmed source values before numerical conversion is treated as a valid price. Missing listing price now remains `Price on request`; missing additional-hog price is omitted. This is display-only and does not alter checkout, tax, booking, Stripe or database values.
+- NOT TESTED: Cloudflare deployment, browser reproduction, actual inventory, 320/375/390/430/768/1024/1280/1440/1920/2560 responsive widths, screen reader/zoom, and fresh Stripe TEST reconciliation. Request independent deployed smoke test before closure.
+- Coordination: Growth owns presentation; Hunter/Developer own Stripe payment and booking tests; Landowner owns maps/reviews; Legal owns tax. Launch remains NO-GO pending verified gates.
