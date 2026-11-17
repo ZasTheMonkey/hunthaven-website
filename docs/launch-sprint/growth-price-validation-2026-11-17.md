@@ -78,3 +78,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source fix): commit `edd35235c72e6880fd38ce977c6ee4b4a31fe6b8` normalizes scalar/array/missing species to trimmed strings and preserves `Ask outfitter` fallback. Payment, checkout, booking state and database code unchanged.
 - NOT TESTED: Cloudflare deployment, actual inventory type distributions, rendered browser and all ten responsive widths, authenticated request flow, Stripe TEST reconciliation. Hunter/Developer should independently smoke-test the deployed outfitter detail route; Growth retains directory/detail presentation ownership.
 - NO-GO: Existing Stripe Tax, receipt, partial refund, payout and complete end-to-end gates remain open. Do not treat this source fix as launch proof.
+
+## 2026-11-17 Growth group-size validation
+
+- FAIL (source inspection): outfitter detail applied the raw `max_group_size` directly to the guest-number input. Noninteger, negative, zero, or excessive values could produce inconsistent guest-count validation and confusing conversion UX. No malformed inventory was observed.
+- PASS (staging source fix): `2145328319803fc7d4d37a209258a59d63fcd07b` normalizes the guest limit to an integer between 1 and 30, falling back to 30 otherwise. Booking database, payments and Stripe were not modified. This is client-side UX validation, **not** a substitute for server-side booking limits.
+- BLOCKED (network): independent `curl -I https://leasewild-sandbox.pages.dev/outfitter-experience.html` failed DNS resolution (`Could not resolve host`) from the execution container. Deployment, actual listing inventory and browser retest cannot be verified in this run.
+- NOT TESTED: ten responsive widths, keyboard/zoom, real booking submission, Stripe TEST checkout/refund/payout reconciliation. Developer/Hunter QA own payment flows; Landowner QA owns zones and reviews. No new Stripe passing evidence; launch remains NO-GO.
