@@ -32,13 +32,27 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    const map=page.locator('#map'),rect=await map.boundingBox();
    expect(rect,'map must have a rendered bounding box').not.toBeNull();
    const x=rect.x+rect.width*.35,y=rect.y+rect.height*.35;
+   // Capture event delivery without changing application behavior or faking success.
+   await page.evaluate(()=>{
+    window.__qaPointerEvents=[];
+    const map=document.getElementById('map');
+    for(const type of ['pointerdown','pointermove','pointerup','pointercancel','gotpointercapture','lostpointercapture']){
+     map.addEventListener(type,e=>{
+      const log=window.__qaPointerEvents;
+      if(log.length<250)log.push({type,target:e.target?.className?.baseVal||String(e.target?.className||e.target?.tagName),pointerId:e.pointerId,isPrimary:e.isPrimary,buttons:e.buttons,captured:map.hasPointerCapture(e.pointerId)});
+     },{capture:true});
+    }
+   });
    await page.mouse.move(x,y);
    await page.mouse.down();
    for (const [dx,dy] of [[45,0],[90,0],[90,45],[90,90],[45,90],[0,90],[0,45]]) {
     await page.mouse.move(x+dx,y+dy,{steps:5});
    }
    await page.mouse.up();
-   await expect(page.locator('#draw-boundary')).toHaveAttribute('aria-pressed','false');
+   const pointerEvidence=await page.evaluate(()=>({events:window.__qaPointerEvents||[],pressed:document.getElementById('draw-boundary').getAttribute('aria-pressed'),draft:document.getElementById('draft-count').textContent}));
+   await info.attach('map-pointer-events.json',{body:JSON.stringify(pointerEvidence,null,2),contentType:'application/json'});
+   await screenshotStep(page,info,'mouse-trace-'+zoneName+'-before-assertion');
+   await expect(page.locator('#draw-boundary'),JSON.stringify(pointerEvidence)).toHaveAttribute('aria-pressed','false');
    await expect(page.locator('#draft-count')).toContainText(/([3-9]|[1-9][0-9]+) draft point/);
    await expect(page.locator('#save')).toBeDisabled();
    await screenshotStep(page,info,'anonymous-mouse-traced-'+zoneName+'-area');
