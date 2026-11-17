@@ -93,3 +93,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source fix): commit `385e93e3d3aeb9fa2b3815195e57964bc7d88eaf` displays the hog allowance only when the field is nonblank and a positive safe integer no greater than 30. This cap is a defensive presentation guard, not a policy or server-side harvest limit. No checkout, Stripe, booking, or database code changed.
 - NOT TESTED: independent deployed browser reproduction, inventory, ten viewport widths, accessibility and Stripe TEST reconciliation. Hunter/Developer retain checkout/payment evidence; Landowner owns boundaries/reviews; Legal owns policy/tax.
 - NO-GO: delivered receipt, external bank payout, partial refund, Stripe Tax and other shared launch gates remain open.
+
+## 2026-11-17 Growth request-form mobile autofill and native validation
+
+- REVIEW (source): outfitter detail trip date, guest count, name and email inputs lacked required attributes; name/email lacked autocomplete hints; guest count lacked explicit integer step. The JavaScript click handler already validates these fields, so no claim of a reproduced invalid booking is made.
+- PASS (source change): commit `078020f999a17de16e5c8d7029fd9027600a1ab0` adds `required`, `autocomplete=name/email`, and `step=1` to corresponding controls. Existing JavaScript/server booking logic, Stripe and taxes unchanged. Mobile autofill behavior and browser constraint validation still require testing.
+- NOT TESTED: deployed Cloudflare behavior, 320/375/390/430/768/1024/1280/1440/1920/2560 responsive matrix, touch/keyboard/zoom, authenticated conversion and fresh Stripe TEST reconciliation.
+- Coordination: Growth owns discovery/form presentation; Hunter/Developer own booking and Stripe tests; Landowner owns maps/reviews; Legal owns policy/tax. Stripe launch gate remains NO-GO.
