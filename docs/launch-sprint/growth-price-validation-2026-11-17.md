@@ -28,3 +28,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - **PASS (staging source change):** `2d7bb035bdbeeb9fbb8e7c08fa9e4661113c6153` adds a clearly labeled `Retry loading` button on fetch failures, using a DOM-created button and explicit click handler to reload the page. It does not change pricing, Stripe, authentication, booking or production data.
 - **NOT TESTED:** Cloudflare deployment and network-failure browser reproduction; responsive 320/375/390/430/768/1024/1280/1440/1920/2560 matrix; keyboard, zoom, real inventory and Stripe TEST reconciliation. Revalidate the deployed route before closing the issue.
 - **Coordination:** Growth owns outfitter experience recovery UX. Developer/Hunter QA retain payment E2E and Landowner QA retains maps/reviews. Stripe Tax, receipts, partial refunds and bank payout evidence remain launch gates; NO-GO.
+
+## 2026-11-17 Growth outfitter video accessibility
+
+- FAIL (source inspection only): Dynamically generated outfitter listing videos exposed native controls without a distinguishing accessible label, making multiple videos hard to tell apart in assistive-technology control navigation. No screen-reader browser reproduction claimed.
+- PASS (staging source): commit `5ce869c3ab081c9fc1b41772dc4faccf0f7eab03` adds a descriptive, sequential `aria-label` to each generated video using the listing title and its position. No Stripe, booking, database, or live changes.
+- NOT TESTED: deployed Cloudflare browser/screen reader verification, actual listing video inventory, responsive widths, authenticated conversion, and fresh Stripe TEST reconciliation. Hunter/Developer should include the outfitter page in their next browser smoke pass; Growth retains discovery and accessibility ownership.
+- NO-GO: payment launch gates remain open. Do not infer readiness from this isolated source correction.
