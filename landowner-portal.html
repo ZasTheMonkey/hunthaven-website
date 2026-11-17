@@ -979,6 +979,7 @@
           ${st !== 'cancelled' ? `
           <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
             <p style="font-size:.72rem;color:var(--color-text-muted)">Guest cancellation: full refund at least 72 hours before check-in. No refund within 72 hours.</p>
+            ${st === 'confirmed' && /^[0-9a-f-]{36}$/i.test(b.id) ? `<button type="button" onclick="partialRefundReservation('${b.id}', this)">Partial refund</button>` : ''}
             <button onclick="cancelReservation('${b.id}','${(b.guest_name||'Guest').replace(/'/g,'&#39;')}','${cin}')" style="padding:.4rem .9rem;border:1.5px solid #ef4444;color:#ef4444;background:none;border-radius:var(--radius-md);font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit">Cancel Reservation</button>
           </div>` : '<p style="font-size:.72rem;color:#ef4444;font-weight:700">This reservation was cancelled.</p>'}
         </div>
@@ -1014,6 +1015,49 @@
         if (ownerListings) await loadReservations(ownerListings.map(x=>x.id));
       } catch(refreshError) { console.warn('Could not refresh reservation status',refreshError); }
       alert(message);
+    }
+  }
+
+  async function partialRefundReservation(bookingId, button) {
+    button.disabled = true;
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) throw new Error('Sign in first.');
+      const request = async (action, amountCents) => {
+        const response = await fetch(SB_URL + '/functions/v1/sandbox-booking-partial-refund', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + session.access_token },
+          body: JSON.stringify({ action, booking_id: bookingId, amount_cents: amountCents }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not process the refund.');
+        return result;
+      };
+      const dollars = (cents) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+      const summary = (result) => 'Refund status: ' + result.refund_status +
+        '. Total refunded: ' + dollars(result.refunded_amount) +
+        '. Amount still paid: ' + dollars(result.remaining_paid) + '.';
+      const preview = await request('preview');
+      if (preview.refund_id) {
+        alert(summary(preview));
+        return;
+      }
+      if (preview.refunded_amount || preview.remaining_paid <= 1) {
+        throw new Error('This payment is unavailable for a landowner partial refund.');
+      }
+      const value = prompt('Enter a test refund amount in USD, below ' + dollars(preview.remaining_paid) + '.');
+      if (value === null) return;
+      const parts = /^(\d+)(?:\.(\d{1,2}))?$/.exec(value.trim());
+      const cents = parts ? Number(parts[1]) * 100 + Number((parts[2] || '').padEnd(2, '0')) : 0;
+      if (!Number.isSafeInteger(cents) || cents <= 0 || cents >= preview.remaining_paid) {
+        throw new Error('Enter a positive amount below ' + dollars(preview.remaining_paid) + '.');
+      }
+      if (!confirm('Issue a ' + dollars(cents) + ' Stripe TEST refund? The reservation will stay confirmed.')) return;
+      alert(summary(await request('refund', cents)));
+    } catch (error) {
+      alert(error.message || 'Unable to check the refund.');
+    } finally {
+      button.disabled = false;
     }
   }
 
