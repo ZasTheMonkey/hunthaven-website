@@ -85,3 +85,11 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source fix): `2145328319803fc7d4d37a209258a59d63fcd07b` normalizes the guest limit to an integer between 1 and 30, falling back to 30 otherwise. Booking database, payments and Stripe were not modified. This is client-side UX validation, **not** a substitute for server-side booking limits.
 - BLOCKED (network): independent `curl -I https://leasewild-sandbox.pages.dev/outfitter-experience.html` failed DNS resolution (`Could not resolve host`) from the execution container. Deployment, actual listing inventory and browser retest cannot be verified in this run.
 - NOT TESTED: ten responsive widths, keyboard/zoom, real booking submission, Stripe TEST checkout/refund/payout reconciliation. Developer/Hunter QA own payment flows; Landowner QA owns zones and reviews. No new Stripe passing evidence; launch remains NO-GO.
+
+
+## 2026-11-17 Growth harvest allowance validation
+
+- FAIL (source inspection): `included_hogs_per_guest` previously accepted fractional, non-finite, or excessive positive numbers for the displayed allowance; malformed data could mislead hunters. No malformed sandbox listing was observed.
+- PASS (staging source fix): commit `385e93e3d3aeb9fa2b3815195e57964bc7d88eaf` displays the hog allowance only when the field is nonblank and a positive safe integer no greater than 30. This cap is a defensive presentation guard, not a policy or server-side harvest limit. No checkout, Stripe, booking, or database code changed.
+- NOT TESTED: independent deployed browser reproduction, inventory, ten viewport widths, accessibility and Stripe TEST reconciliation. Hunter/Developer retain checkout/payment evidence; Landowner owns boundaries/reviews; Legal owns policy/tax.
+- NO-GO: delivered receipt, external bank payout, partial refund, Stripe Tax and other shared launch gates remain open.
