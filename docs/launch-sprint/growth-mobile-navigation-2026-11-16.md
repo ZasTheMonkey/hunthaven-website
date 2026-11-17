@@ -44,3 +44,9 @@ Commit `1ea6e56e2f1c29637bcf0b81670ae1eaa6ab3c6c` adds a 44px minimum mobile men
 - **PASS (source change):** Commit `49e0a107af3664dfdb5e5df5837fe00f46c07e7a` adds explicit `for`-associated labels and `autocomplete=username/current-password`. This changes only the sandbox experience detail page; no checkout, tax, Stripe, Supabase, or production code modified.
 - **NOT TESTED:** Deployed Cloudflare revision, screen-reader and keyboard behavior, ten viewport widths, authenticated request submission, payment regression. Requires independent browser QA before declaring verified end to end.
 - **Coordination:** Growth owns public experience discovery/accessibility. Hunter QA owns authenticated request and checkout regression; payment and legal gates remain open. Launch remains NO-GO.
+
+## 2026-11-16 late ET — outfitter request email validation
+
+- **FAIL (source inspection):** The request handler checked only that `guest-email` was nonempty. An invalid nonempty address could reach the sandbox `outfitter_booking_requests` insert despite the input being `type=email`, because the JavaScript click handler did not invoke form constraint validation.
+- **PASS (staging source fix):** Commit `2b3f16ceb1a199e8bdbaa020c55281fca0c2f62d` adds native `checkValidity()` to the existing pre-insert guard. Re-read the updated source to confirm. No Stripe, tax, database schema, live-site or payment code changed.
+- **NOT TESTED:** Actual browser invalid-email rejection, authenticated request insertion, responsive matrix, Cloudflare deployment, and Stripe regression. Hunter QA should verify synthetic invalid/valid email requests; Growth owns conversion presentation. This source-only PASS does not close the launch gate.
