@@ -43,6 +43,15 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
      },{capture:true});
     }
    });
+   // Diagnose the actual hit target at the exact gesture origin. A visible map
+   // bounding box does not prove it is the topmost pointer receiver.
+   const hitEvidence=await page.evaluate(({x,y})=>{
+    const map=document.getElementById('map');
+    const hit=document.elementFromPoint(x,y);
+    const describe=el=>el?{tag:el.tagName,id:el.id||'',className:typeof el.className==='string'?el.className:String(el.className?.baseVal||''),pointerEvents:getComputedStyle(el).pointerEvents,rect:(()=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};})()}:null;
+    return {viewport:{width:innerWidth,height:innerHeight},scroll:{x:scrollX,y:scrollY},origin:{x,y},map:describe(map),hit:describe(hit),hitWithinMap:!!(hit&&map.contains(hit)),stack:document.elementsFromPoint(x,y).slice(0,8).map(describe)};
+   },{x,y});
+   await info.attach('map-hit-test.json',{body:JSON.stringify(hitEvidence,null,2),contentType:'application/json'});
    await page.mouse.move(x,y);
    await page.mouse.down();
    for (const [dx,dy] of [[45,0],[90,0],[90,45],[90,90],[45,90],[0,90],[0,45]]) {
