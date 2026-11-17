@@ -20,3 +20,9 @@ Scope: staging/leasewild-full-clone and leasewild-sandbox.pages.dev only. No pro
 - **BROWSER ACCESS BLOCKED for new interactive session:** No new deployed-browser journey performed in this execution.
 - New browser flows 0; new TEST payments 0; application fixes 0; deployments 0.
 - No app code or payment logic changed; **launch NO-GO**.
+
+## 2026-11-17 08:28 ET — staging diagnostic instrumentation
+- **STAGING CODE CHANGE (NOT YET RETESTED):** commit `ff250088e46fbda70bb722a450f3885847b26625` adds a bounded failure-only diagnostic to `qa/playwright/tests/payments.spec.mjs` after Stripe card-control timeout. It records Stripe-frame origins, short visible headings/alerts and read-only TEST Checkout Session status; does not emit full URLs, session IDs, credentials or card numbers. No payment/business logic changed.
+- **NOT TESTED:** No new workflow on this exact commit has been observed or triggered; the GitHub connector does not expose workflow dispatch. Prior rerun on older commit still fails mobile WebKit. Do not mark repaired or deployed.
+- **NEXT:** Developer/CI owner should dispatch the staging Playwright payment workflow on `ff250088`, inspect `STRIPE_TEST_WEBKIT_SAFE_DIAGNOSTIC` and the browser artifact, correlate TEST session and booking state, then run a fresh mobile card submission plus Chromium regression. Host QA continues separate polygon-zone failures.
+- **COUNTERS:** 0 new browser routes, 0 new TEST payments, 1 test-diagnostic code change, 0 verified deployments. Launch NO-GO.
