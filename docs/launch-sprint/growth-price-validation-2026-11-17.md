@@ -49,3 +49,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source commit `f0e07caa71b35a027618a7f9e8d22688f8d16bf2`): Require nonblank trimmed source values before numerical conversion is treated as a valid price. Missing listing price now remains `Price on request`; missing additional-hog price is omitted. This is display-only and does not alter checkout, tax, booking, Stripe or database values.
 - NOT TESTED: Cloudflare deployment, browser reproduction, actual inventory, 320/375/390/430/768/1024/1280/1440/1920/2560 responsive widths, screen reader/zoom, and fresh Stripe TEST reconciliation. Request independent deployed smoke test before closure.
 - Coordination: Growth owns presentation; Hunter/Developer own Stripe payment and booking tests; Landowner owns maps/reviews; Legal owns tax. Launch remains NO-GO pending verified gates.
+
+## 2026-11-17 Growth narrow-screen overflow hardening
+
+- FAIL (source-level risk, not browser-reproduced): Outfitter detail grid had a fixed 310px sidebar track and no explicit `min-width:0` on grid children or overflow wrapping for dynamic listing content. Long unbroken titles/descriptions/status strings could force horizontal overflow on narrow screens.
+- PASS (staging source change): `a750823487c5c32b135af81d86af974e56d5b633` constrains the sidebar track with `minmax(0,310px)`, permits grid children to shrink, and wraps dynamic listing and booking status text. No Stripe, booking, database or production changes.
+- NOT TESTED: Cloudflare deployment, actual 320/375/390/430/768/1024/1280/1440/1920/2560 browser viewport matrix, touch, keyboard, zoom, authentic listing inventory or Stripe TEST reconciliation. Treat as source hardening only until deployed browser proof.
+- Coordination: Growth owns discovery/detail responsive presentation. Hunter/Developer own payment end-to-end; Landowner owns boundaries and hunter reviews; Legal owns tax/policy. Stripe launch gate remains NO-GO.
