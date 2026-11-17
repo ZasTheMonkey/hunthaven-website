@@ -71,3 +71,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - **NOT TESTED:** Cloudflare deployment, actual failed-image browser reproduction, inventory, ten-width responsive matrix, checkout/Stripe reconciliation. The direct sandbox URL was inaccessible from this run's web retrieval and the container had a DNS resolution failure. Do not claim independent deployed verification.
 - **Coordination:** Growth owns image/discovery presentation; Hunter/Developer own payment/browser checkout, Landowner QA owns zones/reviews, Legal owns tax/policy. Existing directory guards ambiguous multiple listings per outfitter by withholding detail links; unique listing ID routing remains a product enhancement, not a proven bug fix.
 - **NO-GO:** Keep Stripe launch gate until fresh end-to-end evidence, tax, receipts, partial refund and payout verification are complete.
+
+## 2026-11-17 Growth species rendering resilience
+
+- FAIL (source review): `outfitter-experience.html` directly called `.join(', ')` on `item.species`. A scalar string or other non-array value would throw during page initialization, hide the listing and prevent the booking-request form from appearing. The directory already supports both scalar and array species fields. No malformed live sandbox inventory or browser reproduction is claimed.
+- PASS (staging source fix): commit `edd35235c72e6880fd38ce977c6ee4b4a31fe6b8` normalizes scalar/array/missing species to trimmed strings and preserves `Ask outfitter` fallback. Payment, checkout, booking state and database code unchanged.
+- NOT TESTED: Cloudflare deployment, actual inventory type distributions, rendered browser and all ten responsive widths, authenticated request flow, Stripe TEST reconciliation. Hunter/Developer should independently smoke-test the deployed outfitter detail route; Growth retains directory/detail presentation ownership.
+- NO-GO: Existing Stripe Tax, receipt, partial refund, payout and complete end-to-end gates remain open. Do not treat this source fix as launch proof.
