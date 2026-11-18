@@ -666,7 +666,7 @@
         container.innerHTML = '<div class="empty-state"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><p>No bookings yet.</p><a href="listings.html" style="color:var(--color-accent);font-weight:700;text-decoration:none;font-size:var(--text-sm)">Browse available land →</a></div>';
         return;
       }
-      var statusColor = { authorization_pending:'#b97920', pending_approval:'#b97920', capturing:'#b97920', approved:'#247343', declined:'#b83232', pre_reserved:'#c17f3a', confirmed:'#2d5a27', cancelled:'#ef4444', pending_payment:'#6366f1' };
+      var statusColor = { authorization_pending:'#80531f', pending_approval:'#80531f', capturing:'#80531f', approved:'#247343', declined:'#b83232', pre_reserved:'#80531f', confirmed:'#2d5a27', cancelled:'#b83232', pending_payment:'#494bc3' };
       var statusLabel = { authorization_pending:'Card authorization pending', pending_approval:'Awaiting landowner approval (24 hours)', capturing:'Capturing payment', approved:'Approved', declined:'Declined', pre_reserved:'Pre-reserved', confirmed:'Confirmed', cancelled:'Cancelled', pending_payment:'Payment pending' };
       container.innerHTML = data.map(function(b) {
         var cin = b.checkin || b.check_in || '';

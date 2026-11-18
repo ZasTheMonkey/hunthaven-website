@@ -1,0 +1,14 @@
+import {test,expect} from '@playwright/test';
+const api='https://kbkdfpmlyggfijkyjxoi.supabase.co',base='https://leasewild-sandbox.pages.dev';
+for(const [role,prefix,route,id] of [['hunter','QA_HUNTER','guest-portal.html','bf7c510f-f2e1-45a6-923b-89fae1e7148d'],['landowner','QA_SECOND_LANDOWNER','landowner-portal.html','0b22d015-ff3c-4ca6-89e7-28f5fc2cd9b8'],['outfitter','QA_OUTFITTER','outfitter-portal.html','df65f8f7-eb9a-40c6-a157-0bd86d78c8fa']])test('authenticated '+role+' initial dashboard responsive accessibility',async({page,request},info)=>{
+ test.skip(!process.env[prefix+'_PASSWORD'],'BLOCKED: synthetic credentials required');test.setTimeout(180000);
+ const response=await request.post(api+'/auth/v1/token?grant_type=password',{headers:{apikey:process.env.QA_PAYMENT_SUPABASE_PUBLISHABLE_KEY},data:{email:process.env[prefix+'_EMAIL'],password:process.env[prefix+'_PASSWORD']}});const s=await response.json();expect(s.user.id).toBe(id);expect(s.user.app_metadata.qa_fixture).toMatch(/^leasewild-/);
+ if(process.env.QA_CANDIDATE_SOURCE==='true'){const {readFile}=await import('node:fs/promises');await page.route('**/'+route,async r=>r.fulfill({contentType:'text/html',body:await readFile(new URL('../../../'+route,import.meta.url),'utf8')}));}
+ await page.addInitScript(s=>localStorage.setItem('sb-kbkdfpmlyggfijkyjxoi-auth-token',JSON.stringify(s)),s);await page.goto(base+'/'+route);await expect(page.locator('#dashboard')).toBeVisible();await page.addScriptTag({path:new URL('../node_modules/axe-core/axe.min.js',import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1')});const evidence=[];
+ for(const width of [320,375,390,430,768,1024,1280,1440,1920,2560]){
+  await page.setViewportSize({width,height:900});await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>Number.isFinite(a.effect?.getTiming().iterations)).map(a=>a.finished.catch(()=>{})));});
+  const r=await page.evaluate(async()=>{const a=await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa']}});return {width:innerWidth,client:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,violations:a.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary})).slice(0,8)}))};});evidence.push(r);
+  if(width===320||width===2560)await page.screenshot({path:info.outputPath(role+'-'+width+'.png')});
+ }
+ await info.attach('authenticated-width-accessibility',{body:JSON.stringify(evidence),contentType:'application/json'});expect(evidence.filter(r=>r.scroll>r.client+8),'dashboard overflow').toEqual([]);expect(evidence.flatMap(r=>r.violations.filter(v=>['serious','critical'].includes(v.impact)).map(v=>({width:r.width,...v}))),'dashboard serious or critical axe findings').toEqual([]);
+});
