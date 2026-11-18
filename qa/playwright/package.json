@@ -8,6 +8,7 @@
     "test:host": "playwright test --project=host-chromium"
   },
   "devDependencies": {
+    "axe-core": "4.11.0",
     "@playwright/test": "^1.58.0"
   }
 }

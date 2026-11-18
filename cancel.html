@@ -76,7 +76,7 @@
     }
     .btn-cancel {
       width: 100%; padding: .85rem;
-      background: #ef4444; color: #fff;
+      background: #b91c1c; color: #fff;
       border: none; border-radius: var(--radius-full);
       font-family: var(--font-display); font-weight: 800;
       font-size: 1rem; cursor: pointer; margin-top: .75rem;
@@ -91,7 +91,7 @@
     }
     .msg { margin-top: 1rem; font-size: .9rem; font-weight: 600; }
     .msg.success { color: var(--color-primary); }
-    .msg.error { color: #ef4444; }
+    .msg.error { color: #b91c1c; }
     #loading { color: var(--color-text-muted); }
   </style>
 <link rel="stylesheet" href="/leasewild-theme.css?v=20261111-light"><link rel="stylesheet" href="/leasewild-light-system.css?v=20261112-canonical"></head>
@@ -150,7 +150,7 @@
           <button class="btn-cancel" id="confirm-btn" onclick="confirmCancel()">Yes, cancel my reservation</button>
           <button class="btn-back" onclick="history.back()">Keep my reservation</button>
           <p class="msg" id="cancel-msg" style="display:none"></p>`;
-      }catch(e){document.getElementById('loading').innerHTML='<p style="color:#ef4444">'+safe(e.message)+'</p><p><a href="guest-portal.html">Sign in to Guest Portal</a></p>';}
+      }catch(e){document.getElementById('loading').innerHTML='<p style="color:#b91c1c">'+safe(e.message)+'</p><p><a href="guest-portal.html">Sign in to Guest Portal</a></p>';}
     }
     async function confirmCancel(){
       const btn=document.getElementById('confirm-btn'),msg=document.getElementById('cancel-msg');btn.disabled=true;btn.textContent='Cancelling…';

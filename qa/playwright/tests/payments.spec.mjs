@@ -234,7 +234,9 @@ async function enterCard(page, sessionId, card) {
   if (await ready.evaluate(element => element.tagName !== 'INPUT')) await ready.click();
   const number = await findCheckoutControl(page, frame => frame.locator(cardNumber), 15_000, 'Stripe card number field');
   await number.fill('');
-  await number.pressSequentially(card, { delay: 35 });
+  // Stripe can replace the controlled input while per-character events are sent.
+  // Fill atomically and retain the exact-value assertion before submission.
+  await number.fill(card);
   await expect(number).toHaveValue(new RegExp('^' + card.match(/.{4}/g).join('\\s*') + '$'));
   await number.press('Tab');
   const field = selector => findCheckoutControl(page, frame => frame.locator(selector), 15_000, 'Stripe field ' + selector);

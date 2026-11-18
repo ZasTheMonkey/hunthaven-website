@@ -1329,39 +1329,39 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
   ══════════════════════════════════════════ -->
   <div class="categories">
     <div class="cat-inner">
-      <button class="cat-pill active" data-filter="all" onclick="setCat(this,'all')">
+      <button class="cat-pill active" data-filter="all" aria-pressed="true" onclick="setCat(this,'all')">
         <span style="font-size:1.3rem;line-height:1">&#127758;</span>
         All
       </button>
-      <button class="cat-pill" data-filter="hunt" onclick="setCat(this,'hunt')">
+      <button class="cat-pill" data-filter="deer" aria-pressed="false" onclick="setCat(this,'deer')">
         <span style="font-size:1.3rem;line-height:1">&#129420;</span>
         Deer
       </button>
-      <button class="cat-pill" data-filter="hunt" onclick="setCat(this,'hunt')">
+      <button class="cat-pill" data-filter="hog" aria-pressed="false" onclick="setCat(this,'hog')">
         <span style="font-size:1.3rem;line-height:1">&#128055;</span>
         Wild Hog
       </button>
-      <button class="cat-pill" data-filter="hunt" onclick="setCat(this,'hunt')">
+      <button class="cat-pill" data-filter="turkey" aria-pressed="false" onclick="setCat(this,'turkey')">
         <span style="font-size:1.3rem;line-height:1">&#129413;</span>
         Turkey
       </button>
-      <button class="cat-pill" data-filter="hunt" onclick="setCat(this,'hunt')">
+      <button class="cat-pill" data-filter="duck" aria-pressed="false" onclick="setCat(this,'duck')">
         <span style="font-size:1.3rem;line-height:1">&#129414;</span>
         Duck
       </button>
-      <button class="cat-pill" data-filter="hunt" onclick="setCat(this,'hunt')">
+      <button class="cat-pill" data-filter="dove" aria-pressed="false" onclick="setCat(this,'dove')">
         <span style="font-size:1.3rem;line-height:1">&#128038;</span>
         Dove
       </button>
-      <button class="cat-pill" data-filter="fish" onclick="setCat(this,'fish')">
+      <button class="cat-pill" data-filter="bass" aria-pressed="false" onclick="setCat(this,'bass')">
         <span style="font-size:1.3rem;line-height:1">&#128031;</span>
         Bass Fishing
       </button>
-      <button class="cat-pill" data-filter="fish" onclick="setCat(this,'fish')">
+      <button class="cat-pill" data-filter="pond" aria-pressed="false" onclick="setCat(this,'pond')">
         <span style="font-size:1.3rem;line-height:1">&#127907;</span>
         Private Ponds
       </button>
-      <button class="cat-pill" data-filter="hunt" onclick="setCat(this,'hunt')">
+      <button class="cat-pill" data-filter="cabin" aria-pressed="false" onclick="setCat(this,'cabin')">
         <span style="font-size:1.3rem;line-height:1">&#127968;</span>
         Cabin Stays
       </button>
@@ -1991,11 +1991,7 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
       article.dataset.species = (l.activities || []).join(' ').toLowerCase();
       article.dataset.county = (l.county || '').toLowerCase();
       article.style.cursor = 'pointer';
-      article.setAttribute('tabindex','0');
-      article.setAttribute('role','button');
-      article.setAttribute('aria-label','View ' + (l.county || 'listing') + ' details');
       article.onclick = function(){ openListingDetail(l); };
-      article.onkeydown = function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openListingDetail(l); } };
       article.innerHTML =
         '<div class="card-img" style="' + bgStyle + 'height:200px;border-radius:var(--r-lg) var(--r-lg) 0 0;overflow:hidden;position:relative;">' +
           '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.08),rgba(0,0,0,.35))"></div>' +
@@ -2010,7 +2006,7 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
         '</div>' +
         '<div class="card-body">' +
           '<div class="card-top">' +
-            '<div class="card-title">' + escHtml(l.county ? l.county + ' Private Land' : 'Private Land') + '</div>' +
+            '<button type="button" class="card-title" style="text-align:left" aria-label="View '+escHtml(l.county||'listing')+' details">' + escHtml(l.county ? l.county + ' Private Land' : 'Private Land') + '</button>' +
             '<div class="card-price-inline">' + price + (hasNumericPrice ? '<span>/day</span>' : '') + '</div>' +
           '</div>' +
           '<div class="card-location">' +
@@ -2521,7 +2517,8 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
     var cards = document.querySelectorAll('#cards-grid .card');
     var visible = 0;
     cards.forEach(c=>{
-      var show = type==='all'||c.dataset.type===type;
+      var specific = {deer:/\bdeer\b/i,hog:/\bhogs?\b/i,turkey:/\bturkey\b/i,duck:/\bducks?\b/i,dove:/\bdove\b/i,bass:/\bbass\b/i,pond:/\bponds?\b/i,cabin:/\bcabins?\b/i};
+      var show = type==='all'||(specific[type] ? specific[type].test(c.dataset.species||'') : c.dataset.type===type);
       c.style.display = show?'':'none';
       if(show) visible++;
     });
@@ -2530,8 +2527,9 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
   }
 
   function setCat(btn,filter){
-    document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.cat-pill').forEach(p=>{p.classList.remove('active');p.setAttribute('aria-pressed','false');});
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed','true');
     filterCards(filter);
   }
 

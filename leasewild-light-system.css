@@ -10,6 +10,20 @@
  --color-accent:#c58b4d;--color-accent-hover:#aa743d;--color-accent-light:#f8efe4;
  --shadow-md:0 10px 32px rgba(22,54,41,.09);--shadow-lg:0 18px 48px rgba(22,54,41,.14);
 }
+/* Keep secondary copy readable on the canonical pale surfaces. */
+html:root{
+ --muted:#52665a!important;--color-text-muted:#52665a!important;
+ --faint:#52665a!important;--amber:#855123!important;
+ --color-text-faint:#52665a!important;--color-accent:#855123!important;
+ --color-water:#246580!important;--water:#246580!important;
+}
+body .trust-pill{color:#193d32!important;background:#edf3ee!important}
+body .water-panel>p:first-child{color:#fff!important;opacity:1!important}
+body .badge-deer{color:#fff!important}
+body #activate-link,body main>a[href="outfitters.html"]{color:#193d32!important}
+body main>.eyebrow{color:#855123!important}
+body .step-num{color:#52665a!important;opacity:1!important}
+body .experience-card__location{color:#855123!important}
 html,body{color-scheme:light!important}
 body{background:#f8faf7!important;color:#193d32!important}
 body .nav,body .dash-nav,body header:not(.hero):not(.card-header){background-color:#fff!important;color:#193d32;border-color:#d5ded7}
