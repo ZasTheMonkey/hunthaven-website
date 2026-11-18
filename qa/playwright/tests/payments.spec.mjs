@@ -854,3 +854,5 @@ test('20% commission and connected-account transfer / real Stripe TEST card entr
 for (const name of ['receipt email delivery', 'connected-account bank payout readiness', 'partial refund']) {
   test(name, () => test.skip(true, 'BLOCKED: requires dedicated inbox or a supported Connect/partial-refund flow and its own reconciliation'));
 }
+
+// Hunter QA CI verification: execute staging WebKit safe diagnostic on a fresh branch-push run (2026-11-17).
