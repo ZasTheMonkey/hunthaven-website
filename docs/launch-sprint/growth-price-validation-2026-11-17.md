@@ -137,3 +137,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source fix): commit `5b524a2cef65e193adf7a61e18c5c98bac061886` adds a DOM-created `Browse outfitter experiences` link to `outfitters.html` in the ambiguous-listing state. It preserves the existing guard against silently booking an arbitrary listing. No payments, booking tables, Stripe, or production resources changed.
 - NOT TESTED: Cloudflare deployment, actual multiple-listing inventory, responsive/browser keyboard behavior, authenticated conversion, Stripe TEST reconciliation. Next Growth pass should verify directory routing and identify a stable listing-specific URL design with Developer before changing the booking identity model.
 - Coordination: Growth owns this directory recovery change. Developer/Hunter retain checkout and Stripe E2E, Landowner retains maps/reviews, Legal retains tax/policy. Launch remains NO-GO pending outstanding evidence in the shared Stripe gate.
+
+## 2026-11-17 Growth responsive card overflow guard
+
+- REVIEW (source inspection): `outfitter-experience.html` wrapped long listing title, location and descriptions, but not group capacity, price or custom price labels. Unbroken text in these fields could overflow narrow booking cards; no real malformed inventory or browser reproduction is claimed.
+- PASS (staging source correction): commit `782bda56d820ea353f945fc14a8c19e62d4d5a10` applies `overflow-wrap:anywhere` to `#group`, `#price` and `#price-label` while preserving existing styles and booking/payment logic.
+- NOT TESTED: deployed Cloudflare rendering, actual sandbox inventory, 320/375/390/430/768/1024/1280/1440/1920/2560 viewport matrix, keyboard/zoom, signed-in conversion, Stripe TEST reconciliation. Ask Hunter QA/Designer to browser-smoke-test after deployment; Growth retains discovery ownership.
+- Launch remains NO-GO per shared Stripe launch gate. No production resources or main branch changed.
