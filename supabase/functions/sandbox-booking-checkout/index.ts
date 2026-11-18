@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
   }
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
   const url = Deno.env.get('SUPABASE_URL') || '';
-  if (!serviceKey || !url) return reply({ error: 'Sandbox database credentials missing' }, 503);
+  if (!serviceKey || url!=='https://kbkdfpmlyggfijkyjxoi.supabase.co') return reply({ error: 'Sandbox database identity unavailable' }, 503);
 
   const db = createClient(url, serviceKey, { auth: { persistSession: false } });
   const token = (req.headers.get('authorization') || '').replace(/^Bearer /i, '');
@@ -111,6 +111,27 @@ Deno.serve(async (req) => {
   if (Number(listing.min_stay || 0) > nights) return reply({ error: 'Minimum stay not met' }, 400);
   if (listing.max_guests && guestCount > Number(listing.max_guests)) return reply({ error: 'Too many guests' }, 400);
 
+  // Only the server-managed owner profile selects a payout destination.
+  // Listing inputs and browser-supplied account IDs cannot route funds.
+  const {data:profile,error:profileError}=await db.from('landowner_profiles')
+    .select('stripe_account_id').eq('user_id',listing.owner_id).maybeSingle();
+  const destination=profile?.stripe_account_id;
+  if(profileError||!/^acct_[A-Za-z0-9]+$/.test(destination||''))return reply({error:'The host must connect a ready sandbox payout account before booking'},409);
+  const stripeHeaders={Authorization:'Bearer '+stripeKey,'Stripe-Version':'2026-10-28.endive'};
+  const [platformResponse,accountResponse]=await Promise.all([
+    fetch('https://api.stripe.com/v1/account',{headers:stripeHeaders}),
+    fetch('https://api.stripe.com/v2/core/accounts/'+encodeURIComponent(destination)+'?include[0]=defaults&include[1]=configuration.recipient&include[2]=configuration.merchant',{headers:stripeHeaders}),
+  ]);
+  const platform=await platformResponse.json(),account=await accountResponse.json();
+  const recipientReady=account.configuration?.recipient?.capabilities?.stripe_balance?.stripe_transfers?.status==='active';
+  // The existing sandbox fixture is a v1 merchant represented by Accounts v2.
+  // Its v2 merchant payment/payout capabilities are checked; Stripe separately
+  // validates destination-transfer capability when creating the authorization.
+  const legacyMerchantReady=account.applied_configurations?.includes('merchant')&&
+    account.configuration?.merchant?.capabilities?.card_payments?.status==='active'&&
+    account.configuration?.merchant?.capabilities?.stripe_balance?.payouts?.status==='active';
+  if(!platformResponse.ok||platform.id!=='acct_1TOJ2rAO40Rp32aF'||!accountResponse.ok||account.id!==destination||account.livemode!==false||account.closed||(!recipientReady&&!legacyMerchantReady))return reply({error:'The sandbox host payout account is not ready'},409);
+
   const roster = Array.isArray(input.additional_guests) ? input.additional_guests : [];
   if (roster.length !== guestCount - 1) return reply({ error: 'Every additional guest must be listed' }, 400);
   const adultEmails = new Set<string>();
@@ -148,6 +169,11 @@ Deno.serve(async (req) => {
   const protection = trip_protection ? 1800 : 0;
   const tax = Math.round(lease * .065);
   const total = lease + cleaning + protection + tax;
+  const commission=Math.round(lease*.20);
+  // Host receives 80% of access rent plus cleaning. Placeholder tax and the
+  // separately priced protection service remain on the platform for accounting.
+  const retained=commission+tax+protection;
+  const hostAmount=total-retained;
   if (total > 100_000_000) return reply({ error: 'Amount exceeds sandbox limit' }, 400);
 
   const booking = {
@@ -198,6 +224,14 @@ Deno.serve(async (req) => {
   const form = new URLSearchParams();
   form.set('mode', 'payment');
   form.set('payment_intent_data[capture_method]', 'manual');
+  form.set('payment_intent_data[application_fee_amount]',String(retained));
+  form.set('payment_intent_data[transfer_data][destination]',destination);
+  form.set('payment_intent_data[metadata][booking_id]',created.id);
+  form.set('payment_intent_data[metadata][sandbox]','true');
+  form.set('payment_intent_data[metadata][owner_id]',listing.owner_id);
+  form.set('payment_intent_data[metadata][commission_cents]',String(commission));
+  form.set('payment_intent_data[metadata][placeholder_tax_cents]',String(tax));
+  form.set('payment_intent_data[metadata][host_cents]',String(hostAmount));
   form.set('success_url', canonicalOrigin + '/guest-portal.html?authorization=success&session_id={CHECKOUT_SESSION_ID}');
   form.set('cancel_url', canonicalOrigin + '/?authorization=cancelled');
   form.set('customer_email', user.email);
@@ -208,6 +242,9 @@ Deno.serve(async (req) => {
   form.set('line_items[0][quantity]', '1');
   form.set('metadata[booking_id]', created.id);
   form.set('metadata[sandbox]', 'true');
+  form.set('metadata[commission_cents]',String(commission));
+  form.set('metadata[placeholder_tax_cents]',String(tax));
+  form.set('metadata[host_cents]',String(hostAmount));
 
   const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',

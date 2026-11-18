@@ -3,8 +3,6 @@ import { test, expect } from '@playwright/test';
 const origin = 'https://leasewild-sandbox.pages.dev';
 const database = 'https://kbkdfpmlyggfijkyjxoi.supabase.co';
 const stripeAccount = 'acct_1TOJ2rAO40Rp32aF';
-// Verified in this sandbox through an independent, account-scoped Stripe connection.
-const stripeAccountFixture = 'cs_test_a0NdkczfEBO5eOYzv49nVQP6UB7L7BS5cVZwCa4BpbgkOMYRL7bXrYVJXZ';
 const checkoutOrigin = 'https://checkout.stripe.com';
 const checkoutPath = /^\/[cg]\/pay\/(cs_test_[A-Za-z0-9]+)$/;
 const previousListingId = '0a0b8819-ce6a-4cdb-a924-3b88dc899e1c';
@@ -118,13 +116,10 @@ async function preflight() {
   if (!uuid.test(listingId) || listingId === previousListingId) {
     throw new Error('BLOCKED: QA_PAYMENT_LISTING_ID must identify a new listing for the verified landowner');
   }
-  // Retrieve the pinned session in the key's own account scope before booking.
-  const fixture = await stripe('checkout/sessions/' + stripeAccountFixture, 'BLOCKED: Stripe Checkout Session identity read');
-  if (fixture.id !== stripeAccountFixture || fixture.object !== 'checkout.session' ||
-      fixture.livemode !== false || fixture.status !== 'expired' || fixture.payment_status !== 'unpaid' ||
-      fixture.payment_intent !== null || fixture.metadata?.sandbox !== 'true') {
-    throw new Error('BLOCKED: unexpected Stripe sandbox account fixture for ' + stripeAccount);
-  }
+  // Verify the account directly; never inspect legacy customer-linked sessions
+  // as identity probes. Each fresh cs_test session is verified separately.
+  const account = await stripe('account', 'BLOCKED: Stripe sandbox account identity read');
+  if (account.id !== stripeAccount) throw new Error('BLOCKED: Stripe sandbox account mismatch');
   await Promise.all([
     stripe('payment_intents?limit=1', 'BLOCKED: Stripe Payment Intents read'),
     stripe('charges?limit=1', 'BLOCKED: Stripe Charges read'),
@@ -368,6 +363,10 @@ async function captureAndRefund(hunterHeaders, bookingId, intentId, evidence) {
   expect(intent.livemode).toBe(false);
   expect(intent.status).toBe('succeeded');
   expect(intent.amount_received).toBe(10_650);
+  expect(intent.application_fee_amount).toBe(2_650); // $20 commission + $6.50 placeholder tax retained
+  expect(intent.transfer_data?.destination).toBe(connectFixture.accountId);
+  expect(intent.metadata.commission_cents).toBe('2000');
+  expect(intent.metadata.host_cents).toBe('8000');
   expect(/^https:\/\/pay\.stripe\.com\/receipts\//.test(intent.latest_charge?.receipt_url || ''), 'Stripe receipt URL exists').toBe(true);
   evidence.chargeId = intent.latest_charge.id;
   const preview = await bookingCall(hunterHeaders, 'cancel', { action: 'preview', booking_id: bookingId });

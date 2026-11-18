@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Hunter review moderation — LeaseWild sandbox</title><link rel="stylesheet" href="/leasewild-light-system.css"><style>body{font:16px system-ui;margin:0}main{max-width:680px;margin:2rem auto;padding:1.25rem}button{font:inherit;padding:.8rem;margin:.3rem;border:1px solid #52665a;border-radius:8px;background:#193d32;color:white}blockquote{white-space:pre-wrap;overflow-wrap:anywhere;margin:1rem 0;padding:1rem;background:white;border:1px solid #cbd8ce}#controls[hidden]{display:none}</style></head><body><main><a href="admin.html">← Admin dashboard</a><h1>Hunter review moderation</h1><p>Sandbox only · Authorized moderators</p><p id="status" role="status" aria-live="polite">Checking access…</p><section id="review" hidden><h2 id="rating"></h2><blockquote id="feedback"></blockquote><p id="state"></p></section><div id="controls" hidden><button data-status="published">Publish</button><button data-status="hidden">Hide</button><button data-status="rejected">Reject</button></div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script><script src="supabase-config.js"></script><script>
+(async()=>{
+ const status=document.getElementById('status'),controls=document.getElementById('controls');
+ if(location.hostname!=='leasewild-sandbox.pages.dev'||SUPABASE_URL!=='https://kbkdfpmlyggfijkyjxoi.supabase.co'){status.textContent='Sandbox only.';return;}
+ const id=new URLSearchParams(location.search).get('review');
+ if(!/^[a-f0-9-]{36}$/i.test(id||'')){status.textContent='Open this page with a valid review ID.';return;}
+ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+ const {data:{user}}=await sb.auth.getUser();if(!user){status.textContent='Sign in through the admin dashboard first.';return;}
+ const {data,error}=await sb.rpc('sandbox_hunter_review_for_admin',{p_review_id:id});
+ if(error||!data){status.textContent=error?'Access denied or review unavailable.':'Review not found.';return;}
+ document.getElementById('review').hidden=false;controls.hidden=false;
+ document.getElementById('rating').textContent='Overall rating: '+data.overall_rating+' / 5';document.getElementById('feedback').textContent=data.review_text||'No written feedback.';document.getElementById('state').textContent='Status: '+data.moderation_status;status.textContent='Review loaded.';
+ controls.querySelectorAll('button').forEach(button=>button.onclick=async()=>{
+  controls.querySelectorAll('button').forEach(b=>b.disabled=true);
+  const {data:updated,error}=await sb.rpc('sandbox_moderate_hunter_review',{p_review_id:id,p_status:button.dataset.status});
+  if(error)status.textContent='Moderation failed. Please retry.';else{document.getElementById('state').textContent='Status: '+updated.moderation_status;status.textContent='Moderation saved.';}
+  controls.querySelectorAll('button').forEach(b=>b.disabled=false);
+ });
+})();
+</script></body></html>

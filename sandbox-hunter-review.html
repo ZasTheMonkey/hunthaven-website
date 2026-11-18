@@ -3,16 +3,15 @@
 const booking=new URLSearchParams(location.search).get('booking'),status=document.getElementById('status'),form=document.getElementById('review-form');
 if(!booking||!/^[0-9a-f-]{36}$/i.test(booking)){status.textContent='A valid booking ID is required.';return;}
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY),{data:{user}}=await sb.auth.getUser();if(!user){status.textContent='Sign in to the landowner portal first.';return;}
-const {data:payments,error}=await sb.from('lease_payments').select('booking_id,guest_id,owner_id,checkout_at,payment_state,state').eq('booking_id',booking).eq('owner_id',user.id).limit(1);
+const {data:eligibility,error}=await sb.rpc('sandbox_hunter_review_eligibility',{p_booking_id:booking});
 if(error){status.textContent='Cannot verify booking eligibility. '+error.message;return;}
-const p=payments&&payments[0];
-if(!p||p.payment_state!=='paid'||new Date(p.checkout_at)>new Date()||['cancelled','canceled','refunded','refund_pending','disputed','failed'].includes(p.state)){status.textContent='This booking is not eligible for a review.';return;}
+if(!eligibility?.eligible||!eligibility.hunter_id){status.textContent='This booking is not eligible for a review.';return;}
 const {data:existing}=await sb.from('hunter_reviews').select('id').eq('booking_id',booking).limit(1);
 if(existing&&existing.length){status.textContent='You already reviewed this booking.';return;}
 status.textContent='Eligible payment found. Final eligibility is checked securely when submitted.';form.hidden=false;
 form.onsubmit=async e=>{e.preventDefault();const btn=document.getElementById('submit');btn.disabled=true;status.textContent='Submitting…';
 const rating=id=>{const v=document.getElementById(id).value;return v?Number(v):null;};
-const {error:err}=await sb.from('hunter_reviews').insert({booking_id:booking,reviewer_owner_id:user.id,hunter_id:p.guest_id,overall_rating:rating('overall'),communication_rating:rating('communication'),safety_rating:rating('safety'),property_respect_rating:rating('respect'),review_text:document.getElementById('feedback').value.trim()||null});
+const {error:err}=await sb.from('hunter_reviews').insert({booking_id:booking,reviewer_owner_id:user.id,hunter_id:eligibility.hunter_id,overall_rating:rating('overall'),communication_rating:rating('communication'),safety_rating:rating('safety'),property_respect_rating:rating('respect'),review_text:document.getElementById('feedback').value.trim()||null});
 if(err){status.textContent='Review not submitted: '+err.message;btn.disabled=false;}else{status.textContent='Review submitted for moderation.';form.hidden=true;}
 };
 })();

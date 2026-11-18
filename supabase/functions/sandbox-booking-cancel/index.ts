@@ -30,6 +30,7 @@ Deno.serve(async req=>{
  if(req.method!=='POST'||!allowedOrigin(req.headers.get('origin')||''))return out({error:'Forbidden'},403);
  const key=Deno.env.get('STRIPE_SECRET_KEY')||'';
  if(!key.startsWith('sk_test_'))return out({error:'Test Stripe key unavailable'},503);
+ if(Deno.env.get('SUPABASE_URL')!=='https://kbkdfpmlyggfijkyjxoi.supabase.co')return out({error:'Sandbox database identity unavailable'},503);
  const db=createClient(Deno.env.get('SUPABASE_URL')||'',Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'',{auth:{persistSession:false}});
  const token=(req.headers.get('authorization')||'').replace(/^Bearer /i,'');
  const {data:{user},error:ue}=await db.auth.getUser(token);
@@ -65,7 +66,7 @@ Deno.serve(async req=>{
      const pi=await stripe.paymentIntents.retrieve(b.stripe_payment_intent);
      if(pi.livemode)throw new Error('Live payments are not allowed in sandbox');
      if(pi.status==='requires_capture'){await stripe.paymentIntents.cancel(pi.id,{}, {idempotencyKey:'leasewild-sandbox-cancel-'+id});result='authorization_released';stripeActionApplied=true;}
-     else if(pi.status==='succeeded'&&fullRefund){await stripe.refunds.create({payment_intent:pi.id,reason:'requested_by_customer'},{idempotencyKey:'leasewild-sandbox-refund-'+id});result='full_refund_issued';stripeActionApplied=true;}
+     else if(pi.status==='succeeded'&&fullRefund){await stripe.refunds.create({payment_intent:pi.id,reason:'requested_by_customer',...(pi.transfer_data?.destination?{reverse_transfer:true,refund_application_fee:true}:{})},{idempotencyKey:'leasewild-sandbox-refund-'+id});result='full_refund_issued';stripeActionApplied=true;}
      else if(pi.status==='succeeded'){result='cancelled_no_refund';}
      else if(pi.status==='canceled'){result='authorization_released';}
      else throw new Error('Payment status not ready for cancellation');
