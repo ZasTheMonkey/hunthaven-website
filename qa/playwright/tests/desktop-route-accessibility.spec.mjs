@@ -8,7 +8,7 @@ for(const route of routes)test('public route responsive and accessibility audit 
  const response=await page.goto('https://leasewild-sandbox.pages.dev/'+route,{waitUntil:'domcontentloaded'});
  expect(response.status()).toBeLessThan(400);
  if(route==='list-your-land.html'){
-  await expect(page).toHaveURL(/landowner-portal\.html/);
+  await expect(page).toHaveURL(/\/landowner-portal(?:\.html)?(?:[?#]|$)/);
   info.annotations.push({type:'coverage',description:'Anonymous auth-gate redirect only; authenticated listing creation is separate coverage.'});
  }
  await page.evaluate(()=>document.fonts.ready);

@@ -1,6 +1,26 @@
 # Comprehensive sandbox QA — November 18, 2026
 
-Status: IN PROGRESS / NO-GO.
+Status: NO-GO — audit checkpoint completed November 18, 2026, 10:09 AM ET. Requested scope is not fully proven; blocked and untested cases remain explicit below.
+
+## Final checkpoint (supersedes interim snapshots below)
+
+- **PASS:** final deployed expansion: **56 passed, 0 failed, 0 skipped**, Chromium plus Windows mobile WebKit, 2026-11-18T15:06:30Z, 147.5 seconds. Twenty-seven HTML routes per engine each passed ten document-overflow widths: 320, 375, 390, 430, 768, 1024, 1280, 1440, 1920, 2560 (**540 route-width assertions**). Axe 4.11 serious/critical checks ran after transitions finished at each route's final 2560px viewport. This is NOT accessibility certification at every width, screen-reader, native zoom or physical-device evidence. Signed-out listing creation coverage is the explicit redirect gate only.
+- **PASS:** species-filter semantics and matching desktop/mobile map pin counts in both engines. Native detail buttons remove nested controls. About navigation and palette/label fixes deployed.
+- **PASS:** final deployed authenticated real pointer hunting/entry/parking draw, save, reload and delete: 1 browser scenario, 23.5 seconds. Independent final SQL confirmed zero retained run zones. Earlier cleanup failures are retained below; they are not silently relabeled.
+- **PASS:** actual hunter-owner message/reply/reload and nonparticipant read/insert denial (zero rows/403). Six exact run messages removed; empty run-created conversation removed. Real hunter-outfitter messaging and all unread/draft/retention permutations remain NOT TESTED.
+- **PASS:** success/capture/full refund; decline; completed 3DS; decline/retry; Windows mobile WebKit checkout. All eight land-booking attempts are cancelled. Independent Stripe reads confirm TEST only; successful charge received/refunded 10650 cents. Outfitter $200 charge reconciles $40 fee, transfer, full refund, full transfer reversal and full $40 application-fee refund. Outfitter fixture inactive; request cancelled/refunded.
+- **PASS (limited webhook observation):** five matched TEST checkout.session.completed events have pending_webhooks=0. 3DS event evt_1Ud9omAO40Rp32aFQi4tl4YF; success evt_1Ud9n4AO40Rp32aFQqF0Nnyi; retry evt_1Ud9z8AO40Rp32aFV20we6aJ; Windows mobile evt_1Ud9zYAO40Rp32aF4Xmlwcm3; Connect evt_1UdA9gAO40Rp32aF0Cv2jrXT. This does not establish exact endpoint delivery identity or replay/idempotency.
+- **PASS (configuration inspection only):** identity-verification bucket is private; owner/admin SELECT and owner-path INSERT policies inspected. Valid synthetic document upload/download/admin-review lifecycle remains NOT TESTED.
+- **FAIL:** Linux CI mobile WebKit hosted Stripe form still shows Something went wrong before card entry. Fresh payment job 134887800640: 7 passed / 1 failed / 3 skipped. Windows WebKit success does not close Linux CI failure.
+- **FAIL / financial launch gap:** landowner charge application_fee_amount=null and transfer_data=null. No 20% landowner commission/Connect payout evidence. Outfitter fee success does not close landowner economics.
+- **BLOCKED:** deliverable controlled test inbox, second-landowner secure login, eligible historical completed-booking review fixture; applicable tax and release approvals from responsible reviewers. Florida supplied by the user is the test location, not those missing resources.
+- **NOT TESTED:** full property-ownership verification; valid guest-ID lifecycle/privacy/retention; full role/booking-state permission matrix and booked-coordinate disclosure/revocation; positive review/moderation/publication/duplicate submission; real hunter-outfitter messaging; full UI booking approval/cancellation journey; exact webhook endpoint/replay; external-bank payout; native zoom, screen reader, physical Safari/device checks. Promo/add-on/deposit/group totals and cutoff/DST edge cases were not newly executed. These remain launch gates.
+
+**Tested app code:** 4184699967e4076993f12b53c91e6b54151007cb. Sandbox deployment ecd50e47-7080-4c2b-ad57-551a515c34cc succeeded at 2026-11-18T15:02:35Z: https://ecd50e47.leasewild-sandbox.pages.dev. All ten changed served app files matched normalized SHA-256 against checkout. Later report/test-assertion-only commits do not change app assets.
+
+**CI snapshot at 10:09 AM ET:** [44328954618](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/44328954618) remains overall in progress with payment FAIL, host Chromium and hunter WebKit success; remaining host WebKit/hunter Chromium jobs are still installing Playwright. [44330965266](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/44330965266) is pending for 4184699. Neither overall run is represented as PASS. The final report/test-assertion commit may supersede that pending run under configured GitHub concurrency.
+
+**Evidence package delivered with this audit:** deployed-browser-results.json, map-persistence-results.json, messaging-results.json, stripe-reconciliation.json, connect-stripe-reconciliation.json, application-fee-refund.json, webhook-events.json, deployment-content-verification.json, baseline/first-attempt reports and screenshots. Credentials, service keys, signed URLs and authenticated traces are excluded. Launch remains NO-GO; main, live domain, production Supabase and live Stripe were not accessed or modified.
 
 Scope: only https://leasewild-sandbox.pages.dev, staging/leasewild-full-clone, Supabase kbkdfpmlyggfijkyjxoi, Stripe TEST acct_1TOJ2rAO40Rp32aF. Initial staging head: 7c3da8224df90e82437e60874fdf1ce67f99cf74.
 
@@ -52,10 +72,10 @@ Status remains NO-GO. No main/live domain, production Supabase or live Stripe op
 
 | Requested area | Current evidence status |
 |---|---|
-| Public routes / 320–2560 | PASS for rendering and no document overflow across 27 routes; auth-gated route is redirect-only; final patched scan pending |
+| Public routes / 320–2560 | PASS: final two-engine 540 width assertions; auth-gated route is redirect-only |
 | Hunter / owner / outfitter / admin login | PASS in Chromium and Windows mobile WebKit baseline; owner reload/logout PASS; all permission permutations NOT TESTED |
-| Discovery / maps | Species filtering corrected; card/map consistency candidate PASS; final deployed retest pending |
-| Drawing / save / reload | Candidate real pointer persistence and cleanup PASS for hunting, entry, parking; deployed run interrupted during cleanup; isolated retest pending |
+| Discovery / maps | PASS: corrected species filtering and desktop/mobile pin consistency on deployed sandbox |
+| Drawing / save / reload | PASS: final deployed real pointer persistence and cleanup for hunting, entry, parking |
 | Property verification | NOT TESTED end-to-end; owner ID verification is not proof of property ownership |
 | Completed-booking hunter reviews | Negative cases PASS; positive, duplicate, moderation and publication BLOCKED on eligible owned fixture |
 | Messaging | Hunter-owner exchange/reload and nonparticipant denial PASS; outfitter real exchange, unread, drafts and thread-switch NOT TESTED |
@@ -66,6 +86,6 @@ Status remains NO-GO. No main/live domain, production Supabase or live Stripe op
 | Fee / tax | Outfitter 20% fee/transfer PASS; landowner fee/transfer absent; $106.50 total includes placeholder 6.5%, tax compliance BLOCKED |
 | Refund / payout | Landowner and outfitter full refunds PASS; connected transfer reversed; external bank payout NOT TESTED; partial-refund policy has no guest partial tier |
 | Email | BLOCKED on controlled deliverable synthetic inbox; current fixture addresses use example.com |
-| Accessibility | Automated serious/critical findings corrected and targeted retests PASS; final full deployed scan pending; screen reader/physical device/native zoom NOT TESTED |
+| Accessibility | PASS for bounded automated final scans at 2560px; screen reader/physical device/native zoom and all-width accessibility NOT TESTED |
 
 These are bounded results, not a complete launch certificate. Launch remains NO-GO.
