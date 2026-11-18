@@ -107,3 +107,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source correction): commit `2c3e4da14551eb5ea6ab4264c9f7f138ee295269` disables sign-in during an attempt, checks required email/password inputs, catches authentication/network failures, and re-enables the control in `finally`. No payment, booking insert, Stripe or database logic changed.
 - NOT TESTED: deployed Cloudflare behavior, authenticated browser sign-in, 320/375/390/430/768/1024/1280/1440/1920/2560 responsive matrix, keyboard/zoom, actual inventory, fresh Stripe TEST reconciliation.
 - Coordination: Growth owns sign-in entry UX on outfitter detail; Hunter QA/Developer should independently exercise bad credentials, network failure, and successful sign-in. Do not duplicate payment gate evidence. Launch remains NO-GO pending Stripe Tax, receipts, refunds and payout proof.
+
+## 2026-11-17 Growth request submission feedback
+
+- FAIL (source inspection only): Clicking Request availability disabled the button but gave no immediate in-progress feedback while authentication/database calls were pending. On a slow connection visitors could mistake the action for a frozen form. No browser reproduction claimed.
+- PASS (staging source change): `ec2bed9efb2cf7f786b1b9889840e94b6caa442a` displays `Submitting request…` on the button and an accessible status message while awaiting the request. On failure the original button text and enabled state are restored, with a fallback error message. Successful requests retain the existing submitted state. No payment, pricing, tax, Stripe, Supabase schema, or production logic changed.
+- NOT TESTED: Cloudflare deployment, actual browser latency/error recovery, sandbox inventory, responsive 320/375/390/430/768/1024/1280/1440/1920/2560 matrix, keyboard/zoom, authenticated submission, and Stripe TEST reconciliation.
+- Coordination: Growth owns request conversion UI. Hunter/Developer own authenticated booking and payment E2E; Landowner owns boundaries/reviews; Legal owns tax/policy. Stripe Tax, receipts, partial refunds and payout readiness remain NO-GO.
