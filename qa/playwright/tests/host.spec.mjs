@@ -29,7 +29,11 @@ test.describe('Bot B: real landowner, outfitter and admin browser',()=>{
    await page.locator('#zone-type').selectOption(zoneType);
    await page.locator('#draw-boundary').click();
    await expect(page.locator('#draw-boundary')).toHaveAttribute('aria-pressed','true');
-   const map=page.locator('#map'),rect=await map.boundingBox();
+   const map=page.locator('#map');
+   // Playwright's boundingBox can be below the viewport: mouse coordinates are
+   // viewport-relative, so first scroll the actual map into the visible area.
+   await map.scrollIntoViewIfNeeded();
+   const rect=await map.boundingBox();
    expect(rect,'map must have a rendered bounding box').not.toBeNull();
    const x=rect.x+rect.width*.35,y=rect.y+rect.height*.35;
    // Capture event delivery without changing application behavior or faking success.
