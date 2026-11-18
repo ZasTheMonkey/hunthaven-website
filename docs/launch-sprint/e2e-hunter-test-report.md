@@ -318,3 +318,11 @@ Two dedicated synthetic hunters opened separate real Chromium Checkout Sessions 
 - **LAST VERIFIED CI:** run `43976797284`, payment job `134282940239`: 7 Chromium PASS, 1 mobile WebKit FAIL before card entry, 3 SKIPPED. Hunter navigation passed; host jobs failed (Host QA ownership).
 - **NEXT:** retrieve the new staging push workflow run from GitHub Actions, inspect `STRIPE_TEST_WEBKIT_SAFE_DIAGNOSTIC` and redacted browser artifact, correlate TEST Checkout Session with sandbox booking/Stripe records; rerun mobile WebKit and Chromium regression after a confirmed fix. Receipt, partial refund, bank payout, tax and authenticated privacy gates remain open.
 - **COUNTERS THIS RUN:** 0 newly verified real-browser journeys, 0 verified fresh TEST payments, 0 application fixes, 1 test-only trigger commit, 0 verified deployments. **NO-GO.** No main/live/production access.
+
+
+## 2026-11-18 08:35 ET — Hunter QA WebKit diagnostic instrumentation
+
+- **STAGING TEST-HARNESS CHANGE:** commit `f1d9eb10eee877d2b8000bacd7f3a6ea02b8365d` moves the existing sanitized `requestfailed`, `pageerror` and console-error listeners before hosted Stripe Checkout navigation. Previously the listeners were installed only *after* the document loaded, potentially losing the first failing document/iframe request. No payment, application or production logic changed.
+- **STATIC-ONLY:** Confirmed payment test explicitly disables trace/screenshot/video to avoid retaining sensitive Checkout URLs/card inputs. Keep that privacy boundary; use redacted origin/resource/error diagnostics instead.
+- **RETEST PENDING:** GitHub push accepted, but no workflow run for the new commit was confirmed at this check. Do not claim the WebKit failure is fixed. The latest previously verified payment CI still fails mobile WebKit before card entry; Chromium scenarios passed 7, skipped 3. Existing failure evidence: [run 44222944856](https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/44222944856).
+- **COUNTERS:** 0 directly operated browser journeys; 0 new TEST card submissions verified; 1 diagnostic-only staging code change; 0 application fixes; 0 sandbox deployment verified. **NO-GO.** Next: identify the new CI run, inspect sanitized initial navigation failures, reproduce with fresh synthetic session, then coordinate a minimal justified fix.
