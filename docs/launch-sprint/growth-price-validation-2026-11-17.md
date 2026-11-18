@@ -144,3 +144,9 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source correction): commit `782bda56d820ea353f945fc14a8c19e62d4d5a10` applies `overflow-wrap:anywhere` to `#group`, `#price` and `#price-label` while preserving existing styles and booking/payment logic.
 - NOT TESTED: deployed Cloudflare rendering, actual sandbox inventory, 320/375/390/430/768/1024/1280/1440/1920/2560 viewport matrix, keyboard/zoom, signed-in conversion, Stripe TEST reconciliation. Ask Hunter QA/Designer to browser-smoke-test after deployment; Growth retains discovery ownership.
 - Launch remains NO-GO per shared Stripe launch gate. No production resources or main branch changed.
+
+## 2026-11-18 Growth hidden-state CSS correction
+
+- FAIL (source-level): `.layout{display:grid}` is an author stylesheet declaration that can override the user-agent `[hidden]{display:none}` default on `#experience`, exposing empty listing content and request controls while data loads or on invalid listing IDs. This is a source-level reproducible cascade issue, not a browser-observed incident.
+- PASS (staging source commit `20529f711ab7981290f180ae891c7f18c1bb8bee`): add `[hidden]{display:none!important}` to ensure `#experience`, `#status`, `#photo`, `#hog-policy` and `#login-fields` respect application visibility state. No booking, auth, database, Stripe or production logic changed.
+- NOT TESTED: independent Cloudflare deployment, rendered browser state, real inventory, all ten responsive widths, keyboard/touch/zoom, checkout and Stripe TEST reconciliation. Hunter QA/Developer should verify hidden states in deployed browser; Growth owns this detail-page presentation change. Launch remains NO-GO.
