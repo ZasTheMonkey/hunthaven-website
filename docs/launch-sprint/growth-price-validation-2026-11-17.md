@@ -188,3 +188,11 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - **PASS (staging source correction):** commit `dc32dc84d8e351d58c1519411c49845785fb987f` adds a safe DOM-created `Browse available outfitter experiences` link alongside `Retry loading` in the network/error state. No payment, booking, database write, Stripe, or production code changed.
 - **NOT TESTED:** deployed Cloudflare browser failure injection, actual inventory, responsive matrix (320/375/390/430/768/1024/1280/1440/1920/2560), keyboard/zoom and Stripe TEST reconciliation. Growth owns discovery; Hunter/Developer own booking/payment; Landowner owns maps/reviews; Legal owns tax/policy.
 - **NO-GO:** The shared payment gate still lacks delivered receipts, external-bank payout, partial refund, Stripe Tax registrations/classification, and other cross-role evidence. This change does not close those gates.
+
+
+## 2026-11-18 Growth missing-auth-SDK fallback
+
+- REVIEW (source): `outfitter-experience.html` called `supabase.createClient` unconditionally after loading its external SDK and configuration. A failed CDN load or absent configuration caused a JavaScript exception without a useful explanation to visitors. This is a source-level resilience issue, not a reproduced outage.
+- PASS (staging source commit `a5fc7ae50496b46d7c902f84e5398204c1417259`): detect unavailable Supabase SDK/config before initialization, display a recoverable sign-in error, and disable sign-in and request controls. Existing listing discovery, booking writes, pricing, tax and Stripe code are unchanged.
+- NOT TESTED: CDN failure injection in browser, Cloudflare deployment, ten responsive widths, actual sandbox inventory, signed-in booking and fresh Stripe TEST reconciliation. Growth owns outfitter discovery/conversion; Hunter/Developer own authenticated checkout/payment; Landowner owns maps/reviews; Legal owns tax/policy.
+- NO-GO: receipt inbox, bank payout, partial refund, Stripe Tax registrations/classification and remaining launch gates require independent evidence. Do not duplicate payment evidence from the shared gate.
