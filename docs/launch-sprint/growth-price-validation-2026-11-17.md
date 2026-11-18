@@ -172,3 +172,11 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - **PASS (staging source change):** commit `b450c0f045dc49f1f1183aa8658be986f66606d1` sets `aria-busy=true` during availability submission and removes it on success and failure. Existing visible status messages, validation, booking insertion and Stripe/payment logic are unchanged. This is a small reversible accessibility improvement.
 - **NOT TESTED:** deployed Cloudflare rendering, actual screen-reader announcements, ten viewport widths, signed-in booking, synthetic inventory, Stripe TEST reconciliation. Growth owns this page's conversion/accessibility; Hunter/Developer own authenticated payment E2E; Landowner owns zones/reviews; Legal owns tax/policy.
 - **NO-GO:** The shared Stripe launch gate still lists delivered receipt, external-bank payout, partial refund, Stripe Tax classification/registration and other unproven launch requirements. Do not infer a payment pass from this source-only change.
+
+
+## 2026-11-18 Growth request authentication response guard
+
+- **REVIEW (source inspection):** The availability-request handler destructured `data.user` directly from `client.auth.getUser()`. An unexpectedly empty authentication response could throw a TypeError instead of displaying the intended sign-in guidance. This is a source-level resilience risk, not a browser-reproduced failure.
+- **PASS (staging source commit `12fd3db16367c99c8126d60c8d6f05f46135a4f6`):** Check the returned authentication error explicitly and access `authData?.user` safely. On failure the existing catch/finally-style recovery restores the request button and clears `aria-busy`. Booking inserts, pricing, Stripe, taxes and payout code unchanged.
+- **NOT TESTED:** deployed Cloudflare browser, simulated malformed auth response, ten responsive widths, authenticated submission, synthetic inventory and fresh Stripe TEST reconciliation. Growth owns this UI; Hunter/Developer own booking/payment regression; Landowner owns map/reviews; Legal owns policy/tax.
+- **NO-GO:** Receipt delivery, bank payout, partial refund, Stripe Tax and remaining cross-role/payment gates still require evidence.
