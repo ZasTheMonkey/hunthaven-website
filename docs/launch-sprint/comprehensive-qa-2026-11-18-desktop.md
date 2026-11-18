@@ -37,3 +37,35 @@ Status remains NO-GO. No main/live domain, production Supabase or live Stripe op
 - Fresh outfitter TEST request 7141f05b-a2ce-4f16-8eee-204b00f2b5fe completed $200 hosted card checkout, full-refund preview/cancellation and fixture cleanup to inactive with zero unsettled paid fixtures. Intent pi_3UdA9fAO40Rp32aF0tdvSRqP. Independent fee/transfer/refund reconciliation pending.
 - Completed-booking review positive path BLOCKED: no eligible historical lease_payments row exists for verified payment owner 7546f675-03be-42a6-9294-aeaf27b9c558. Do not fabricate a paid record or label simulated payment as actual Stripe activity.
 - Email delivery and second-landowner browser identity remain BLOCKED on controlled QA inbox and securely provisioned second login. User supplied Florida as a test location; that does not provide those prerequisites.
+
+## Deployment and further regression
+
+- Commits: 01962c39a42773a2324b80477458dd8d523eac08 (discovery/accessibility/test-card input); 35c2a61ee174c819b11e9f3c1f6df49bfb19b770 (closed pointer ring).
+- Sandbox deployment 38f5aac2-ffc6-45a8-993b-004ab5f04c87 succeeded for 35c2a61 at 2026-11-18T14:52:23Z: https://38f5aac2.leasewild-sandbox.pages.dev. Independent SHA-256 comparison matched all ten changed served app assets to the checkout.
+- Initial full deployed expansion: 53 PASS, 3 FAIL. Remaining map header/legend contrast was reproduced and corrected. WebKit protection-page contrast sampled a fade transition; scanner now waits for finite animations to finish. Anonymous list-your-land redirect is now explicitly asserted and annotated, not misreported as authenticated form coverage. Targeted candidate retest: 3 PASS. Public pin/card mismatch found during browser review: map rendering now uses visible listing IDs after category or search changes. Candidate map/card count test passes in both Chromium and mobile WebKit.
+- Actual two-participant messaging PASS: hunter sends, owner receives/replies, hunter reload sees reply; synthetic outfitter nonparticipant reads zero rows and gets 403 on insertion. Conversation d63ebf8a-df43-4321-aefd-ee65709410c6 on our exact booking. This exercises retention on a cancelled future booking; full active-booking/unread/draft/thread-switch and hunter-outfitter journeys remain separate. Six exact QA messages from test attempts were identified and removed after evidence capture.
+- Connect independently reconciled: charge ch_3UdA9fAO40Rp32aF023gHbmZ, fee fee_1UdA9iAO408zPcFQBOKsSJFd ($40), transfer tr_3UdA9fAO40Rp32aF0KGVB98x ($200), refund re_3UdA9fAO40Rp32aF0uV4rpvh ($200 succeeded), reversal trr_1UdA9kAO40Rp32aFy66dwG4v. Transfer read shows amount_reversed=20000 and reversed=true. Connected bank payout is NOT established by this transfer.
+- Fresh CI run https://github.com/ZasTheMonkey/hunthaven-website/actions/runs/44328954618 at test commit 01962c3: payment job 134887800640 reports 7 PASS / 1 FAIL / 3 SKIPPED. Linux mobile WebKit still displays Stripe Something went wrong before card entry; Session remains open. Atomic card fill does not fix this separate upstream browser-rendering failure. Windows local WebKit passed, so retain platform-specific FAIL and do not declare checkout universally ready.
+- A deployed authenticated map rerun saved/reloaded areas but its cleanup session was signed out while the same synthetic owner was used by concurrent CI. One exact retained parking row 53661616-78cc-454f-a812-4ad661efcc6e was removed independently. Treat that run as FAIL, not PASS. Final isolated rerun must wait until shared-account CI is quiescent.
+
+## Required scope ledger
+
+| Requested area | Current evidence status |
+|---|---|
+| Public routes / 320–2560 | PASS for rendering and no document overflow across 27 routes; auth-gated route is redirect-only; final patched scan pending |
+| Hunter / owner / outfitter / admin login | PASS in Chromium and Windows mobile WebKit baseline; owner reload/logout PASS; all permission permutations NOT TESTED |
+| Discovery / maps | Species filtering corrected; card/map consistency candidate PASS; final deployed retest pending |
+| Drawing / save / reload | Candidate real pointer persistence and cleanup PASS for hunting, entry, parking; deployed run interrupted during cleanup; isolated retest pending |
+| Property verification | NOT TESTED end-to-end; owner ID verification is not proof of property ownership |
+| Completed-booking hunter reviews | Negative cases PASS; positive, duplicate, moderation and publication BLOCKED on eligible owned fixture |
+| Messaging | Hunter-owner exchange/reload and nonparticipant denial PASS; outfitter real exchange, unread, drafts and thread-switch NOT TESTED |
+| Booking / cancellation | Fresh TEST API lifecycle plus hosted browser checkout, approval/capture/full-refund PASS; full UI request/approval/cancel navigation, cutoff/DST races NOT TESTED this run |
+| Synthetic ID privacy | Invalid invite rejection PASS; valid upload/private-download/admin-review/retention lifecycle NOT TESTED |
+| Success / decline / 3DS / retry | Local hosted browser cases PASS with independent TEST reconciliation; Linux WebKit CI FAIL |
+| Webhook | Pending-approval transition observed without recovery; exact endpoint event and replay/idempotency NOT TESTED this run |
+| Fee / tax | Outfitter 20% fee/transfer PASS; landowner fee/transfer absent; $106.50 total includes placeholder 6.5%, tax compliance BLOCKED |
+| Refund / payout | Landowner and outfitter full refunds PASS; connected transfer reversed; external bank payout NOT TESTED; partial-refund policy has no guest partial tier |
+| Email | BLOCKED on controlled deliverable synthetic inbox; current fixture addresses use example.com |
+| Accessibility | Automated serious/critical findings corrected and targeted retests PASS; final full deployed scan pending; screen reader/physical device/native zoom NOT TESTED |
+
+These are bounded results, not a complete launch certificate. Launch remains NO-GO.

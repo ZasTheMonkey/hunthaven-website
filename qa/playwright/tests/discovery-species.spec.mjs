@@ -13,6 +13,12 @@ test('homepage species filters exclude unrelated active inventory',async({page},
  const visible=page.locator('#cards-grid .card:visible');
  expect(await visible.count()).toBeGreaterThan(0);
  for(const card of await visible.all())expect(await card.getAttribute('data-species')).toMatch(/deer/i);
+ const expectedPins=await visible.count();
+ if(page.viewportSize().width<768){
+  await page.getByRole('button',{name:'Map',exact:true}).click();
+  await expect(page.locator('#modal-map .leaflet-marker-icon')).toHaveCount(expectedPins,{timeout:30000});
+  await page.locator('#map-modal-back').click();
+ }else await expect(page.locator('#hunt-map .leaflet-marker-icon')).toHaveCount(expectedPins,{timeout:30000});
  await page.screenshot({path:info.outputPath('deer-filter.png'),fullPage:false});
  await page.getByRole('button',{name:'🐦 Dove',exact:true}).press('Enter');
  for(const card of await visible.all())expect(await card.getAttribute('data-species')).toMatch(/dove/i);

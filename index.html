@@ -1986,6 +1986,7 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
       var slug = l.county ? l.county.toLowerCase().replace(/\s+/g,'-') : 'fl';
       var article = document.createElement('article');
       article.className = 'card';
+      article.dataset.listingId = l.id;
       article.dataset.type = dataType;
       article.dataset.acres = l.acreage || '';
       article.dataset.species = (l.activities || []).join(' ').toLowerCase();
@@ -2171,11 +2172,16 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
   }
 
   /* ─ Plot markers ─ */
+  function visibleMapListings(list){
+    var cards=Array.from(document.querySelectorAll('#cards-grid .card'));
+    var ids=new Set(cards.filter(function(c){return c.style.display!=='none';}).map(function(c){return c.dataset.listingId;}));
+    return list.filter(function(l){return ids.has(String(l.id));});
+  }
   function plotMap(list){
     allMarkers.forEach(function(m){ huntMap.removeLayer(m); });
     allMarkers = [];
     _currentMapData = list;
-    var filtered = list.filter(function(l){
+    var filtered = visibleMapListings(list).filter(function(l){
       if (currentMapFilter === 'all') return true;
       var t = l.type || (l.activities ? getType(l) : 'hunting');
       return t === currentMapFilter;
@@ -2451,7 +2457,7 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
     if (!modalMap) return;
     modalMarkers.forEach(function(m) { modalMap.removeLayer(m); });
     modalMarkers = [];
-    var data = list || _currentMapData;
+    var data = visibleMapListings(list || _currentMapData);
     data.forEach(function(l) {
       var lat = l.lat || l.latitude;
       var lng = l.lng || l.longitude;
@@ -2524,6 +2530,8 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
     });
     document.getElementById('listings-count-num').textContent = visible+' propert'+(visible===1?'y':'ies');
     document.getElementById('filter-empty').style.display = visible===0?'block':'none';
+    if(huntMap)plotMap(_currentMapData);
+    if(modalMap)plotModalMap(_currentMapData);
   }
 
   function setCat(btn,filter){
@@ -2709,6 +2717,8 @@ body .cat-pill.active{background:#183f35!important;color:#fff!important}
       });
       document.getElementById('listings-count-num').textContent = visible+' propert'+(visible===1?'y':'ies');
       document.getElementById('filter-empty').style.display = visible===0?'block':'none';
+      if(huntMap)plotMap(_currentMapData);
+      if(modalMap)plotModalMap(_currentMapData);
     } else {
       filterCards(_activeFilter);
     }
