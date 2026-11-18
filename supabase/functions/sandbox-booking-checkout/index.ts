@@ -223,6 +223,8 @@ Deno.serve(async (req) => {
 
   const form = new URLSearchParams();
   form.set('mode', 'payment');
+  // This sandbox flow authorizes cards before host approval and manual capture.
+  form.set('payment_method_types[0]', 'card');
   form.set('payment_intent_data[capture_method]', 'manual');
   form.set('payment_intent_data[application_fee_amount]',String(retained));
   form.set('payment_intent_data[transfer_data][destination]',destination);

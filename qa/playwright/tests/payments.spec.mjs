@@ -226,7 +226,16 @@ async function enterCard(page, sessionId, card) {
     console.log('STRIPE_TEST_WEBKIT_SAFE_DIAGNOSTIC', JSON.stringify({ frames, sessionStatus }));
     throw error;
   }
-  if (await ready.evaluate(element => element.tagName !== 'INPUT')) await ready.click();
+  // A selected Card accordion can already expose an input. Clicking that tab
+  // again may collapse it; prefer the actual field before selecting a method.
+  if (await ready.evaluate(element => element.tagName !== 'INPUT')) {
+    let existing;
+    for (const frame of stripeFrames(page)) {
+      const input = frame.locator(cardNumber).filter({ visible: true }).first();
+      if (await input.isVisible().catch(() => false)) { existing = input; break; }
+    }
+    if (!existing) await ready.click();
+  }
   const number = await findCheckoutControl(page, frame => frame.locator(cardNumber), 15_000, 'Stripe card number field');
   await number.fill('');
   // Stripe can replace the controlled input while per-character events are sent.
@@ -527,6 +536,7 @@ for (const scenario of scenarios) {
     let checkoutVerified = false;
     try {
       const session = await verifiedCheckout(created.url, bookingId);
+      expect(session.payment_method_types).toEqual(['card']);
       evidence.sessionId = session.id;
       checkoutVerified = true;
       if (scenario === 'success') {
