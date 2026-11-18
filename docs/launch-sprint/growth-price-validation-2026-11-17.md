@@ -130,3 +130,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source commit `7948740d73d8cd86dd84bbe81bd180e271a511f8`): display `Up to N guests` for a valid integer `max_group_size` from 1 through 30, otherwise `Ask outfitter for group capacity`. Existing booking input validation and payment code remain unchanged.
 - NOT TESTED: deployed Cloudflare behavior, actual inventory, browser layout and screen reader, responsive widths 320/375/390/430/768/1024/1280/1440/1920/2560, authenticated booking, fresh Stripe TEST reconciliation.
 - Coordination: Growth owns discovery and listing detail presentation; Hunter/Developer own booking and Stripe E2E; Landowner owns maps/reviews; Legal owns tax and policy. Stripe launch gate remains NO-GO. Do not duplicate payment evidence.
+
+## 2026-11-17 Growth ambiguous outfitter listing recovery
+
+- FAIL (staging source review): When an outfitter had multiple active experiences under the same `user_id`, the detail page displayed a support-only dead-end instead of an actionable directory navigation link. This is a source-observed conversion risk, not a confirmed sandbox inventory reproduction.
+- PASS (staging source fix): commit `5b524a2cef65e193adf7a61e18c5c98bac061886` adds a DOM-created `Browse outfitter experiences` link to `outfitters.html` in the ambiguous-listing state. It preserves the existing guard against silently booking an arbitrary listing. No payments, booking tables, Stripe, or production resources changed.
+- NOT TESTED: Cloudflare deployment, actual multiple-listing inventory, responsive/browser keyboard behavior, authenticated conversion, Stripe TEST reconciliation. Next Growth pass should verify directory routing and identify a stable listing-specific URL design with Developer before changing the booking identity model.
+- Coordination: Growth owns this directory recovery change. Developer/Hunter retain checkout and Stripe E2E, Landowner retains maps/reviews, Legal retains tax/policy. Launch remains NO-GO pending outstanding evidence in the shared Stripe gate.
