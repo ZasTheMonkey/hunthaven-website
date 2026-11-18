@@ -16,7 +16,7 @@ test('captured completed stay review: owner, duplicate, cross-owner and moderati
  const context=await browser.newContext(),page=await context.newPage();
  const setSession=async(s)=>page.addInitScript(({s})=>!localStorage.getItem('sb-kbkdfpmlyggfijkyjxoi-auth-token') && localStorage.setItem('sb-kbkdfpmlyggfijkyjxoi-auth-token',JSON.stringify(s)),{s});
  await setSession(owner);
- for(const file of ['sandbox-hunter-review.html','admin-hunter-reviews.html'])await page.route('**/'+file+'*',async route=>route.fulfill({status:200,contentType:'text/html',body:await fs.readFile(new URL('../../../'+file,import.meta.url),'utf8')}));
+ if(process.env.QA_CANDIDATE_SOURCE==='true')for(const file of ['sandbox-hunter-review.html','admin-hunter-reviews.html'])await page.route('**/'+file+'*',async route=>route.fulfill({status:200,contentType:'text/html',body:await fs.readFile(new URL('../../../'+file,import.meta.url),'utf8')}));
  try{
  await page.goto(base+'/sandbox-hunter-review.html?booking='+booking);await expect(page.locator('#review-form')).toBeVisible();await page.locator('#overall').selectOption('5');await page.locator('#feedback').fill('QA ONLY synthetic completed-stay review 20261118');await page.locator('#submit').click();await expect(page.locator('#status')).toHaveText('Review submitted for moderation.');
  const read=await request.get(api+'/rest/v1/hunter_reviews?booking_id=eq.'+booking+'&select=id,moderation_status',{headers:headers(owner)});const rows=await read.json();expect(rows).toHaveLength(1);const id=rows[0].id;expect(rows[0].moderation_status).toBe('pending');
@@ -31,4 +31,3 @@ test('captured completed stay review: owner, duplicate, cross-owner and moderati
  await page.getByRole('button',{name:'Hide',exact:true}).click();await expect(page.locator('#state')).toHaveText('Status: hidden');expect(await visible()).toEqual([]);
  }finally{await context.close();}
 });
-

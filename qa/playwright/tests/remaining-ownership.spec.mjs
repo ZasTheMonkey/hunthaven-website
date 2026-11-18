@@ -18,4 +18,3 @@ test('second landowner cannot view or mutate another owner map zones',async({pag
  await page.addInitScript(s=>localStorage.setItem('sb-kbkdfpmlyggfijkyjxoi-auth-token',JSON.stringify(s)),other);await page.goto(base+'/sandbox-zone-editor.html?listing='+listing);await expect(page.locator('#status')).toContainText('do not have access');await expect(page.locator('#save')).toBeDisabled();await page.screenshot({path:info.outputPath('second-owner-access-denied.png')});
  }finally{const cleaned=await request.delete(api+'/rest/v1/listing_access_zones?id=eq.'+saved.id,{headers:h(owner)});expect((await cleaned.json())[0].id).toBe(saved.id);}
 });
-
