@@ -568,18 +568,8 @@ for (const scenario of scenarios) {
         expect(resumed).toMatchObject({ booking_id: bookingId, url: created.url, idempotent_replay: true });
         evidence.interruptedCheckoutResumed = true;
       }
-      try {
-        if (mobileJourney) {
-          await page.waitForURL(url => url.origin === checkoutOrigin && checkoutPath.exec(url.pathname)?.[1] === session.id,
-            { waitUntil: 'domcontentloaded' });
-        } else {
-          await page.goto(created.url, { waitUntil: 'domcontentloaded' });
-        }
-      } catch {
-        throw new Error('Verified Stripe TEST Checkout could not load in the browser');
-      }
-      // Capture redacted hosted-checkout diagnostics only when the card UI fails to appear.
-      // Do not log Checkout URLs, session tokens, cookies, request bodies or payment details.
+      // Attach sanitized network/error listeners BEFORE hosted Checkout navigation.
+      // Previous placement missed initial document/iframe failures in mobile WebKit.
       const checkoutFailures = [];
       const checkoutErrors = [];
       const onRequestFailed = request => {
@@ -595,6 +585,19 @@ for (const scenario of scenarios) {
       page.on('requestfailed', onRequestFailed);
       page.on('pageerror', onPageError);
       page.on('console', onConsole);
+      try {
+        if (mobileJourney) {
+          await page.waitForURL(url => url.origin === checkoutOrigin && checkoutPath.exec(url.pathname)?.[1] === session.id,
+            { waitUntil: 'domcontentloaded' });
+        } else {
+          await page.goto(created.url, { waitUntil: 'domcontentloaded' });
+        }
+      } catch {
+        throw new Error('Verified Stripe TEST Checkout could not load in the browser');
+      }
+      // Capture redacted hosted-checkout diagnostics only when the card UI fails to appear.
+      // Do not log Checkout URLs, session tokens, cookies, request bodies or payment details.
+
       try {
         await enterCard(page, session.id, cards[scenario === 'retry' ? 'declined' : scenario === 'hunter_journey' ? 'success' : scenario]);
       } catch (error) {
