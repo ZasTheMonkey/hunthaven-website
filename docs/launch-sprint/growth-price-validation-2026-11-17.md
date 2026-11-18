@@ -157,3 +157,11 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - **PASS (staging source correction):** commit `02ef7b8ba89171cf313d17c4db1f9810d067685f` clarifies that payment follows acceptance and labels the link 'Review accepted-request payment'. No payment endpoint, checkout calculation, authentication or database logic changed.
 - **NOT TESTED:** Cloudflare deployment, live browser click-through, whether `outfitter-pay.html` independently verifies accepted booking ownership and payout readiness, ten responsive widths, actual inventory, and Stripe TEST reconciliation. Developer/Hunter QA should confirm payment route rejects unaccepted or unauthorized requests and that final totals, taxes, promos, and extras are transparent.
 - **NO-GO:** Preserve the shared Stripe launch gate; source-only copy correction does not prove financial safety.
+
+
+## 2026-11-18 Growth invalid/unavailable listing recovery
+
+- **REVIEW (source):** `outfitter-experience.html` returned plain text dead ends for malformed/missing `id` and inactive/unavailable outfitter records. This could strand visitors arriving from old or mistyped links; no actual visitor failure or sandbox inventory reproduction claimed.
+- **PASS (staging source correction):** `efedf68d4bbaeadf3ee70044b1c0a623b62d0db0` adds safe DOM-created links back to `outfitters.html` for invalid and unavailable listings, consistent with the existing multiple-listing recovery. Does not alter booking, Stripe, Supabase writes or SEO robots settings.
+- **NOT TESTED:** sandbox Cloudflare browser rendering, directory route navigation, actual inventory, 320/375/390/430/768/1024/1280/1440/1920/2560 viewport matrix, keyboard/zoom, authenticated conversion and fresh Stripe TEST reconciliation. Web retrieval of the sandbox detail URL was inaccessible in this run; this does not establish a deployment outage.
+- **Coordination:** Growth owns discovery/recovery UI; Hunter/Developer own booking/payment validation; Landowner owns maps/reviews; Legal owns policy/tax. The Stripe launch gate remains **NO-GO** pending delivered receipt, bank payout, partial refund, Stripe Tax registration/classification and other listed gaps.
