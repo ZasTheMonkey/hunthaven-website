@@ -122,3 +122,11 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source commit `24322e2cd997674a264103614fc0df3137e3fbd6`): `refresh()` now handles errors, restores visible sign-in controls, and displays an actionable connection message. No checkout, pricing, Stripe, or booking persistence changes.
 - NOT TESTED: deployed Cloudflare browser behavior, authenticated failure injection, actual inventory, ten responsive widths, touch/keyboard/zoom, fresh Stripe TEST session/intent/refund reconciliation.
 - Coordination: Growth owns outfitter detail conversion UX. Hunter/Developer own authenticated Stripe browser E2E, Landowner owns boundaries/reviews and booking reconciliation, Legal owns tax/policy. Shared launch gate remains NO-GO until independently verified.
+
+
+## 2026-11-17 21:35 ET — Outfitter capacity visibility
+
+- FAIL (source inspection): `outfitter-experience.html` included a Group size heading and empty `#group` element, but never populated the element from the listing. This concealed capacity information from shoppers. No browser reproduction claimed.
+- PASS (staging source commit `7948740d73d8cd86dd84bbe81bd180e271a511f8`): display `Up to N guests` for a valid integer `max_group_size` from 1 through 30, otherwise `Ask outfitter for group capacity`. Existing booking input validation and payment code remain unchanged.
+- NOT TESTED: deployed Cloudflare behavior, actual inventory, browser layout and screen reader, responsive widths 320/375/390/430/768/1024/1280/1440/1920/2560, authenticated booking, fresh Stripe TEST reconciliation.
+- Coordination: Growth owns discovery and listing detail presentation; Hunter/Developer own booking and Stripe E2E; Landowner owns maps/reviews; Legal owns tax and policy. Stripe launch gate remains NO-GO. Do not duplicate payment evidence.
