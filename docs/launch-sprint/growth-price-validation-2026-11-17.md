@@ -180,3 +180,11 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - **PASS (staging source commit `12fd3db16367c99c8126d60c8d6f05f46135a4f6`):** Check the returned authentication error explicitly and access `authData?.user` safely. On failure the existing catch/finally-style recovery restores the request button and clears `aria-busy`. Booking inserts, pricing, Stripe, taxes and payout code unchanged.
 - **NOT TESTED:** deployed Cloudflare browser, simulated malformed auth response, ten responsive widths, authenticated submission, synthetic inventory and fresh Stripe TEST reconciliation. Growth owns this UI; Hunter/Developer own booking/payment regression; Landowner owns map/reviews; Legal owns policy/tax.
 - **NO-GO:** Receipt delivery, bank payout, partial refund, Stripe Tax and remaining cross-role/payment gates still require evidence.
+
+
+## 2026-11-18 Growth listing-fetch failure recovery
+
+- **REVIEW (source):** A failed or timed-out outfitter detail API fetch offered only a page reload, leaving visitors with no alternative discovery route during persistent service failure. This is a source-observed UX limitation; no browser failure was reproduced.
+- **PASS (staging source correction):** commit `dc32dc84d8e351d58c1519411c49845785fb987f` adds a safe DOM-created `Browse available outfitter experiences` link alongside `Retry loading` in the network/error state. No payment, booking, database write, Stripe, or production code changed.
+- **NOT TESTED:** deployed Cloudflare browser failure injection, actual inventory, responsive matrix (320/375/390/430/768/1024/1280/1440/1920/2560), keyboard/zoom and Stripe TEST reconciliation. Growth owns discovery; Hunter/Developer own booking/payment; Landowner owns maps/reviews; Legal owns tax/policy.
+- **NO-GO:** The shared payment gate still lacks delivered receipts, external-bank payout, partial refund, Stripe Tax registrations/classification, and other cross-role evidence. This change does not close those gates.
