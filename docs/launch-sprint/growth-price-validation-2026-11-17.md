@@ -114,3 +114,11 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source change): `ec2bed9efb2cf7f786b1b9889840e94b6caa442a` displays `Submitting request…` on the button and an accessible status message while awaiting the request. On failure the original button text and enabled state are restored, with a fallback error message. Successful requests retain the existing submitted state. No payment, pricing, tax, Stripe, Supabase schema, or production logic changed.
 - NOT TESTED: Cloudflare deployment, actual browser latency/error recovery, sandbox inventory, responsive 320/375/390/430/768/1024/1280/1440/1920/2560 matrix, keyboard/zoom, authenticated submission, and Stripe TEST reconciliation.
 - Coordination: Growth owns request conversion UI. Hunter/Developer own authenticated booking and payment E2E; Landowner owns boundaries/reviews; Legal owns tax/policy. Stripe Tax, receipts, partial refunds and payout readiness remain NO-GO.
+
+
+## 2026-11-17 Growth auth-session resilience
+
+- FAIL (source-level risk): outfitter detail `refresh()` destructured the authentication response without handling transport errors or unexpected empty responses. A rejected `getUser()` call could cause an unhandled rejection and leave sign-in UI in an uncertain state. No browser reproduction claimed.
+- PASS (staging source commit `24322e2cd997674a264103614fc0df3137e3fbd6`): `refresh()` now handles errors, restores visible sign-in controls, and displays an actionable connection message. No checkout, pricing, Stripe, or booking persistence changes.
+- NOT TESTED: deployed Cloudflare browser behavior, authenticated failure injection, actual inventory, ten responsive widths, touch/keyboard/zoom, fresh Stripe TEST session/intent/refund reconciliation.
+- Coordination: Growth owns outfitter detail conversion UX. Hunter/Developer own authenticated Stripe browser E2E, Landowner owns boundaries/reviews and booking reconciliation, Legal owns tax/policy. Shared launch gate remains NO-GO until independently verified.
