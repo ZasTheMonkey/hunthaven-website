@@ -25,7 +25,7 @@
    var date=el('p','Trip date: '+new Date(b.trip_date+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}));date.style.margin='0 0 6px';details.append(date);
    var guests=el('p','Guests: '+b.guest_count);guests.style.margin='0 0 6px';details.append(guests);
    var total=el('p','Booking total: '+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format((b.amount_cents||0)/100));total.style.margin=0;details.append(total);
-   policy.textContent=preview.refund_type==='full_refund'?'Under the 48-hour flexible policy, this Stripe TEST payment qualifies for a full refund.':'Under the 48-hour flexible policy, this trip is inside the 48-hour window and does not qualify for an automatic refund.';
+   policy.textContent=(preview.policy||'Review the cancellation policy before confirming.')+' '+(preview.refund_type==='full_refund'?'This Stripe TEST payment qualifies for a full refund.':'This trip does not qualify for an automatic refund.');
    if(preview.existing_request)status.textContent='Existing cancellation request: '+preview.existing_request.replace(/_/g,' ')+'. You can confirm cancellation below.';
    confirm.style.display='block';
    confirm.onclick=async function(){
@@ -34,7 +34,7 @@
      var result=await call('cancel');
      confirm.style.display='none';
      title.textContent='Reservation Cancelled';
-     status.textContent=result.result==='full_refund_issued'?'Your reservation is cancelled and the full Stripe TEST refund was initiated.':'Your reservation is cancelled. No refund applies under the 48-hour policy.';
+     status.textContent=result.result==='full_refund_issued'?'Your reservation is cancelled and the full Stripe TEST refund was initiated.':result.result==='full_refund_pending'?'Your reservation is cancelled. The full Stripe TEST refund is pending processing.':result.result==='refund_requires_review'?'Your reservation is cancelled, but the refund needs support review. No additional payment is required.':'Your reservation is cancelled. No refund applies under the displayed policy.';
      close.textContent='Done';if(onDone)onDone();
     }catch(e){status.textContent=e.message;confirm.disabled=false;confirm.textContent='Yes, cancel my reservation';}
    };

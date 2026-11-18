@@ -1,12 +1,13 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.49.8';
 import Stripe from 'npm:stripe@14.25.0';
+import {recoverPendingForHost} from '../_shared/sandbox-refund-recovery.ts';
 const stripeKey=Deno.env.get('STRIPE_SECRET_KEY')||'';
 const secret=Deno.env.get('SANDBOX_BOOKING_WEBHOOK_SECRET')||'';
 const url=Deno.env.get('SUPABASE_URL')||'';
 const role=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'';
 Deno.serve(async(req)=>{
  if(req.method!=='POST')return new Response('Method not allowed',{status:405});
- if(!stripeKey.startsWith('sk_test_')||!secret.startsWith('whsec_')||!url||!role)return new Response('Sandbox webhook not configured',{status:503});
+ if(!stripeKey.startsWith('sk_test_')||!secret.startsWith('whsec_')||url!=='https://kbkdfpmlyggfijkyjxoi.supabase.co'||!role)return new Response('Sandbox webhook not configured',{status:503});
  const stripe=new Stripe(stripeKey,{apiVersion:'2023-10-16'});
  let event;
  try{event=await stripe.webhooks.constructEventAsync(await req.text(),req.headers.get('stripe-signature')||'',secret);}
@@ -19,7 +20,7 @@ Deno.serve(async(req)=>{
  const {data:b,error:be}=await db.from('bookings').select('id,status,total,stripe_session_id,stripe_payment_intent,authorization_created_at').eq('stripe_session_id',s.id).maybeSingle();
  if(be)return new Response('Database read failed',{status:500});
  if(!b){
-   const {data:ob,error:oe}=await db.from('outfitter_booking_requests').select('id,status,payment_status,amount_cents,stripe_checkout_session_id').eq('stripe_checkout_session_id',s.id).maybeSingle();
+   const {data:ob,error:oe}=await db.from('outfitter_booking_requests').select('id,outfitter_id,status,payment_status,amount_cents,stripe_checkout_session_id').eq('stripe_checkout_session_id',s.id).maybeSingle();
    if(oe)return new Response('Outfitter booking lookup failed',{status:500});
    if(!ob)return new Response('ok');
    if(s.metadata?.outfitter_booking_request_id!==ob.id)return new Response('Outfitter booking mismatch',{status:400});
@@ -36,6 +37,7 @@ Deno.serve(async(req)=>{
    if(ob.status!=='accepted'||ob.payment_status!=='checkout_pending')return new Response('Outfitter booking state mismatch',{status:409});
    const {error}=await db.from('outfitter_booking_requests').update({payment_status:'paid',stripe_payment_intent_id:String(checked.payment_intent)}).eq('id',ob.id).eq('status','accepted').eq('payment_status','checkout_pending');
    if(error)return new Response('Outfitter payment update failed',{status:500});
+   try{await recoverPendingForHost(db,stripe,stripeKey,ob.outfitter_id);}catch{console.error('Outfitter refund recovery needs reconciliation');}
    return new Response('ok');
  }
  if(s.metadata?.booking_id!==b.id)return new Response('Booking mismatch',{status:400});

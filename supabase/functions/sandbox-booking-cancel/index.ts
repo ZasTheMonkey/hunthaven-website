@@ -1,5 +1,6 @@
 import {createClient} from 'npm:@supabase/supabase-js@2.49.8';
 import Stripe from 'npm:stripe@14.25.0';
+import {refundWithHostRecovery} from '../_shared/sandbox-refund-recovery.ts';
 const origin='https://leasewild-sandbox.pages.dev';
 const allowedOrigin=(v:string)=>/^https:\/\/(?:[a-z0-9-]+\.)?leasewild-sandbox\.pages\.dev$/.test(v);
 const headers={'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'authorization,apikey,content-type','Access-Control-Allow-Methods':'POST,OPTIONS','Content-Type':'application/json'};
@@ -61,12 +62,12 @@ Deno.serve(async req=>{
  if(lockError||!locked)return out({error:'Booking is being updated; refresh and try again'},409);
  let stripeActionApplied=false;
  try{
-   let result='cancelled_no_refund';
+   let result='cancelled_no_refund',refundStatus:string|null=null,recovery:any=null;
    if(b.stripe_payment_intent){
      const pi=await stripe.paymentIntents.retrieve(b.stripe_payment_intent);
      if(pi.livemode)throw new Error('Live payments are not allowed in sandbox');
      if(pi.status==='requires_capture'){await stripe.paymentIntents.cancel(pi.id,{}, {idempotencyKey:'leasewild-sandbox-cancel-'+id});result='authorization_released';stripeActionApplied=true;}
-     else if(pi.status==='succeeded'&&fullRefund){await stripe.refunds.create({payment_intent:pi.id,reason:'requested_by_customer',...(pi.transfer_data?.destination?{reverse_transfer:true,refund_application_fee:true}:{})},{idempotencyKey:'leasewild-sandbox-refund-'+id});result='full_refund_issued';stripeActionApplied=true;}
+     else if(pi.status==='succeeded'&&fullRefund){const issued=await refundWithHostRecovery(db,stripe,key,b,pi,listing.owner_id);refundStatus=issued.refund.status;recovery=issued.recovery;result=refundStatus==='succeeded'?'full_refund_issued':refundStatus==='pending'?'full_refund_pending':'refund_requires_review';stripeActionApplied=true;}
      else if(pi.status==='succeeded'){result='cancelled_no_refund';}
      else if(pi.status==='canceled'){result='authorization_released';}
      else throw new Error('Payment status not ready for cancellation');
@@ -77,9 +78,9 @@ Deno.serve(async req=>{
    }
    const {error:updateError}=await db.from('bookings').update({status:'cancelled',cancelled_at:new Date().toISOString(),cancelled_by:isOwner?'landowner':'guest'}).eq('id',id).eq('status','cancellation_processing');
    if(updateError)throw updateError;
-   return out({status:'cancelled',result,refund_type:result});
+   return out({status:'cancelled',result,refund_type:result,refund_status:refundStatus,...(isOwner&&recovery?{host_recovery:{status:recovery.status,pending_cents:recovery.target_cents-recovery.recovered_cents}}:{})});
  }catch(e){
-   if(!stripeActionApplied){await db.from('bookings').update({status:b.status}).eq('id',id).eq('status','cancellation_processing');}
+   if(!stripeActionApplied&&!(e as any)?.refundApplied){await db.from('bookings').update({status:b.status}).eq('id',id).eq('status','cancellation_processing');}
    return out({error:'Cancellation requires review. Please contact support; do not retry payment.',detail:String(e).slice(0,160)},500);
  }
 });

@@ -1,5 +1,6 @@
 import {createClient} from 'npm:@supabase/supabase-js@2.49.8';
 import Stripe from 'npm:stripe@14.25.0';
+import {refundWithHostRecovery} from '../_shared/sandbox-refund-recovery.ts';
 const origin='https://leasewild-sandbox.pages.dev';
 const headers={'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'authorization,apikey,content-type','Access-Control-Allow-Methods':'POST,OPTIONS','Content-Type':'application/json'};
 const out=(v:unknown,s=200)=>new Response(JSON.stringify(v),{status:s,headers});
@@ -26,7 +27,7 @@ Deno.serve(async req=>{
  if(req.method==='OPTIONS')return new Response('',{headers});
  if(req.method!=='POST'||req.headers.get('origin')!==origin)return out({error:'Sandbox origin required'},403);
  const key=Deno.env.get('STRIPE_SECRET_KEY')||'';
- if(!key.startsWith('sk_test_'))return out({error:'Stripe TEST mode unavailable'},503);
+ if(!key.startsWith('sk_test_')||Deno.env.get('SUPABASE_URL')!=='https://kbkdfpmlyggfijkyjxoi.supabase.co')return out({error:'Stripe TEST mode unavailable'},503);
  const db=createClient(Deno.env.get('SUPABASE_URL')||'',Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'',{auth:{persistSession:false}});
  const token=(req.headers.get('authorization')||'').replace(/^Bearer /i,'');
  const {data:{user},error:ue}=await db.auth.getUser(token);
@@ -73,21 +74,21 @@ Deno.serve(async req=>{
   if(pi.livemode||pi.currency!=='usd')throw Error('Invalid sandbox payment');
   if(fullRefund){
    if(pi.status!=='succeeded')throw Error('Payment not captured; manual reconciliation required');
-   const refund=await stripe.refunds.create({payment_intent:pi.id,reason:'requested_by_customer',reverse_transfer:true,refund_application_fee:true},{idempotencyKey:'leasewild-sandbox-outfitter-refund-'+id});
+   const {refund}=await refundWithHostRecovery(db,stripe,key,{id:b.id},pi,b.outfitter_id,'outfitter');
    stripeActionApplied=true;
-   const rs=refund.status==='succeeded'?'succeeded':'pending';
+   const rs=refund.status==='succeeded'?'succeeded':refund.status==='pending'?'pending':'failed';
    refundStatus=rs;
    const {error:re}=await db.from('outfitter_cancellation_requests').update({refund_status:rs,stripe_refund_id:refund.id}).eq('id',rid);
    if(re)throw Error('Refund created but database sync failed; manual reconciliation required');
   }
   const {data:updated,error:be2}=await db.from('outfitter_booking_requests').update({status:'cancelled',payment_status:fullRefund?(refundStatus==='succeeded'?'refunded':'refund_pending'):b.payment_status}).eq('id',id).eq('status','accepted').select('id').maybeSingle();
   if(be2||!updated)throw Error('Stripe processed but booking update requires reconciliation');
-  const finalStatus=fullRefund?'refunded':'closed';
-  const {error:fe}=await db.from('outfitter_cancellation_requests').update({status:finalStatus,refund_status:refundStatus,resolved_at:new Date().toISOString()}).eq('id',rid);
+  const finalStatus=fullRefund?(refundStatus==='succeeded'?'refunded':'approved_pending_refund'):'closed';
+  const {error:fe}=await db.from('outfitter_cancellation_requests').update({status:finalStatus,refund_status:refundStatus,resolved_at:refundStatus==='pending'||refundStatus==='failed'?null:new Date().toISOString()}).eq('id',rid);
   if(fe)throw Error('Booking cancelled but request status requires reconciliation');
-  return out({status:'cancelled',result:fullRefund?'full_refund_issued':'cancelled_no_refund',refund_type:refundType});
+  return out({status:'cancelled',result:fullRefund?(refundStatus==='succeeded'?'full_refund_issued':refundStatus==='pending'?'full_refund_pending':'refund_requires_review'):'cancelled_no_refund',refund_type:refundType});
  }catch(e){
-  if(!stripeActionApplied)await db.from('outfitter_cancellation_requests').update({status:'pending_review',refund_status:'failed'}).eq('id',rid).eq('status','approved_pending_refund');
+  if(!stripeActionApplied&&!(e as any)?.refundApplied)await db.from('outfitter_cancellation_requests').update({status:'pending_review',refund_status:'failed'}).eq('id',rid).eq('status','approved_pending_refund');
   return out({error:'Cancellation requires support reconciliation. Do not retry payment or refund.',detail:String(e).slice(0,150)},500);
  }
 });
