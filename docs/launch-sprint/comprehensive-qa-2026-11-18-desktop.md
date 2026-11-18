@@ -22,6 +22,8 @@ Status: NO-GO — audit checkpoint completed November 18, 2026, 10:09 AM ET. Req
 
 **Evidence package delivered with this audit:** deployed-browser-results.json, map-persistence-results.json, messaging-results.json, stripe-reconciliation.json, connect-stripe-reconciliation.json, application-fee-refund.json, webhook-events.json, deployment-content-verification.json, baseline/first-attempt reports and screenshots. Credentials, service keys, signed URLs and authenticated traces are excluded. Launch remains NO-GO; main, live domain, production Supabase and live Stripe were not accessed or modified.
 
+**Data-handling exception:** the repository payment harness's legacy pinned expired TEST Checkout Session was read once as an identity probe and returned a non-synthetic-looking customer email. That legacy artifact was excluded from fresh testing; no login, card submission or mutation used that identity. The email is omitted from deliverables. All fresh account logins, writes, messages, card submissions and cleanup used the independently verified synthetic identities listed here.
+
 Scope: only https://leasewild-sandbox.pages.dev, staging/leasewild-full-clone, Supabase kbkdfpmlyggfijkyjxoi, Stripe TEST acct_1TOJ2rAO40Rp32aF. Initial staging head: 7c3da8224df90e82437e60874fdf1ce67f99cf74.
 
 Coordination: desktop browser audit owns this new report only initially. Existing hunter, landowner, payment and designer reports read; shared code and fixtures are not claimed. Do not overwrite another bot's changes. Verify current head before writes. No production/main access or deployment authorized.
