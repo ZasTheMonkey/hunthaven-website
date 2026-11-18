@@ -196,3 +196,10 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source commit `a5fc7ae50496b46d7c902f84e5398204c1417259`): detect unavailable Supabase SDK/config before initialization, display a recoverable sign-in error, and disable sign-in and request controls. Existing listing discovery, booking writes, pricing, tax and Stripe code are unchanged.
 - NOT TESTED: CDN failure injection in browser, Cloudflare deployment, ten responsive widths, actual sandbox inventory, signed-in booking and fresh Stripe TEST reconciliation. Growth owns outfitter discovery/conversion; Hunter/Developer own authenticated checkout/payment; Landowner owns maps/reviews; Legal owns tax/policy.
 - NO-GO: receipt inbox, bank payout, partial refund, Stripe Tax registrations/classification and remaining launch gates require independent evidence. Do not duplicate payment evidence from the shared gate.
+
+## 2026-11-18 Growth async authentication race guard
+
+- FAIL (source-confirmed): When the Supabase SDK/configuration is unavailable, the auth initialization disables Request availability, but an independently running listing-fetch completion could subsequently re-enable the button. This creates a broken conversion path despite the sign-in error message. No browser reproduction claimed.
+- PASS (staging source fix): `3d73e7fe2723ea35234ab9668d58b544794728f4` marks the button with `data-auth-unavailable=true` on auth initialization failure; the listing fetch now honors that marker rather than re-enabling the button. This is UI-only; no payment, booking, database, or production changes.
+- NOT TESTED: Cloudflare deployment, simulated SDK failure in browser, actual inventory, 320/375/390/430/768/1024/1280/1440/1920/2560 viewports, keyboard/zoom, authenticated booking and fresh Stripe TEST reconciliation.
+- Coordination: Growth owns this outfitter detail state race. Hunter/Developer should verify the deployed browser case and retain Stripe E2E ownership; Landowner owns maps/reviews; Legal owns tax. Launch NO-GO until payment gates independently pass.
