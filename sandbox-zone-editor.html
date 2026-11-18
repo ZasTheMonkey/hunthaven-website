@@ -150,6 +150,9 @@ mapEl.addEventListener('pointermove',e=>{
 function endTrace(e){
  if(!tracing||e.pointerId!==tracePointer)return;
  const p=tracePosition(e),last=points[points.length-1];if(valid([p.lat,p.lng])&&map.latLngToContainerPoint(last).distanceTo(map.latLngToContainerPoint(p))>=3&&points.length<100)points.push([p.lat,p.lng]);
+ // A closed pointer stroke repeats its first corner. Polygon serialization closes
+ // the ring itself; retain each corner once so normal closed traces can be saved.
+ if(isAreaType(document.getElementById('zone-type').value)&&points.length>3&&map.latLngToContainerPoint(points[0]).distanceTo(map.latLngToContainerPoint(points[points.length-1]))<3)points.pop();
  tracing=false;tracePointer=null;suppressMapClickUntil=Date.now()+500;setDrawing(false);
  renderDraft();
  if(points.length<(document.getElementById('zone-type').value==='trail'?2:3)){message('The stroke was too short. Captured points are kept; add points by tapping the map or trace again after reviewing the draft.');return;}message((document.getElementById('zone-type').value==='trail'?'Trail':'Boundary')+' traced with '+points.length+' points. Review the '+(document.getElementById('zone-type').value==='trail'?'route':'outline')+' before saving.');
