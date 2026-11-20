@@ -67,8 +67,9 @@ jobs:
         env:
           QA_HUNTER_EMAIL: ${{ secrets.QA_HUNTER_EMAIL || (!secrets.QA_HUNTER_PASSWORD && (vars.QA_PAYMENT_HUNTER_EMAIL || secrets.QA_PAYMENT_HUNTER_EMAIL)) }}
           QA_HUNTER_PASSWORD: ${{ secrets.QA_HUNTER_PASSWORD || (!secrets.QA_HUNTER_EMAIL && secrets.QA_PAYMENT_HUNTER_PASSWORD) }}
-          QA_LANDOWNER_EMAIL: ${{ secrets.QA_LANDOWNER_EMAIL || (!secrets.QA_LANDOWNER_PASSWORD && secrets.QA_PAYMENT_OWNER_EMAIL) }}
-          QA_LANDOWNER_PASSWORD: ${{ secrets.QA_LANDOWNER_PASSWORD || (!secrets.QA_LANDOWNER_EMAIL && secrets.QA_PAYMENT_OWNER_PASSWORD) }}
+          QA_LANDOWNER_EMAIL: ${{ secrets.QA_LANDOWNER_EMAIL }}
+          QA_LANDOWNER_PASSWORD: ${{ secrets.QA_LANDOWNER_PASSWORD }}
+          # Use a dedicated synthetic owner identity; never fall back to the payment owner.
           # Never reuse a payment listing for destructive zone save/delete tests.
           # This must be a separately verified disposable listing owned by QA_LANDOWNER.
           QA_LANDOWNER_LISTING_ID: ${{ vars.QA_LANDOWNER_LISTING_ID || secrets.QA_LANDOWNER_LISTING_ID }}
