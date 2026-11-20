@@ -210,3 +210,11 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - PASS (staging source commit `c0cc92ad8e267378d545ce52a0ea2926cb8b2d77`): catch client-construction exceptions, show the same actionable connection error, disable login/request buttons, and mark `data-auth-unavailable` so the asynchronous listing loader cannot re-enable requests. No booking insert, price, Stripe, tax, or production logic changed.
 - NOT TESTED: Cloudflare deployment, browser exception injection, actual sandbox inventory, 320/375/390/430/768/1024/1280/1440/1920/2560 widths, keyboard/zoom, authenticated request and Stripe TEST reconciliation. Growth owns discovery/conversion; Hunter/Developer own booking and payment E2E; Landowner owns zones/reviews; Legal owns policy/tax.
 - NO-GO: the shared Stripe launch gate still lacks delivered receipt, bank payout, partial refund, Stripe Tax registration/classification and other launch evidence. This source fix is not a payment test.
+
+
+## 2026-11-19 Growth directory filter visibility fix
+
+- **FAIL (source-confirmed CSS cascade):** `outfitters.html` sets `.experience-card{display:block}` in author CSS while `applySearch()` only toggles the HTML `hidden` attribute. Author `display:block` can override the browser's user-agent `[hidden]{display:none}` rule, leaving nonmatching cards visible despite the filtered count. This is a source-level defect, not a claimed browser reproduction.
+- **FIXED IN STAGING SOURCE:** Commit `01aa54ac8267c28ef49f60703698c48f02c70466` adds `.experience-card[hidden]{display:none!important}` before the existing card styling, ensuring search and maximum-price filters actually hide unmatched cards. No payments, Supabase, booking, auth, or production changes.
+- **NOT TESTED:** Independent Cloudflare deployment/browser rendering, actual inventory, all ten responsive widths, keyboard/zoom, and Stripe TEST reconciliation. Validate search for a nonexistent phrase, price below the lowest listed price, clear filters, and accessible count updates against sandbox inventory.
+- **Coordination:** Growth owns outfitter directory search and responsive presentation. Hunter/Developer retain payment and checkout QA; Landowner owns boundaries/reviews; Legal owns tax. Existing Stripe launch NO-GO remains.
