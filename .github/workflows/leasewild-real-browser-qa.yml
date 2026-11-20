@@ -69,7 +69,9 @@ jobs:
           QA_HUNTER_PASSWORD: ${{ secrets.QA_HUNTER_PASSWORD || (!secrets.QA_HUNTER_EMAIL && secrets.QA_PAYMENT_HUNTER_PASSWORD) }}
           QA_LANDOWNER_EMAIL: ${{ secrets.QA_LANDOWNER_EMAIL || (!secrets.QA_LANDOWNER_PASSWORD && secrets.QA_PAYMENT_OWNER_EMAIL) }}
           QA_LANDOWNER_PASSWORD: ${{ secrets.QA_LANDOWNER_PASSWORD || (!secrets.QA_LANDOWNER_EMAIL && secrets.QA_PAYMENT_OWNER_PASSWORD) }}
-          QA_LANDOWNER_LISTING_ID: ${{ vars.QA_PAYMENT_LISTING_ID || secrets.QA_PAYMENT_LISTING_ID }}
+          # Never reuse a payment listing for destructive zone save/delete tests.
+          # This must be a separately verified disposable listing owned by QA_LANDOWNER.
+          QA_LANDOWNER_LISTING_ID: ${{ vars.QA_LANDOWNER_LISTING_ID || secrets.QA_LANDOWNER_LISTING_ID }}
           QA_SECOND_LANDOWNER_EMAIL: ${{ secrets.QA_SECOND_LANDOWNER_EMAIL }}
           QA_SECOND_LANDOWNER_PASSWORD: ${{ secrets.QA_SECOND_LANDOWNER_PASSWORD }}
           # Authenticated zone tests remain opt-in until sandbox fixture identity and cleanup are verified.
