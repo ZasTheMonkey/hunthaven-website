@@ -218,3 +218,12 @@ Scope: sandbox staging only. Do not touch GitHub main, live leasewild.com, produ
 - **FIXED IN STAGING SOURCE:** Commit `01aa54ac8267c28ef49f60703698c48f02c70466` adds `.experience-card[hidden]{display:none!important}` before the existing card styling, ensuring search and maximum-price filters actually hide unmatched cards. No payments, Supabase, booking, auth, or production changes.
 - **NOT TESTED:** Independent Cloudflare deployment/browser rendering, actual inventory, all ten responsive widths, keyboard/zoom, and Stripe TEST reconciliation. Validate search for a nonexistent phrase, price below the lowest listed price, clear filters, and accessible count updates against sandbox inventory.
 - **Coordination:** Growth owns outfitter directory search and responsive presentation. Hunter/Developer retain payment and checkout QA; Landowner owns boundaries/reviews; Legal owns tax. Existing Stripe launch NO-GO remains.
+
+
+## 2026-11-20 — Growth Research outfitter detail price transparency
+
+- **REVIEW (source inspection):** The outfitter directory warns that listed prices can exclude taxes, platform fees and add-ons, but the detail page previously lacked an equivalent explicit final-total warning next to its availability request. This was a conversion/disclosure inconsistency, not a verified incorrect charge.
+- **PASS (staging source update):** Commit `644208bfdcc68810b2d2b301dccdc3a14d6fe9c3` adds clear disclosure on `outfitter-experience.html` that taxes, LeaseWild fees, optional add-ons and discounts belong in the accepted-reservation checkout breakdown before authorization. No checkout, payment, database or production code changed.
+- **BLOCKED (deployment check):** The sandbox detail URL was not accessible through the available HTTPS retrieval service. This does not prove a Cloudflare outage.
+- **NOT TESTED:** Cloudflare deployed HTML, browser/screen-reader behavior at 320/375/390/430/768/1024/1280/1440/1920/2560 widths, actual listing inventory, authenticated checkout totals, Stripe TEST sessions, webhooks, refunds and Connect payouts. No synthetic transactions initiated.
+- **Coordination:** Growth owns public discovery and price-disclosure copy. Developer/Hunter QA own checkout amount correctness and E2E payment; Landowner QA owns map/reviews and booking state; Legal Risk Review owns tax/policy approval. Stripe launch gate remains **NO-GO**. Never merge to main or deploy live without exact `Go Live!!` authorization.
