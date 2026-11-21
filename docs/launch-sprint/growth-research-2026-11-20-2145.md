@@ -23,3 +23,10 @@ No production access, no real accounts, no test payments or database mutations, 
 - FIXED / PASS (staging source): changed the nested input flex declaration to `flex:none` while preserving the parent field's responsive `flex:1 1 220px`, input `width:100%`, 48px minimum height, labels, IDs, event handlers and filtering behavior. Reversible one-file change, commit `4ce8e8d80e1637fc8ae782d6c465362cbb2c7b66`.
 - NOT TESTED: deployed Cloudflare behavior, ten requested browser widths, touch/keyboard/zoom, live inventory, conversion, Stripe TEST charge/refund or database reconciliation. Payment code untouched. Do not call deployment or browser PASS based on source.
 - Launch remains NO-GO; see shared Stripe launch gate for outstanding tax, receipts, partial refunds, external bank payout and end-to-end reconciliation. No main/live/production changes.
+
+## 2026-11-21 05:49 ET — Outfitter checkout sign-in keyboard and validation
+- FAIL (source before): `outfitter-pay.html` had required email/password inputs inside a `section`, with authentication bound only to button `onclick`. Native form constraint validation did not run on click and pressing Enter in a field did not submit reliably.
+- FIXED / PASS (staging source): changed the login container to a `form`, set button `type=submit`, and handled form `submit` with `preventDefault()` while retaining the same Supabase auth call and checkout logic. Reversible one-file commit `fd6a761dfe0bcaf730ece2613b55d84ad7186189`.
+- BLOCKED (independent sandbox HTTP): public sandbox outfitter URL inaccessible via web retrieval service; not evidence of Cloudflare outage.
+- NOT TESTED: rendered Enter-key submission, screen reader, 320/375/390/430/768/1024/1280/1440/1920/2560 viewport matrix, authenticated flow, Stripe TEST payment/refund, database reconciliation.
+- Shared Stripe launch gate remains NO-GO: receipt inbox, partial refunds, external-bank payout, tax registration/classification, promo/add-on/deposit economics and webhook replay remain unproven. No production/main/live changes.
