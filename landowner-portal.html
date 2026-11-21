@@ -189,7 +189,7 @@
         <span id="calc-arrow" style="color:var(--color-text-muted);font-size:.8rem;transition:transform .2s">▼</span>
       </div>
       <div id="calc-body" style="padding:1.25rem;display:none">
-        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:1rem">Estimate your monthly income based on nightly rate and bookings. You keep 80% of every booking.</p>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:1rem">Estimate your monthly income based on nightly rate and bookings. You keep 80% of the lease fee and 100% of any cleaning charge actually captured.</p>
 
         <div style="display:grid;gap:.75rem;margin-bottom:1rem">
           <div>
@@ -223,7 +223,7 @@
           <p id="calc-breakdown" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.25rem"></p>
         </div>
 
-        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.75rem;line-height:1.5">*Estimate only. Actual earnings depend on availability, demand, and booking dates. LeaseWild retains 15% platform fee.</p>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:.75rem;line-height:1.5">*Estimate only. Actual earnings depend on availability, demand, and booking dates. LeaseWild retains 20% of the lease fee. Captured cleaning charges go entirely to you.</p>
       </div>
     </div>
 
@@ -601,6 +601,10 @@
     document.getElementById('edit-description').value = data.description || '';
     document.getElementById('edit-price').value = data.price_per_day || '';
     document.getElementById('edit-cleaning-fee').value = data.cleaning_fee || '';
+    document.getElementById('edit-checkin-time').value = (data.checkin_time || '00:00').slice(0,5);
+    document.getElementById('edit-checkout-time').value = (data.checkout_time || '00:00').slice(0,5);
+    document.getElementById('edit-time-zone').value = data.time_zone || 'America/New_York';
+    document.getElementById('edit-hunting-methods').value = (data.hunting_methods || []).slice().sort().reverse().join(',');
     document.getElementById('edit-min-stay').value = data.min_stay || '';
     document.getElementById('edit-max-guests').value = data.max_guests || '';
     document.getElementById('edit-deer-activity').value = data.deer_activity || '';
@@ -741,6 +745,10 @@
         description:     document.getElementById('edit-description').value.trim(),
         price_per_day:   parseFloat(document.getElementById('edit-price').value) || null,
         cleaning_fee:    parseFloat(document.getElementById('edit-cleaning-fee').value) || null,
+        checkin_time: document.getElementById('edit-checkin-time').value || '00:00',
+        checkout_time: document.getElementById('edit-checkout-time').value || '00:00',
+        time_zone: document.getElementById('edit-time-zone').value,
+        hunting_methods: document.getElementById('edit-hunting-methods').value.split(',').filter(Boolean),
         min_stay:        document.getElementById('edit-min-stay').value || null,
         max_guests:      parseInt(document.getElementById('edit-max-guests').value) || null,
         deer_activity:   document.getElementById('edit-deer-activity').value || null,
@@ -797,7 +805,7 @@
   async function loadListings(email) {
     currentUserEmail = email;
     var container = document.getElementById('listings-container');
-    var { data, error } = await sb.from('listings').select('id,created_at,state,county,status,activities,street_address,description,price_per_day,cleaning_fee,acreage,min_stay,max_guests,num_beds,allow_out_of_state,photo_urls,video_url,deer_activity,hogs_active,trail_cam_date,harvest_history').eq('email', email).order('created_at', { ascending: false });
+    var { data, error } = await sb.from('listings').select('id,created_at,state,county,status,activities,street_address,description,price_per_day,cleaning_fee,checkin_time,checkout_time,time_zone,hunting_methods,acreage,min_stay,max_guests,num_beds,allow_out_of_state,photo_urls,video_url,deer_activity,hogs_active,trail_cam_date,harvest_history').eq('email', email).order('created_at', { ascending: false });
     if (error || !data?.length) {
       container.innerHTML = '<p style="color:var(--color-text-muted);font-size:var(--text-sm);text-align:center;padding:2rem 0">No listings yet. Tap "Add New Listing" to get started.</p>';
       document.getElementById('reservations-section').style.display = 'none';
@@ -870,7 +878,7 @@
       var st = b.status || 'pre_reserved';
       var color = statusColor[st] || '#888';
       var label = statusLabel[st] || st;
-      var landEarnings = b.rate_per_night && b.nights ? '$' + (b.rate_per_night * b.nights * 0.80 + (b.cleaning_fee || 0)).toFixed(2) : '—';
+      var landEarnings = 'See verified payment below';
       return `
       <div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:.85rem">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem">
@@ -890,6 +898,7 @@
           <div><span style="font-weight:600;color:var(--color-text)">Your earnings</span><br><span style="color:var(--color-primary);font-weight:700">${landEarnings}</span></div>
           <div><span style="font-weight:600;color:var(--color-text)">Booked</span><br>${new Date(b.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
         </div>
+        <div class="cleaning-payment" data-booking-id="${b.id}"></div>
         <div style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--color-border);display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:space-between">
           ${st !== 'cancelled' ? `<button onclick="openLoConversationFromBooking('${b.id}','${b.listing_id}','${(b.guest_name||'Guest').replace(/'/g,"&#39;")}','${b.guest_email||''}')" style="padding:.4rem .9rem;background:var(--color-primary);color:#fff;border:none;border-radius:var(--radius-md);font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit">Message Guest</button>` : ''}
           ${st !== 'cancelled' ? `
@@ -900,6 +909,7 @@
         </div>
       </div>`;
     }).join('');
+    if (window.renderCleaningPayments) window.renderCleaningPayments(container, sb, true);
   }
 
   async function cancelReservation(bookingId, guestName, checkin) {
@@ -911,6 +921,7 @@
       ? 'The guest will receive a full refund when payments go live.'
       : 'Check-in is less than 48 hours away — no refund applies under the flexible policy.';
     if (!confirm('Cancel reservation for ' + guestName + '?\n\n' + refundMsg + '\n\nProceed?')) return;
+    try { if (window.cancelCleaningDeposit) await window.cancelCleaningDeposit(sb, bookingId); } catch(e) { alert(e.message); return; }
     var { error } = await sb.from('bookings').update({
       status: 'cancelled',
       cancelled_at: new Date().toISOString(),
@@ -1102,6 +1113,7 @@
           onfocus="this.style.borderColor='var(--color-accent)'" onblur="this.style.borderColor='var(--color-border)'"></textarea>
       </div>
 
+<fieldset style="padding:1rem;margin:1rem 0;border:1px solid var(--color-border);border-radius:10px"><legend>Access times and hunting methods</legend><label style="display:block;margin:.6rem 0">Check-in time <input type="time" id="edit-checkin-time" value="00:00" required /></label><label style="display:block;margin:.6rem 0">Checkout time <input type="time" id="edit-checkout-time" value="00:00" required /></label><label style="display:block;margin:.6rem 0">Property time zone <select id="edit-time-zone"><option value="America/New_York">Eastern</option><option value="America/Chicago">Central</option><option value="America/Denver">Mountain</option><option value="America/Phoenix">Arizona</option><option value="America/Los_Angeles">Pacific</option><option value="America/Anchorage">Alaska</option><option value="Pacific/Honolulu">Hawaii</option></select></label><label style="display:block;margin:.6rem 0">Hunting methods allowed <select id="edit-hunting-methods"><option value="">Not specified / no hunting</option><option value="rifle">Rifle only</option><option value="bow">Bow only</option><option value="rifle,bow">Rifle and bow</option></select></label><p style="font-size:.8rem">Midnight-to-midnight gives a full day of access. Guests can book consecutive days for camping where your listing permits it. Hunting methods remain subject to applicable seasons and regulations. Time changes apply to new bookings; existing bookings keep their agreed times.</p></fieldset>
       <!-- Pricing -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-4)">
         <div>
@@ -1111,7 +1123,7 @@
             onfocus="this.style.borderColor='var(--color-accent)'" onblur="this.style.borderColor='var(--color-border)'" />
         </div>
         <div>
-          <label style="font-size:var(--text-xs);font-weight:700;display:block;margin-bottom:.4rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">Cleaning Fee ($)</label>
+          <label style="font-size:var(--text-xs);font-weight:700;display:block;margin-bottom:.4rem;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">Refundable Cleaning Deposit ($)</label>
           <input type="number" id="edit-cleaning-fee" min="0" placeholder="e.g. 75"
             style="width:100%;padding:.85rem 1rem;border:1.5px solid var(--color-border);border-radius:12px;font-family:inherit;font-size:var(--text-sm);background:var(--color-surface);color:var(--color-text);box-sizing:border-box;outline:none"
             onfocus="this.style.borderColor='var(--color-accent)'" onblur="this.style.borderColor='var(--color-border)'" />
@@ -1437,5 +1449,6 @@
   });
   </script>
 
+<script src="cleaning-deposit.js"></script>
 </body>
 </html>

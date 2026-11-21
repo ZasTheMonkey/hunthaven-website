@@ -8,3 +8,12 @@ port = 54322
 site_url = "https://leasewild.com"
 
 [functions]
+
+[functions.stripe-checkout]
+verify_jwt = true
+[functions.cleaning-deposit]
+verify_jwt = true
+[functions.cleaning-deposit-worker]
+verify_jwt = false # Authenticated by CLEANING_WORKER_SECRET, never a public worker.
+[functions.stripe-webhook]
+verify_jwt = false # Stripe signature verified against the raw request body.

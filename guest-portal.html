@@ -554,8 +554,10 @@
               ${st !== 'cancelled' ? `<a href="cancel.html?id=${b.id}" style="padding:.4rem .85rem;border:1.5px solid var(--color-danger);color:var(--color-danger);border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:700;text-decoration:none;display:inline-block">Cancel</a>` : ''}
             </div>
           </div>
+          <div class="cleaning-payment" data-booking-id="${b.id}"></div>
         </div>`;
       }).join('');
+      if (window.renderCleaningPayments) window.renderCleaningPayments(container, sb, false);
     } catch(e) {
       container.innerHTML = '<p style="color:var(--color-danger);text-align:center;padding:1.5rem">Error loading bookings.</p>';
     }
@@ -789,5 +791,6 @@
       </button>
     </div>
   </nav>
+<script src="cleaning-deposit.js"></script>
 </body>
 </html>

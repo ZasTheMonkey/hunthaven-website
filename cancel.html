@@ -182,6 +182,8 @@
       var msg = document.getElementById('cancel-msg');
       btn.disabled = true;
       btn.textContent = 'Cancelling…';
+      try { await window.cancelCleaningDeposit(supabase.createClient(SB_URL, SB_KEY), bookingId); }
+      catch(e) { btn.disabled=false; msg.style.display='block';msg.textContent=e.message;return; }
       var res = await fetch(SB_URL + '/rest/v1/bookings?id=eq.' + encodeURIComponent(bookingId), {
         method: 'PATCH',
         headers: {
@@ -208,5 +210,6 @@
 
     init();
   </script>
+<script src="cleaning-deposit.js"></script>
 </body>
 </html>
