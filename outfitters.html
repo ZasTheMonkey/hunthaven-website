@@ -451,6 +451,12 @@
      if(!r.ok)throw Error('Directory request '+r.status);
      const page=await r.json();
      if(!Array.isArray(page))throw Error('Malformed directory page');
+     // Offset pagination can shift while listings change; never render duplicate trips.
+     const seen=new Set(items.map(item=>item&&item.id));
+     for(const item of page){
+       if(!item||typeof item.id!=='string'||!item.id||seen.has(item.id))throw Error('Unstable or invalid outfitter listing pagination');
+       seen.add(item.id);
+     }
      items.push(...page);
      if(page.length<pageSize)return items;
    }
