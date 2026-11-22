@@ -441,7 +441,7 @@
  root.setAttribute('aria-busy','true');
  const search=document.getElementById('outfitter-search'),maxPrice=document.getElementById('outfitter-max-price'),clearSearch=document.getElementById('outfitter-search-clear');
  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),30000);
- const url='https://kbkdfpmlyggfijkyjxoi.supabase.co/rest/v1/outfitter_listings?select=user_id,title,bio,price,price_label,counties,species,photos&status=eq.active&order=updated_at.desc,user_id.asc';
+ const url='https://kbkdfpmlyggfijkyjxoi.supabase.co/rest/v1/outfitter_listings?select=id,user_id,title,bio,price,price_label,counties,species,photos&status=eq.active&order=updated_at.desc,user_id.asc,id.asc';
  const key='sb_publishable_Q_jURQQCTqad2iY5KXXEew_-s70fPLm';
  // Fetch all pages before calculating per-outfitter ambiguity; partial inventory is unsafe.
  async function loadDirectory(){
