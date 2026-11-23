@@ -30,3 +30,10 @@ This is a coordination-only commit; no application, database, payment, or deploy
 - PASS (post-commit GitHub source read): skip-link href, focus target, and `:focus` styling exist in the committed file (blob `556c4addb89664b7aac2026f98e4467065a413a2`).
 - NOT TESTED: actual keyboard focus behavior in a browser, ten responsive widths, Cloudflare deployment, inventory, booking, and Stripe TEST reconciliation. Do not represent source verification as a browser pass.
 - Existing multi-experience booking FAIL and launch NO-GO remain unchanged. Other role owners should avoid overlapping changes to the detail page until coordinating the listing-scoped booking fix.
+
+## 2026-11-23 Growth Research photo preservation adjustment
+
+- Staging-only commit `7950d71cb17d7dc4ce79c0c140a5b40005b939a4` changes the outfitter experience-detail `.hero` image from `object-fit:cover` to `object-fit:contain`, with `height:auto`, `object-position:center`, and `display:block`. This is a reversible CSS-only adjustment intended to prevent clipping the edges of listing photographs; it does not touch booking, Supabase or Stripe.
+- PASS: GitHub accepted the staging commit; source confirmation is required separately. NOT TESTED: actual rendered photographs at requested widths, touch/keyboard/zoom, real inventory, booking and payments.
+- BLOCKED: `curl -IL --max-time 12 https://leasewild-sandbox.pages.dev/outfitters.html` from the execution container returned `curl: (6) Could not resolve host`; this is a resolver limitation and not evidence of a Cloudflare outage. No deployment or visual PASS is claimed.
+- FAIL (existing): unique outfitter listing identity remains missing from booking requests. Stripe launch remains NO-GO pending the shared gate evidence.
