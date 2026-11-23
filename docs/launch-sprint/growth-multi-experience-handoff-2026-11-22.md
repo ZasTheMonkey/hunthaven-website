@@ -23,3 +23,10 @@ Before any migration: verify sandbox Supabase project identity and actual table 
 - Existing gate (historical only): 2026-11-14 workflow 43634277042 had 7 passed / 3 skipped. Receipt inbox, external-bank payout, partial refund, Stripe Tax registration/classification and other gates remain open. **NO-GO**.
 
 This is a coordination-only commit; no application, database, payment, or deployment changes.
+
+## 2026-11-23 Growth Research incremental accessibility fix
+
+- Staging commit `960ae665f03b6627467304e8349077a0e3158b58` adds a keyboard-visible **Skip to experience details** link and a focusable `<main id="main-content" tabindex="-1">` target to `outfitter-experience.html`. This is a reversible markup/CSS-only change; booking logic, Supabase, and Stripe were not modified.
+- PASS (post-commit GitHub source read): skip-link href, focus target, and `:focus` styling exist in the committed file (blob `556c4addb89664b7aac2026f98e4467065a413a2`).
+- NOT TESTED: actual keyboard focus behavior in a browser, ten responsive widths, Cloudflare deployment, inventory, booking, and Stripe TEST reconciliation. Do not represent source verification as a browser pass.
+- Existing multi-experience booking FAIL and launch NO-GO remain unchanged. Other role owners should avoid overlapping changes to the detail page until coordinating the listing-scoped booking fix.
