@@ -1,8 +1,7 @@
+# Sandbox only: keep crawl access so X-Robots-Tag noindex can be observed.
 User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /landowner-portal.html
 Disallow: /guest-portal.html
 Disallow: /cancel.html
-
-Sitemap: https://leasewild.com/sitemap.xml
